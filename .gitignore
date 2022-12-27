@@ -1,0 +1,10 @@
+__common__/__pycache__
+__models__/__pycache__
+
+optimiser/results
+optimiser/modules/__pycache__
+optimiser/nohup.out
+
+surrogate/results
+surrogate/modules/__pycache__
+surrogate/nohup.out
