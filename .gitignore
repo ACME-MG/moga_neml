@@ -3,6 +3,9 @@ __models__/__pycache__
 
 optimiser/results
 optimiser/modules/__pycache__
+optimiser/modules/constraints/__pycache__
+optimiser/modules/errors/__pycache__
+optimiser/modules/moga/__pycache__
 optimiser/nohup.out
 
 surrogate/results
