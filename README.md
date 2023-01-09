@@ -7,7 +7,7 @@ neml/
 ├── __common__/
 ├── __models__/
 ├── optimiser/
-└── surrogate/
+└── surrogator/
 ```
 
 ## Common Directory
@@ -24,8 +24,8 @@ The `optimiser` directory (`calibrate/optimiser/`) contains code for optimising 
 * **Elastic Visco-Plastic Creep Damage**, which couples the Elastic Visco-Plastic model (primary and secondary) with the Creep Damage model (tertiary), to predict the entire creep life.
 * **Elastic Visco-Plastic Work Damage**, which couples the Elastic Visco-Plastic model (primary and secondary) with the Work Damage model (tertiary), to predict the entire creep life.
 
-## Surrogate
+## Surrogator
 
-The `surrogate` directory (`calibrate/surrogate/`) contains code for developing surrogate models for creep models, using [TensorFlow](https://www.tensorflow.org/).
+The `surrogator` directory (`calibrate/surrogator/`) contains code for developing surrogate models for creep models, using [TensorFlow](https://www.tensorflow.org/).
 
 To install TensorFlow, please follow the installation instructions on the [official website](https://www.tensorflow.org/install/pip).

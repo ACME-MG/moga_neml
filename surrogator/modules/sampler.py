@@ -2,10 +2,12 @@
  Title:         Sampler
  Description:   For sampling the parameter space
  Author:        Janzen Choi
+ 
 """
 
 # Libraries
 import numpy as np
+import random
 
 # The Sampler class
 class Sampler:
@@ -64,3 +66,8 @@ class Sampler:
         point_list += self.sample_axial(axial)
         point_list += self.sample_centre()
         return point_list
+    
+    # Returns a random point within the domain
+    def sample_random(self):
+        params = [random.uniform(self.l_bounds[i], self.u_bounds[i]) for i in range(len(self.l_bounds))]
+        return [params]

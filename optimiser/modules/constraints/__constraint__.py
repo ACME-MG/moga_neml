@@ -21,9 +21,9 @@ class Constraint:
     def get_exp_curves(self):
         return self.exp_curves
     
-    # Returns a constraint (to be overriden)
+    # Returns a constraint (placeholder)
     def get_value(self):
-        pass
+        raise NotImplementedError
 
 # Returns the stress from a curve
 def get_stress(curve):

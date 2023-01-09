@@ -30,13 +30,13 @@ class EVPWD(model.Model):
         super().__init__(
             name = "evpwd",
             param_info = [
-                {"name": "evp_s0",  "min": 0.0e1,   "max": 1.0e2},
-                {"name": "evp_R",   "min": 0.0e1,   "max": 1.0e2},
-                {"name": "evp_d",   "min": 0.0e1,   "max": 1.0e2},
-                {"name": "evp_n",   "min": 0.0e1,   "max": 1.0e1},
-                {"name": "evp_eta", "min": 0.0e1,   "max": 1.0e6}, # 4
-                {"name": "wd_wc",   "min": 0.0e1,   "max": 1.0e2},
-                {"name": "wd_n",    "min": 0.0e1,   "max": 1.0e2},
+                {"name": "evp_s0",  "min": 0.0e1,   "max": 1.0e2}, # 2
+                {"name": "evp_R",   "min": 0.0e1,   "max": 1.0e2}, # 2
+                {"name": "evp_d",   "min": 0.0e1,   "max": 1.0e2}, # 2
+                {"name": "evp_n",   "min": 1.0e0,   "max": 1.0e1}, # 1
+                {"name": "evp_eta", "min": 0.0e1,   "max": 1.0e4}, # 4
+                {"name": "wd_wc",   "min": 0.0e1,   "max": 1.0e2}, # 2
+                {"name": "wd_n",    "min": 0.0e1,   "max": 1.0e2}, # 2
             ],
             exp_curves = exp_curves
         )

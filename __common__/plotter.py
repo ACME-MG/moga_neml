@@ -52,3 +52,12 @@ class Plotter:
     # CLears the plot
     def clear(self):
         plt.clf()
+
+# Plots two curves
+def quick_plot(curve_1, curve_2, label_1, label_2, path, file):
+    plt = Plotter(path, file)
+    plt.line_plot([curve_1], "r")
+    plt.line_plot([curve_2], "b")
+    plt.define_legend([label_1, label_2])
+    plt.save_plot()
+    plt.clear()

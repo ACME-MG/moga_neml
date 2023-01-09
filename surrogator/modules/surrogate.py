@@ -37,10 +37,12 @@ class Surrogate:
         self.model.compile(optimizer=opt, loss="mse")
 
     # Fits the model
-    def fit(self, x_train, y_train, epochs=100, batch_size=32):
+    def fit(self, x_train, y_train, epochs=100, batch_size=None, verbose=False):
         x_train = np.array(x_train)
         y_train = np.array(y_train)
-        self.model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size, verbose=1)
+        verbose = 1 if verbose else 0
+        batch_size = batch_size if batch_size != None else round(len(x_train)/2)
+        self.model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size, verbose=verbose)
 
     # Makes a single prediction
     def predict(self, x_test):

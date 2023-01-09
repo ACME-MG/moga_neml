@@ -24,9 +24,9 @@ class Error:
     def get_exp_curves(self):
         return self.exp_curves
     
-    # Returns an error (to be overriden)
+    # Returns an error (placeholder)
     def get_value(self):
-        pass
+        raise NotImplementedError
 
 # Returns a list of indexes corresponding to thinned data
 def get_thin_indexes(src_data_size, dst_data_size):

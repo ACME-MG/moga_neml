@@ -8,6 +8,11 @@ optimiser/modules/errors/__pycache__
 optimiser/modules/moga/__pycache__
 optimiser/nohup.out
 
-surrogate/results
-surrogate/modules/__pycache__
-surrogate/nohup.out
+surrogator/results
+surrogator/modules/__pycache__
+surrogator/modules/trainers/__pycache__
+surrogator/nohup.out
+
+analyser/results
+analyser/modules/__pycache__
+analyser/nohup.out
