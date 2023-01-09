@@ -39,7 +39,7 @@ class Recorder:
         self.update_time = self.start_time
         self.start_time_str = time.strftime("%A, %D, %H:%M:%S", time.localtime())
         self.num_evals_completed, self.num_gens_completed = 0, 0
-        self.opt_params, self.opt_errors = [], []
+        self.opt_params, self.opt_errors, self.opt_constraints = [], [], []
     
     # Define MOGA hyperparameters
     def define_hyperparameters(self, num_gens, init_pop, offspring, crossover, mutation):
@@ -50,7 +50,7 @@ class Recorder:
         self.mutation   = mutation
 
     # Updates the results after X iterations
-    def update_results(self, params, errors):
+    def update_results(self, params, errors, constraints):
 
         # Update optimisation progress
         self.num_evals_completed += 1
@@ -58,7 +58,7 @@ class Recorder:
         
         # If parameters are valid, update the population
         if not BIG_VALUE in errors:
-            self.update_population(params, errors)
+            self.update_population(params, errors, constraints)
 
         # Record results after X generations
         if self.num_gens_completed > 0 and self.num_gens_completed % self.interval == 0:
@@ -84,8 +84,9 @@ class Recorder:
             print(f"  Recorded results ({progress} in {update_duration}s)")
     
     # Updates the population
-    def update_population(self, params, errors):
+    def update_population(self, params, errors, constraints):
         params, errors = list(params), list(errors)
+        constraints = [constraint <= 0 for constraint in constraints]
         err_sqr_sum = sum([error**2 for error in errors])
 
         # If the stored parameters exceed the limit, remove the worst
@@ -94,6 +95,7 @@ class Recorder:
                 return
             self.opt_params.pop()
             self.opt_errors.pop()
+            self.opt_constraints.pop()
         
         # Adds new params in order
         inserted = False
@@ -101,6 +103,7 @@ class Recorder:
             if err_sqr_sum < self.opt_errors[i][-1]:
                 self.opt_params.insert(i, params)
                 self.opt_errors.insert(i, errors + [err_sqr_sum])
+                self.opt_constraints.insert(i, constraints)
                 inserted = True
                 break
 
@@ -108,6 +111,7 @@ class Recorder:
         if not inserted:
             self.opt_params.append(params)
             self.opt_errors.append(errors + [err_sqr_sum])
+            self.opt_constraints.append(constraints)
 
     # Records the settings
     def record_settings(self, writer):
@@ -151,8 +155,8 @@ class Recorder:
     
     # Records the results
     def record_results(self, writer):
-        columns = [param["name"] for param in self.model.param_info] + self.error_names + ["err_sqr_sum"]
-        data = [self.opt_params[i] + self.opt_errors[i] for i in range(0,len(self.opt_params))]
+        columns = [param["name"] for param in self.model.param_info] + self.error_names + ["err_sqr_sum"] + self.constraint_names
+        data = [self.opt_params[i] + self.opt_errors[i] + self.opt_constraints[i] for i in range(0,len(self.opt_params))]
         results = pd.DataFrame(data, columns = columns)
         results.to_excel(writer, "results", index = False)
 

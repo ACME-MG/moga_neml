@@ -37,6 +37,6 @@ class Problem(ElementwiseProblem):
             prd_curves = self.model.get_prd_curves(*params)
             error_values = self.objective.get_error_values(prd_curves)
             constraint_values = self.objective.get_constraint_values(prd_curves)
-            self.recorder.update_results(params, error_values)
+            self.recorder.update_results(params, error_values, constraint_values)
             out["F"] = error_values
             out["G"] = constraint_values
