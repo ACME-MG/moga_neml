@@ -163,6 +163,10 @@ class Recorder:
     # Records the plot
     def record_plot(self, writer):
 
+        # If there are no optimal parameters, leave
+        if len(self.opt_params) == 0:
+            return
+
         # Prepare predicted curves
         prd_curves = self.model.get_prd_curves(*self.opt_params[0])
         prd_x_flat = [prd_x for prd_curve in prd_curves for prd_x in get_thinned_list(prd_curve["x"])] # flatten

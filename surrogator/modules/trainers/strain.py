@@ -33,7 +33,7 @@ class Strain(Trainer):
         polynomial = np.polyfit(x_list, y_list, 15)
 
         # Reconstruct curve
-        x_list = list(range(0, x_list[-1], STEP_SIZE))
+        x_list = list(range(0, round(x_list[-1]), STEP_SIZE))
         y_list = list(np.polyval(polynomial, x_list))
         y_list += [y_list[-1]] * (CURVE_SIZE-len(y_list))
         
