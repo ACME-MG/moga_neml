@@ -1,5 +1,6 @@
 __common__/__pycache__
 __models__/__pycache__
+.vscode
 
 optimiser/results
 optimiser/modules/__pycache__
