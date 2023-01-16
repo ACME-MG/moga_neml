@@ -1,3 +1,20 @@
+
+
+
+## Installing NEML
+
+To install NEML, please follow the [official instructions](https://neml.readthedocs.io/en/dev/started.html). However, instead of a normal `git clone`, please clone the NEML repository recursively. In other words, use the following command to clone the NEML repository.
+
+```
+git clone --recursive https://github.com/Argonne-National-Laboratory/neml.git
+```
+
+After installing NEML using the official instructions, add NEML to the system path. In other words, go to your home directory, and add the following line to the `.bashrc` file.
+
+```
+export PYTHONPATH=<path_to_neml>:$PYTHONPATH
+```
+
 ## Repository Structure
 
 The following diagram shows the high level structure of the repository. 
