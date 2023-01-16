@@ -15,13 +15,13 @@ neml/
 └── surrogator/
 ```
 
-# Common Directory
+# Common
 
 The `__common__` directory (`calibrate/__common__/`) contains common helper code used in the programs in the repository. Each program is contained within their own directory with a `main.py` file. Once the user has moved into the directory (via `cd`), they can make function calls in `main.py` using the provided `API` class, and run the program via `python3 main.py`.
 
-# Model Directory
+# Models
 
-The `__model__` directory (`calibrate/__model__/`) contains implementations of the phenomenological models, with many of the models taken from [NEML](https://github.com/Argonne-National-Laboratory/neml). The following is a list of models that have been implemented so far.
+The `__models__` directory (`calibrate/__models__/`) contains implementations of the phenomenological models, with many of the models taken from [NEML](https://github.com/Argonne-National-Laboratory/neml). The following is a list of models that have been implemented so far.
 
 * **Time-Hardening**, which is an empirical model for the prediction of primary creep.
 * **Kachanov-Rabotnov Time-Hardening**, which couples the Time-Hardening model (primary) with the Kachanov-Rabotnov model (secondary and tertiary), to predict the entire creep life.
