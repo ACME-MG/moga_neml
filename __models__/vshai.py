@@ -5,7 +5,7 @@
 """
 
 # Libraries
-import modules.models.__model__ as model
+import __model__ as model
 from neml import elasticity, drivers
 from neml.cp import crystallography, slipharden, sliprules, inelasticity, kinematics, singlecrystal, polycrystal
 from neml.math import rotations

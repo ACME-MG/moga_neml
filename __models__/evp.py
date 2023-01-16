@@ -1,12 +1,11 @@
 """
- Title:         The Elastic Visco Plastic Work Damage Model (Separated)
- Description:   Predicts primary, secondary, and tertiary creep
+ Title:         The Elastic Visco-Plastic Model
+ Description:   Predicts primary creep
  Author:        Janzen Choi
-
 """
 
 # Libraries
-import modules.models.__model__ as model
+import __model__ as model
 from neml import models, elasticity, drivers, surfaces, hardening, visco_flow, general_flow, damage
 from neml.nlsolvers import MaximumIterations
 
@@ -19,41 +18,38 @@ HOLD         = 11500.0 * 3600.0
 NUM_STEPS    = 501
 MIN_DATA     = 50
 
-# The Elastic Visco Plastic Work Damage (Separated) Class
-class EVPWD_S(model.Model):
+# The Elastic Visco Plastic Class
+class EVP(model.Model):
 
     # Constructor
     def __init__(self, exp_curves):
         super().__init__(
-            name = "evpwd_s",
+            name = "evp",
             param_info = [
-                {"name": "wd_wc",   "min": 0.0e1,   "max": 1.0e2},
-                {"name": "wd_n",    "min": 0.0e1,   "max": 1.0e2},
+                {"name": "evp_s0",  "min": 0.0e1,   "max": 1.0e2},
+                {"name": "evp_R",   "min": 0.0e1,   "max": 1.0e2},
+                {"name": "evp_d",   "min": 0.0e1,   "max": 1.0e2},
+                {"name": "evp_n",   "min": 2.0e0,   "max": 1.0e1},
+                {"name": "evp_eta", "min": 0.0e1,   "max": 1.0e5},
             ],
             exp_curves = exp_curves
         )
 
     # Prepares the model
     def prepare(self, args):
-        self.elastic_model = elasticity.IsotropicLinearElasticModel(YOUNGS, "youngs", POISSONS, "poissons")
-        self.yield_surface = surfaces.IsoJ2()
-        self.evp_s0 = 0.671972514
-        self.evp_R = 25.74997349
-        self.evp_d = 43.16881374
-        self.evp_n = 4.487884698
-        self.evp_eta = 1669.850786
-
+        self.elastic_model  = elasticity.IsotropicLinearElasticModel(YOUNGS, "youngs", POISSONS, "poissons")
+        self.yield_surface  = surfaces.IsoJ2()
+        self.cd_model       = damage.VonMisesEffectiveStress()
+    
     # Gets the predicted curves
-    def get_prd_curves(self, wd_wc, wd_n):
+    def get_prd_curves(self, evp_s0, evp_R, evp_d, evp_n, evp_eta):
 
         # Define model
-        iso_hardening   = hardening.VoceIsotropicHardeningRule(self.evp_s0, self.evp_R, self.evp_d)
-        g_power         = visco_flow.GPowerLaw(self.evp_n, self.evp_eta)
+        iso_hardening   = hardening.VoceIsotropicHardeningRule(evp_s0, evp_R, evp_d)
+        g_power         = visco_flow.GPowerLaw(evp_n, evp_eta)
         visco_model     = visco_flow.PerzynaFlowRule(self.yield_surface, iso_hardening, g_power)
         integrator      = general_flow.TVPFlowRule(self.elastic_model, visco_model)
         evp_model       = models.GeneralIntegrator(self.elastic_model, integrator, verbose=False)
-        wd_model        = damage.WorkDamage(self.elastic_model, wd_wc, wd_n)
-        evpwd_model     = damage.NEMLScalarDamagedModel_sd(self.elastic_model, evp_model, wd_model, verbose=False)
 
         # Iterate through predicted curves
         prd_curves = super().get_prd_curves()
@@ -67,13 +63,11 @@ class EVPWD_S(model.Model):
             # Get predictions
             try:
                 if type == "creep":
-                    with model.BlockPrint():
-                        creep_results = drivers.creep(evpwd_model, stress, S_RATE, HOLD, T=temp, verbose=False, check_dmg=False, dtol=0.95, nsteps_up=150, nsteps=NUM_STEPS, logspace=False)
+                    creep_results = drivers.creep(evp_model, stress, S_RATE, HOLD, T=temp, verbose=False, check_dmg=False, dtol=0.95, nsteps_up=150, nsteps=NUM_STEPS, logspace=False)
                     prd_curves[i]["x"] = list(creep_results['rtime'] / 3600)
                     prd_curves[i]["y"] = list(creep_results['rstrain'])
                 elif type == "tensile":
-                    with model.BlockPrint():
-                        tensile_results = drivers.uniaxial_test(evpwd_model, E_RATE, T=temp, emax=0.5, nsteps=NUM_STEPS)
+                    tensile_results = drivers.uniaxial_test(evp_model, E_RATE, T=temp, emax=0.5, nsteps=NUM_STEPS)
                     prd_curves[i]["x"] = list(tensile_results['strain'])
                     prd_curves[i]["y"] = list(tensile_results['stress'])
             except MaximumIterations:

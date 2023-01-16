@@ -6,13 +6,13 @@
 """
 
 # Models
-from modules.models.evp import EVP
-from modules.models.evpcd import EVPCD
-from modules.models.evpwd import EVPWD
-from modules.models.evpwd_s import EVPWD_S
-from modules.models.th import TH
-from modules.models.thkr import THKR
-from modules.models.vshai import VSHAI
+from evp import EVP
+from evpcd import EVPCD
+from evpwd import EVPWD
+from evpwd_s import EVPWD_S
+from th import TH
+from thkr import THKR
+from vshai import VSHAI
 
 # Creates and return a model
 def get_model(model_name, exp_curves, args):

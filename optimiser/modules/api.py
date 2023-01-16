@@ -6,19 +6,22 @@
 """
 
 # Libraries
-import time
+import time, sys
 from modules.reader import read_experimental_data
 from modules.errors.__error__ import get_bfd
 from modules.moga.objective import Objective
 from modules.moga.problem import Problem
 from modules.moga.moga import MOGA
 from modules.recorder import Recorder
-from modules.models.__model_factory__ import get_model
 from modules.errors.__error_factory__ import get_error_list
 from modules.constraints.__constraint_factory__ import get_constraint_list
-from modules.helper.progressor import Progressor
-from modules.helper.plotter import Plotter
-from modules.helper.general import safe_mkdir
+
+# Helper libraries
+sys.path += ["../__common__", "../__models__"]
+from progressor import Progressor
+from plotter import Plotter
+from general import safe_mkdir
+from __model_factory__ import get_model
 
 # Input / Output
 INPUT_DIR   = "input"

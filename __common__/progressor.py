@@ -7,7 +7,7 @@
 
 # Libraries
 import time, os, sys, atexit
-import modules.helper.printer as printer
+import printer
 
 # Constants
 START_INDEX     = 1

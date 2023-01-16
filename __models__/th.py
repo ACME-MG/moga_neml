@@ -7,7 +7,7 @@
 
 # Libraries
 import math
-import modules.models.__model__ as model
+import __model__ as model
 
 # Constants
 TIME_STEP = 5
