@@ -12,6 +12,7 @@ optimiser/nohup.out
 surrogator/results
 surrogator/modules/__pycache__
 surrogator/modules/trainers/__pycache__
+surrogator/modules/surrogates/__pycache__
 surrogator/nohup.out
 
 analyser/results

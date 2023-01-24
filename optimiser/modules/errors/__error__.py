@@ -54,7 +54,7 @@ class Interpolator:
     # Evaluate
     def evaluate(self, x_list):
         return list(splev(x_list, self.spl))
-    
+
     # Tests the interpolation by plotting
     def __test__(self, path):
         plt.scatter(self.thin_x_list, self.thin_y_list, color="b")

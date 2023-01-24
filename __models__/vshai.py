@@ -12,12 +12,11 @@ from neml.math import rotations
 from neml.nlsolvers import MaximumIterations
 
 # Model Parameters
-YOUNGS      = 157000.0
+YOUNGS      = 211000.0
 POISSONS    = 0.3
-SHEAR       = 81000.0 # Shear modulus
 S_RATE      = 1.0e-4
 E_RATE      = 1.0e-4
-E_MAX       = 0.10 # Maximum strain
+E_MAX       = 0.005
 HOLD        = 11500.0 * 3600.0
 NUM_STEPS   = 501
 MIN_DATA    = 50

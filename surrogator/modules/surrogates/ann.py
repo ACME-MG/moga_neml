@@ -1,32 +1,40 @@
 """
- Title:         Surrogate
+ Title:         ANN
  Description:   Contains the DNN for the Surrogate Model 
  Author:        Janzen Choi
 
 """
 
 # Libraries
-import os
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3" # disable warnings
-import tensorflow.keras as kr
+from modules.surrogates.__surrogate__ import Surrogate
 import numpy as np
+import os; os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3" # disable warnings
+import tensorflow.keras as kr
 
-# Surrogate Class
-class Surrogate:
+# ANN Class
+class ANN(Surrogate):
 
     # Constructor
     def __init__(self, input_size, output_size):
+        super().__init__(
+            name        = "ann",
+            input_size  = input_size,
+            output_size = output_size,
+        )
 
+    # Prepares the surrogate
+    def prepare(self):
+        
         # Define neural network
         self.model = kr.Sequential()
-        self.model.add(kr.layers.InputLayer(input_shape=(input_size,)))
-        self.model.add(kr.layers.Dense(units=512))
-        self.model.add(kr.layers.Activation("relu"))
-        self.model.add(kr.layers.Dense(units=256))
-        self.model.add(kr.layers.Activation("relu"))
+        self.model.add(kr.layers.InputLayer(input_shape=(self.input_size,)))
         self.model.add(kr.layers.Dense(units=128))
         self.model.add(kr.layers.Activation("relu"))
-        self.model.add(kr.layers.Dense(units=output_size))
+        self.model.add(kr.layers.Dense(units=64))
+        self.model.add(kr.layers.Activation("relu"))
+        self.model.add(kr.layers.Dense(units=32))
+        self.model.add(kr.layers.Activation("relu"))
+        self.model.add(kr.layers.Dense(units=self.output_size))
         self.model.add(kr.layers.Activation("relu"))
         
         # Define optimiser and compile

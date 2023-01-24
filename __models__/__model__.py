@@ -50,15 +50,11 @@ class Model:
         return [get_curve([], []) for _ in range(len(self.exp_curves))] # do not remove [], []
 
 # Returns a curve dictionary
-def get_curve(x_list=[], y_list=[], file="", type="", stress=0, temp=0):
-    return {
-        "x":        x_list,
-        "y":        y_list,
-        "file":     file,
-        "type":     type,
-        "stress":   stress,
-        "temp":     temp,
-    }
+def get_curve(x_list, y_list, info_dict={}):
+    curve = {"x": x_list, "y": y_list}
+    for key in info_dict.keys():
+        curve[key] = info_dict[key]
+    return curve
 
 # For blocking prints
 class BlockPrint:

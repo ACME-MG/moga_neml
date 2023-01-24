@@ -14,7 +14,10 @@ from modules.mapper import MultiMapper
 sys.path.append("../__common__")
 from plotter import quick_plot
 
-# The Model Class
+# Constants
+MIN_DATA = 50
+
+# The Trainer Class
 class Trainer:
 
     # Constructor
@@ -110,7 +113,7 @@ def get_sample_curve():
 
 # Checks if corresponding creep curve is successful and within bounds
 def validate_curve(curve):
-    if curve["x"] == [] or curve["y"] == []: # or curve["y"][-1] < 0.01:
+    if len(curve["x"]) < MIN_DATA or len(curve["y"]) < MIN_DATA: # or curve["y"][-1] < 0.01:
         return False
     valid_list = [y >= 0 and y <= 1 for y in curve["y"]]
     return not (False in valid_list)

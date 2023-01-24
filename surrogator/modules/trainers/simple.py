@@ -7,7 +7,7 @@
 
 # Libraries
 from modules.trainers.__trainer__ import Trainer
-import numpy as np
+from scipy.interpolate import splev, splrep, splder
 import math
 
 # Constants
@@ -31,9 +31,9 @@ class Simple(Trainer):
         
         # Get derivative
         x_list, y_list = curve["x"], curve["y"]
-        polynomial = np.polyfit(x_list, y_list, 15)
-        d_polynomial = np.polyder(polynomial)
-        dy_list = list(np.polyval(d_polynomial, x_list))
+        spl = splrep(x_list, y_list, s=0)
+        spl = splder(spl)
+        dy_list = list(splev(x_list, spl))
 
         # Get secondary points
         dy_min = min(dy_list)
@@ -86,8 +86,10 @@ class Simple(Trainer):
             y_t = [y+y_dy_min for y in y_t]
 
         # Combine points and return
-        x_list = [0, *x_p, x_dy_min, *x_t, x_end]
-        y_list = [0, *y_p, y_dy_min, *y_t, y_end]
+        x_list = [0, x_dy_min, x_end]
+        y_list = [0, y_dy_min, y_end]
+        # x_list = [0, *x_p, x_dy_min, *x_t, x_end]
+        # y_list = [0, *y_p, y_dy_min, *y_t, y_end]
         return {"x": x_list, "y": y_list}
 
 # Rotates list of points by a certain angle

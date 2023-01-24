@@ -38,9 +38,9 @@ class API:
         safe_mkdir(self.output_path)
 
     # Defines the conditions of the creep (celcius and MPa)
-    def define_conditions(self, temp=800, stress=80):
-        self.prog.add(f"Defining conditions at {temp}°C and {stress}MPa")
-        self.curve = get_curve([10000], [1], "", "", "creep", stress=stress, temp=temp, test="")
+    def define_conditions(self, info_dict={"type": "creep", "stress": 80, "temp": 800}):
+        self.prog.add(f"Defining conditions")
+        self.curve = get_curve([0], [0], info_dict)
 
     # Defines the model
     def define_model(self, model_name=""):

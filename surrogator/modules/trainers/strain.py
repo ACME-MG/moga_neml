@@ -7,7 +7,7 @@
 
 # Libraries
 from modules.trainers.__trainer__ import Trainer
-import numpy as np
+from scipy.interpolate import splev, splrep
 
 # Constants
 CURVE_SIZE = 1000
@@ -30,11 +30,11 @@ class Strain(Trainer):
         
         # Get polynomial
         x_list, y_list = curve["x"], curve["y"]
-        polynomial = np.polyfit(x_list, y_list, 15)
+        spl = splrep(x_list, y_list, s=0)
 
         # Reconstruct curve
         x_list = list(range(0, round(x_list[-1]), STEP_SIZE))
-        y_list = list(np.polyval(polynomial, x_list))
+        y_list = list(splev(x_list, spl))
         y_list += [y_list[-1]] * (CURVE_SIZE-len(y_list))
         
         # Map and return

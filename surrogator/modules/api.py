@@ -8,13 +8,14 @@
 # Libraries
 import time, sys
 from modules.sampler import Sampler
-from modules.surrogate import Surrogate
+from modules.surrogates.__surrogate_factory__ import get_surrogate
 from modules.trainers.__trainer_factory__ import get_trainer
 from modules.trainers.__trainer__ import get_sample_curve
 
 # Helper libraries
 sys.path += ["../__common__", "../__models__"]
 from progressor import Progressor
+from visualiser import Visualiser
 from plotter import quick_plot
 from general import safe_mkdir
 from __model_factory__ import get_model
@@ -42,14 +43,15 @@ class API:
         safe_mkdir(self.output_path)
 
     # Defines the conditions of the creep (celcius and MPa)
-    def define_conditions(self, temp=800, stress=80):
-        self.prog.add(f"Defining conditions at {temp}°C and {stress}MPa")
-        self.curve = get_curve([10000], [1], "", "", "creep", stress=stress, temp=temp, test="")
+    def define_conditions(self, type="creep", temp=800, stress=80):
+        info_dict={"type": type, "temp": temp, "stress": stress}
+        self.prog.add(f"Defining conditions")
+        self.curve = get_curve([0], [0], info_dict)
 
     # Defines the model
-    def define_model(self, model_name=""):
+    def define_model(self, model_name="", args=[]):
         self.prog.add(f"Defining the {model_name} model")
-        self.model = get_model(model_name, [self.curve])
+        self.model = get_model(model_name, [self.curve], args)
         self.l_bounds = self.model.get_param_lower_bounds()
         self.u_bounds = self.model.get_param_upper_bounds()
         self.sampler = Sampler(self.l_bounds, self.u_bounds)
@@ -58,11 +60,14 @@ class API:
     def define_trainer(self, trainer_name):
         self.prog.add(f"Defining the '{trainer_name}' trainer")
         self.trainer = get_trainer(trainer_name, self.model)
+
+    # Defines the surrogate mdoel
+    def define_surrogate(self, surrogate_name):
         input_size, output_size = self.trainer.get_shape()
-        self.surrogate = Surrogate(input_size, output_size)
+        self.surrogate = get_surrogate(surrogate_name, input_size, output_size)
 
     # Reads input data from a CSV file
-    def read_input(self, file, delimiter=","):
+    def read_input(self, file, delimiter=",", size=100000):
         self.prog.add(f"Reading surrogate model input from '{file}'")
         path = f"{INPUT_DIR}/{file}"
         
@@ -70,13 +75,25 @@ class API:
         with open(path, "r") as data_file:
             all_lines = data_file.readlines()
         
-        # Extract unmapped inputs and calculate outputs
+        # Initialise
+        counter = 0
         self.sm_inputs, self.sm_outputs = [], []
+        visualiser = Visualiser(len(all_lines), ["percent"], "  Calculating IO Pairs")
+        
+        # Extract unmapped inputs and calculate outputs
         for line in all_lines:
+            
+            # Check size
+            if counter >= size:
+                break
+            counter += 1
+
+            # Get output and append
             unmapped_input = [float(v) for v in line.replace("\n", "").split(delimiter)]
             mapped_input, mapped_output = self.trainer.get_io(unmapped_input)
             self.sm_inputs.append(mapped_input)
             self.sm_outputs.append(mapped_output)
+            visualiser.progress()
 
     # Writes input and output data to a CSV file
     def write_input_output(self, file, delimiter=","):
@@ -96,7 +113,7 @@ class API:
         data_file.close()
 
     # Reads input and output data from a CSV file
-    def read_input_output(self, file, delimiter=","):
+    def read_input_output(self, file, delimiter=",", size=100000):
         self.prog.add(f"Reading surrogate model input / output from '{file}'")
         path = f"{INPUT_DIR}/{file}"
         
@@ -104,11 +121,19 @@ class API:
         with open(path, "r") as data_file:
             all_lines = data_file.readlines()
 
-        # Extract unmapped inputs and outputs
+        # Initialise
+        counter = 0
         self.sm_inputs, self.sm_outputs = [], []
         input_size, _ = self.trainer.get_shape()
+
+        # Extract unmapped inputs and outputs
         for line in all_lines:
             line_list = [float(v) for v in line.replace("\n", "").split(delimiter)]
+
+            # Check size
+            if counter >= size:
+                break
+            counter += 1
 
             # Map
             mapped_input = self.trainer.map_input(line_list[:input_size])
@@ -148,9 +173,9 @@ class API:
             self.plot_count += 1
 
     # Trains the surrogate model
-    def train(self, epochs=100, batch_size=32):
+    def train(self):
         self.prog.add(f"Training the surrogate model")
-        self.surrogate.fit(self.sm_inputs, self.sm_outputs, epochs, batch_size)
+        self.surrogate.fit(self.sm_inputs, self.sm_outputs)
 
     # Predicts a curve using the trained surrogate model
     def assess(self):

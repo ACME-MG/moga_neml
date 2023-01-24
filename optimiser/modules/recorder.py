@@ -130,7 +130,6 @@ class Recorder:
             "Upper Bound":  self.model.get_param_upper_bounds(),
             "Errors":       self.error_names,
             "Constraints":  self.constraint_names,
-            "Files":        [exp_curve["file"] for exp_curve in self.exp_curves],
             "Stresses":     [exp_curve["stress"] for exp_curve in self.exp_curves],
             "Temperatures": [exp_curve["temp"] for exp_curve in self.exp_curves],
             "num_gens":     [self.num_gens],
