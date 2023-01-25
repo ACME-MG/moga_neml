@@ -186,8 +186,8 @@ class Recorder:
         chart.add_series({"categories": ["plot", 1, 2, len(prd_x_flat), 2], "values": ["plot", 1, 3, len(prd_x_flat), 3], "marker": marker})
 
         # Insert chart into worksheet
-        chart.set_x_axis({"name": "Time", "major_gridlines": {"visible": True}})
-        chart.set_y_axis({"name": "Strain", "major_gridlines": {"visible": True}})
+        chart.set_x_axis({"name": "x", "major_gridlines": {"visible": True}})
+        chart.set_y_axis({"name": "y", "major_gridlines": {"visible": True}})
         worksheet.insert_chart("A1", chart)
 
 # For centre-aligning the cellss
