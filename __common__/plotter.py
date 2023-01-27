@@ -64,9 +64,11 @@ def quick_plot(curves, path, file):
 
 # Plots two sets of curves
 def quick_plot_2(curves_1, curves_2, label_1, label_2, path, file):
+    if curves_1 == [] or curves_2 == []:
+        return
     plt = Plotter(path, file)
     plt.line_plot(curves_1, "r")
-    plt.scat_plot(curves_2, "b")
+    plt.scat_plot(curves_2, "silver")
     plt.define_legend([label_1, label_2])
     plt.save_plot()
     plt.clear()

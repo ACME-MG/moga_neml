@@ -7,6 +7,7 @@
 
 # Libraries
 import time, sys
+from copy import deepcopy
 from modules.reader import read_experimental_data
 from modules.moga.objective import Objective
 from modules.moga.problem import Problem
@@ -66,18 +67,22 @@ class API:
     # Removes the tertiary creep from creep curves
     def remove_tertiary_creep(self, window=300, acceptance=0.9):
         self.prog.add("Removing the tertiary creep regime")
+        raw_train_curves = deepcopy(self.train_curves)
+        raw_test_curves = deepcopy(self.test_curves)
         self.train_curves = [remove_after_sp(curve, "min", window, acceptance, 0) for curve in self.train_curves if curve["type"] == "creep"]
         self.test_curves = [remove_after_sp(curve, "min", window, acceptance, 0) for curve in self.test_curves if curve["type"] == "creep"]
-        quick_plot(self.train_curves, self.output_path, "train_rtc.png")
-        quick_plot(self.test_curves, self.output_path, "test_rtc.png")
+        quick_plot_2(self.train_curves, raw_train_curves, "Original", "Removed", self.output_path, "train_rtc.png")
+        quick_plot_2(self.test_curves, raw_test_curves, "Original", "Removed", self.output_path, "test_rtc.png")
 
     # Removes the data after the tertiary creep
     def remove_oxidised_creep(self, window=300, acceptance=0.9):
         self.prog.add("Removing strain after the tertiary creep regime")
+        raw_train_curves = deepcopy(self.train_curves)
+        raw_test_curves = deepcopy(self.test_curves)
         self.train_curves = [remove_after_sp(curve, "max", window, acceptance, 0) for curve in self.train_curves if curve["type"] == "creep"]
         self.test_curves = [remove_after_sp(curve, "max", window, acceptance, 0) for curve in self.test_curves if curve["type"] == "creep"]
-        quick_plot(self.train_curves, self.output_path, "train_roc.png")
-        quick_plot(self.test_curves, self.output_path, "test_roc.png")
+        quick_plot_2(self.train_curves, raw_train_curves, "Original", "Removed", self.output_path, "train_roc.png")
+        quick_plot_2(self.test_curves, raw_test_curves, "Original", "Removed", self.output_path, "test_roc.png")
 
     # Initialising the model
     def define_model(self, model_name, args=[]):
