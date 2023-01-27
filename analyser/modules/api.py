@@ -14,7 +14,7 @@ sys.path += ["../__common__", "../__models__"]
 from progressor import Progressor
 from general import safe_mkdir
 from __model_factory__ import get_model
-from __model__ import get_curve
+from curve import get_curve
 
 # I/O directories
 INPUT_DIR   = "./input"

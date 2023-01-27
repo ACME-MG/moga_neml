@@ -8,7 +8,6 @@
 # Libraries
 import time, sys
 from modules.reader import read_experimental_data
-from modules.errors.__error__ import get_bfd
 from modules.moga.objective import Objective
 from modules.moga.problem import Problem
 from modules.moga.moga import MOGA
@@ -19,9 +18,10 @@ from modules.constraints.__constraint_factory__ import get_constraint_list
 # Helper libraries
 sys.path += ["../__common__", "../__models__"]
 from progressor import Progressor
-from plotter import Plotter
+from plotter import quick_plot, quick_plot_2
 from general import safe_mkdir
 from __model_factory__ import get_model
+from derivative import remove_after_sp
 
 # Input / Output
 INPUT_DIR   = "input"
@@ -36,6 +36,8 @@ class API:
         # Initialise
         self.prog = Progressor(fancy, title, verbose)
         self.constraint_list = []
+        self.train_curves = []
+        self.test_curves = []
 
         # Initialise paths
         self.output_dir  = time.strftime("%y%m%d%H%M%S", time.localtime(time.time()))
@@ -47,41 +49,56 @@ class API:
         safe_mkdir(RESULTS_DIR)
         safe_mkdir(self.output_path)
     
-    # Reads in the experimental data
-    def read_data(self, file_names):
-        self.prog.add(f"Reading experimental data from {len(file_names)} files")
+    # Reads in the training data
+    def read_train_data(self, file_names):
+        self.prog.add(f"Reading training data from {len(file_names)} files")
         file_paths = [f"{INPUT_DIR}/{file_name}" for file_name in file_names]
-        self.exp_curves = read_experimental_data(file_paths)
+        self.train_curves = read_experimental_data(file_paths)
+        quick_plot(self.train_curves, self.output_path, "train_raw.png")
+    
+    # Reads in the testing data
+    def read_test_data(self, file_names):
+        self.prog.add(f"Reading testing data from {len(file_names)} files")
+        file_paths = [f"{INPUT_DIR}/{file_name}" for file_name in file_names]
+        self.test_curves = read_experimental_data(file_paths)
+        quick_plot(self.test_curves, self.output_path, "test_raw.png")
 
-    # Removes data past the minimum rate value
-    def remove_damage(self):
-        self.prog.add("Removing creep damage")
-        for i in range(len(self.exp_curves)):
-            _, exp_y_fd = get_bfd(self.exp_curves[i]["x"], self.exp_curves[i]["y"])
-            min_index = exp_y_fd.index(min(exp_y_fd))
-            self.exp_curves[i]["x"] = [self.exp_curves[i]["x"][j] for j in range(min_index)]
-            self.exp_curves[i]["y"] = [self.exp_curves[i]["y"][j] for j in range(min_index)]
+    # Removes the tertiary creep from creep curves
+    def remove_tertiary_creep(self, window=300, acceptance=0.9):
+        self.prog.add("Removing the tertiary creep regime")
+        self.train_curves = [remove_after_sp(curve, "min", window, acceptance, 0) for curve in self.train_curves if curve["type"] == "creep"]
+        self.test_curves = [remove_after_sp(curve, "min", window, acceptance, 0) for curve in self.test_curves if curve["type"] == "creep"]
+        quick_plot(self.train_curves, self.output_path, "train_rtc.png")
+        quick_plot(self.test_curves, self.output_path, "test_rtc.png")
+
+    # Removes the data after the tertiary creep
+    def remove_oxidised_creep(self, window=300, acceptance=0.9):
+        self.prog.add("Removing strain after the tertiary creep regime")
+        self.train_curves = [remove_after_sp(curve, "max", window, acceptance, 0) for curve in self.train_curves if curve["type"] == "creep"]
+        self.test_curves = [remove_after_sp(curve, "max", window, acceptance, 0) for curve in self.test_curves if curve["type"] == "creep"]
+        quick_plot(self.train_curves, self.output_path, "train_roc.png")
+        quick_plot(self.test_curves, self.output_path, "test_roc.png")
 
     # Initialising the model
     def define_model(self, model_name, args=[]):
-        self.prog.add("Defining the model")
-        self.model = get_model(model_name, self.exp_curves, args)
+        self.prog.add(f"Defining the model ({model_name})")
+        self.model = get_model(model_name, self.train_curves, args)
     
     # Defining the errors
     def define_errors(self, error_names):
-        self.prog.add("Defining the errors to minimise")
-        self.error_list = get_error_list(error_names, self.exp_curves)
+        self.prog.add(f"Defining the errors to minimise ({len(error_names)})")
+        self.error_list = get_error_list(error_names, self.train_curves)
 
     # Defining the constraints
     def define_constraints(self, constraint_names):
-        self.prog.add("Defining the constraints to adhere")
-        self.constraint_list = get_constraint_list(constraint_names, self.exp_curves)
+        self.prog.add(f"Defining the constraints to adhere ({len(constraint_names)})")
+        self.constraint_list = get_constraint_list(constraint_names, self.train_curves)
 
     # Prepares the recorder
     def define_recorder(self, interval=10, population=10):
         self.prog.add("Preparing the results recorder")
         self.objective = Objective(self.model, self.error_list, self.constraint_list)
-        self.recorder = Recorder(self.objective, self.exp_curves, self.csv_path, interval, population)
+        self.recorder = Recorder(self.objective, self.train_curves, self.test_curves, self.csv_path, interval, population)
 
     # Conducts the optimisation
     def optimise(self, num_gens=10000, init_pop=400, offspring=400, crossover=0.65, mutation=0.35):
@@ -94,11 +111,8 @@ class API:
     # Plots the results
     def plot_results(self, params):
         self.prog.add("Plotting the results")
-        plotter = Plotter(self.output_path)
-        plotter.scat_plot(self.exp_curves)
         prd_curves = self.model.get_prd_curves(*params)
-        plotter.line_plot(prd_curves)
-        plotter.save_plot()
+        quick_plot_2(prd_curves, self.train_curves, "Predicted", "Experimental", self.output_path, "predicted.png")
 
     # Returns the error values of the objective functions
     def get_errors(self, params):

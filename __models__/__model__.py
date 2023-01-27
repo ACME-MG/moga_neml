@@ -7,6 +7,11 @@
 
 # Libraries
 import os, sys
+from copy import deepcopy
+
+# Helper libraries
+sys.path += ["../__common__"]
+from curve import get_curve
 
 # The Model Class
 class Model:
@@ -36,7 +41,7 @@ class Model:
     # Returns the parameter upper bounds
     def get_param_upper_bounds(self):
         return [param["max"] for param in self.param_info]
-    
+
     # Returns the experimental curves
     def get_exp_curves(self):
         return self.exp_curves
@@ -49,12 +54,13 @@ class Model:
     def get_prd_curves(self):
         return [get_curve([], []) for _ in range(len(self.exp_curves))] # do not remove [], []
 
-# Returns a curve dictionary
-def get_curve(x_list, y_list, info_dict={}):
-    curve = {"x": x_list, "y": y_list}
-    for key in info_dict.keys():
-        curve[key] = info_dict[key]
-    return curve
+    # Gets the predicted curves for specified curves
+    def get_specified_prd_curves(self, params, exp_curves):
+        old_exp_curves = deepcopy(self.exp_curves)
+        self.exp_curves = exp_curves
+        prd_curves = self.get_prd_curves(*params)
+        self.exp_curves = old_exp_curves
+        return prd_curves
 
 # For blocking prints
 class BlockPrint:

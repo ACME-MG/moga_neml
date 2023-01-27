@@ -14,13 +14,13 @@ from cmath import inf
 TIME_STEP = 5
 TIME_LIMIT = 10000
 
-# The Time-Hardening Kachanov-Rabotnov Class
-class THKR(model.Model):
+# The Time-Hardening Kachanov-Rabotnov (Separated) Class
+class THKR_S(model.Model):
 
     # Constructor
     def __init__(self, exp_curves):
         super().__init__(
-            name = "thkr",
+            name = "thkr_s",
             param_info = [
                 {"name": "kr_A",    "min": 1e-20,   "max": 1e-5},
                 {"name": "kr_n",    "min": 1e-50,   "max": 1e1},

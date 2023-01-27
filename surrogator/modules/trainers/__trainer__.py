@@ -7,15 +7,12 @@
 
 # Libraries
 import sys
-import numpy as np
 from modules.mapper import MultiMapper
 
 # Helper libraries
 sys.path.append("../__common__")
-from plotter import quick_plot
-
-# Constants
-MIN_DATA = 50
+from plotter import quick_plot_2
+from curve import validate_curve
 
 # The Trainer Class
 class Trainer:
@@ -77,7 +74,7 @@ class Trainer:
         restored_curve = self.restore_curve(unmapped_output)
         
         # Plot
-        quick_plot(raw_curve, restored_curve, "Original", "Restored", path, file)
+        quick_plot_2([raw_curve], [restored_curve], "Original", "Restored", path, file)
 
     # Returns the input / output data with validification
     def get_io(self, unmapped_input):
@@ -93,27 +90,3 @@ class Trainer:
     # Converts the outputs into a curve (placeholder)
     def restore_curve(self, unmapped_output):
         raise NotImplementedError
-
-# Returns the derivative via backward finite difference
-def get_bfd(x_list, y_list):
-    dy_list = []
-    for i in range(1,len(x_list)):
-        dy = (y_list[i]-y_list[i-1])/(x_list[i]-x_list[i-1]) if (x_list[i] > x_list[i-1] and y_list[i] > y_list[i-1]) else 100
-        dy_list.append(dy)
-    return dy_list
-
-# Returns a sample creep curve
-def get_sample_curve():
-    polynomial = [0.1, -0.6, 1.3, 0]
-    x_list = [10*x for x in range(100)]
-    scaled_x_list = [x/225 for x in x_list]
-    y_list = list(np.polyval(polynomial, scaled_x_list))
-    y_list = [y/8 for y in y_list]
-    return {"x": x_list, "y": y_list}
-
-# Checks if corresponding creep curve is successful and within bounds
-def validate_curve(curve):
-    if len(curve["x"]) < MIN_DATA or len(curve["y"]) < MIN_DATA: # or curve["y"][-1] < 0.01:
-        return False
-    valid_list = [y >= 0 and y <= 1 for y in curve["y"]]
-    return not (False in valid_list)

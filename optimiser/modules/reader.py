@@ -7,8 +7,8 @@
 
 # Libraries
 import sys
-sys.path += ["../__models__"]
-from __model__ import get_curve
+sys.path += ["../__common__"]
+from curve import get_curve
 
 # For reading experimental data
 def read_experimental_data(file_paths):

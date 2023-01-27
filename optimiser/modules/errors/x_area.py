@@ -9,6 +9,11 @@
 import numpy as np
 import modules.errors.__error__ as error
 
+# Helper libraries
+import sys
+sys.path += ["../__common__"]
+from derivative import Interpolator, get_thin_indexes
+
 # Constants
 NUM_POINTS = 50
 
@@ -23,7 +28,7 @@ class XArea(error.Error):
     def prepare(self):
         self.interpolator_list, self.exp_y_end_list, self.avg_x_list = [], [], []
         for exp_curve in self.exp_curves:
-            self.interpolator_list.append(error.Interpolator(exp_curve["y"], exp_curve["x"], NUM_POINTS))
+            self.interpolator_list.append(Interpolator(exp_curve["y"], exp_curve["x"], NUM_POINTS))
             self.exp_y_end_list.append(exp_curve["y"][-1])
             self.avg_x_list.append(np.average(exp_curve["x"]))
 
@@ -31,7 +36,7 @@ class XArea(error.Error):
     def get_value(self, prd_curves):
         value_list = []
         for i in range(len(prd_curves)):
-            thin_indexes = error.get_thin_indexes(len(prd_curves[i]["x"]), NUM_POINTS)
+            thin_indexes = get_thin_indexes(len(prd_curves[i]["x"]), NUM_POINTS)
             prd_x_list = [prd_curves[i]["x"][j] for j in thin_indexes]
             prd_y_list = [prd_curves[i]["y"][j] for j in thin_indexes]
             exp_x_list = self.interpolator_list[i].evaluate(prd_y_list)

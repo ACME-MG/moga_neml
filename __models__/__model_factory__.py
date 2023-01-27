@@ -11,7 +11,7 @@ from evpcd import EVPCD
 from evpwd import EVPWD
 from evpwd_s import EVPWD_S
 from th import TH
-from thkr import THKR
+from thkr_s import THKR_S
 from vshai import VSHAI
 from polynomial import Polynomial
 
@@ -23,7 +23,7 @@ def get_model(model_name, exp_curves, args):
         EVPWD(exp_curves),
         EVPWD_S(exp_curves),
         TH(exp_curves),
-        THKR(exp_curves),
+        THKR_S(exp_curves),
         VSHAI(exp_curves),
         Polynomial(exp_curves)
     )

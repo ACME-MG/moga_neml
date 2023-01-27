@@ -6,9 +6,13 @@
 """
 
 # Libraries
-import time, math
+import time, math, sys
 import pandas as pd
 from modules.moga.objective import BIG_VALUE
+
+# Helper libraries
+sys.path += ["../__common__"]
+from derivative import differentiate_curve
 
 # Constants
 CURVE_DENSITY = 100
@@ -17,22 +21,17 @@ CURVE_DENSITY = 100
 class Recorder:
 
     # Constructor
-    def __init__(self, objective, exp_curves, path, interval, population):
+    def __init__(self, objective, train_curves, test_curves, path, interval, population):
 
         # Initialise
         self.model            = objective.get_model()
         self.error_names      = objective.get_error_names()
         self.constraint_names = objective.get_constraint_names()
-        self.exp_curves       = exp_curves
+        self.train_curves     = train_curves
+        self.test_curves      = test_curves
         self.path             = path
         self.interval         = interval
         self.population       = population
-
-        # Prepare experimental data
-        exp_x_data = [get_thinned_list(exp_curve["x"]) for exp_curve in self.exp_curves]
-        exp_y_data = [get_thinned_list(exp_curve["y"]) for exp_curve in self.exp_curves]
-        self.exp_x_flat = [exp_x for exp_x_list in exp_x_data for exp_x in exp_x_list] # flatten
-        self.exp_y_flat = [exp_y for exp_y_list in exp_y_data for exp_y in exp_y_list] # flatten
 
         # Track optimisation progress
         self.start_time = time.time()
@@ -40,7 +39,7 @@ class Recorder:
         self.start_time_str = time.strftime("%A, %D, %H:%M:%S", time.localtime())
         self.num_evals_completed, self.num_gens_completed = 0, 0
         self.opt_params, self.opt_errors, self.opt_constraints = [], [], []
-    
+
     # Define MOGA hyperparameters
     def define_hyperparameters(self, num_gens, init_pop, offspring, crossover, mutation):
         self.num_gens   = num_gens
@@ -119,24 +118,24 @@ class Recorder:
 
         # Settings Data
         settings = {
-            "Status":       ["Complete" if self.num_gens_completed == self.num_gens else "Incomplete"],
-            "Progress":     [f"{round(self.num_gens_completed)}/{self.num_gens}"],
-            "Start Time":   [self.start_time_str],
-            "End Time":     [time.strftime("%A, %D, %H:%M:%S", time.localtime())],
-            "Time Elapsed": [f"{round(time.time() - self.start_time)}s"],
-            "Model":        [self.model.get_name()],
-            "Params":       self.model.get_param_names(),
-            "Lower Bound":  self.model.get_param_lower_bounds(),
-            "Upper Bound":  self.model.get_param_upper_bounds(),
-            "Errors":       self.error_names,
-            "Constraints":  self.constraint_names,
-            "Stresses":     [exp_curve["stress"] for exp_curve in self.exp_curves],
-            "Temperatures": [exp_curve["temp"] for exp_curve in self.exp_curves],
-            "num_gens":     [self.num_gens],
-            "init_pop":     [self.init_pop],
-            "offspring":    [self.offspring],
-            "crossover":    [self.crossover],
-            "mutation":     [self.mutation],
+            "Status":               ["Complete" if self.num_gens_completed == self.num_gens else "Incomplete"],
+            "Progress":             [f"{round(self.num_gens_completed)}/{self.num_gens}"],
+            "Start Time":           [self.start_time_str],
+            "End Time":             [time.strftime("%A, %D, %H:%M:%S", time.localtime())],
+            "Time Elapsed":         [f"{round(time.time() - self.start_time)}s"],
+            "Model":                [self.model.get_name()],
+            "Params":               self.model.get_param_names(),
+            "Lower Bound":          self.model.get_param_lower_bounds(),
+            "Upper Bound":          self.model.get_param_upper_bounds(),
+            "Errors":               self.error_names,
+            "Constraints":          self.constraint_names,
+            "Training Data":        [f"{train_curve['temp']}/{train_curve['stress']}" for train_curve in self.train_curves],
+            "Testing Data":         [f"{test_curve['temp']}/{test_curve['stress']}" for test_curve in self.test_curves],
+            "num_gens":             [self.num_gens],
+            "init_pop":             [self.init_pop],
+            "offspring":            [self.offspring],
+            "crossover":            [self.crossover],
+            "mutation":             [self.mutation],
         }
 
         # Change format of data
@@ -166,29 +165,66 @@ class Recorder:
         # If there are no optimal parameters, leave
         if len(self.opt_params) == 0:
             return
-
-        # Prepare predicted curves
-        prd_curves = self.model.get_prd_curves(*self.opt_params[0])
-        prd_x_flat = [prd_x for prd_curve in prd_curves for prd_x in get_thinned_list(prd_curve["x"])] # flatten
-        prd_y_flat = [prd_y for prd_curve in prd_curves for prd_y in get_thinned_list(prd_curve["y"])] # flatten
         
-        # Prepare chart
-        data = zip_longest([self.exp_x_flat, self.exp_y_flat, prd_x_flat, prd_y_flat])
-        data = list(map(list, zip(*data)))
-        pd.DataFrame(data).to_excel(writer, "plot", index = False)
-        workbook = writer.book
-        worksheet = writer.sheets["plot"]
-        chart = workbook.add_chart({"type": "scatter"})
+        # Create plot for curves
+        prd_test_curves = self.model.get_specified_prd_curves(self.opt_params[0], self.test_curves)
+        prd_train_curves = self.model.get_specified_prd_curves(self.opt_params[0], self.train_curves)
+        add_plot_sheet(writer, "plot_y", self.test_curves, self.train_curves, prd_test_curves, prd_train_curves)
 
-        # Add curves to chart
-        marker = {"type": "circle", "size": 3}
-        chart.add_series({"categories": ["plot", 1, 0, len(prd_x_flat), 0], "values": ["plot", 1, 1, len(prd_x_flat), 1], "marker": marker})
-        chart.add_series({"categories": ["plot", 1, 2, len(prd_x_flat), 2], "values": ["plot", 1, 3, len(prd_x_flat), 3], "marker": marker})
+        # Create plot for derivative of curves
+        test_d_curves       = [differentiate_curve(curve) for curve in self.test_curves]
+        train_d_curves      = [differentiate_curve(curve) for curve in self.train_curves]
+        prd_test_curves     = self.model.get_specified_prd_curves(self.opt_params[0], self.test_curves)
+        prd_test_d_curves   = [differentiate_curve(curve) for curve in prd_test_curves]
+        prd_train_curves    = self.model.get_specified_prd_curves(self.opt_params[0], self.train_curves)
+        prd_train_d_curves  = [differentiate_curve(curve) for curve in prd_train_curves]
+        add_plot_sheet(writer, "plot_dy", test_d_curves, train_d_curves, prd_test_d_curves, prd_train_d_curves)
 
-        # Insert chart into worksheet
-        chart.set_x_axis({"name": "x", "major_gridlines": {"visible": True}})
-        chart.set_y_axis({"name": "y", "major_gridlines": {"visible": True}})
-        worksheet.insert_chart("A1", chart)
+# For creating a sheet for a plot
+def add_plot_sheet(writer, sheet_name, test_curves, train_curves, prd_test_curves, prd_train_curves):
+    
+    # Flatten data
+    test_x_flat, test_y_flat = thin_and_flatten(test_curves)
+    train_x_flat, train_y_flat = thin_and_flatten(train_curves)
+    prd_test_x_flat, prd_test_y_flat = thin_and_flatten(prd_test_curves)
+    prd_train_x_flat, prd_train_y_flat = thin_and_flatten(prd_train_curves)
+    prd_x_flat = prd_test_x_flat + prd_train_x_flat
+    prd_y_flat = prd_test_y_flat + prd_train_y_flat
+
+    # Write the data
+    data = zip_longest([test_x_flat, test_y_flat, train_x_flat, train_y_flat, prd_x_flat, prd_y_flat])
+    data = list(map(list, zip(*data)))
+    pd.DataFrame(data).to_excel(writer, sheet_name, index=False)
+    worksheet = writer.sheets[sheet_name]
+    chart = writer.book.add_chart({"type": "scatter"})
+
+    # Add curves to chart
+    add_series(chart, sheet_name, "Testing", 0, len(test_x_flat), "circle", 5, "silver")
+    add_series(chart, sheet_name, "Training", 2, len(train_x_flat), "circle", 5, "gray")
+    add_series(chart, sheet_name, "Predicted", 4, len(prd_x_flat), "circle", 2, "red")
+
+    # Insert chart into worksheet
+    chart.set_x_axis({"name": "x", "major_gridlines": {"visible": True}})
+    chart.set_y_axis({"name": "y", "major_gridlines": {"visible": True}})
+    worksheet.insert_chart("A1", chart)
+
+# For adding series to a chart
+def add_series(chart, sheet_name, series_name, col_num, curve_length, type, size, colour):
+    if curve_length > 0:
+        chart.add_series({
+            "name":       series_name,
+            "categories": [sheet_name, 1, col_num, curve_length, col_num],
+            "values":     [sheet_name, 1, col_num+1, curve_length, col_num+1],
+            "marker":     {"type": type, "size": size, "border": {"color": colour}, "fill": {"color": colour}}
+        })
+
+# For thinning and flattening data
+def thin_and_flatten(curves):
+    x_data = [get_thinned_list(curve["x"]) for curve in curves]
+    y_data = [get_thinned_list(curve["y"]) for curve in curves]
+    x_data_flat = [x for x_list in x_data for x in x_list]
+    y_data_flat = [y for y_list in y_data for y in y_list]
+    return x_data_flat, y_data_flat
 
 # For centre-aligning the cellss
 def centre_align(x):

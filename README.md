@@ -2,6 +2,34 @@
 
 The repository contains code for calibrating the constitutive parameters of phenomenological creep models.
 
+# Dependencies
+
+The code relies on several libraries to work.
+
+### NEML
+
+NEML (Nuclear Engineering Material model Library) is a tool for developing / running structural material models. To install NEML, please follow the [official instructions](https://neml.readthedocs.io/en/dev/started.html). However, instead of a normal `git clone`, please clone the NEML repository recursively. In other words, use the following command to clone the NEML repository.
+
+```
+git clone --recursive https://github.com/Argonne-National-Laboratory/neml.git
+```
+
+After installing NEML using the official instructions, add NEML to the system path. You can do this by going to your home directory, adding the following line to the `.bashrc` file or the `.profile` file, and restarting the terminal.
+
+```
+export PYTHONPATH=<path_to_neml>:$PYTHONPATH
+```
+
+Please replace `<path_to_neml>` with the absolute path to the installed NEML folder.
+
+### PyPI Libraries
+
+In addition to NEML, the code in the repository also relies on several Python libraries that can be installed via `pip`.
+
+* Pandas (`pip3 install pandas`) for creating and manipulating Excel files.
+* PyMOO (`pip3 install pymoo`) for parameter optimisation.
+* XLSXWriter (`pip3 install xlsxwriter`) for creating Excel files to store results.
+
 # Repository Structure
 
 The following diagram shows the high level structure of the repository. 
@@ -28,20 +56,6 @@ The `__models__` directory (`calibrate/__models__/`) contains implementations of
 * **Elastic Visco-Plastic**, which is a semi-empirical model for the prediction of primary and secondary creep.
 * **Elastic Visco-Plastic Creep Damage**, which couples the Elastic Visco-Plastic model (primary and secondary) with the Creep Damage model (tertiary), to predict the entire creep life.
 * **Elastic Visco-Plastic Work Damage**, which couples the Elastic Visco-Plastic model (primary and secondary) with the Work Damage model (tertiary), to predict the entire creep life.
-
-To install NEML, please follow the [official instructions](https://neml.readthedocs.io/en/dev/started.html). However, instead of a normal `git clone`, please clone the NEML repository recursively. In other words, use the following command to clone the NEML repository.
-
-```
-git clone --recursive https://github.com/Argonne-National-Laboratory/neml.git
-```
-
-After installing NEML using the official instructions, add NEML to the system path. You can do this by going to your home directory, adding the following line to the `.bashrc` file or the `.profile` file, and restarting the terminal.
-
-```
-export PYTHONPATH=<path_to_neml>:$PYTHONPATH
-```
-
-Please replace `<path_to_neml>` with the absolute path to the installed NEML folder.
 
 # Analyser
 
