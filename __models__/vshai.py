@@ -41,10 +41,16 @@ class VSHAI(model.Model):
         )
 
     # Prepares the model
+    # Alloy 617: ["input_orientations.csv", 1.0, [1,1,0], [1,1,1]]
     def prepare(self, args):
 
-        # Define grain orientations
+        # Extract information from arguments
         orientation_file = args[0]
+        lattice_a        = args[1]
+        slip_direction   = args[2]
+        slip_plane       = args[3]
+
+        # Define grain orientations
         file = open(f"input/{orientation_file}", "r")
         self.grain_orientations = []
         for line in file.readlines():
@@ -56,9 +62,6 @@ class VSHAI(model.Model):
         file.close()
 
         # Define lattice structure
-        lattice_a        = args[1]
-        slip_direction   = args[2]
-        slip_plane       = args[3]
         self.elastic_model = elasticity.IsotropicLinearElasticModel(YOUNGS, "youngs", POISSONS, "poissons")
         self.lattice = crystallography.CubicLattice(lattice_a)
         self.lattice.add_slip_system(slip_direction, slip_plane)
@@ -80,7 +83,7 @@ class VSHAI(model.Model):
 
             # Get stress and temperature
             stress = self.exp_curves[i]["stress"]
-            temp = self.exp_curves[i]["temp"]
+            temp = self.exp_curves[i]["temp"] + 273.15 # Kelvin
             type = self.exp_curves[i]["type"]
 
             # Get predictions

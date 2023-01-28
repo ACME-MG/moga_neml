@@ -12,6 +12,7 @@ import __model__ as model
 # Constants
 TIME_STEP = 5
 UNEXPECTED_BIG_NUMBER = 10000
+MIN_DATA = 10
 
 # The Time Hardening Class
 class TH(model.Model):
@@ -47,6 +48,10 @@ class TH(model.Model):
                     break
                 prd_curves[i]["x"].append(time)
                 prd_curves[i]["y"].append(th_strain)
+
+            # Ensure non-empty
+            if len(prd_curves[i]["x"]) < MIN_DATA or len(prd_curves[i]["y"]) < MIN_DATA:
+                return []
 
         # Return predicted curves
         return prd_curves

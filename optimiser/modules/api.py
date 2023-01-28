@@ -50,39 +50,34 @@ class API:
         safe_mkdir(RESULTS_DIR)
         safe_mkdir(self.output_path)
     
-    # Reads in the training data
-    def read_train_data(self, file_names):
-        self.prog.add(f"Reading training data from {len(file_names)} files")
-        file_paths = [f"{INPUT_DIR}/{file_name}" for file_name in file_names]
-        self.train_curves = read_experimental_data(file_paths)
-        quick_plot(self.train_curves, self.output_path, "train_raw.png")
-    
-    # Reads in the testing data
-    def read_test_data(self, file_names):
-        self.prog.add(f"Reading testing data from {len(file_names)} files")
-        file_paths = [f"{INPUT_DIR}/{file_name}" for file_name in file_names]
-        self.test_curves = read_experimental_data(file_paths)
-        quick_plot(self.test_curves, self.output_path, "test_raw.png")
+    # Reads in the experimental data
+    def read_data(self, train_files=[], test_files=[]):
+        self.prog.add(f"Reading experimental data ({len(train_files)}/{len(test_files)})")
+        train_file_paths = [f"{INPUT_DIR}/{file}" for file in train_files]
+        self.train_curves = read_experimental_data(train_file_paths)
+        test_file_paths = [f"{INPUT_DIR}/{file}" for file in test_files]
+        self.test_curves = read_experimental_data(test_file_paths)
+        quick_plot_2(self.train_curves, self.test_curves, "Training", "Testing", self.output_path, "raw_curves.png")
 
     # Removes the tertiary creep from creep curves
-    def remove_tertiary_creep(self, window=300, acceptance=0.9):
-        self.prog.add("Removing the tertiary creep regime")
+    def remove_tertiary_creep(self, window=200, acceptance=0.9):
+        self.prog.add("Removing the tertiary creep strain")
         raw_train_curves = deepcopy(self.train_curves)
         raw_test_curves = deepcopy(self.test_curves)
         self.train_curves = [remove_after_sp(curve, "min", window, acceptance, 0) for curve in self.train_curves if curve["type"] == "creep"]
         self.test_curves = [remove_after_sp(curve, "min", window, acceptance, 0) for curve in self.test_curves if curve["type"] == "creep"]
-        quick_plot_2(self.train_curves, raw_train_curves, "Original", "Removed", self.output_path, "train_rtc.png")
-        quick_plot_2(self.test_curves, raw_test_curves, "Original", "Removed", self.output_path, "test_rtc.png")
+        quick_plot_2(self.train_curves, raw_train_curves, "Original", "Removed", self.output_path, "rtc_train.png")
+        quick_plot_2(self.test_curves, raw_test_curves, "Original", "Removed", self.output_path, "rtc_test.png")
 
     # Removes the data after the tertiary creep
     def remove_oxidised_creep(self, window=300, acceptance=0.9):
-        self.prog.add("Removing strain after the tertiary creep regime")
+        self.prog.add("Removing oxidised creep strain")
         raw_train_curves = deepcopy(self.train_curves)
         raw_test_curves = deepcopy(self.test_curves)
         self.train_curves = [remove_after_sp(curve, "max", window, acceptance, 0) for curve in self.train_curves if curve["type"] == "creep"]
         self.test_curves = [remove_after_sp(curve, "max", window, acceptance, 0) for curve in self.test_curves if curve["type"] == "creep"]
-        quick_plot_2(self.train_curves, raw_train_curves, "Original", "Removed", self.output_path, "train_roc.png")
-        quick_plot_2(self.test_curves, raw_test_curves, "Original", "Removed", self.output_path, "test_roc.png")
+        quick_plot_2(self.train_curves, raw_train_curves, "Original", "Removed", self.output_path, "roc_train.png")
+        quick_plot_2(self.test_curves, raw_test_curves, "Original", "Removed", self.output_path, "roc_test.png")
 
     # Initialising the model
     def define_model(self, model_name, args=[]):

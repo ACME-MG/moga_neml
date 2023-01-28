@@ -34,14 +34,15 @@ class EVPWD_S(model.Model):
         )
 
     # Prepares the model
+    # Alloy 617 at 800C: [0.671972514, 25.74997349, 43.16881374, 4.487884698, 1669.850786]
     def prepare(self, args):
         self.elastic_model = elasticity.IsotropicLinearElasticModel(YOUNGS, "youngs", POISSONS, "poissons")
         self.yield_surface = surfaces.IsoJ2()
-        self.evp_s0 = 0.671972514
-        self.evp_R = 25.74997349
-        self.evp_d = 43.16881374
-        self.evp_n = 4.487884698
-        self.evp_eta = 1669.850786
+        self.evp_s0  = args[0]
+        self.evp_R   = args[1]
+        self.evp_d   = args[2]
+        self.evp_n   = args[3]
+        self.evp_eta = args[4]
 
     # Gets the predicted curves
     def get_prd_curves(self, wd_wc, wd_n):
@@ -61,7 +62,7 @@ class EVPWD_S(model.Model):
 
             # Get stress and temperature
             stress = self.exp_curves[i]["stress"]
-            temp = self.exp_curves[i]["temp"]
+            temp = self.exp_curves[i]["temp"] + 273.15 # Kelvin
             type = self.exp_curves[i]["type"]
 
             # Get predictions
