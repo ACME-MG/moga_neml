@@ -54,7 +54,7 @@ class Plotter:
         plt.clf()
 
 # Plots a single curve
-def quick_plot(curves, path, file):
+def quick_plot(path, file, curves):
     if curves == []:
         return
     plt = Plotter(path, file)
@@ -62,13 +62,26 @@ def quick_plot(curves, path, file):
     plt.save_plot()
     plt.clear()
 
-# Plots two sets of curves
-def quick_plot_2(curves_1, curves_2, label_1, label_2, path, file):
-    if curves_1 == [] or curves_2 == []:
+# Plots N sets of curves
+def quick_plot_N(path, file, curve_lists=[], labels=[], colours=[], markers=[]):
+    
+    # Ensure there exists one non-empty curve
+    is_empty = [curves == [] for curves in curve_lists]
+    if curve_lists == [] or not False in is_empty:
         return
+
+    # Define default values
+    labels  = labels if labels != [] else list(range(len(curve_lists)))
+    colours = colours if colours != [] else ["r"]*len(curve_lists)
+    markers = markers if markers != [] else ["line"]*len(curve_lists)
+
+    # Commence plotting
     plt = Plotter(path, file)
-    plt.line_plot(curves_1, "r")
-    plt.scat_plot(curves_2, "silver")
-    plt.define_legend([label_1, label_2])
+    for i in range(len(curve_lists)):
+        if markers[i] == "line":
+            plt.line_plot(curve_lists[i], colours[i])
+        else:
+            plt.scat_plot(curve_lists[i], colours[i])
+    plt.define_legend(labels)
     plt.save_plot()
     plt.clear()

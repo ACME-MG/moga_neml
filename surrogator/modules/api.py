@@ -15,7 +15,7 @@ from modules.trainers.__trainer_factory__ import get_trainer
 sys.path += ["../__common__", "../__models__"]
 from progressor import Progressor
 from visualiser import Visualiser
-from plotter import quick_plot_2
+from plotter import quick_plot_N
 from general import safe_mkdir
 from __model_factory__ import get_model
 from curve import get_curve, get_sample_creep_curve
@@ -187,7 +187,7 @@ class API:
             sm_curve = self.trainer.restore_curve(sm_curve)
 
             # Plot the results and print out progress
-            quick_plot_2([model_curve], [sm_curve], "Model", "Surrogate", self.output_path, f"plot_{self.plot_count}_test")
+            quick_plot_N(self.output_path, f"plot_{self.plot_count}_test", [[model_curve], [sm_curve]], ["Model", "Surrogate"], ["r", "b"])
             print(f"  {i+1})\tTested - {i+1}/{len(self.sm_inputs)}")
             self.plot_count += 1
 
@@ -198,4 +198,4 @@ class API:
         input_size, _ = self.trainer.get_shape()
         _, reduced_curve = self.trainer.__get_io__([0]*input_size, sample_curve)
         restored_curve = self.trainer.restore_curve(reduced_curve)
-        quick_plot_2([sample_curve], [restored_curve], "Original", "Restored", self.output_path, f"plot_trainer_test")
+        quick_plot_N(self.output_path, f"plot_trainer_test", [[sample_curve], [restored_curve]], ["Original", "Restored"], ["r", "b"])

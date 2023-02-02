@@ -8,7 +8,7 @@
 # Libraries
 import time, sys
 from copy import deepcopy
-from modules.reader import read_experimental_data
+from modules.reader import read_experimental_data, prematurely_end_curve
 from modules.moga.objective import Objective
 from modules.moga.problem import Problem
 from modules.moga.moga import MOGA
@@ -19,7 +19,7 @@ from modules.constraints.__constraint_factory__ import get_constraint_list
 # Helper libraries
 sys.path += ["../__common__", "../__models__"]
 from progressor import Progressor
-from plotter import quick_plot, quick_plot_2
+from plotter import quick_plot_N
 from general import safe_mkdir
 from __model_factory__ import get_model
 from derivative import remove_after_sp
@@ -39,6 +39,7 @@ class API:
         self.constraint_list = []
         self.train_curves = []
         self.test_curves = []
+        self.plot_count = 1
 
         # Initialise paths
         self.output_dir  = time.strftime("%y%m%d%H%M%S", time.localtime(time.time()))
@@ -57,27 +58,31 @@ class API:
         self.train_curves = read_experimental_data(train_file_paths)
         test_file_paths = [f"{INPUT_DIR}/{file}" for file in test_files]
         self.test_curves = read_experimental_data(test_file_paths)
-        quick_plot_2(self.train_curves, self.test_curves, "Training", "Testing", self.output_path, "raw_curves.png")
+
+    # Visualises the training and testing curves
+    def visualise_curves(self, file_name=None):
+        self.prog.add("Visualising training and testing curves")
+        file_name = f"plot_{self.plot_count}" if file_name == None else file_name
+        quick_plot_N(self.output_path, f"{file_name}.png", [self.train_curves, self.test_curves], ["Training", "Testing"], ["gray", "silver"])
+        self.plot_count += 1
+
+    # Prematurely ends the creep curves
+    def remove_manual(self, train_ruptures=[], test_ruptures=[]):
+        self.prog.add(f"Removing creep after custom rupture times")
+        self.train_curves = [prematurely_end_curve(self.train_curves[i], train_ruptures[i]) for i in range(len(self.train_curves))]
+        self.test_curves = [prematurely_end_curve(self.test_curves[i], test_ruptures[i]) for i in range(len(self.test_curves))]
 
     # Removes the tertiary creep from creep curves
     def remove_tertiary_creep(self, window=200, acceptance=0.9):
-        self.prog.add("Removing the tertiary creep strain")
-        raw_train_curves = deepcopy(self.train_curves)
-        raw_test_curves = deepcopy(self.test_curves)
+        self.prog.add("Removing tertiary creep strain")
         self.train_curves = [remove_after_sp(curve, "min", window, acceptance, 0) for curve in self.train_curves if curve["type"] == "creep"]
         self.test_curves = [remove_after_sp(curve, "min", window, acceptance, 0) for curve in self.test_curves if curve["type"] == "creep"]
-        quick_plot_2(self.train_curves, raw_train_curves, "Original", "Removed", self.output_path, "rtc_train.png")
-        quick_plot_2(self.test_curves, raw_test_curves, "Original", "Removed", self.output_path, "rtc_test.png")
 
     # Removes the data after the tertiary creep
     def remove_oxidised_creep(self, window=300, acceptance=0.9):
         self.prog.add("Removing oxidised creep strain")
-        raw_train_curves = deepcopy(self.train_curves)
-        raw_test_curves = deepcopy(self.test_curves)
         self.train_curves = [remove_after_sp(curve, "max", window, acceptance, 0) for curve in self.train_curves if curve["type"] == "creep"]
         self.test_curves = [remove_after_sp(curve, "max", window, acceptance, 0) for curve in self.test_curves if curve["type"] == "creep"]
-        quick_plot_2(self.train_curves, raw_train_curves, "Original", "Removed", self.output_path, "roc_train.png")
-        quick_plot_2(self.test_curves, raw_test_curves, "Original", "Removed", self.output_path, "roc_test.png")
 
     # Initialising the model
     def define_model(self, model_name, args=[]):
@@ -111,8 +116,16 @@ class API:
     # Plots the results
     def plot_results(self, params):
         self.prog.add("Plotting the results")
-        prd_curves = self.model.get_prd_curves(*params)
-        quick_plot_2(prd_curves, self.train_curves, "Predicted", "Experimental", self.output_path, "predicted.png")
+        prd_train_curves = self.model.get_specified_prd_curves(params, self.train_curves)
+        prd_test_curves = self.model.get_specified_prd_curves(params, self.test_curves)
+        quick_plot_N(
+            path=self.output_path,
+            file="predicted.png",
+            curve_lists=[self.train_curves, self.test_curves, prd_train_curves, prd_test_curves],
+            labels=["Training", "Testing", "Predicted", "Predicted"],
+            colours=["gray", "silver", "red", "red"],
+            markers=["scat", "scat", "line", "line"],
+        )
 
     # Returns the error values of the objective functions
     def get_errors(self, params):

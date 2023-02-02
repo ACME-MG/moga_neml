@@ -43,3 +43,9 @@ def read_experimental_data(file_paths):
         exp_curve = get_curve(x_list, y_list, info_dict)
         exp_curves.append(exp_curve)
     return exp_curves
+
+# Removes values of a curve after a specific x value
+def prematurely_end_curve(curve, x_value):
+    curve["y"] = [curve["y"][i] for i in range(len(curve["x"])) if curve["y"][i] < x_value]
+    curve["x"] = [curve["x"][i] for i in range(len(curve["x"])) if curve["x"][i] < x_value]
+    return curve

@@ -49,17 +49,13 @@ class EVPCD(model.Model):
     def get_prd_curves(self, evp_s0, evp_R, evp_d, evp_n, evp_eta, cd_A, cd_xi, cd_phi):
 
         # Define model
-
-        elastic_model       = elasticity.IsotropicLinearElasticModel(YOUNGS, "youngs", POISSONS, "poissons")
-        yield_surface       = surfaces.IsoJ2()
-        effective_stress    = damage.VonMisesEffectiveStress()
         iso_hardening       = hardening.VoceIsotropicHardeningRule(evp_s0, evp_R, evp_d)
         g_power             = visco_flow.GPowerLaw(evp_n, evp_eta)
-        visco_model         = visco_flow.PerzynaFlowRule(yield_surface, iso_hardening, g_power)
-        integrator          = general_flow.TVPFlowRule(elastic_model, visco_model)
-        evp_model           = models.GeneralIntegrator(elastic_model, integrator)
-        cd_model            = damage.ModularCreepDamage(elastic_model, cd_A, cd_xi, cd_phi, effective_stress)
-        evpcd_model         = damage.NEMLScalarDamagedModel_sd(elastic_model, evp_model, cd_model)
+        visco_model         = visco_flow.PerzynaFlowRule(self.yield_surface, iso_hardening, g_power)
+        integrator          = general_flow.TVPFlowRule(self.elastic_model, visco_model)
+        evp_model           = models.GeneralIntegrator(self.elastic_model, integrator)
+        cd_model            = damage.ModularCreepDamage(self.elastic_model, cd_A, cd_xi, cd_phi, self.effective_stress)
+        evpcd_model         = damage.NEMLScalarDamagedModel_sd(self.elastic_model, evp_model, cd_model)
 
         # Iterate through predicted curves
         prd_curves = super().get_prd_curves()

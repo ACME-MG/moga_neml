@@ -7,7 +7,7 @@
 
 # Libraries
 import __model__ as model
-from neml import models, elasticity, drivers, surfaces, hardening, visco_flow, general_flow, damage
+from neml import models, elasticity, drivers, surfaces, hardening, visco_flow, general_flow, damage, interpolate
 from neml.nlsolvers import MaximumIterations
 
 # Model Parameters
@@ -27,8 +27,10 @@ class EVPWD_S(model.Model):
         super().__init__(
             name = "evpwd_s",
             param_info = [
-                {"name": "wd_wc",   "min": 0.0e1,   "max": 1.0e2},
-                {"name": "wd_n",    "min": 0.0e1,   "max": 1.0e2},
+                {"name": "wd_wc_0", "min": 0.0e1,   "max": 1.0e2}, # 2
+                {"name": "wd_wc_1", "min": 0.0e1,   "max": 1.0e2}, # 2
+                {"name": "wd_wc_2", "min": 0.0e1,   "max": 1.0e2}, # 2
+                {"name": "wd_n",    "min": 0.0e1,   "max": 1.0e2}, # 2
             ],
             exp_curves = exp_curves
         )
@@ -36,25 +38,30 @@ class EVPWD_S(model.Model):
     # Prepares the model
     # Alloy 617 at 800C: [0.671972514, 25.74997349, 43.16881374, 4.487884698, 1669.850786]
     def prepare(self, args):
-        self.elastic_model = elasticity.IsotropicLinearElasticModel(YOUNGS, "youngs", POISSONS, "poissons")
-        self.yield_surface = surfaces.IsoJ2()
+
+        # Define elastic-plastic parameters
         self.evp_s0  = args[0]
         self.evp_R   = args[1]
         self.evp_d   = args[2]
         self.evp_n   = args[3]
         self.evp_eta = args[4]
 
-    # Gets the predicted curves
-    def get_prd_curves(self, wd_wc, wd_n):
-
-        # Define model
+        # Define elastic-plastic model
+        self.elastic_model = elasticity.IsotropicLinearElasticModel(YOUNGS, "youngs", POISSONS, "poissons")
+        yield_surface   = surfaces.IsoJ2()
         iso_hardening   = hardening.VoceIsotropicHardeningRule(self.evp_s0, self.evp_R, self.evp_d)
         g_power         = visco_flow.GPowerLaw(self.evp_n, self.evp_eta)
-        visco_model     = visco_flow.PerzynaFlowRule(self.yield_surface, iso_hardening, g_power)
+        visco_model     = visco_flow.PerzynaFlowRule(yield_surface, iso_hardening, g_power)
         integrator      = general_flow.TVPFlowRule(self.elastic_model, visco_model)
-        evp_model       = models.GeneralIntegrator(self.elastic_model, integrator, verbose=False)
-        wd_model        = damage.WorkDamage(self.elastic_model, wd_wc, wd_n)
-        evpwd_model     = damage.NEMLScalarDamagedModel_sd(self.elastic_model, evp_model, wd_model, verbose=False)
+        self.evp_model  = models.GeneralIntegrator(self.elastic_model, integrator, verbose=False)
+
+    # Gets the predicted curves
+    def get_prd_curves(self, wd_wc_0, wd_wc_1, wd_wc_2, wd_n):
+
+        # Define model
+        wd_wc       = interpolate.PolynomialInterpolate([wd_wc_0, wd_wc_1, wd_wc_2])
+        wd_model    = damage.WorkDamage(self.elastic_model, wd_wc, wd_n)
+        evpwd_model = damage.NEMLScalarDamagedModel_sd(self.elastic_model, self.evp_model, wd_model, verbose=False)
 
         # Iterate through predicted curves
         prd_curves = super().get_prd_curves()

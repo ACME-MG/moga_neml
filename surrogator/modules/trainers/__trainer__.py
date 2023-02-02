@@ -11,7 +11,7 @@ from modules.mapper import MultiMapper
 
 # Helper libraries
 sys.path.append("../__common__")
-from plotter import quick_plot_2
+from plotter import quick_plot_N
 from curve import validate_curve
 
 # The Trainer Class
@@ -74,7 +74,7 @@ class Trainer:
         restored_curve = self.restore_curve(unmapped_output)
         
         # Plot
-        quick_plot_2([raw_curve], [restored_curve], "Original", "Restored", path, file)
+        quick_plot_N(path, file, [[raw_curve], [restored_curve]], ["Original", "Restored"], ["r", "b'"])
 
     # Returns the input / output data with validification
     def get_io(self, unmapped_input):
