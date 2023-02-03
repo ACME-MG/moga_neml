@@ -54,7 +54,7 @@ class EVPWD(model.Model):
         visco_model     = visco_flow.PerzynaFlowRule(self.yield_surface, iso_hardening, g_power)
         integrator      = general_flow.TVPFlowRule(self.elastic_model, visco_model)
         evp_model       = models.GeneralIntegrator(self.elastic_model, integrator, verbose=False)
-        wd_wc           = interpolate.PolynomialInterpolate([wd_wc_0, wd_wc_1, wd_wc_2])
+        wd_wc           = interpolate.PiecewiseLogLinearInterpolate([wd_wc_0, wd_wc_1, wd_wc_2])
         wd_model        = damage.WorkDamage(self.elastic_model, wd_wc, wd_n)
         evpwd_model     = damage.NEMLScalarDamagedModel_sd(self.elastic_model, evp_model, wd_model, verbose=False)
 

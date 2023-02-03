@@ -59,7 +59,7 @@ class EVPWD_S(model.Model):
     def get_prd_curves(self, wd_wc_0, wd_wc_1, wd_wc_2, wd_n):
 
         # Define model
-        wd_wc       = interpolate.PolynomialInterpolate([wd_wc_0, wd_wc_1, wd_wc_2])
+        wd_wc       = interpolate.PiecewiseLogLinearInterpolate([wd_wc_0, wd_wc_1, wd_wc_2])
         wd_model    = damage.WorkDamage(self.elastic_model, wd_wc, wd_n)
         evpwd_model = damage.NEMLScalarDamagedModel_sd(self.elastic_model, self.evp_model, wd_model, verbose=False)
 
