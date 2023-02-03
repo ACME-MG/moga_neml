@@ -7,6 +7,7 @@
 
 # Libraries
 import __model__ as model
+from math import e as exp, pow
 from neml import models, elasticity, drivers, surfaces, hardening, visco_flow, general_flow, damage, interpolate
 from neml.nlsolvers import MaximumIterations
 
@@ -32,9 +33,8 @@ class EVPWD(model.Model):
                 {"name": "evp_d",   "min": 0.0e1,   "max": 1.0e2}, # 2
                 {"name": "evp_n",   "min": 1.0e0,   "max": 1.0e1}, # 1
                 {"name": "evp_eta", "min": 0.0e1,   "max": 1.0e4}, # 4
-                {"name": "wd_wc_0", "min": 0.0e1,   "max": 1.0e2}, # 2
-                {"name": "wd_wc_1", "min": 0.0e1,   "max": 1.0e2}, # 2
-                {"name": "wd_wc_2", "min": 0.0e1,   "max": 1.0e2}, # 2
+                {"name": "wd_wc_f", "min": 0.0e1,   "max": 1.0e1}, # 2
+                {"name": "wd_wc_o", "min": 0.0e1,   "max": 1.0e0}, # 2
                 {"name": "wd_n",    "min": 0.0e1,   "max": 1.0e2}, # 2
             ],
             exp_curves = exp_curves
@@ -44,9 +44,13 @@ class EVPWD(model.Model):
     def prepare(self, args):
         self.elastic_model  = elasticity.IsotropicLinearElasticModel(YOUNGS, "youngs", POISSONS, "poissons")
         self.yield_surface  = surfaces.IsoJ2()
-    
+        self.x_interp       = [2**i for i in range(-2,4)]
+        def half_sigmoid(x, factor=2, offset=0):
+            return factor*(1/(1+pow(exp,-x)) - 0.5) + offset
+        self.half_sigmoid = half_sigmoid
+
     # Gets the predicted curves
-    def get_prd_curves(self, evp_s0, evp_R, evp_d, evp_n, evp_eta, wd_wc_0, wd_wc_1, wd_wc_2, wd_n):
+    def get_prd_curves(self, evp_s0, evp_R, evp_d, evp_n, evp_eta, wd_wc_f, wd_wc_o, wd_n):
 
         # Define model
         iso_hardening   = hardening.VoceIsotropicHardeningRule(evp_s0, evp_R, evp_d)
@@ -54,7 +58,8 @@ class EVPWD(model.Model):
         visco_model     = visco_flow.PerzynaFlowRule(self.yield_surface, iso_hardening, g_power)
         integrator      = general_flow.TVPFlowRule(self.elastic_model, visco_model)
         evp_model       = models.GeneralIntegrator(self.elastic_model, integrator, verbose=False)
-        wd_wc           = interpolate.PiecewiseLogLinearInterpolate([wd_wc_0, wd_wc_1, wd_wc_2])
+        y_interp        = [self.half_sigmoid(x, wd_wc_f, wd_wc_o) for x in self.x_interp]
+        wd_wc           = interpolate.PiecewiseSemiLogXLinearInterpolate(self.x_interp, y_interp)
         wd_model        = damage.WorkDamage(self.elastic_model, wd_wc, wd_n)
         evpwd_model     = damage.NEMLScalarDamagedModel_sd(self.elastic_model, evp_model, wd_model, verbose=False)
 
