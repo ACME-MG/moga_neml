@@ -83,7 +83,7 @@ class VSHAI(model.Model):
 
             # Get stress and temperature
             stress = self.exp_curves[i]["stress"]
-            temp = self.exp_curves[i]["temp"] + 273.15 # Kelvin
+            temp = self.exp_curves[i]["temp"]
             type = self.exp_curves[i]["type"]
 
             # Get predictions

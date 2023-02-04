@@ -5,13 +5,13 @@ from math import e as exp, pow
 sys.path += ["../__common__", "../__models__"]
 from plotter import quick_plot_N
 
-def half_sigmoid(x, factor=2, offset=0):
-    return factor*(1/(1+pow(exp,-x)) - 0.5) + offset
+def sigmoid(x, factor=1, offset=0.1):
+    return factor/(1+pow(exp,-x)) + offset
 
-x_interp = [2**i for i in range(-2,4)]
-y_interp = [half_sigmoid(x) for x in x_interp]
-# itp = interpolate.PiecewiseLinearInterpolate(x_interp, y_interp)
-itp = interpolate.PiecewiseSemiLogXLinearInterpolate(x_interp, y_interp)
+x_interp = [-10, -5, -2, -1, 0, 1, 2, 5, 10]
+y_interp = [sigmoid(x) for x in x_interp]
+itp = interpolate.PiecewiseLinearInterpolate(x_interp, y_interp)
+# itp = interpolate.PiecewiseSemiLogXLinearInterpolate(x_interp, y_interp)
 
 x_test = [i/10 for i in range(-100,100)]
 y_test = [itp(x) for x in x_test]
