@@ -15,7 +15,7 @@ POISSONS     = 0.3
 S_RATE       = 1.0e-4
 E_RATE       = 1.0e-4
 HOLD         = 11500.0 * 3600.0
-NUM_STEPS    = 501
+NUM_STEPS    = 251
 MIN_DATA     = 50
 
 # The Elastic Visco Plastic Class
