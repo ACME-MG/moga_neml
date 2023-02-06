@@ -168,7 +168,7 @@ class API:
     def plot_sample(self):
         self.prog.add(f"Plotting the curves of {len(self.sm_inputs)} samples")
         for i in range(len(self.sm_inputs)):
-            self.trainer.plot(self.sm_inputs[i], self.sm_outputs[i], self.output_path, f"plot_{self.plot_count}_sample")
+            self.trainer.plot(self.sm_inputs[i], self.sm_outputs[i], f"{self.output_path}/plot_{self.plot_count}_sample")
             self.plot_count += 1
 
     # Trains the surrogate model
@@ -187,7 +187,7 @@ class API:
             sm_curve = self.trainer.restore_curve(sm_curve)
 
             # Plot the results and print out progress
-            quick_plot_N(self.output_path, f"plot_{self.plot_count}_test", [[model_curve], [sm_curve]], ["Model", "Surrogate"], ["r", "b"])
+            quick_plot_N(f"{self.output_path}/plot_{self.plot_count}_test", [[model_curve], [sm_curve]], ["Model", "Surrogate"], ["r", "b"])
             print(f"  {i+1})\tTested - {i+1}/{len(self.sm_inputs)}")
             self.plot_count += 1
 
@@ -198,4 +198,4 @@ class API:
         input_size, _ = self.trainer.get_shape()
         _, reduced_curve = self.trainer.__get_io__([0]*input_size, sample_curve)
         restored_curve = self.trainer.restore_curve(reduced_curve)
-        quick_plot_N(self.output_path, f"plot_trainer_test", [[sample_curve], [restored_curve]], ["Original", "Restored"], ["r", "b"])
+        quick_plot_N(f"{self.output_path}/plot_trainer_test", [[sample_curve], [restored_curve]], ["Original", "Restored"], ["r", "b"])

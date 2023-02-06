@@ -30,7 +30,7 @@ def read_experimental_data(file_paths):
         y_list = [float(d[y_index]) for d in data]
 
         # Get auxiliary information
-        info_dict = {}
+        info_dict = {"file_path": file_path}
         for i in range(len(headers)):
             if not headers[i] in ["x", "y"]:
                 try:

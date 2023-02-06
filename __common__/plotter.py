@@ -7,10 +7,10 @@
 
 # Libraries
 import matplotlib.pyplot as plt
+from math import ceil
 
 # Constants
-DEFAULT_PATH    = "./"
-DEFAULT_PLOT    = "plot"
+DEFAULT_PATH    = "./plot"
 EXP_DATA_COLOUR = "darkgrey"
 PRD_DATA_COLOUR = "r"
 
@@ -18,9 +18,8 @@ PRD_DATA_COLOUR = "r"
 class Plotter:
 
     # Constructor
-    def __init__(self, path = DEFAULT_PATH, plot = DEFAULT_PLOT):
+    def __init__(self, path = DEFAULT_PATH):
         self.path = path
-        self.plot = plot
 
     # Prepares the plot
     def prep_plot(self, title = "", xlabel = "x", ylabel = "y"):
@@ -44,26 +43,25 @@ class Plotter:
         plt.legend(keys)
 
     # Saves the plot
-    def save_plot(self, path = "", plot = ""):
+    def save_plot(self, path=""):
         path = self.path if path == "" else path
-        plot = self.plot if plot == "" else plot
-        plt.savefig(path + "/" + plot)
+        plt.savefig(path)
     
     # CLears the plot
     def clear(self):
         plt.clf()
 
 # Plots a single curve
-def quick_plot(path, file, curves):
+def quick_plot(path, curves):
     if curves == []:
         return
-    plt = Plotter(path, file)
+    plt = Plotter(path)
     plt.line_plot(curves, "r")
     plt.save_plot()
     plt.clear()
 
 # Plots N sets of curves
-def quick_plot_N(path, file, curve_lists=[], labels=[], colours=[], markers=[]):
+def quick_plot_N(path, curve_lists=[], labels=[], colours=[], markers=[]):
     
     # Ensure there exists one non-empty curve
     is_empty = [curves == [] for curves in curve_lists]
@@ -76,7 +74,7 @@ def quick_plot_N(path, file, curve_lists=[], labels=[], colours=[], markers=[]):
     markers = markers if markers != [] else ["line"]*len(curve_lists)
 
     # Commence plotting
-    plt = Plotter(path, file)
+    plt = Plotter(path)
     for i in range(len(curve_lists)):
         if markers[i] == "line":
             plt.line_plot(curve_lists[i], colours[i])
@@ -85,3 +83,23 @@ def quick_plot_N(path, file, curve_lists=[], labels=[], colours=[], markers=[]):
     plt.define_legend(labels)
     plt.save_plot()
     plt.clear()
+
+# Plots N sets of curves in their own subplots
+def quick_subplot(path, curve_list=[], titles=[]):
+    
+    # Prepares the plots
+    num_curves = ceil(len(curve_list)**0.5)
+    figure, axis = plt.subplots(num_curves, num_curves)
+    figure.set_size_inches(20, 20)
+
+    # Create plots
+    for i in range(num_curves):
+        for j in range(num_curves):
+            index = i*num_curves + j
+            if index >= len(curve_list):
+                continue
+            axis[i, j].set_title(titles[index])
+            axis[i, j].scatter(curve_list[index]["x"], curve_list[index]["y"], marker="o")
+
+    # Save results
+    figure.savefig(path)

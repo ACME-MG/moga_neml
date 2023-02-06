@@ -28,8 +28,11 @@ class EVPWD_S(model.Model):
         super().__init__(
             name = "evpwd_s",
             param_info = [
-                {"name": "wd_wc_f", "min": 0.0e1,   "max": 1.0e1}, # 1
-                {"name": "wd_wc_o", "min": 0.0e1,   "max": 1.0e0}, # 0
+                {"name": "wd_1",    "min": -1.0e2,   "max": 1.0e2}, # 1
+                {"name": "wd_2",    "min": -1.0e2,   "max": 1.0e2}, # 0
+                {"name": "wd_3",    "min": -1.0e2,   "max": 1.0e2}, # 0
+                {"name": "wd_4",    "min": -1.0e2,   "max": 1.0e2}, # 0
+                {"name": "wd_5",    "min": -1.0e2,   "max": 1.0e2}, # 0
                 {"name": "wd_n",    "min": 0.0e1,   "max": 1.0e2}, # 2
             ],
             exp_curves = exp_curves
@@ -55,24 +58,11 @@ class EVPWD_S(model.Model):
         integrator      = general_flow.TVPFlowRule(self.elastic_model, visco_model)
         self.evp_model  = models.GeneralIntegrator(self.elastic_model, integrator, verbose=False)
 
-        # Define interpolator
-        # self.x_interp = [2**i for i in range(-2,4)]
-        # def half_sigmoid(x, factor=2, offset=0):
-        #     return factor*(1/(1+pow(exp,-x)) - 0.5) + offset
-        # self.interp_function = half_sigmoid
-        self.x_interp = [-10, -5, -2, -1, 0, 1, 2, 5, 10]
-        def sigmoid(x, factor=1, offset=0.1):
-            return factor/(1+pow(exp,-x)) + offset
-        self.interp_function = sigmoid
-
     # Gets the predicted curves
-    def get_prd_curves(self, wd_wc_f, wd_wc_o, wd_n):
+    def get_prd_curves(self, wd_1, wd_2, wd_3, wd_4, wd_5, wd_n):
 
         # Define model
-        # y_interp    = [self.interp_function(x, wd_wc_f, wd_wc_o) for x in self.x_interp]
-        # wd_wc       = interpolate.PiecewiseSemiLogXLinearInterpolate(self.x_interp, y_interp)
-        y_interp    = [self.interp_function(x, wd_wc_f, wd_wc_o) for x in self.x_interp]
-        wd_wc       = interpolate.PiecewiseLinearInterpolate(self.x_interp, y_interp)
+        wd_wc       = interpolate.PolynomialInterpolate([wd_1, wd_2, wd_3, wd_4, wd_5])
         wd_model    = damage.WorkDamage(self.elastic_model, wd_wc, wd_n)
         evpwd_model = damage.NEMLScalarDamagedModel_sd(self.elastic_model, self.evp_model, wd_model, verbose=False)
 

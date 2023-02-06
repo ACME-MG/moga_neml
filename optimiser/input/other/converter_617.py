@@ -3,8 +3,6 @@
 import os
 import pandas as pd
 
-# content = "x,y,temp,stress,type,title\n0,0,800,60,creep,G32"
-
 # Initialise
 xlsx_files = [file for file in os.listdir() if file.endswith(".xlsx")]
 condition_list = []
@@ -42,6 +40,13 @@ for xlsx_file in xlsx_files:
     # Write header
     new_fp.write("x,y,temp,stress,type,title\n")
     new_fp.write(f"0,0,{temp},{stress},creep,{medium}{test_id}\n")
+
+    # Check and transform values
+    if len(y_list) == 0:
+        new_fp.close()
+        continue
+    if y_list[-1] > 1:
+        y_list = [y/100 for y in y_list]
 
     # Transfer x and y
     for i in range(len(x_list)):

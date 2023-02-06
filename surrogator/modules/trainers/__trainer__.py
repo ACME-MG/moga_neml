@@ -63,7 +63,7 @@ class Trainer:
         return self.input_size, self.output_size
 
     # Makes a plot of the raw and restored curves
-    def plot(self, mapped_input, mapped_output, path, file):
+    def plot(self, mapped_input, mapped_output, path):
 
         # Unmap input / output
         unmapped_input = self.unmap_input(mapped_input)
@@ -74,7 +74,7 @@ class Trainer:
         restored_curve = self.restore_curve(unmapped_output)
         
         # Plot
-        quick_plot_N(path, file, [[raw_curve], [restored_curve]], ["Original", "Restored"], ["r", "b'"])
+        quick_plot_N(path, [[raw_curve], [restored_curve]], ["Original", "Restored"], ["r", "b'"])
 
     # Returns the input / output data with validification
     def get_io(self, unmapped_input):

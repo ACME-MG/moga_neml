@@ -6,8 +6,7 @@
 """
 
 # Libraries
-import time, sys
-from copy import deepcopy
+import time, sys, os
 from modules.reader import read_experimental_data, prematurely_end_curve
 from modules.moga.objective import Objective
 from modules.moga.problem import Problem
@@ -19,7 +18,7 @@ from modules.constraints.__constraint_factory__ import get_constraint_list
 # Helper libraries
 sys.path += ["../__common__", "../__models__"]
 from progressor import Progressor
-from plotter import quick_plot_N
+from plotter import quick_plot_N, quick_subplot
 from general import safe_mkdir
 from __model_factory__ import get_model
 from derivative import remove_after_sp
@@ -51,19 +50,30 @@ class API:
         safe_mkdir(RESULTS_DIR)
         safe_mkdir(self.output_path)
     
-    # Reads in the experimental data
-    def read_data(self, train_files=[], test_files=[]):
-        self.prog.add(f"Reading experimental data ({len(train_files)}/{len(test_files)})")
-        train_file_paths = [f"{INPUT_DIR}/{file}" for file in train_files]
-        self.train_curves = read_experimental_data(train_file_paths)
-        test_file_paths = [f"{INPUT_DIR}/{file}" for file in test_files]
-        self.test_curves = read_experimental_data(test_file_paths)
+    # Reads in the experimental data from files
+    def read_files(self, train_files=[], test_files=[]):
+        self.prog.add(f"Reading experimental data from files ({len(train_files)}/{len(test_files)})")
+        self.train_file_paths = [f"{INPUT_DIR}/{file}" for file in train_files]
+        self.train_curves = read_experimental_data(self.train_file_paths)
+        self.test_file_paths = [f"{INPUT_DIR}/{file}" for file in test_files]
+        self.test_curves = read_experimental_data(self.test_file_paths)
+
+    # Reads in the experimental data from folders
+    def read_folder(self, train_folder="", test_folder=""):
+        self.prog.add(f"Reading experimental data from folders")
+        self.train_file_paths = [f"{INPUT_DIR}/{train_folder}/{file}" for file in os.listdir(f"{INPUT_DIR}/{train_folder}") if file.endswith(".csv")]
+        self.train_curves = read_experimental_data(self.train_file_paths)
+        self.test_file_paths = [f"{INPUT_DIR}/{test_folder}/{file}" for file in os.listdir(f"{INPUT_DIR}/{test_folder}") if file.endswith(".csv")]
+        self.test_curves = read_experimental_data(self.test_file_paths)
 
     # Visualises the training and testing curves
-    def visualise_curves(self, file_name=None):
+    def visualise_data(self, file_name=None, separate=False):
         self.prog.add("Visualising training and testing curves")
         file_name = f"plot_{self.plot_count}" if file_name == None else file_name
-        quick_plot_N(self.output_path, f"{file_name}.png", [self.train_curves, self.test_curves], ["Training", "Testing"], ["gray", "silver"])
+        if separate:
+            quick_subplot(f"{self.output_path}/{file_name}.png", self.train_curves+self.test_curves, self.train_file_paths+self.test_file_paths)
+        else:
+            quick_plot_N(f"{self.output_path}/{file_name}.png", [self.train_curves, self.test_curves], ["Training", "Testing"], ["gray", "silver"])
         self.plot_count += 1
 
     # Prematurely ends the creep curves
@@ -119,8 +129,7 @@ class API:
         prd_train_curves = self.model.get_specified_prd_curves(params, self.train_curves)
         prd_test_curves = self.model.get_specified_prd_curves(params, self.test_curves)
         quick_plot_N(
-            path=self.output_path,
-            file="predicted.png",
+            path=f"{self.output_path}/predicted.png",
             curve_lists=[self.train_curves, self.test_curves, prd_train_curves, prd_test_curves],
             labels=["Training", "Testing", "Predicted", "Predicted"],
             colours=["gray", "silver", "red", "red"],
