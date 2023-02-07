@@ -9,7 +9,6 @@ import __model__ as model
 from neml import elasticity, drivers
 from neml.cp import crystallography, slipharden, sliprules, inelasticity, kinematics, singlecrystal, polycrystal
 from neml.math import rotations
-from neml.nlsolvers import MaximumIterations
 
 # Model Parameters
 YOUNGS      = 211000.0
@@ -96,7 +95,7 @@ class VSHAI(model.Model):
                     tensile_results = drivers.uniaxial_test(cptm_model, E_RATE, T=temp, verbose=VERBOSE, emax=E_MAX, nsteps=NUM_STEPS)
                     prd_curves[i]["x"] = list(tensile_results['strain'])
                     prd_curves[i]["y"] = list(tensile_results['stress'])
-            except MaximumIterations:
+            except:
                 return []
 
             # Make sure predictions contain more than MIN_DATA data points

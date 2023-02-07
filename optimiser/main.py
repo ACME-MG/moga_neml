@@ -9,7 +9,7 @@
 from modules.api import API
 
 # Code
-api = API(True, "evpwd_s", False)
+api = API(True, "evpwd sigmoid", False)
 api.read_files(["inl_1/800_80_G25.csv"])
 api.define_model("evpwd")
 api.define_errors(["dy_area", "y_area", "x_end", "y_end"])
