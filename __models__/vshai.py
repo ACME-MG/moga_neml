@@ -69,6 +69,8 @@ class VSHAI(model.Model):
     # Gets the predicted curves
     def get_prd_curves(self, vsh_ts, vsh_b, vsh_t0, ai_g0, ai_n):
 
+        print(vsh_ts, vsh_b, vsh_t0, ai_g0, ai_n) # DELETE ME
+
         # Define model
         strength_model  = slipharden.VoceSlipHardening(vsh_ts, vsh_b, vsh_t0)
         slip_model      = sliprules.PowerLawSlipRule(strength_model, ai_g0, ai_n)
