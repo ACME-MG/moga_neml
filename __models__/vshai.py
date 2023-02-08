@@ -33,7 +33,7 @@ class VSHAI(model.Model):
                 {"name": "vsh_ts",  "min": 0.0e1,   "max": 1.0e2},
                 {"name": "vsh_b",   "min": 0.0e1,   "max": 1.0e2},
                 {"name": "vsh_t0",  "min": 0.0e1,   "max": 1.0e1},
-                {"name": "ai_g0",   "min": 0.0e1,   "max": 1.0e1},
+                {"name": "ai_g0",   "min": 0.0e1,   "max": 1.0e0},
                 {"name": "ai_n",    "min": 0.0e1,   "max": 1.0e2},
             ],
             exp_curves = exp_curves
@@ -75,7 +75,10 @@ class VSHAI(model.Model):
         ai_model        = inelasticity.AsaroInelasticity(slip_model)
         ep_model        = kinematics.StandardKinematicModel(self.elastic_model, ai_model)
         cp_model        = singlecrystal.SingleCrystalModel(ep_model, self.lattice, verbose=False)
-        cptm_model      = polycrystal.TaylorModel(cp_model, self.grain_orientations, nthreads=self.num_threads)
+        try:
+            vshai_model = polycrystal.TaylorModel(cp_model, self.grain_orientations, nthreads=self.num_threads)
+        except MaximumSubdivisions:
+            return []
 
         # Iterate through predicted curves
         prd_curves = super().get_prd_curves()
@@ -89,14 +92,14 @@ class VSHAI(model.Model):
             try:
                 if type == "creep":
                     stress = self.exp_curves[i]["stress"]
-                    creep_results = drivers.creep(cptm_model, stress, S_RATE, HOLD, T=temp, verbose=VERBOSE, check_dmg=False, dtol=0.95, nsteps_up=150, nsteps=NUM_STEPS, logspace=False)
+                    creep_results = drivers.creep(vshai_model, stress, S_RATE, HOLD, T=temp, verbose=VERBOSE, check_dmg=False, dtol=0.95, nsteps_up=150, nsteps=NUM_STEPS, logspace=False)
                     prd_curves[i]["x"] = list(creep_results['rtime'] / 3600)
                     prd_curves[i]["y"] = list(creep_results['rstrain'])
                 elif type == "tensile":
-                    tensile_results = drivers.uniaxial_test(cptm_model, E_RATE, T=temp, verbose=VERBOSE, emax=E_MAX, nsteps=NUM_STEPS)
+                    tensile_results = drivers.uniaxial_test(vshai_model, E_RATE, T=temp, verbose=VERBOSE, emax=E_MAX, nsteps=NUM_STEPS)
                     prd_curves[i]["x"] = list(tensile_results['strain'])
                     prd_curves[i]["y"] = list(tensile_results['stress'])
-            except (MaximumIterations, MaximumSubdivisions):
+            except MaximumIterations:
                 return []
 
             # Make sure predictions contain more than MIN_DATA data points

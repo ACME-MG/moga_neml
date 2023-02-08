@@ -32,14 +32,21 @@ class Problem(ElementwiseProblem):
     
     # Minimises expression "F" such that the expression "G <= 0" is satisfied
     def _evaluate(self, params, out, *args, **kwargs):
-        print(params) # DELETE ME
         with warnings.catch_warnings():
             warnings.simplefilter("ignore") # ignore warnings
             
+            import time
+            start_time = time.time()
+            print("=================================")
+            print(f"Params: {params}")
+
             # Get errors and constraints
             prd_curves = self.model.get_prd_curves(*params)
             error_values = self.objective.get_error_values(prd_curves)
             constraint_values = self.objective.get_constraint_values(prd_curves)
+
+            print(f"Errors: {error_values}")
+            print(f"Time:   {round(time.time() - start_time)}s")
             
             # Check constraints and adjust error values
             feasible_list = [constraint <= 0 for constraint in constraint_values]
