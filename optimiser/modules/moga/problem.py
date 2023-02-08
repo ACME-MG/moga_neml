@@ -32,6 +32,7 @@ class Problem(ElementwiseProblem):
     
     # Minimises expression "F" such that the expression "G <= 0" is satisfied
     def _evaluate(self, params, out, *args, **kwargs):
+        print(params) # DELETE ME
         with warnings.catch_warnings():
             warnings.simplefilter("ignore") # ignore warnings
             
