@@ -28,12 +28,10 @@ class EVPWD_S(model.Model):
         super().__init__(
             name = "evpwd_s",
             param_info = [
-                {"name": "wd_1",    "min": -1.0e2,   "max": 1.0e2}, # 1
-                {"name": "wd_2",    "min": -1.0e2,   "max": 1.0e2}, # 0
-                {"name": "wd_3",    "min": -1.0e2,   "max": 1.0e2}, # 0
-                {"name": "wd_4",    "min": -1.0e2,   "max": 1.0e2}, # 0
-                {"name": "wd_5",    "min": -1.0e2,   "max": 1.0e2}, # 0
-                {"name": "wd_n",    "min": 0.0e1,   "max": 1.0e2}, # 2
+                {"name": "wd_xf",   "min": 1.0e0,   "max": 1.0e2}, # 2
+                {"name": "wd_yf",   "min": 1.0e0,   "max": 1.0e3}, # 3
+                {"name": "wd_yo",   "min": 1.0e0,   "max": 1.0e3}, # 3
+                {"name": "wd_n",    "min": 0.0e1,   "max": 1.0e3}, # 2
             ],
             exp_curves = exp_curves
         )
@@ -58,11 +56,18 @@ class EVPWD_S(model.Model):
         integrator      = general_flow.TVPFlowRule(self.elastic_model, visco_model)
         self.evp_model  = models.GeneralIntegrator(self.elastic_model, integrator, verbose=False)
 
+        # Define interpolator
+        def sigmoid(x, x_factor=1, y_factor=1, y_offset=0.1):
+            return y_factor/(1+pow(exp,-x_factor*x)) + y_offset
+        self.interp_function = sigmoid
+
     # Gets the predicted curves
-    def get_prd_curves(self, wd_1, wd_2, wd_3, wd_4, wd_5, wd_n):
+    def get_prd_curves(self, wd_xf, wd_yf, wd_yo, wd_n):
 
         # Define model
-        wd_wc       = interpolate.PolynomialInterpolate([wd_1, wd_2, wd_3, wd_4, wd_5])
+        x_interp    = [2**i/wd_xf for i in range(-4,4)]
+        y_interp    = [self.interp_function(x, wd_xf, wd_yf, wd_yo) for x in x_interp]
+        wd_wc       = interpolate.PiecewiseSemiLogXLinearInterpolate(x_interp, y_interp)
         wd_model    = damage.WorkDamage(self.elastic_model, wd_wc, wd_n)
         evpwd_model = damage.NEMLScalarDamagedModel_sd(self.elastic_model, self.evp_model, wd_model, verbose=False)
 
