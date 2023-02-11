@@ -1,23 +1,22 @@
-"""
- Title:         Optimiser
- Description:   For calibrating creep models
- Author:        Janzen Choi
-
-"""
-
-# Libraries
 from modules.api import API
-
-# Code
-api = API(True, "evpwd 80 sigmoid", False)
-api.read_files(["inl_1/800_80_G25.csv"])
-api.define_model("evpwd")
-api.define_model("evpwd_s", [4.118577172, 27.97814988, 0.637840909, 3.31618376, 8063.7164])
+api = API(False, "evpcd inl_2 750", True)
+# api.read_files(["inl_1/800_80_G25.csv", "inl_1/800_70_G44.csv","inl_1/800_65_G33.csv", "inl_1/800_60_G32.csv"])
+# api.read_files(["inl_1/900_36_G22.csv", "inl_1/900_31_G50.csv","inl_1/900_28_G45.csv", "inl_1/900_26_G59.csv"])
+# api.read_files(["inl_1/1000_16_G18.csv", "inl_1/1000_13_G30.csv","inl_1/1000_12_G52.csv", "inl_1/1000_11_G39.csv"])
+api.read_files(["inl_2/AirBase_750_118_b.csv", "inl_2/AirBase_750_137_a.csv","inl_2/AirBase_750_95_a.csv"])
+# api.read_files(["inl_2/AirBase_850_43_a.csv", "inl_2/AirBase_850_54_a.csv","inl_2/AirBase_850_63_b.csv"])
+# api.read_files(["inl_2/AirWeld_850_43_a.csv", "inl_2/AirWeld_850_54_b.csv","inl_2/AirWeld_850_63_a.csv"])
+# api.read_files(["kaeri_aged/AirBase_900_40_a.csv", "kaeri_aged/AirBase_900_30_a.csv","kaeri_aged/AirBase_900_28_a.csv", "kaeri_aged/AirBase_900_25_a.csv"])
+# api.read_files(["kaeri_base/AirBase_850_70_a.csv", "kaeri_base/AirBase_850_60_a.csv","kaeri_base/AirBase_850_50_a.csv", "kaeri_base/AirBase_850_45_a.csv", "kaeri_base/AirBase_850_40_a.csv", "kaeri_base/AirBase_850_35_a.csv"])
+# api.read_files(["kaeri_base/AirBase_900_50_a.csv", "kaeri_base/AirBase_900_45_a.csv","kaeri_base/AirBase_900_40_a.csv", "kaeri_base/AirBase_900_35_a.csv", "kaeri_base/AirBase_900_30_a.csv"])
+# api.read_files(["kaeri_base/AirBase_950_18_a.csv", "kaeri_base/AirBase_950_20_a.csv","kaeri_base/AirBase_950_22_a.csv", "kaeri_base/AirBase_950_35_a.csv"])
+# api.read_files(["kaeri_base/HeBase_850_90_a.csv", "kaeri_base/HeBase_850_70_a.csv","kaeri_base/HeBase_850_60_a.csv", "kaeri_base/HeBase_850_50_a.csv", "kaeri_base/HeBase_850_45_a.csv", "kaeri_base/HeBase_850_40_a.csv", "kaeri_base/HeBase_850_35_a.csv"])
+# api.read_files(["kaeri_base/HeBase_900_50_a.csv", "kaeri_base/HeBase_900_45_a.csv","kaeri_base/HeBase_900_40_a.csv", "kaeri_base/HeBase_900_32_a.csv", "kaeri_base/HeBase_900_30_a.csv", "kaeri_base/HeBase_900_28_a.csv", "kaeri_base/HeBase_900_25_a.csv", "kaeri_base/HeBase_900_22_a.csv"])
+# api.read_files(["kaeri_base/HeBase_950_35_a.csv", "kaeri_base/HeBase_950_25_a.csv","kaeri_base/HeBase_950_22_a.csv", "kaeri_base/HeBase_950_18_a.csv"])
+# api.read_files(["kaeri_naged/AirBase_900_50_a.csv", "kaeri_naged/AirBase_900_45_a.csv", "kaeri_naged/AirBase_900_40_a.csv","kaeri_naged/AirBase_900_35_a.csv"])
+api.visualise_data()
+api.define_model("evpcd")
 api.define_errors(["dy_area", "y_area", "x_end", "y_end"])
-api.define_recorder(10, 10)
-api.optimise(10000, 200, 100, 0.65, 0.35)
-
-# api.define_constraints(["dec_x_end", "inc_y_end"])
-# api.read_files(["inl_1/800_80_G25.csv", "inl_1/800_70_G44.csv"], ["inl_1/800_65_G33.csv", "inl_1/800_60_G32.csv"])
-# api.read_files(["inl_1/900_36_G22.csv", "inl_1/900_31_G50.csv"], ["inl_1/900_28_G45.csv", "inl_1/900_26_G59.csv"])
-# api.read_files(["inl_1/1000_16_G18.csv", "inl_1/1000_13_G30.csv"], ["inl_1/1000_12_G52.csv", "inl_1/1000_11_G39.csv"])
+api.define_constraints(["dec_x_end"]) # , "inc_y_end"])
+api.define_recorder(1, 1)
+api.optimise(10000, 4, 2, 0.65, 0.35)

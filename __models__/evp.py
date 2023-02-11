@@ -12,7 +12,7 @@ from neml.nlsolvers import MaximumIterations
 # Model Parameters
 YOUNGS       = 157000.0
 POISSONS     = 0.3
-S_RATE       = 1.0e-4
+S_RATE       = 0 # 1.0e-4
 E_RATE       = 1.0e-4
 HOLD         = 11500.0 * 3600.0
 NUM_STEPS    = 251

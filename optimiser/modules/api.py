@@ -7,7 +7,7 @@
 
 # Libraries
 import time, sys, os
-from modules.reader import read_experimental_data, prematurely_end_curve
+from modules.reader import read_experimental_data, export_data_summary, prematurely_end_curve
 from modules.moga.objective import Objective
 from modules.moga.problem import Problem
 from modules.moga.moga import MOGA
@@ -65,6 +65,11 @@ class API:
         self.train_curves = read_experimental_data(self.train_file_paths)
         self.test_file_paths = [f"{INPUT_DIR}/{test_folder}/{file}" for file in os.listdir(f"{INPUT_DIR}/{test_folder}") if file.endswith(".csv")]
         self.test_curves = read_experimental_data(self.test_file_paths)
+
+    # Exports summary about the experimental data
+    def export_summary(self, file_name="summary.csv"):
+        self.prog.add("Exporting summaries of experimental data")
+        export_data_summary(f"{self.output_path}/{file_name}", self.train_curves + self.test_curves)
 
     # Visualises the training and testing curves
     def visualise_data(self, file_name=None, separate=False):

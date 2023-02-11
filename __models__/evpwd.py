@@ -14,7 +14,7 @@ from neml.nlsolvers import MaximumIterations
 # Model Parameters
 YOUNGS       = 157000.0
 POISSONS     = 0.3
-S_RATE       = 1.0e-4
+S_RATE       = 0 # 1.0e-4
 E_RATE       = 1.0e-4
 HOLD         = 11500.0 * 3600.0
 NUM_STEPS    = 251
@@ -56,15 +56,17 @@ class EVPWD(model.Model):
     # Gets the predicted curves
     def get_prd_curves(self, evp_s0, evp_R, evp_d, evp_n, evp_eta, wd_xf, wd_yf, wd_yo, wd_n):
 
+        # Define interpolator
+        x_interp = [2**i/wd_xf for i in range(-4,4)]
+        y_interp = [self.interp_function(x, wd_xf, wd_yf, wd_yo) for x in x_interp]
+        wd_wc    = interpolate.PiecewiseSemiLogXLinearInterpolate(x_interp, y_interp)
+
         # Define model
         iso_hardening   = hardening.VoceIsotropicHardeningRule(evp_s0, evp_R, evp_d)
         g_power         = visco_flow.GPowerLaw(evp_n, evp_eta)
         visco_model     = visco_flow.PerzynaFlowRule(self.yield_surface, iso_hardening, g_power)
         integrator      = general_flow.TVPFlowRule(self.elastic_model, visco_model)
         evp_model       = models.GeneralIntegrator(self.elastic_model, integrator, verbose=False)
-        x_interp        = [2**i/wd_xf for i in range(-4,4)]
-        y_interp        = [self.interp_function(x, wd_xf, wd_yf, wd_yo) for x in x_interp]
-        wd_wc           = interpolate.PiecewiseSemiLogXLinearInterpolate(x_interp, y_interp)
         wd_model        = damage.WorkDamage(self.elastic_model, wd_wc, wd_n)
         evpwd_model     = damage.NEMLScalarDamagedModel_sd(self.elastic_model, evp_model, wd_model, verbose=False)
 

@@ -19,6 +19,8 @@ E_RATE      = 1.0e-4
 E_MAX       = 0.005
 HOLD        = 11500.0 * 3600.0
 NUM_STEPS   = 100
+MAX_ITER    = 16
+MAX_DIVIDE  = 4
 MIN_DATA    = 50
 VERBOSE     = False
 
@@ -58,6 +60,8 @@ class VSHAI(model.Model):
             phi_1 = float(data[0])
             Phi   = float(data[1])
             phi_2 = float(data[2])
+            if phi_1 == 0 and Phi == 0 and phi_2 == 0:
+                continue
             self.grain_orientations.append(rotations.CrystalOrientation(phi_1, Phi, phi_2, angle_type="degrees", convention="bunge"))
         file.close()
 
@@ -74,11 +78,8 @@ class VSHAI(model.Model):
         slip_model      = sliprules.PowerLawSlipRule(strength_model, ai_g0, ai_n)
         ai_model        = inelasticity.AsaroInelasticity(slip_model)
         ep_model        = kinematics.StandardKinematicModel(self.elastic_model, ai_model)
-        cp_model        = singlecrystal.SingleCrystalModel(ep_model, self.lattice, verbose=False)
-        try:
-            vshai_model = polycrystal.TaylorModel(cp_model, self.grain_orientations, nthreads=self.num_threads)
-        except MaximumSubdivisions:
-            return []
+        cp_model        = singlecrystal.SingleCrystalModel(ep_model, self.lattice, verbose=False, miter=1, max_divide=MAX_DIVIDE)
+        vshai_model     = polycrystal.TaylorModel(cp_model, self.grain_orientations, nthreads=self.num_threads)
 
         # Iterate through predicted curves
         prd_curves = super().get_prd_curves()
@@ -99,7 +100,7 @@ class VSHAI(model.Model):
                     tensile_results = drivers.uniaxial_test(vshai_model, E_RATE, T=temp, verbose=VERBOSE, emax=E_MAX, nsteps=NUM_STEPS)
                     prd_curves[i]["x"] = list(tensile_results['strain'])
                     prd_curves[i]["y"] = list(tensile_results['stress'])
-            except MaximumIterations:
+            except:
                 return []
 
             # Make sure predictions contain more than MIN_DATA data points

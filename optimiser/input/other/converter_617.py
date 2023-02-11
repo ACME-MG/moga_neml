@@ -9,7 +9,7 @@ condition_list = []
 
 # Iterate through XLSX files
 for xlsx_file in xlsx_files:
-
+    print(xlsx_file)
 
     # Extract data from file name
     file_list   = xlsx_file.split("_")
@@ -18,28 +18,32 @@ for xlsx_file in xlsx_files:
     file_info   = file_start.replace("Air", "").replace("He", "").replace("MPa", "").split("C")
     temp        = int(file_info[0])
     stress      = int(file_info[1])
+
+    # Read test conditions
+    data    = pd.read_excel(io=xlsx_file, sheet_name="Data")
+    state   = data.iloc[20,4] # E22
+    form    = data.iloc[32,4] # E34
+    process = data.iloc[40,4].split(" ")[0] # E42
     
     # Identify sheet with data
     xl = pd.ExcelFile(xlsx_file)
     sheet_name = [sheet for sheet in xl.sheet_names if sheet.startswith("CreepStrainvsTime")][0]
-
-    # Open XLSX file for reading
+    
+    # Read time/strain values
     data = pd.read_excel(io=xlsx_file, sheet_name=sheet_name)
-    x_list = data.iloc[7:, 2].values.tolist()
-    y_list = data.iloc[7:, 3].values.tolist()
+    x_list = data.iloc[7:, 2].values.tolist() # C9..
+    y_list = data.iloc[7:, 3].values.tolist() # D9..
 
     # Create new file name
-    condition = f"{temp}_{stress}_{medium}"
-    test_id   = condition_list.count(condition)+1
-    new_file  = f"{condition}{test_id}"
+    condition = f"{medium}{process}_{temp}_{stress}"
+    test_id   = condition_list.count(condition)
+    new_file  = f"{condition}_{chr(ord('a')+test_id)}"
     condition_list.append(condition)
 
-    # Open file for writing
+    # Open file and write header
     new_fp = open(f"{new_file}.csv", "w+")
-
-    # Write header
-    new_fp.write("x,y,temp,stress,type,title\n")
-    new_fp.write(f"0,0,{temp},{stress},creep,{medium}{test_id}\n")
+    new_fp.write("x,y,temp,stress,type,state,form,process,medium,title\n")
+    new_fp.write(f"0,0,{temp},{stress},creep,{state},{form},{process},{medium},{new_file}\n")
 
     # Check and transform values
     if len(y_list) == 0:

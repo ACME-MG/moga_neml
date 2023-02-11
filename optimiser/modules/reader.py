@@ -44,6 +44,21 @@ def read_experimental_data(file_paths):
         exp_curves.append(exp_curve)
     return exp_curves
 
+# For exporting experimental data
+def export_data_summary(file_path, curves):
+    
+    # Open file and write header
+    file = open(file_path, "w+")
+    header = [key for key in curves[0].keys() if not key in ["x", "y"]]
+    file.write(f"file_name,{','.join(header)}\n")
+
+    # Write data and close
+    for curve in curves:
+        file_name = curve["file_path"].split("/")[-1]
+        data = [str(curve[key]) for key in curve.keys() if not key in ["x", "y"]]
+        file.write(f"{file_name},{','.join(data)}\n")
+    file.close()
+
 # Removes values of a curve after a specific x value
 def prematurely_end_curve(curve, x_value):
     curve["y"] = [curve["y"][i] for i in range(len(curve["x"])) if curve["y"][i] < x_value]
