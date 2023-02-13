@@ -26,6 +26,7 @@ class APITemplate:
         self.prog = Progressor(title, display)
         
         # Define paths
+        self.input_path  = INPUT_DIR
         self.output_dir  = time.strftime("%y%m%d%H%M%S", time.localtime(time.time()))
         self.output_path = f"{RESULTS_DIR}/{self.output_dir}{title}"
         
