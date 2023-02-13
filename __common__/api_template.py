@@ -6,7 +6,7 @@
 """
 
 # Libraries
-import time
+import time, re
 from progressor import Progressor
 from general import safe_mkdir
 
@@ -21,7 +21,8 @@ class APITemplate:
     def __init__(self, title="", display=2):
         
         # Prepare progressor
-        title = "" if title == "" else f" ({title})"
+        title = "" if title == "" else f"_{title}"
+        title = re.sub(r"[^a-zA-Z0-9_]", "", title.replace(" ", "_"))
         self.prog = Progressor(title, display)
         
         # Define paths
