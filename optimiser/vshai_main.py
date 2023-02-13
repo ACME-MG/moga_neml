@@ -1,5 +1,5 @@
 from modules.api import API
-api = API(False, "vshai", True)
+api = API("vshai", 2)
 api.read_files(["other/t_i2.csv"])
 api.define_model("vshai", ["other/input_orientations.csv", 1.0, [1,1,0], [1,1,1], 8])
 api.plot_results([83.68041279,3.73928443,3.05569439,0.26831762,14.04134645])

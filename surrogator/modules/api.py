@@ -6,50 +6,35 @@
 """
 
 # Libraries
-import time, sys
+import sys
 from modules.sampler import Sampler
 from modules.surrogates.__surrogate_factory__ import get_surrogate
 from modules.trainers.__trainer_factory__ import get_trainer
 
 # Helper libraries
 sys.path += ["../__common__", "../__models__"]
-from progressor import Progressor
-from visualiser import Visualiser
+from api_template import APITemplate
 from plotter import quick_plot_N
-from general import safe_mkdir
 from __model_factory__ import get_model
 from curve import get_curve, get_sample_creep_curve
 
-# I/O directories
-INPUT_DIR   = "./input"
-RESULTS_DIR = "./results"
-
 # API Class
-class API:
+class API(APITemplate):
 
     # Constructor
-    def __init__(self, fancy=False, title="", verbose=False):
-        
-        # Initialise
-        self.prog = Progressor(fancy, title, verbose)
+    def __init__(self, title="", display=2):
+        super().__init__(title, display)
         self.plot_count = 1
-
-        # Set up environment
-        title = "" if title == "" else f" ({title})"
-        self.output_dir  = time.strftime("%y%m%d%H%M%S", time.localtime(time.time()))
-        self.output_path = f"{RESULTS_DIR}/{self.output_dir}{title}"
-        safe_mkdir(RESULTS_DIR)
-        safe_mkdir(self.output_path)
 
     # Defines the conditions of the creep (celcius and MPa)
     def define_conditions(self, type="creep", temp=800, stress=80):
         info_dict={"type": type, "temp": temp, "stress": stress}
-        self.prog.add(f"Defining conditions")
+        self.add(f"Defining conditions")
         self.curve = get_curve([0], [0], info_dict)
 
     # Defines the model
     def define_model(self, model_name="", args=[]):
-        self.prog.add(f"Defining the {model_name} model")
+        self.add(f"Defining the {model_name} model")
         self.model = get_model(model_name, [self.curve], args)
         self.l_bounds = self.model.get_param_lower_bounds()
         self.u_bounds = self.model.get_param_upper_bounds()
@@ -57,7 +42,7 @@ class API:
 
     # Defines the trainer
     def define_trainer(self, trainer_name):
-        self.prog.add(f"Defining the '{trainer_name}' trainer")
+        self.add(f"Defining the '{trainer_name}' trainer")
         self.trainer = get_trainer(trainer_name, self.model)
 
     # Defines the surrogate mdoel
@@ -67,8 +52,8 @@ class API:
 
     # Reads input data from a CSV file
     def read_input(self, file, delimiter=",", size=100000):
-        self.prog.add(f"Reading surrogate model input from '{file}'")
-        path = f"{INPUT_DIR}/{file}"
+        self.add(f"Reading surrogate model input from '{file}'")
+        path = self.get_input(file)
         
         # Read input data
         with open(path, "r") as data_file:
@@ -77,7 +62,6 @@ class API:
         # Initialise
         counter = 0
         self.sm_inputs, self.sm_outputs = [], []
-        visualiser = Visualiser(len(all_lines), ["percent"], "  Calculating IO Pairs")
         
         # Extract unmapped inputs and calculate outputs
         for line in all_lines:
@@ -92,14 +76,13 @@ class API:
             mapped_input, mapped_output = self.trainer.get_io(unmapped_input)
             self.sm_inputs.append(mapped_input)
             self.sm_outputs.append(mapped_output)
-            visualiser.progress()
 
     # Writes input and output data to a CSV file
     def write_input_output(self, file, delimiter=","):
-        self.prog.add(f"Writing surrogate model input / output to '{file}'")
+        self.add(f"Writing surrogate model input / output to '{file}'")
         
         # Open file for writing
-        path = f"{self.output_path}/{file}"
+        path = self.get_output(file)
         data_file = open(path, "w+")
 
         # Unmap input and output and write
@@ -113,8 +96,8 @@ class API:
 
     # Reads input and output data from a CSV file
     def read_input_output(self, file, delimiter=",", size=100000):
-        self.prog.add(f"Reading surrogate model input / output from '{file}'")
-        path = f"{INPUT_DIR}/{file}"
+        self.add(f"Reading surrogate model input / output from '{file}'")
+        path = self.get_input(file)
         
         # Read data (unmapped inputs, unmapped outputs)
         with open(path, "r") as data_file:
@@ -144,7 +127,7 @@ class API:
 
     # Samples the parameter space randomly
     def sample_random(self, size=10):
-        self.prog.add(f"Sampling {size} random parameter(s)")
+        self.add(f"Sampling {size} random parameter(s)")
         
         # Continually generate random parameters
         self.sm_inputs, self.sm_outputs = [], []
@@ -166,19 +149,19 @@ class API:
 
     # Plots the sample
     def plot_sample(self):
-        self.prog.add(f"Plotting the curves of {len(self.sm_inputs)} samples")
+        self.add(f"Plotting the curves of {len(self.sm_inputs)} samples")
         for i in range(len(self.sm_inputs)):
-            self.trainer.plot(self.sm_inputs[i], self.sm_outputs[i], f"{self.output_path}/plot_{self.plot_count}_sample")
+            self.trainer.plot(self.sm_inputs[i], self.sm_outputs[i], self.get_output(f"plot_{self.plot_count}_sample"))
             self.plot_count += 1
 
     # Trains the surrogate model
     def train(self):
-        self.prog.add(f"Training the surrogate model")
+        self.add(f"Training the surrogate model")
         self.surrogate.fit(self.sm_inputs, self.sm_outputs)
 
     # Predicts a curve using the trained surrogate model
     def assess(self):
-        self.prog.add(f"Assessing the surrogate model {len(self.sm_inputs)} time(s)")
+        self.add(f"Assessing the surrogate model {len(self.sm_inputs)} time(s)")
         for i in range(len(self.sm_inputs)):
 
             # Get curve from model and surrogate model
@@ -187,15 +170,15 @@ class API:
             sm_curve = self.trainer.restore_curve(sm_curve)
 
             # Plot the results and print out progress
-            quick_plot_N(f"{self.output_path}/plot_{self.plot_count}_test", [[model_curve], [sm_curve]], ["Model", "Surrogate"], ["r", "b"])
+            quick_plot_N(self.get_output(f"plot_{self.plot_count}_test"), [[model_curve], [sm_curve]], ["Model", "Surrogate"], ["r", "b"])
             print(f"  {i+1})\tTested - {i+1}/{len(self.sm_inputs)}")
             self.plot_count += 1
 
     # Tests the trainer scheme
     def __test_trainer__(self):
-        self.prog.add(f"Testing the '{self.trainer.get_name()}' trainer")
+        self.add(f"Testing the '{self.trainer.get_name()}' trainer")
         sample_curve = get_sample_creep_curve()
         input_size, _ = self.trainer.get_shape()
         _, reduced_curve = self.trainer.__get_io__([0]*input_size, sample_curve)
         restored_curve = self.trainer.restore_curve(reduced_curve)
-        quick_plot_N(f"{self.output_path}/plot_trainer_test", [[sample_curve], [restored_curve]], ["Original", "Restored"], ["r", "b"])
+        quick_plot_N(self.get_output("plot_trainer_test"), [[sample_curve], [restored_curve]], ["Original", "Restored"], ["r", "b"])

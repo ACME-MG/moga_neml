@@ -9,7 +9,7 @@
 from modules.api import API
 
 # Code
-api = API(True, verbose=True)
+api = API("test", 2)
 api.define_conditions("creep", 800, 80)
 api.define_model("evpwd_s")
 api.define_trainer("simple")

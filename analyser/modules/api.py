@@ -6,45 +6,31 @@
 """
 
 # Libraries
-import time, sys, math, random
+import sys, math, random
 import matplotlib.pyplot as plt
 
 # Helper libraries
 sys.path += ["../__common__", "../__models__"]
-from progressor import Progressor
-from general import safe_mkdir
+from api_template import APITemplate
 from __model_factory__ import get_model
 from curve import get_curve
 
-# I/O directories
-INPUT_DIR   = "./input"
-RESULTS_DIR = "./results"
-
 # API Class
-class API:
+class API(APITemplate):
 
     # Constructor
-    def __init__(self, fancy=False, title="", verbose=False):
-        
-        # Initialise
-        self.prog = Progressor(fancy, title, verbose)
+    def __init__(self, title="", display=2):
+        super().__init__(title, display)
         self.plot_count = 1
-
-        # Set up environment
-        title = "" if title == "" else f" ({title})"
-        self.output_dir  = time.strftime("%y%m%d%H%M%S", time.localtime(time.time()))
-        self.output_path = f"{RESULTS_DIR}/{self.output_dir}{title}"
-        safe_mkdir(RESULTS_DIR)
-        safe_mkdir(self.output_path)
 
     # Defines the conditions of the creep (celcius and MPa)
     def define_conditions(self, info_dict={"type": "creep", "stress": 80, "temp": 800}):
-        self.prog.add(f"Defining conditions")
+        self.add(f"Defining conditions")
         self.curve = get_curve([0], [0], info_dict)
 
     # Defines the model
     def define_model(self, model_name=""):
-        self.prog.add(f"Defining the {model_name} model")
+        self.add(f"Defining the {model_name} model")
         self.model = get_model(model_name, [self.curve])
         self.param_names = self.model.get_param_names()
         self.l_bounds = self.model.get_param_lower_bounds()
@@ -52,7 +38,7 @@ class API:
     
     # Assesses the values of individual parameters
     def assess_individual(self, trials=10):
-        self.prog.add("Assessing individual parameters")
+        self.add("Assessing individual parameters")
 
         # Create the plots
         num_params = len(self.param_names)
@@ -89,12 +75,12 @@ class API:
                 axis[x_index, y_index].scatter([params[i]], [value], marker="o", color=colour, linewidth=1)
             
             # Save results
-            figure.savefig(f"{self.output_path}/individual.png")
+            figure.savefig(self.get_output("individual.png"))
             print(f"  Explored {trial+1}/{trials}\t({'SUCCESS' if valid else 'FAILURE'})")
     
     # Assesses the parameter dependencies
     def assess_dependency(self, trials=10):
-        self.prog.add("Assessing the parameter dependencies")
+        self.add("Assessing the parameter dependencies")
 
         # Create the plots
         num_params = len(self.param_names)
@@ -129,5 +115,5 @@ class API:
                     axis[i, j].scatter([params[i]], [params[j]], marker="o", color=colour, linewidth=1)
             
             # Save results
-            figure.savefig(f"{self.output_path}/dependency.png")
+            figure.savefig(self.get_output("dependency.png"))
             print(f"  Explored {trial+1}/{trials}\t({'SUCCESS' if valid else 'FAILURE'})")
