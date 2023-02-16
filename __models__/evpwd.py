@@ -31,7 +31,7 @@ class EVPWD(model.Model):
                 {"name": "evp_R",   "min": 0.0e1,   "max": 1.0e2},
                 {"name": "evp_d",   "min": 0.0e1,   "max": 1.0e2},
                 {"name": "evp_n",   "min": 1.0e0,   "max": 1.0e1},
-                {"name": "evp_eta", "min": 0.0e1,   "max": 1.0e4}, # 6
+                {"name": "evp_eta", "min": 0.0e1,   "max": 1.0e6},
                 {"name": "wd_xf",   "min": 1.0e0,   "max": 1.0e2},
                 {"name": "wd_yf",   "min": 1.0e0,   "max": 1.0e3},
                 {"name": "wd_yo",   "min": 1.0e0,   "max": 1.0e3},
