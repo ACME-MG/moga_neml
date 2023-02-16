@@ -1,0 +1,23 @@
+from modules.api import API
+api = API("", 0)
+
+api.define_model("evpcd")
+# api.read_files(["inl_1/AirBase_900_36_G22.csv", "inl_1/AirBase_900_31_G50.csv","inl_1/AirBase_900_28_G45.csv", "inl_1/AirBase_900_26_G59.csv"])
+api.remove_oxidised_creep()
+api.read_files(["kaeri_base/AirBase_900_50_a.csv", "kaeri_base/AirBase_900_40_a.csv", "kaeri_base/AirBase_900_35_a.csv", "kaeri_base/AirBase_900_30_a.csv"])
+api.plot_results([0.567351,24.64534,34.15175,2.103748,31803.17,2679.531,4.155071,9.270845])
+
+# api.read_files(["inl_1/AirBase_800_80_G25.csv", "inl_1/AirBase_800_70_G44.csv","inl_1/AirBase_800_65_G33.csv", "inl_1/AirBase_800_60_G32.csv"])
+# api.read_files(["inl_1/AirBase_900_36_G22.csv", "inl_1/AirBase_900_31_G50.csv","inl_1/AirBase_900_28_G45.csv", "inl_1/AirBase_900_26_G59.csv"])
+# api.read_files(["inl_1/AirBase_1000_16_G18.csv", "inl_1/AirBase_1000_13_G30.csv","inl_1/AirBase_1000_12_G52.csv", "inl_1/AirBase_1000_11_G39.csv"])
+# api.read_files(["inl_2/AirBase_750_118_b.csv", "inl_2/AirBase_750_137_a.csv","inl_2/AirBase_750_95_a.csv"])
+# api.read_files(["inl_2/AirBase_850_43_a.csv", "inl_2/AirBase_850_54_a.csv","inl_2/AirBase_850_63_b.csv"])
+# api.read_files(["inl_2/AirWeld_850_43_a.csv", "inl_2/AirWeld_850_54_b.csv","inl_2/AirWeld_850_63_a.csv"])
+# api.read_files(["kaeri_aged/AirBase_900_40_a.csv", "kaeri_aged/AirBase_900_30_a.csv","kaeri_aged/AirBase_900_28_a.csv", "kaeri_aged/AirBase_900_25_a.csv"])
+# api.read_files(["kaeri_base/AirBase_850_70_a.csv", "kaeri_base/AirBase_850_60_a.csv","kaeri_base/AirBase_850_50_a.csv", "kaeri_base/AirBase_850_45_a.csv", "kaeri_base/AirBase_850_40_a.csv", "kaeri_base/AirBase_850_35_a.csv"])
+# api.read_files([], ["kaeri_base/AirBase_900_50_a.csv", "kaeri_base/AirBase_900_45_a.csv","kaeri_base/AirBase_900_40_a.csv", "kaeri_base/AirBase_900_35_a.csv", "kaeri_base/AirBase_900_30_a.csv"])
+# api.read_files(["kaeri_base/AirBase_950_18_a.csv", "kaeri_base/AirBase_950_20_a.csv","kaeri_base/AirBase_950_22_a.csv", "kaeri_base/AirBase_950_35_a.csv"])
+# api.read_files(["kaeri_base/HeBase_850_90_a.csv", "kaeri_base/HeBase_850_70_a.csv","kaeri_base/HeBase_850_60_a.csv", "kaeri_base/HeBase_850_50_a.csv", "kaeri_base/HeBase_850_45_a.csv", "kaeri_base/HeBase_850_40_a.csv", "kaeri_base/HeBase_850_35_a.csv"])
+# api.read_files(["kaeri_base/HeBase_900_50_a.csv", "kaeri_base/HeBase_900_45_a.csv","kaeri_base/HeBase_900_40_a.csv", "kaeri_base/HeBase_900_32_a.csv", "kaeri_base/HeBase_900_30_a.csv", "kaeri_base/HeBase_900_28_a.csv", "kaeri_base/HeBase_900_25_a.csv", "kaeri_base/HeBase_900_22_a.csv"])
+# api.read_files(["kaeri_base/HeBase_950_35_a.csv", "kaeri_base/HeBase_950_25_a.csv","kaeri_base/HeBase_950_22_a.csv", "kaeri_base/HeBase_950_18_a.csv"])
+# api.read_files(["kaeri_naged/AirBase_900_50_a.csv", "kaeri_naged/AirBase_900_45_a.csv", "kaeri_naged/AirBase_900_40_a.csv","kaeri_naged/AirBase_900_35_a.csv"])

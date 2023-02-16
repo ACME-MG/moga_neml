@@ -37,6 +37,7 @@ class Problem(ElementwiseProblem):
 
             # Get errors and constraints
             prd_curves = self.model.get_prd_curves(*params)
+            prd_curves = self.model.ensure_validity(prd_curves)
             error_values = self.objective.get_error_values(prd_curves)
             constraint_values = self.objective.get_constraint_values(prd_curves)
             

@@ -13,6 +13,9 @@ from copy import deepcopy
 sys.path += ["../__common__"]
 from curve import get_curve
 
+# Constants
+MIN_DATA = 10
+
 # The Model Class
 class Model:
 
@@ -60,6 +63,13 @@ class Model:
         self.exp_curves = exp_curves
         prd_curves = self.get_prd_curves(*params)
         self.exp_curves = old_exp_curves
+        return prd_curves
+
+    # For checking the validity of a predicted curve
+    def ensure_validity(self, prd_curves):
+        for prd_curve in prd_curves:
+            if len(prd_curve["x"]) != len(prd_curve["y"]) or len(prd_curve["x"]) < MIN_DATA:
+                return []
         return prd_curves
 
 # For blocking prints

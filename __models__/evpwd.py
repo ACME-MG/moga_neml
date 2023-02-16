@@ -18,7 +18,6 @@ S_RATE       = 0 # 1.0e-4
 E_RATE       = 1.0e-4
 HOLD         = 11500.0 * 3600.0
 NUM_STEPS    = 251
-MIN_DATA     = 50
 
 # The Elastic Visco Plastic Work Damage Class
 class EVPWD(model.Model):
@@ -28,15 +27,15 @@ class EVPWD(model.Model):
         super().__init__(
             name = "evpwd",
             param_info = [
-                {"name": "evp_s0",  "min": 0.0e1,   "max": 1.0e2}, # 2
-                {"name": "evp_R",   "min": 0.0e1,   "max": 1.0e2}, # 2
-                {"name": "evp_d",   "min": 0.0e1,   "max": 1.0e2}, # 2
-                {"name": "evp_n",   "min": 1.0e0,   "max": 1.0e1}, # 1
-                {"name": "evp_eta", "min": 0.0e1,   "max": 1.0e4}, # 4
-                {"name": "wd_xf",   "min": 1.0e0,   "max": 1.0e2}, # 2
-                {"name": "wd_yf",   "min": 1.0e0,   "max": 1.0e3}, # 3
-                {"name": "wd_yo",   "min": 1.0e0,   "max": 1.0e3}, # 3
-                {"name": "wd_n",    "min": 0.0e1,   "max": 1.0e2}, # 2
+                {"name": "evp_s0",  "min": 0.0e1,   "max": 1.0e2},
+                {"name": "evp_R",   "min": 0.0e1,   "max": 1.0e2},
+                {"name": "evp_d",   "min": 0.0e1,   "max": 1.0e2},
+                {"name": "evp_n",   "min": 1.0e0,   "max": 1.0e1},
+                {"name": "evp_eta", "min": 0.0e1,   "max": 1.0e4}, # 6
+                {"name": "wd_xf",   "min": 1.0e0,   "max": 1.0e2},
+                {"name": "wd_yf",   "min": 1.0e0,   "max": 1.0e3},
+                {"name": "wd_yo",   "min": 1.0e0,   "max": 1.0e3},
+                {"name": "wd_n",    "min": 0.0e1,   "max": 2.0e0},
             ],
             exp_curves = exp_curves
         )
@@ -92,10 +91,6 @@ class EVPWD(model.Model):
                     prd_curves[i]["x"] = list(tensile_results['strain'])
                     prd_curves[i]["y"] = list(tensile_results['stress'])
             except MaximumIterations:
-                return []
-
-            # Make sure predictions contain more than MIN_DATA data points
-            if len(prd_curves[i]["x"]) <= MIN_DATA or len(prd_curves[i]["y"]) <= MIN_DATA:
                 return []
 
         # Return predicted curves

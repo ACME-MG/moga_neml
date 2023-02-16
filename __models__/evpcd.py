@@ -17,7 +17,6 @@ S_RATE       = 0 # 1.0e-4
 E_RATE       = 1.0e-4
 HOLD         = 11500.0 * 3600.0
 NUM_STEPS    = 251
-MIN_DATA     = 50
 
 # The Elastic Visco Plastic Creep Damage Class
 class EVPCD(model.Model):
@@ -30,7 +29,7 @@ class EVPCD(model.Model):
                 {"name": "evp_s0",  "min": 0.0e1,   "max": 1.0e2},
                 {"name": "evp_R",   "min": 0.0e1,   "max": 1.0e2},
                 {"name": "evp_d",   "min": 0.0e1,   "max": 1.0e2},
-                {"name": "evp_n",   "min": 2.0e0,   "max": 1.0e1},
+                {"name": "evp_n",   "min": 1.0e0,   "max": 1.0e1},
                 {"name": "evp_eta", "min": 0.0e1,   "max": 1.0e6},
                 {"name": "cd_A",    "min": 0.0e1,   "max": 1.0e4},
                 {"name": "cd_xi",   "min": 0.0e1,   "max": 1.0e2},
@@ -46,6 +45,9 @@ class EVPCD(model.Model):
         self.effective_stress   = damage.VonMisesEffectiveStress()
     
     # Gets the predicted curves
+    #   Alloy 617 @ 800:    [48.96021,17.82262,9.568748,2.031041,56309.59,1995.801,5.438601,6.79012]
+    #   Alloy 617 @ 900:    [0.567351,24.64534,34.15175,2.103748,31803.17,2679.531,4.155071,9.270845]
+    #   Alloy 617 @ 1000:   [7.805677767,0.036500284,6.99330568,2.186529312,20539.05913,2388.920806,3.591732525,6.751795258]
     def get_prd_curves(self, evp_s0, evp_R, evp_d, evp_n, evp_eta, cd_A, cd_xi, cd_phi):
 
         # Define model
@@ -79,10 +81,6 @@ class EVPCD(model.Model):
                     prd_curves[i]["x"] = list(tensile_results['strain'])
                     prd_curves[i]["y"] = list(tensile_results['stress'])
             except MaximumIterations:
-                return []
-
-            # Make sure predictions contain more than MIN_DATA data points
-            if len(prd_curves[i]["x"]) <= MIN_DATA or len(prd_curves[i]["y"]) <= MIN_DATA:
                 return []
 
         # Return predicted curves

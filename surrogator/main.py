@@ -1,14 +1,4 @@
-"""
- Title:         Main file
- Description:   For developing surrogate models
- Author:        Janzen Choi
- 
-"""
-
-# Libraries
 from modules.api import API
-
-# Code
 api = API("test", 2)
 api.define_conditions("creep", 800, 80)
 api.define_model("evpwd_s")

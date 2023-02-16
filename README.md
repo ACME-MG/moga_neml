@@ -14,7 +14,7 @@ NEML (Nuclear Engineering Material model Library) is a tool for developing / run
 git clone --recursive https://github.com/Argonne-National-Laboratory/neml.git
 ```
 
-For multi-threading capabilities, run the following command instead of the provided `cmake -D WRAP_PYTHON=0`.
+For multi-threading capabilities, use the following configurations when running `cmake`.
 
 ```
 cmake -D WRAP_PYTHON=ON -D USE_OPENMP=ON .

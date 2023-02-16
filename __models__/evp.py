@@ -16,7 +16,6 @@ S_RATE       = 0 # 1.0e-4
 E_RATE       = 1.0e-4
 HOLD         = 11500.0 * 3600.0
 NUM_STEPS    = 251
-MIN_DATA     = 50
 
 # The Elastic Visco Plastic Class
 class EVP(model.Model):
@@ -71,10 +70,6 @@ class EVP(model.Model):
                     prd_curves[i]["x"] = list(tensile_results['strain'])
                     prd_curves[i]["y"] = list(tensile_results['stress'])
             except MaximumIterations:
-                return []
-
-            # Make sure predictions contain more than MIN_DATA data points
-            if len(prd_curves[i]["x"]) <= MIN_DATA or len(prd_curves[i]["y"]) <= MIN_DATA:
                 return []
 
         # Return predicted curves

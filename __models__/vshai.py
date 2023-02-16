@@ -21,7 +21,6 @@ HOLD        = 11500.0 * 3600.0
 NUM_STEPS   = 100
 MAX_ITER    = 16
 MAX_DIVIDE  = 4
-MIN_DATA    = 50
 VERBOSE     = False
 
 # The Voce Slip Hardening Asaro Inelasticity Class
@@ -101,10 +100,6 @@ class VSHAI(model.Model):
                     prd_curves[i]["x"] = list(tensile_results['strain'])
                     prd_curves[i]["y"] = list(tensile_results['stress'])
             except:
-                return []
-
-            # Make sure predictions contain more than MIN_DATA data points
-            if len(prd_curves[i]["x"]) <= MIN_DATA or len(prd_curves[i]["y"]) <= MIN_DATA:
                 return []
 
         # Return predicted curves
