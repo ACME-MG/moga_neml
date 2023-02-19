@@ -6,7 +6,7 @@
 
 # Libraries
 import __model__ as model
-from neml import elasticity, drivers
+from neml import elasticity, drivers #, nemlerror
 from neml.cp import crystallography, slipharden, sliprules, inelasticity, kinematics, singlecrystal, polycrystal
 from neml.math import rotations
 from neml.nlsolvers import MaximumIterations, MaximumSubdivisions
@@ -99,7 +99,7 @@ class VSHAI(model.Model):
                     tensile_results = drivers.uniaxial_test(vshai_model, E_RATE, T=temp, verbose=VERBOSE, emax=E_MAX, nsteps=NUM_STEPS)
                     prd_curves[i]["x"] = list(tensile_results['strain'])
                     prd_curves[i]["y"] = list(tensile_results['stress'])
-            except:
+            except (nemlerror, MaximumIterations, MaximumSubdivisions):
                 return []
 
         # Return predicted curves

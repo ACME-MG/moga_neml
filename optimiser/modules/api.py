@@ -116,27 +116,20 @@ class API(APITemplate):
         moga = MOGA(problem, num_gens, init_pop, offspring, crossover, mutation)
         moga.optimise()
 
-    # Plots the results
+    # Plots the results of a set of parameters
     def plot_results(self, params):
         self.add("Plotting experimental and predicted curves")
-        prd_train_curves = self.model.get_specified_prd_curves(params, self.train_curves)
-        prd_test_curves = self.model.get_specified_prd_curves(params, self.test_curves)
-        quick_plot_N(
-            path=self.get_output("predicted.png"),
-            curve_lists=[self.train_curves, self.test_curves, prd_train_curves, prd_test_curves],
-            labels=["Training", "Testing", "Predicted", "Predicted"],
-            colours=["gray", "silver", "red", "red"],
-            markers=["scat", "scat", "line", "line"],
-        )
 
-    # Returns the error values of the objective functions
-    def get_errors(self, params):
-        self.add("Obtaining error values")
-        prd_curves  = self.model.get_prd_curves(*params)
-        objective   = Objective(self.model, self.error_list)
-        error_names = objective.get_error_names()
-        error_values = objective.get_error_values(prd_curves)
-        with open(self.get_output("errors.csv"), "w+") as file:
-            for i in range(len(error_names)):
-                file.write(f"{error_names[i]},{error_values[i]}\n")
-            file.write(f"err_sqr_sum,{sum([err**2 for err in error_values])}")
+        # Get recorder
+        objective = Objective(self.model, self.error_list, self.constraint_list)
+        recorder = Recorder(objective, self.train_curves, self.test_curves, self.csv_path, 0, 1)
+        recorder.define_hyperparameters(0,0,0,0,0)
+
+        # Get errors and constraints
+        prd_curves  = self.model.get_specified_prd_curves(params, self.train_curves)
+        errors      = objective.get_error_values(prd_curves)
+        constraints = objective.get_constraint_values(prd_curves)
+        
+        # Output results
+        recorder.update_population(params, errors, constraints)
+        recorder.write_results(self.get_output("results.xlsx"))

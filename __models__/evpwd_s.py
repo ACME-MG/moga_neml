@@ -36,7 +36,6 @@ class EVPWD_S(model.Model):
         )
 
     # Prepares the model
-    # Alloy 617 at 800C: [0.671972514, 25.74997349, 43.16881374, 4.487884698, 1669.850786]
     # Alloy 617 at 800C, 80MPa: [4.118577172, 27.97814988, 0.637840909, 3.31618376, 8063.7164]
     def prepare(self, args):
 

@@ -48,6 +48,14 @@ class Recorder:
         self.crossover  = crossover
         self.mutation   = mutation
 
+    # Returns a writer object
+    def write_results(self, file_path):
+        writer = pd.ExcelWriter(file_path, engine = "xlsxwriter")
+        self.record_settings(writer)
+        self.record_results(writer)
+        self.record_plot(writer)
+        writer.save()
+
     # Updates the results after X iterations
     def update_results(self, params, errors, constraints):
 
@@ -67,16 +75,10 @@ class Recorder:
             update_duration = round(current_time - self.update_time)
             self.update_time = current_time
 
-            # Prepare CSV output
+            # Display output
             num_gens_completed_padded = str(round(self.num_gens_completed)).zfill(len(str(self.num_gens)))
             file_path = f"{self.path}_{num_gens_completed_padded} ({update_duration}s).xlsx"
-
-            # Write to CSV
-            writer = pd.ExcelWriter(file_path, engine = "xlsxwriter")
-            self.record_settings(writer)
-            self.record_results(writer)
-            self.record_plot(writer)
-            writer.save()
+            self.write_results(file_path)
 
             # Display progress in console
             progress = f"{num_gens_completed_padded}/{self.num_gens}"
