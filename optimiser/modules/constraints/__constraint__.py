@@ -22,6 +22,7 @@ class Constraint:
         return self.exp_curves
     
     # Returns a constraint (placeholder)
+    #   Constraint is violated if value > 0
     def get_value(self):
         raise NotImplementedError
 

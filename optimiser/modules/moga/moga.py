@@ -38,5 +38,4 @@ class MOGA:
 
     # Runs the genetic optimisation
     def optimise(self):
-        params_list = minimize(self.problem, self.algo, ("n_gen", self.num_gens), verbose=False, seed=None).X
-        return params_list
+        minimize(self.problem, self.algo, ("n_gen", self.num_gens), verbose=False, seed=None)

@@ -23,5 +23,6 @@ class DecXEnd(constraint.Constraint):
             curves = [prd_curves[i] for i in self.curve_dict[temp]]
             for i in range(1,len(curves)):
                 x_end_diff = curves[i]["x"][-1] - curves[i-1]["x"][-1]
-                constraint_value += x_end_diff
+                if x_end_diff > 0:
+                    constraint_value += x_end_diff
         return constraint_value

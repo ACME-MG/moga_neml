@@ -23,5 +23,6 @@ class IncYEnd(constraint.Constraint):
             curves = [prd_curves[i] for i in self.curve_dict[temp]]
             for i in range(1,len(curves)):
                 y_end_diff = curves[i-1]["y"][-1] - curves[i]["y"][-1]
-                constraint_value += y_end_diff
+                if y_end_diff > 0:
+                    constraint_value += y_end_diff
         return constraint_value

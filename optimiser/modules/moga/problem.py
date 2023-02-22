@@ -21,13 +21,13 @@ class Problem(ElementwiseProblem):
         self.model      = objective.get_model()
         self.recorder   = recorder
         self.penalty    = 10
-
+        
         # Define the element wise problem
         super().__init__(
             n_var        = len(self.model.get_param_info()),
             n_obj        = len(self.objective.get_error_names()),
             xl           = np.array(self.model.get_param_lower_bounds()),
-            xu           = np.array(self.model.get_param_upper_bounds())
+            xu           = np.array(self.model.get_param_upper_bounds()),
         )
     
     # Minimises expression "F" such that the expression "G <= 0" is satisfied
