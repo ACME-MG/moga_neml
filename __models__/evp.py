@@ -12,10 +12,10 @@ from neml.nlsolvers import MaximumIterations
 # Model Parameters
 YOUNGS       = 157000.0
 POISSONS     = 0.3
-S_RATE       = 0 # 1.0e-4
-E_RATE       = 1.0e-4
+STRESS_RATE  = 1
 HOLD         = 11500.0 * 3600.0
 NUM_STEPS    = 251
+STRAIN_MAX   = 0.5
 
 # The Elastic Visco Plastic Class
 class EVP(model.Model):
@@ -55,18 +55,19 @@ class EVP(model.Model):
         for i in range(len(prd_curves)):
 
             # Get stress and temperature
-            stress = self.exp_curves[i]["stress"]
             temp = self.exp_curves[i]["temp"]
             type = self.exp_curves[i]["type"]
 
             # Get predictions
             try:
                 if type == "creep":
-                    creep_results = drivers.creep(evp_model, stress, S_RATE, HOLD, T=temp, verbose=False, check_dmg=False, dtol=0.95, nsteps_up=150, nsteps=NUM_STEPS, logspace=False)
+                    stress_max = self.exp_curves[i]["stress"]
+                    creep_results = drivers.creep(evp_model, stress_max, STRESS_RATE, HOLD, T=temp, verbose=False, check_dmg=False, dtol=0.95, nsteps_up=150, nsteps=NUM_STEPS, logspace=False)
                     prd_curves[i]["x"] = list(creep_results['rtime'] / 3600)
                     prd_curves[i]["y"] = list(creep_results['rstrain'])
                 elif type == "tensile":
-                    tensile_results = drivers.uniaxial_test(evp_model, E_RATE, T=temp, emax=0.5, nsteps=NUM_STEPS)
+                    strain_rate = self.exp_curves[i]["strain_rate"]
+                    tensile_results = drivers.uniaxial_test(evp_model, erate=strain_rate, T=temp, emax=STRAIN_MAX, nsteps=NUM_STEPS)
                     prd_curves[i]["x"] = list(tensile_results['strain'])
                     prd_curves[i]["y"] = list(tensile_results['stress'])
             except MaximumIterations:

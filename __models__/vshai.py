@@ -6,17 +6,15 @@
 
 # Libraries
 import __model__ as model
-from neml import elasticity, drivers #, nemlerror
+from neml import elasticity, drivers
 from neml.cp import crystallography, slipharden, sliprules, inelasticity, kinematics, singlecrystal, polycrystal
 from neml.math import rotations
-from neml.nlsolvers import MaximumIterations, MaximumSubdivisions
 
 # Model Parameters
 YOUNGS      = 211000.0
 POISSONS    = 0.3
-S_RATE      = 1.0e-4
-E_RATE      = 1.0e-4
-E_MAX       = 0.005
+STRESS_RATE = 1
+STRAIN_MAX  = 0.005
 HOLD        = 11500.0 * 3600.0
 NUM_STEPS   = 100
 MAX_ITER    = 16
@@ -91,15 +89,16 @@ class VSHAI(model.Model):
             # Get predictions
             try:
                 if type == "creep":
-                    stress = self.exp_curves[i]["stress"]
-                    creep_results = drivers.creep(vshai_model, stress, S_RATE, HOLD, T=temp, verbose=VERBOSE, check_dmg=False, dtol=0.95, nsteps_up=150, nsteps=NUM_STEPS, logspace=False)
+                    stress_max = self.exp_curves[i]["stress"]
+                    creep_results = drivers.creep(vshai_model, stress_max, STRESS_RATE, HOLD, T=temp, verbose=VERBOSE, check_dmg=False, dtol=0.95, nsteps_up=150, nsteps=NUM_STEPS, logspace=False)
                     prd_curves[i]["x"] = list(creep_results['rtime'] / 3600)
                     prd_curves[i]["y"] = list(creep_results['rstrain'])
                 elif type == "tensile":
-                    tensile_results = drivers.uniaxial_test(vshai_model, E_RATE, T=temp, verbose=VERBOSE, emax=E_MAX, nsteps=NUM_STEPS)
+                    strain_rate = self.exp_curves[i]["strain_rate"]
+                    tensile_results = drivers.uniaxial_test(vshai_model, erate=strain_rate, T=temp, verbose=VERBOSE, emax=STRAIN_MAX, nsteps=NUM_STEPS)
                     prd_curves[i]["x"] = list(tensile_results['strain'])
                     prd_curves[i]["y"] = list(tensile_results['stress'])
-            except (nemlerror, MaximumIterations, MaximumSubdivisions):
+            except:
                 return []
 
         # Return predicted curves
