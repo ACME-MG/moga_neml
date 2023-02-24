@@ -19,11 +19,10 @@ class XEnd(error.Error):
     # Prepares for evaluation
     def prepare(self):
         self.exp_x_end_list = [exp_curve["x"][-1] for exp_curve in self.exp_curves]
-        self.multiplier_list = [1 if exp_curve["type"] == "creep" else 0 for exp_curve in self.exp_curves]
     
     # Computing the error
     def get_value(self, prd_curves):
         prd_x_end_list = [prd_curves[i]["x"][-1] for i in range(len(prd_curves))]
         value_list = [abs(prd_x_end_list[i] - self.exp_x_end_list[i]) / self.exp_x_end_list[i] for i in range(len(self.exp_x_end_list))]
-        value_list = [value_list[i] * self.multiplier_list[i] for i in range(len(value_list))]
+        value_list = [value_list[i] for i in range(len(value_list))]
         return np.average(value_list)

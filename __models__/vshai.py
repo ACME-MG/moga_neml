@@ -20,7 +20,7 @@ HOLD         = 11500.0 * 3600.0
 NUM_STEPS_UP = 50
 NUM_STEPS    = 100
 MAX_ITER     = 16
-MAX_DIVIDE   = 4
+MAX_DIVIDE   = 2
 
 # The Voce Slip Hardening Asaro Inelasticity Class
 class VSHAI(model.Model):
@@ -52,7 +52,7 @@ class VSHAI(model.Model):
 
         # Define grain orientations
         file = open(f"input/{orientation_file}", "r")
-        self.grain_orientations = []
+        self.grain_orientations, self.weights = [], []
         for line in file.readlines():
             data = line.replace("\n","").split(",")
             phi_1 = float(data[0])
@@ -61,6 +61,7 @@ class VSHAI(model.Model):
             if phi_1 == 0 and Phi == 0 and phi_2 == 0:
                 continue
             self.grain_orientations.append(rotations.CrystalOrientation(phi_1, Phi, phi_2, angle_type="degrees", convention="bunge"))
+            self.weights.append(int(data[3])**2)
         file.close()
 
         # Define lattice structure
@@ -77,7 +78,7 @@ class VSHAI(model.Model):
         ai_model        = inelasticity.AsaroInelasticity(slip_model)
         ep_model        = kinematics.StandardKinematicModel(self.elastic_model, ai_model)
         cp_model        = singlecrystal.SingleCrystalModel(ep_model, self.lattice, verbose=False, miter=MAX_ITER, max_divide=MAX_DIVIDE)
-        vshai_model     = polycrystal.TaylorModel(cp_model, self.grain_orientations, nthreads=self.num_threads)
+        vshai_model     = polycrystal.TaylorModel(cp_model, self.grain_orientations, nthreads=self.num_threads, weights=self.weights)
 
         # Iterate through predicted curves
         prd_curves = super().get_prd_curves()
