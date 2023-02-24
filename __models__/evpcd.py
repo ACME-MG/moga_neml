@@ -13,8 +13,9 @@ from neml.nlsolvers import MaximumIterations
 # Model Parameters
 YOUNGS       = 157000.0
 POISSONS     = 0.3
-STRESS_RATE  = 1
+STRESS_RATE  = 0.001
 HOLD         = 11500.0 * 3600.0
+NUM_STEPS_UP = 50
 NUM_STEPS    = 251
 STRAIN_MAX   = 0.5
 
@@ -72,7 +73,7 @@ class EVPCD(model.Model):
                 if type == "creep":
                     stress_max = self.exp_curves[i]["stress"]
                     with model.BlockPrint():
-                        creep_results = drivers.creep(evpcd_model, stress_max, STRESS_RATE, HOLD, T=temp, verbose=False, check_dmg=False, dtol=0.95, nsteps_up=150, nsteps=NUM_STEPS, logspace=False)
+                        creep_results = drivers.creep(evpcd_model, stress_max, STRESS_RATE, HOLD, T=temp, verbose=False, check_dmg=False, dtol=0.95, nsteps_up=NUM_STEPS_UP, nsteps=NUM_STEPS, logspace=False)
                     prd_curves[i]["x"] = list(creep_results['rtime'] / 3600)
                     prd_curves[i]["y"] = list(creep_results['rstrain'])
                 elif type == "tensile":
