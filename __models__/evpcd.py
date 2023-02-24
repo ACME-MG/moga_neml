@@ -13,7 +13,7 @@ from neml.nlsolvers import MaximumIterations
 # Model Parameters
 YOUNGS       = 157000.0
 POISSONS     = 0.3
-STRESS_RATE  = 0.001
+STRESS_RATE  = 0.0001
 HOLD         = 11500.0 * 3600.0
 NUM_STEPS_UP = 50
 NUM_STEPS    = 251
@@ -77,7 +77,7 @@ class EVPCD(model.Model):
                     prd_curves[i]["x"] = list(creep_results['rtime'] / 3600)
                     prd_curves[i]["y"] = list(creep_results['rstrain'])
                 elif type == "tensile":
-                    strain_rate = self.exp_curves[i]["strain_rate"]
+                    strain_rate = self.exp_curves[i]["strain_rate"] / 3600
                     with model.BlockPrint():
                         tensile_results = drivers.uniaxial_test(evpcd_model, erate=strain_rate, T=temp, emax=STRAIN_MAX, nsteps=NUM_STEPS)
                     prd_curves[i]["x"] = list(tensile_results['strain'])

@@ -1,2 +1,4 @@
 Stress = MPa
+Time = Hour
 Temperature = Celcius
+Strain Rate = / Hour

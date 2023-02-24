@@ -2,6 +2,7 @@
  Title:         The Voce Slip Hardening Asaro Inelasticity Model
  Description:   Predicts primary creep via crystal plasticity
  Author:        Janzen Choi
+
 """
 
 # Libraries
@@ -11,15 +12,15 @@ from neml.cp import crystallography, slipharden, sliprules, inelasticity, kinema
 from neml.math import rotations
 
 # Model Parameters
-YOUNGS      = 211000.0
-POISSONS    = 0.3
-STRESS_RATE = 1
-STRAIN_MAX  = 0.005
-HOLD        = 11500.0 * 3600.0
-NUM_STEPS   = 100
-MAX_ITER    = 16
-MAX_DIVIDE  = 4
-VERBOSE     = False
+YOUNGS       = 211000.0
+POISSONS     = 0.3
+STRESS_RATE  = 0.0001
+STRAIN_MAX   = 0.005
+HOLD         = 11500.0 * 3600.0
+NUM_STEPS_UP = 50
+NUM_STEPS    = 100
+MAX_ITER     = 16
+MAX_DIVIDE   = 4
 
 # The Voce Slip Hardening Asaro Inelasticity Class
 class VSHAI(model.Model):
@@ -90,12 +91,12 @@ class VSHAI(model.Model):
             try:
                 if type == "creep":
                     stress_max = self.exp_curves[i]["stress"]
-                    creep_results = drivers.creep(vshai_model, stress_max, STRESS_RATE, HOLD, T=temp, verbose=VERBOSE, check_dmg=False, dtol=0.95, nsteps_up=150, nsteps=NUM_STEPS, logspace=False)
+                    creep_results = drivers.creep(vshai_model, stress_max, STRESS_RATE, HOLD, T=temp, verbose=False, check_dmg=False, dtol=0.95, nsteps_up=NUM_STEPS_UP, nsteps=NUM_STEPS, logspace=False)
                     prd_curves[i]["x"] = list(creep_results['rtime'] / 3600)
                     prd_curves[i]["y"] = list(creep_results['rstrain'])
                 elif type == "tensile":
-                    strain_rate = self.exp_curves[i]["strain_rate"]
-                    tensile_results = drivers.uniaxial_test(vshai_model, erate=strain_rate, T=temp, verbose=VERBOSE, emax=STRAIN_MAX, nsteps=NUM_STEPS)
+                    strain_rate = self.exp_curves[i]["strain_rate"] / 3600
+                    tensile_results = drivers.uniaxial_test(vshai_model, erate=strain_rate, T=temp, verbose=False, emax=STRAIN_MAX, nsteps=NUM_STEPS)
                     prd_curves[i]["x"] = list(tensile_results['strain'])
                     prd_curves[i]["y"] = list(tensile_results['stress'])
             except:

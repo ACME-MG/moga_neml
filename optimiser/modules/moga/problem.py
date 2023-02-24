@@ -35,12 +35,22 @@ class Problem(ElementwiseProblem):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore") # ignore warnings
 
+            from time import time
+            start = time()
+            fp = open("res.txt", "a")
+            fp.write("--------------------\n")
+            fp.write(f"Params: {params}\n")
+
             # Get errors and constraints
             prd_curves = self.model.get_prd_curves(*params)
             prd_curves = self.model.ensure_validity(prd_curves)
             error_values = self.objective.get_error_values(prd_curves)
             constraint_values = self.objective.get_constraint_values(prd_curves)
             
+            fp.write(f"Errors: {error_values}\n")
+            fp.write(f"Time:   {round(time()-start)}s\n")
+            fp.close()
+
             # Check constraints and adjust error values
             feasible_list = [constraint <= 0 for constraint in constraint_values]
             error_values = [self.penalty*error for error in error_values] if False in feasible_list else error_values
