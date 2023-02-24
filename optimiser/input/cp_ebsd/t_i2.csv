@@ -1,5 +1,5 @@
 x,y,type,temp,stress,title,strain_rate
-0,0,tensile,300,0,simulated,3.6
+0,0,tensile,300,0,simulated,0.36
 1.56E-05,3.299945544,,,,,
 3.13E-05,6.599838338,,,,,
 3.91E-05,8.249772493,,,,,
