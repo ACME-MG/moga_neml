@@ -61,7 +61,7 @@ class VSHAI(model.Model):
             if phi_1 == 0 and Phi == 0 and phi_2 == 0:
                 continue
             self.grain_orientations.append(rotations.CrystalOrientation(phi_1, Phi, phi_2, angle_type="degrees", convention="bunge"))
-            self.weights.append(int(data[3])**2)
+            self.weights.append(int(data[3])**(3/2))
         file.close()
 
         # Define lattice structure
