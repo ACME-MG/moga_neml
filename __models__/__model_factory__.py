@@ -15,6 +15,7 @@ from th import TH
 from thkr import THKR
 from thkr_s import THKR_S
 from vshai import VSHAI
+from vshai_s import VSHAI_S
 
 # Creates and return a model
 def get_model(model_name, exp_curves, args):
@@ -28,6 +29,7 @@ def get_model(model_name, exp_curves, args):
         THKR(exp_curves),
         THKR_S(exp_curves),
         VSHAI(exp_curves),
+        VSHAI_S(exp_curves),
     )
     model = [model for model in model_list if model.get_name() == model_name][0]
     model.prepare(args)
