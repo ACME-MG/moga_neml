@@ -32,7 +32,7 @@ class VSHAI_S(model.Model):
             param_info = [
                 {"name": "vsh_ts",  "min": 0.0e1,   "max": 1.0e2},
                 {"name": "vsh_b",   "min": 0.0e1,   "max": 1.0e2},
-                {"name": "vsh_t0",  "min": 0.0e1,   "max": 1.0e1},
+                {"name": "vsh_t0",  "min": 0.0e1,   "max": 1.0e2},
             ],
             exp_curves = exp_curves
         )

@@ -32,7 +32,7 @@ class VSHAI(model.Model):
             param_info = [
                 {"name": "vsh_ts",  "min": 0.0e1,   "max": 1.0e2},
                 {"name": "vsh_b",   "min": 0.0e1,   "max": 1.0e2},
-                {"name": "vsh_t0",  "min": 0.0e1,   "max": 1.0e1},
+                {"name": "vsh_t0",  "min": 0.0e1,   "max": 1.0e2},
                 {"name": "ai_g0",   "min": 0.0e1,   "max": 1.0e0},
                 {"name": "ai_n",    "min": 0.0e1,   "max": 1.0e2},
             ],
@@ -61,7 +61,7 @@ class VSHAI(model.Model):
             if phi_1 == 0 and Phi == 0 and phi_2 == 0:
                 continue
             self.grain_orientations.append(rotations.CrystalOrientation(phi_1, Phi, phi_2, angle_type="degrees", convention="bunge"))
-            self.weights.append(int(data[3])**(3/2))
+            self.weights.append(int(data[3]))
         file.close()
 
         # Define lattice structure

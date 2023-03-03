@@ -1,5 +1,5 @@
 """
- Title:         The Elastic Visco Plastic Work Damage Model
+ Title:         The Elastic Visco Plastic Work Damage (Log Line) Model
  Description:   Predicts primary, secondary, and tertiary creep
  Author:        Janzen Choi
 
@@ -7,7 +7,7 @@
 
 # Libraries
 import __model__ as model
-from math import e as exp, pow
+import math
 from neml import models, elasticity, drivers, surfaces, hardening, visco_flow, general_flow, damage, interpolate
 from neml.nlsolvers import MaximumIterations
 
@@ -20,13 +20,13 @@ NUM_STEPS_UP = 50
 NUM_STEPS    = 251
 STRAIN_MAX   = 0.5
 
-# The Elastic Visco Plastic Work Damage Class
-class EVPWD_LINE(model.Model):
+# The Elastic Visco Plastic Work Damage (Log Line) Class
+class EVPWD_LL(model.Model):
 
     # Constructor
     def __init__(self, exp_curves):
         super().__init__(
-            name = "evpwd_line",
+            name = "evpwd_ll",
             param_info = [
                 {"name": "evp_s0",  "min": 0.0e1,   "max": 1.0e2},
                 {"name": "evp_R",   "min": 0.0e1,   "max": 1.0e2},
@@ -48,17 +48,17 @@ class EVPWD_LINE(model.Model):
         self.yield_surface  = surfaces.IsoJ2()
         
         # Define interpolator
-        def line(x, m=1, b=1):
-            return m*x + b
-        self.interp_function = line
+        def log_line(x, m=1, b=0):
+            return m*math.log10(x) + b*m
+        self.interp_function = log_line
 
     # Gets the predicted curves
     def get_prd_curves(self, evp_s0, evp_R, evp_d, evp_n, evp_eta, wd_b, wd_m, wd_n):
 
         # Define interpolator
-        x_interp = [-100,100]
-        y_interp = [self.interp_function(x, wd_b, wd_m) for x in x_interp]
-        wd_wc    = interpolate.PiecewiseLinearInterpolate(x_interp, y_interp)
+        x_interp = [10**i for i in [-wd_b,-1]]
+        y_interp = [self.interp_function(x, wd_m, wd_b) for x in x_interp]
+        wd_wc    = interpolate.PiecewiseSemiLogXLinearInterpolate(x_interp, y_interp)
 
         # Define model
         iso_hardening = hardening.VoceIsotropicHardeningRule(evp_s0, evp_R, evp_d)
