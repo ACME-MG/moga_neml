@@ -7,7 +7,7 @@
 
 # Libraries
 import __model__ as model
-from math import e as exp, pow
+import math
 from neml import models, elasticity, drivers, surfaces, hardening, visco_flow, general_flow, damage, interpolate
 from neml.nlsolvers import MaximumIterations
 
@@ -28,9 +28,8 @@ class EVPWD_S(model.Model):
         super().__init__(
             name = "evpwd_s",
             param_info = [
-                {"name": "wd_xf",   "min": 1.0e0,   "max": 1.0e2},
-                {"name": "wd_yf",   "min": 1.0e0,   "max": 1.0e3},
-                {"name": "wd_yo",   "min": 1.0e0,   "max": 1.0e3},
+                {"name": "wd_m",    "min": 0.0e0,   "max": 1.0e3},
+                {"name": "wd_x",    "min": 0.0e0,   "max": 1.0e1},
                 {"name": "wd_n",    "min": 0.0e1,   "max": 2.0e0},
             ],
             exp_curves = exp_curves
@@ -58,16 +57,16 @@ class EVPWD_S(model.Model):
         self.evp_model  = models.GeneralIntegrator(self.elastic_model, integrator, verbose=False)
 
         # Define interpolator
-        def sigmoid(x, x_factor=1, y_factor=1, y_offset=0.1):
-            return y_factor/(1+pow(exp,-x_factor*x)) + y_offset
-        self.interp_function = sigmoid
+        def log_line(x, m=1, b=0):
+            return m*math.log10(x) + b*m
+        self.interp_function = log_line
 
     # Gets the predicted curves
-    def get_prd_curves(self, wd_xf, wd_yf, wd_yo, wd_n):
+    def get_prd_curves(self, wd_m, wd_x, wd_n):
 
         # Define model
-        x_interp    = [2**i/wd_xf for i in range(-4,4)]
-        y_interp    = [self.interp_function(x, wd_xf, wd_yf, wd_yo) for x in x_interp]
+        x_interp    = [10**i for i in [-wd_x,-1]]
+        y_interp    = [self.interp_function(x, wd_m, wd_x) for x in x_interp]
         wd_wc       = interpolate.PiecewiseSemiLogXLinearInterpolate(x_interp, y_interp)
         wd_model    = damage.WorkDamage(self.elastic_model, wd_wc, wd_n)
         evpwd_model = damage.NEMLScalarDamagedModel_sd(self.elastic_model, self.evp_model, wd_model, verbose=False)
