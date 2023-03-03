@@ -26,7 +26,7 @@ class EVPWD(model.Model):
     # Constructor
     def __init__(self, exp_curves):
         super().__init__(
-            name = "evpwd_ll",
+            name = "evpwd",
             param_info = [
                 {"name": "evp_s0",  "min": 0.0e1,   "max": 1.0e2},
                 {"name": "evp_R",   "min": 0.0e1,   "max": 1.0e2},
