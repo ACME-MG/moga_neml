@@ -29,7 +29,7 @@ class EVPWD_S(model.Model):
             name = "evpwd_s",
             param_info = [
                 {"name": "wd_m",    "min": 0.0e0,   "max": 1.0e2},
-                {"name": "wd_x",    "min": 0.0e0,   "max": 2.0e1},
+                {"name": "wd_b",    "min": 0.0e0,   "max": 2.0e1},
                 {"name": "wd_n",    "min": 0.0e1,   "max": 2.0e0},
             ],
             exp_curves = exp_curves
@@ -37,7 +37,7 @@ class EVPWD_S(model.Model):
 
     # Prepares the model
     # Alloy 617 at 800C: [29.48710435, 16.24978645, 54.94323852, 2.338120137, 29597.64018]
-    # Alloy 617 at 800C: [41.51219348, 26.94208619, 0.382454248, 2.54294033, 18404.70135]
+    # Alloy 617 at 800C: [41.51219348, 26.94208619, 0.382454248, 2.54294033, 18404.70135] # good
     def prepare(self, args):
 
         # Define elastic-plastic parameters
@@ -58,15 +58,15 @@ class EVPWD_S(model.Model):
 
         # Define interpolator
         def log_line(x, m=1, b=0):
-            return m*math.log10(x) + b*m
+            return m*math.log10(x) + b
         self.interp_function = log_line
 
     # Gets the predicted curves
-    def get_prd_curves(self, wd_m, wd_x, wd_n):
+    def get_prd_curves(self, wd_m, wd_b, wd_n):
 
         # Define model
-        x_interp    = [10**(i-wd_x) for i in [0, 5, 10]]
-        y_interp    = [self.interp_function(x, wd_m, wd_x) for x in x_interp]
+        x_interp    = [10**i for i in [-10, -5, 0, 5, 10]]
+        y_interp    = [self.interp_function(x, wd_m, wd_b) for x in x_interp]
         wd_wc       = interpolate.PiecewiseSemiLogXLinearInterpolate(x_interp, y_interp)
         wd_model    = damage.WorkDamage(self.elastic_model, wd_wc, wd_n)
         evpwd_model = damage.NEMLScalarDamagedModel_sd(self.elastic_model, self.evp_model, wd_model, verbose=False)

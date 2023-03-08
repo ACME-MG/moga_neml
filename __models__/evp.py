@@ -16,7 +16,7 @@ STRESS_RATE  = 0.0001
 HOLD         = 11500.0 * 3600.0
 NUM_STEPS_UP = 50
 NUM_STEPS    = 251
-STRAIN_MAX   = 0.5
+STRAIN_MAX   = 0.05
 
 # The Elastic Visco Plastic Class
 class EVP(model.Model):
@@ -27,8 +27,8 @@ class EVP(model.Model):
             name = "evp",
             param_info = [
                 {"name": "evp_s0",  "min": 0.0e1,   "max": 1.0e2},
-                {"name": "evp_R",   "min": 0.0e1,   "max": 1.0e2},
-                {"name": "evp_d",   "min": 0.0e1,   "max": 1.0e2},
+                {"name": "evp_R",   "min": 0.0e1,   "max": 1.0e3},
+                {"name": "evp_d",   "min": 0.0e1,   "max": 1.0e3},
                 {"name": "evp_n",   "min": 2.0e0,   "max": 1.0e1},
                 {"name": "evp_eta", "min": 0.0e1,   "max": 1.0e5},
             ],

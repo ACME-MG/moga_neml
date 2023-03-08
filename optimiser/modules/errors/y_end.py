@@ -24,5 +24,5 @@ class YEnd(error.Error):
     def get_value(self, prd_curves):
         prd_y_end_list = [prd_curves[i]["y"][-1] for i in range(len(prd_curves))]
         value_list = [abs(prd_y_end_list[i] - self.exp_y_end_list[i]) / self.exp_y_end_list[i] for i in range(len(self.exp_y_end_list))]
-        value_list = [value_list[i] if self.exp_curves[i] == "creep" else 0 for i in range(len(value_list))]
+        # value_list = [value_list[i] if self.exp_curves[i]["type"] == "creep" else 0 for i in range(len(value_list))]
         return np.average(value_list)

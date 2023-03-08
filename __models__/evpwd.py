@@ -34,7 +34,7 @@ class EVPWD(model.Model):
                 {"name": "evp_n",   "min": 1.0e0,   "max": 1.0e1},
                 {"name": "evp_eta", "min": 0.0e1,   "max": 1.0e6},
                 {"name": "wd_m",    "min": 0.0e0,   "max": 1.0e2},
-                {"name": "wd_x",    "min": 0.0e0,   "max": 2.0e1},
+                {"name": "wd_b",    "min": 0.0e0,   "max": 1.0e3},
                 {"name": "wd_n",    "min": 0.0e1,   "max": 2.0e0},
             ],
             exp_curves = exp_curves
@@ -49,15 +49,15 @@ class EVPWD(model.Model):
         
         # Define interpolator
         def log_line(x, m=1, b=0):
-            return m*math.log10(x) + b*m
+            return m*math.log10(x) + b
         self.interp_function = log_line
 
     # Gets the predicted curves
-    def get_prd_curves(self, evp_s0, evp_R, evp_d, evp_n, evp_eta, wd_m, wd_x, wd_n):
+    def get_prd_curves(self, evp_s0, evp_R, evp_d, evp_n, evp_eta, wd_m, wd_b, wd_n):
 
         # Define interpolator
-        x_interp = [10**(i-wd_x) for i in [0, 5, 10]]
-        y_interp = [self.interp_function(x, wd_m, wd_x) for x in x_interp]
+        x_interp = [10**i for i in [-10, -5, 0, 5, 10]]
+        y_interp = [self.interp_function(x, wd_m, wd_b) for x in x_interp]
         wd_wc    = interpolate.PiecewiseSemiLogXLinearInterpolate(x_interp, y_interp)
 
         # Define model
