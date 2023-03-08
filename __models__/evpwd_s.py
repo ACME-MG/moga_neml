@@ -28,8 +28,8 @@ class EVPWD_S(model.Model):
         super().__init__(
             name = "evpwd_s",
             param_info = [
-                {"name": "wd_m",    "min": 0.0e0,   "max": 1.0e3},
-                {"name": "wd_x",    "min": 0.0e0,   "max": 1.0e1},
+                {"name": "wd_m",    "min": 0.0e0,   "max": 1.0e2},
+                {"name": "wd_x",    "min": 0.0e0,   "max": 2.0e1},
                 {"name": "wd_n",    "min": 0.0e1,   "max": 2.0e0},
             ],
             exp_curves = exp_curves

@@ -33,8 +33,8 @@ class EVPWD(model.Model):
                 {"name": "evp_d",   "min": 0.0e1,   "max": 1.0e2},
                 {"name": "evp_n",   "min": 1.0e0,   "max": 1.0e1},
                 {"name": "evp_eta", "min": 0.0e1,   "max": 1.0e6},
-                {"name": "wd_m",    "min": 0.0e0,   "max": 1.0e3},
-                {"name": "wd_x",    "min": 0.0e0,   "max": 1.0e1},
+                {"name": "wd_m",    "min": 0.0e0,   "max": 1.0e2},
+                {"name": "wd_x",    "min": 0.0e0,   "max": 2.0e1},
                 {"name": "wd_n",    "min": 0.0e1,   "max": 2.0e0},
             ],
             exp_curves = exp_curves
