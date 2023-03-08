@@ -65,7 +65,7 @@ class EVPWD_S(model.Model):
     def get_prd_curves(self, wd_m, wd_x, wd_n):
 
         # Define model
-        x_interp    = [10**i for i in range(-round(wd_x),5-round(wd_x))]
+        x_interp    = [10**(i-wd_x) for i in [0, 5, 10]]
         y_interp    = [self.interp_function(x, wd_m, wd_x) for x in x_interp]
         wd_wc       = interpolate.PiecewiseSemiLogXLinearInterpolate(x_interp, y_interp)
         wd_model    = damage.WorkDamage(self.elastic_model, wd_wc, wd_n)

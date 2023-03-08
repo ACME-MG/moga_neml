@@ -6,7 +6,6 @@
 """
 # Libraries
 import math
-import numpy as np
 import matplotlib.pyplot as plt
 from copy import deepcopy
 from scipy.interpolate import splev, splrep, splder
@@ -65,7 +64,7 @@ def remove_after_sp(curve, nature, window, acceptance, nominal=0):
     
     # Get all stationary points
     sp_list = [sp for sp in sp_list if sp["nature"] == nature]
-    if len(sp_list) <= nominal:
+    if len(sp_list) == nominal:
         return curve
     sp = sp_list[nominal]
 

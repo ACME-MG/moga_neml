@@ -53,7 +53,8 @@ class Recorder:
         writer = pd.ExcelWriter(file_path, engine = "xlsxwriter")
         self.record_settings(writer)
         self.record_results(writer)
-        self.record_plot(writer)
+        self.record_plot(writer, "creep")
+        self.record_plot(writer, "tensile")
         writer.save()
 
     # Updates the results after X iterations
@@ -162,25 +163,27 @@ class Recorder:
         results.to_excel(writer, "results", index = False)
 
     # Records the plot
-    def record_plot(self, writer):
+    def record_plot(self, writer, type):
 
-        # If there are no optimal parameters, leave
-        if len(self.opt_params) == 0:
+        # If there are no optimal parameters / curves, leave
+        if len(self.opt_params) == 0 or not type in [curve["type"] for curve in self.train_curves+self.test_curves]:
             return
         
         # Create plot for curves
-        prd_test_curves = self.model.get_specified_prd_curves(self.opt_params[0], self.test_curves)
-        prd_train_curves = self.model.get_specified_prd_curves(self.opt_params[0], self.train_curves)
-        add_plot_sheet(writer, "plot_y", self.test_curves, self.train_curves, prd_test_curves, prd_train_curves)
+        train_curves = [curve for curve in self.train_curves if curve["type"] == type]
+        test_curves = [curve for curve in self.test_curves if curve["type"] == type]
+        prd_train_curves = self.model.get_specified_prd_curves(self.opt_params[0], train_curves)
+        prd_test_curves = self.model.get_specified_prd_curves(self.opt_params[0], test_curves)
+        add_plot_sheet(writer, f"{type}_y", test_curves, train_curves, prd_test_curves, prd_train_curves)
 
         # Create plot for derivative of curves
-        test_d_curves       = [differentiate_curve(curve) for curve in self.test_curves]
-        train_d_curves      = [differentiate_curve(curve) for curve in self.train_curves]
-        prd_test_curves     = self.model.get_specified_prd_curves(self.opt_params[0], self.test_curves)
+        test_d_curves       = [differentiate_curve(curve) for curve in test_curves]
+        train_d_curves      = [differentiate_curve(curve) for curve in train_curves]
+        prd_test_curves     = self.model.get_specified_prd_curves(self.opt_params[0], test_curves)
         prd_test_d_curves   = [differentiate_curve(curve) for curve in prd_test_curves]
-        prd_train_curves    = self.model.get_specified_prd_curves(self.opt_params[0], self.train_curves)
+        prd_train_curves    = self.model.get_specified_prd_curves(self.opt_params[0], train_curves)
         prd_train_d_curves  = [differentiate_curve(curve) for curve in prd_train_curves]
-        add_plot_sheet(writer, "plot_dy", test_d_curves, train_d_curves, prd_test_d_curves, prd_train_d_curves)
+        add_plot_sheet(writer, f"{type}_dy", test_d_curves, train_d_curves, prd_test_d_curves, prd_train_d_curves)
 
 # For creating a sheet for a plot
 def add_plot_sheet(writer, sheet_name, test_curves, train_curves, prd_test_curves, prd_train_curves):

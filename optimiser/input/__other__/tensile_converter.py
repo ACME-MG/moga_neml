@@ -74,7 +74,7 @@ for csv_file in csv_files:
     
     # Write data
     new_fp = open(new_file_name, "w+")
-    new_fp.write("x,y,temp,type,title,medium,s_rate\n")
+    new_fp.write("x,y,temp,type,title,medium,strain_rate\n")
     new_fp.write(f"0,0,{temp},tensile,{title},{medium},{strain_rate}\n")
 
     # Write new x and y

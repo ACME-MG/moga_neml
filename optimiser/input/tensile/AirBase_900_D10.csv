@@ -1,4 +1,4 @@
-x,y,temp,type,title,medium,s_rate
+x,y,temp,type,title,medium,strain_rate
 0,0,900,tensile,D10,Air,0.35326708148763813
 -0.00012088730657600842,11.4786122976,,,,,
 -0.000120167219791195,11.5086169584,,,,,
