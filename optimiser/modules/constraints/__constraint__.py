@@ -9,13 +9,18 @@
 class Constraint:
 
     # Constructor
-    def __init__(self, name, exp_curves):
+    def __init__(self, name, type, exp_curves):
         self.name = name
+        self.type = type
         self.exp_curves = exp_curves
 
     # Returns the name of the constraint
     def get_name(self):
         return self.name
+
+    # Returns the type of the constraint
+    def get_type(self):
+        return self.type
 
     # Returns the experimental curve
     def get_exp_curves(self):

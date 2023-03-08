@@ -12,8 +12,8 @@ import modules.constraints.__constraint__ as constraint
 class DecXEnd(constraint.Constraint):
 
     # Constructor
-    def __init__(self, exp_curves):
-        super().__init__("dec_x_end", exp_curves)
+    def __init__(self, type, exp_curves):
+        super().__init__("dec_x_end", type, exp_curves)
         self.curve_dict = constraint.get_curve_map(exp_curves)
     
     # Returns the constraint vayue
@@ -22,6 +22,8 @@ class DecXEnd(constraint.Constraint):
         for temp in self.curve_dict.keys():
             curves = [prd_curves[i] for i in self.curve_dict[temp]]
             for i in range(1,len(curves)):
+                if self.exp_curves[i]["type"] != self.type:
+                    continue
                 x_end_diff = curves[i]["x"][-1] - curves[i-1]["x"][-1]
                 if x_end_diff > 0:
                     constraint_value += x_end_diff

@@ -25,13 +25,19 @@ class Recorder:
 
         # Initialise
         self.model            = objective.get_model()
-        self.error_names      = objective.get_error_names()
-        self.constraint_names = objective.get_constraint_names()
         self.train_curves     = train_curves
         self.test_curves      = test_curves
         self.path             = path
         self.interval         = interval
         self.population       = population
+
+        # Define error names / types
+        error_types      = objective.get_error_types()
+        error_names      = objective.get_error_names()
+        constraint_types = objective.get_constraint_types()
+        constraint_names = objective.get_constraint_names()
+        self.error_info  = [f"{error_types[i]}_{error_names[i]}" for i in range(len(error_types))]
+        self.constraint_info = [f"{constraint_types[i]}_{constraint_names[i]}" for i in range(len(constraint_types))]
 
         # Track optimisation progress
         self.start_time = time.time()
@@ -118,49 +124,51 @@ class Recorder:
 
     # Records the settings
     def record_settings(self, writer):
-
-        # Settings Data
         settings = {
-            "Status":               ["Complete" if self.num_gens_completed == self.num_gens else "Incomplete"],
-            "Progress":             [f"{round(self.num_gens_completed)}/{self.num_gens}"],
-            "Start Time":           [self.start_time_str],
-            "End Time":             [time.strftime("%A, %D, %H:%M:%S", time.localtime())],
-            "Time Elapsed":         [f"{round(time.time() - self.start_time)}s"],
-            "Model":                [self.model.get_name()],
-            "Params":               self.model.get_param_names(),
-            "Lower Bound":          self.model.get_param_lower_bounds(),
-            "Upper Bound":          self.model.get_param_upper_bounds(),
-            "Errors":               self.error_names,
-            "Constraints":          self.constraint_names,
-            "Training Data":        [f"{train_curve['title']}" for train_curve in self.train_curves],
-            "Testing Data":         [f"{test_curve['title']}" for test_curve in self.test_curves],
-            "num_gens":             [self.num_gens],
-            "init_pop":             [self.init_pop],
-            "offspring":            [self.offspring],
-            "crossover":            [self.crossover],
-            "mutation":             [self.mutation],
+            "Status":           ["Complete" if self.num_gens_completed == self.num_gens else "Incomplete"],
+            "Progress":         [f"{round(self.num_gens_completed)}/{self.num_gens}"],
+            "Start Time":       [self.start_time_str],
+            "End Time":         [time.strftime("%A, %D, %H:%M:%S", time.localtime())],
+            "Time Elapsed":     [f"{round(time.time() - self.start_time)}s"],
+            "Model":            [self.model.get_name()],
+            "Params":           self.model.get_param_names(),
+            "Lower Bound":      self.model.get_param_lower_bounds(),
+            "Upper Bound":      self.model.get_param_upper_bounds(),
+            "Errors":           self.error_info,
+            "Constraints":      self.constraint_info,
+            "Training Data":    [f"{train_curve['title']}" for train_curve in self.train_curves],
+            "Testing Data":     [f"{test_curve['title']}" for test_curve in self.test_curves],
+            "num_gens":         [self.num_gens],
+            "init_pop":         [self.init_pop],
+            "offspring":        [self.offspring],
+            "crossover":        [self.crossover],
+            "mutation":         [self.mutation],
         }
-
-        # Change format of data
-        columns = list(settings.keys())
-        data = zip_longest([settings[column] for column in columns])
-        data = list(map(list, zip(*data)))
-        settings_dataframe = pd.DataFrame(data, columns = columns)
-
-        # Write settings
-        settings_dataframe.style.apply(centre_align, axis = 0).to_excel(writer, "settings", index = False)
-        sheet = writer.sheets["settings"]
-        for column in settings_dataframe:
-            column_length = max(settings_dataframe[column].astype(str).map(len).max(), len(column)) + 1
-            column_index = settings_dataframe.columns.get_loc(column)
-            sheet.set_column(column_index, column_index, column_length)
+        write_with_fit_column_widths(settings, writer, "settings")
     
     # Records the results
     def record_results(self, writer):
-        columns = [param["name"] for param in self.model.param_info] + self.error_names + ["err_sqr_sum"] + self.constraint_names
-        data = [self.opt_params[i] + self.opt_errors[i] + self.opt_constraints[i] for i in range(0,len(self.opt_params))]
-        results = pd.DataFrame(data, columns = columns)
-        results.to_excel(writer, "results", index = False)
+        
+        # Add parameters
+        results = {"P": ["|" for _ in range(len(self.opt_params))]}
+        for i in range(len(self.model.param_info)):
+            results[self.model.param_info[i]["name"]] = [params[i] for params in self.opt_params]
+        
+        # Add errors (and total error)
+        if len(self.error_info) > 0:
+            results["E"] = ["|" for _ in range(len(self.opt_errors))]
+        for i in range(len(self.error_info)):
+            results[self.error_info[i]] = [errors[i] for errors in self.opt_errors]
+        results["error_sqr_sum"] = [errors[-1] for errors in self.opt_errors]
+
+        # Add constraints
+        if len(self.constraint_info) > 0:
+            results["C"] = ["|" for _ in range(len(self.opt_constraints))]
+        for i in range(len(self.constraint_info)):
+            results[self.constraint_info[i]] = [constraints[i] for constraints in self.opt_constraints]
+        
+        # Write all results
+        write_with_fit_column_widths(results, writer, "results")
 
     # Records the plot
     def record_plot(self, writer, type):
@@ -200,7 +208,7 @@ def add_plot_sheet(writer, sheet_name, test_curves, train_curves, prd_test_curve
     data = zip_longest([test_x_flat, test_y_flat, train_x_flat, train_y_flat, prd_x_flat, prd_y_flat])
     data = list(map(list, zip(*data)))
     pd.DataFrame(data).to_excel(writer, sheet_name, index=False)
-    worksheet = writer.sheets[sheet_name]
+    sheet = writer.sheets[sheet_name]
     chart = writer.book.add_chart({"type": "scatter"})
 
     # Add curves to chart
@@ -211,7 +219,7 @@ def add_plot_sheet(writer, sheet_name, test_curves, train_curves, prd_test_curve
     # Insert chart into worksheet
     chart.set_x_axis({"name": "x", "major_gridlines": {"visible": True}})
     chart.set_y_axis({"name": "y", "major_gridlines": {"visible": True}})
-    worksheet.insert_chart("A1", chart)
+    sheet.insert_chart("A1", chart)
 
 # For adding series to a chart
 def add_series(chart, sheet_name, series_name, col_num, curve_length, type, size, colour):
@@ -230,6 +238,23 @@ def thin_and_flatten(curves):
     x_data_flat = [x for x_list in x_data for x in x_list]
     y_data_flat = [y for y_list in y_data for y in y_list]
     return x_data_flat, y_data_flat
+
+# For writing to a sheet with fitted column widths
+def write_with_fit_column_widths(data_dict, writer, sheet_name):
+
+    # Convert dictionary to dataframe
+    columns = list(data_dict.keys())
+    data = zip_longest([data_dict[column] for column in columns])
+    data = list(map(list, zip(*data)))
+    dataframe = pd.DataFrame(data, columns = columns)
+    
+    # Apply fit column widths
+    dataframe.style.apply(centre_align, axis = 0).to_excel(writer, sheet_name, index = False)
+    sheet = writer.sheets[sheet_name]
+    for column in dataframe:
+        column_length = max(dataframe[column].astype(str).map(len).max(), len(column)) + 1
+        column_index = dataframe.columns.get_loc(column)
+        sheet.set_column(column_index, column_index, column_length)
 
 # For centre-aligning the cellss
 def centre_align(x):

@@ -36,8 +36,7 @@ class EVPWD_S(model.Model):
         )
 
     # Prepares the model
-    # Alloy 617 at 800C: [29.48710435, 16.24978645, 54.94323852, 2.338120137, 29597.64018]
-    # Alloy 617 at 800C: [41.51219348, 26.94208619, 0.382454248, 2.54294033, 18404.70135] # good
+    # api.define_model("evpwd_s", [41.51219348, 26.94208619, 0.382454248, 2.54294033, 18404.70135]) # A617, 800C
     def prepare(self, args):
 
         # Define elastic-plastic parameters

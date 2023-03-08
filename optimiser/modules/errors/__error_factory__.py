@@ -13,13 +13,13 @@ from modules.errors.x_end import XEnd
 from modules.errors.y_end import YEnd
 
 # Returns a list of errors
-def get_error_list(error_names, exp_curves):
+def get_error_list(type, error_names, exp_curves):
     error_list = (
-        DyArea(exp_curves),
-        XArea(exp_curves),
-        YArea(exp_curves),
-        XEnd(exp_curves),
-        YEnd(exp_curves),
+        DyArea(type, exp_curves),
+        XArea(type, exp_curves),
+        YArea(type, exp_curves),
+        XEnd(type, exp_curves),
+        YEnd(type, exp_curves),
     )
     error_list = [error for error in error_list if error.get_name() in error_names]
     [error.prepare() for error in error_list]

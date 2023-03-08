@@ -93,14 +93,14 @@ class API(APITemplate):
         self.model = get_model(model_name, self.train_curves, args)
     
     # Defining the errors
-    def define_errors(self, error_names):
+    def define_errors(self, type, error_names):
         self.add(f"Defining the errors to minimise ({len(error_names)})")
-        self.error_list += get_error_list(error_names, self.train_curves)
+        self.error_list += get_error_list(type, error_names, self.train_curves)
 
     # Defining the constraints
-    def define_constraints(self, constraint_names):
+    def define_constraints(self, type, constraint_names):
         self.add(f"Defining the constraints to adhere ({len(constraint_names)})")
-        self.constraint_list += get_constraint_list(constraint_names, self.train_curves)
+        self.constraint_list += get_constraint_list(type, constraint_names, self.train_curves)
 
     # Prepares the recorder
     def define_recorder(self, interval=10, population=10):

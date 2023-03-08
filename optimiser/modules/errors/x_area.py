@@ -21,8 +21,8 @@ NUM_POINTS = 50
 class XArea(error.Error):
 
     # Constructor
-    def __init__(self, exp_curves):
-        super().__init__("x_area", exp_curves)
+    def __init__(self, type, exp_curves):
+        super().__init__("x_area", type, exp_curves)
     
     # Prepares for evaluation
     def prepare(self):
@@ -36,6 +36,8 @@ class XArea(error.Error):
     def get_value(self, prd_curves):
         value_list = []
         for i in range(len(prd_curves)):
+            if self.exp_curves[i]["type"] != self.type:
+                continue
             thin_indexes = get_thin_indexes(len(prd_curves[i]["x"]), NUM_POINTS)
             prd_x_list = [prd_curves[i]["x"][j] for j in thin_indexes]
             prd_y_list = [prd_curves[i]["y"][j] for j in thin_indexes]
