@@ -17,7 +17,7 @@ from vshai import VSHAI
 from vshai_s import VSHAI_S
 
 # Creates and return a model
-def get_model(model_name, exp_curves, args):
+def get_model(model_name, exp_curves, args=[]):
     model_list = (
         EVP(exp_curves),
         EVPCD(exp_curves),
