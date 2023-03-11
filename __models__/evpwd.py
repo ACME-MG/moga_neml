@@ -82,7 +82,7 @@ class EVPWD(model.Model):
                 if type == "creep":
                     stress_max = self.exp_curves[i]["stress"]
                     with model.BlockPrint():
-                        creep_results = drivers.creep(evpwd_model, stress_max, STRESS_RATE, TIME_HOLD, T=temp, verbose=False, check_dmg=False, dtol=0.95, nsteps_up=NUM_STEPS_UP, nsteps=NUM_STEPS, logspace=False)
+                        creep_results = drivers.creep(evpwd_model, stress_max, STRESS_RATE, TIME_HOLD, T=temp, verbose=False, check_dmg=False, dtol=0.95, nsteps_up=NUM_STEPS_UP, nsteps=NUM_STEPS, logspace=True)
                     prd_curves[i]["x"] = list(creep_results['rtime'] / 3600)
                     prd_curves[i]["y"] = list(creep_results['rstrain'])
                 elif type == "tensile":

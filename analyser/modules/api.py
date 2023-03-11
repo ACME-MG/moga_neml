@@ -8,6 +8,7 @@
 # Libraries
 import sys
 import modules.domain_explorer as domain_explorer
+import modules.param_changer as param_changer
 
 # Helper libraries
 sys.path += ["../__common__", "../__models__"]
@@ -34,13 +35,18 @@ class API(APITemplate):
         self.add(f"Defining the {model_name} model")
         self.model = get_model(model_name, self.curve_list)
 
-    # Assesses the individual parameters
-    def assess_domain(self, dependency=False, trials=10):
+    # Assesses the failure points for individual parameters
+    def locate_failure(self, dependency=False, trials=10):
         if dependency:
-            self.add(f"Assessing the interdependency of the parameters in their domains")
-            domain_explorer.assess_dependency(self.model, self.get_output("dependent"), trials)
+            self.add(f"Locates model failures for parameter pairs")
+            domain_explorer.assess_dependency(self.model, self.get_output(f"plot_{self.plot_count}"), trials)
         else:
-            self.add(f"Assessing the parameters in their domains")
-            domain_explorer.assess_individual(self.model, self.get_output("individual"), trials)
+            self.add(f"Locates model failures for individual parameter")
+            domain_explorer.assess_individual(self.model, self.get_output(f"plot_{self.plot_count}"), trials)
+        self.plot_count += 1
     
-    # Asees
+    # Investigates the effects of changing individual parameters
+    def param_effects(self, base_params, change=0.1, steps=3):
+        self.add(f"Investigating the effects of changing parameters")
+        param_changer.investigate_params(self.model, base_params, change, steps, self.get_output(f"plot_{self.plot_count}"))
+        self.plot_count += 1
