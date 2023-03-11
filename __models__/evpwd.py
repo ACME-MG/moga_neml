@@ -66,7 +66,7 @@ class EVPWD(model.Model):
         visco_model   = visco_flow.PerzynaFlowRule(self.yield_surface, iso_hardening, g_power)
         integrator    = general_flow.TVPFlowRule(self.elastic_model, visco_model)
         evp_model     = models.GeneralIntegrator(self.elastic_model, integrator, verbose=False)
-        wd_model      = damage.WorkDamage(self.elastic_model, wd_wc, wd_n)
+        wd_model      = damage.WorkDamage(self.elastic_model, wd_wc, wd_n, log=True)
         evpwd_model   = damage.NEMLScalarDamagedModel_sd(self.elastic_model, evp_model, wd_model, verbose=False)
 
         # Iterate through predicted curves
@@ -82,7 +82,7 @@ class EVPWD(model.Model):
                 if type == "creep":
                     stress_max = self.exp_curves[i]["stress"]
                     with model.BlockPrint():
-                        creep_results = drivers.creep(evpwd_model, stress_max, STRESS_RATE, TIME_HOLD, T=temp, verbose=False, check_dmg=False, dtol=0.95, nsteps_up=NUM_STEPS_UP, nsteps=NUM_STEPS, logspace=True)
+                        creep_results = drivers.creep(evpwd_model, stress_max, STRESS_RATE, TIME_HOLD, T=temp, verbose=False, check_dmg=False, dtol=0.95, nsteps_up=NUM_STEPS_UP, nsteps=NUM_STEPS, logspace=False)
                     prd_curves[i]["x"] = list(creep_results['rtime'] / 3600)
                     prd_curves[i]["y"] = list(creep_results['rstrain'])
                 elif type == "tensile":
