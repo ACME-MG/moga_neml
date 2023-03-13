@@ -57,7 +57,7 @@ class EVPWD(model.Model):
     def get_prd_curves(self, evp_s0, evp_R, evp_d, evp_n, evp_eta, wd_m, wd_b, wd_n):
 
         # Define interpolator
-        x_interp = [-1000,1000]
+        x_interp = [1e-8,1e4]
         y_interp = [self.interp_function(x, wd_m, wd_b) for x in x_interp]
         wd_wc    = interpolate.PiecewiseSemiLogXLinearInterpolate(x_interp, y_interp)
 
