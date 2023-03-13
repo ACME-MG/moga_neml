@@ -19,6 +19,7 @@ TIME_HOLD    = 11500.0 * 3600.0
 NUM_STEPS_UP = 50
 NUM_STEPS    = 251
 STRAIN_MAX   = 0.5
+DAMAGE_TOL   = 0.95
 
 # The Elastic Visco Plastic Work Damage Class
 class EVPWD(model.Model):
@@ -49,14 +50,14 @@ class EVPWD(model.Model):
         
         # Define interpolator
         def log_line(x, m=1, b=0):
-            return m*math.log10(x) + b
+            return m*x + b
         self.interp_function = log_line
 
     # Gets the predicted curves
     def get_prd_curves(self, evp_s0, evp_R, evp_d, evp_n, evp_eta, wd_m, wd_b, wd_n):
 
         # Define interpolator
-        x_interp = [10**i for i in [-10, -5, 0, 5, 10]]
+        x_interp = [-1000,1000]
         y_interp = [self.interp_function(x, wd_m, wd_b) for x in x_interp]
         wd_wc    = interpolate.PiecewiseSemiLogXLinearInterpolate(x_interp, y_interp)
 
@@ -82,7 +83,9 @@ class EVPWD(model.Model):
                 if type == "creep":
                     stress_max = self.exp_curves[i]["stress"]
                     with model.BlockPrint():
-                        creep_results = drivers.creep(evpwd_model, stress_max, STRESS_RATE, TIME_HOLD, T=temp, verbose=False, check_dmg=False, dtol=0.95, nsteps_up=NUM_STEPS_UP, nsteps=NUM_STEPS, logspace=False)
+                        creep_results = drivers.creep(evpwd_model, stress_max, STRESS_RATE, TIME_HOLD,
+                                                      T=temp, verbose=False, check_dmg=False, dtol=DAMAGE_TOL,
+                                                      nsteps_up=NUM_STEPS_UP, nsteps=NUM_STEPS, logspace=False)
                     prd_curves[i]["x"] = list(creep_results['rtime'] / 3600)
                     prd_curves[i]["y"] = list(creep_results['rstrain'])
                 elif type == "tensile":
