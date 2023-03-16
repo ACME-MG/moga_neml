@@ -10,6 +10,9 @@ import warnings
 import numpy as np
 from pymoo.core.problem import ElementwiseProblem
 
+# Constants
+PENALTY_FACTOR = 100
+
 # The Problem class
 class Problem(ElementwiseProblem):
 
@@ -20,14 +23,13 @@ class Problem(ElementwiseProblem):
         self.objective  = objective
         self.model      = objective.get_model()
         self.recorder   = recorder
-        self.penalty    = 10
         
         # Define the element wise problem
         super().__init__(
-            n_var        = len(self.model.get_param_info()),
-            n_obj        = len(self.objective.get_error_names()),
-            xl           = np.array(self.model.get_param_lower_bounds()),
-            xu           = np.array(self.model.get_param_upper_bounds()),
+            n_var = len(self.model.get_param_info()),
+            n_obj = len(self.objective.get_error_names()),
+            xl    = np.array(self.model.get_param_lower_bounds()),
+            xu    = np.array(self.model.get_param_upper_bounds()),
         )
     
     # Minimises expression "F" such that the expression "G <= 0" is satisfied
@@ -43,7 +45,7 @@ class Problem(ElementwiseProblem):
 
             # Check constraints and adjust error values
             feasible_list = [constraint <= 0 for constraint in constraint_values]
-            error_values = [self.penalty*error for error in error_values] if False in feasible_list else error_values
+            error_values = [PENALTY_FACTOR*error for error in error_values] if False in feasible_list else error_values
             
             # Update the recorder and pass in error values
             self.recorder.update_results(params, error_values, constraint_values)

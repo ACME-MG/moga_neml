@@ -9,7 +9,7 @@
 import sys, os
 from modules.reader import read_experimental_data, export_data_summary, prematurely_end_curve
 from modules.moga.objective import Objective
-from modules.moga.problem import Problem
+from modules.moga.problem import Problem, PENALTY_FACTOR
 from modules.moga.moga import MOGA
 from modules.recorder import Recorder
 from modules.errors.__error_factory__ import get_error_list
@@ -126,10 +126,12 @@ class API(APITemplate):
         recorder.define_hyperparameters(0,0,0,0,0)
 
         # Get errors and constraints
-        prd_curves  = self.model.get_specified_prd_curves(params, self.train_curves)
-        errors      = objective.get_error_values(prd_curves)
-        constraints = objective.get_constraint_values(prd_curves)
+        prd_curves        = self.model.get_specified_prd_curves(params, self.train_curves)
+        error_values      = objective.get_error_values(prd_curves)
+        constraint_values = objective.get_constraint_values(prd_curves)
+        feasible_list     = [constraint <= 0 for constraint in constraint_values]
+        error_values      = [PENALTY_FACTOR*error for error in error_values] if False in feasible_list else error_values
         
         # Output results
-        recorder.update_population(params, errors, constraints)
+        recorder.update_population(params, error_values, constraint_values)
         recorder.write_results(self.get_output("results.xlsx"))
