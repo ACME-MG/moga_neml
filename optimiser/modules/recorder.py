@@ -37,9 +37,9 @@ class Recorder:
         error_weights    = objective.get_error_weights()
         constraint_names = objective.get_constraint_names()
         constraint_types = objective.get_constraint_types()
-        constraint_weights = objective.get_constraint_weights()
+        constraint_penalties = objective.get_constraint_penalties()
         self.error_info  = [f"{error_names[i]}_{error_types[i]}_{error_weights[i]}" for i in range(len(error_types))]
-        self.constraint_info = [f"{constraint_names[i]}_{constraint_types[i]}_{constraint_weights[i]}" for i in range(len(constraint_types))]
+        self.constraint_info = [f"{constraint_names[i]}_{constraint_types[i]}_{constraint_penalties[i]}" for i in range(len(constraint_types))]
 
         # Track optimisation progress
         self.start_time = time.time()

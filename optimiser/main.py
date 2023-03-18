@@ -19,5 +19,5 @@ api.__add_custom_y_area__("creep", cdf=lambda x:x**0.5) # right
 # api.add_constraint("dec_x_end", "creep", 10)
 # api.add_constraint("inc_y_end", "creep", 2)
 
-api.record(10, 10)
-api.optimise(10000, 200, 100, 0.65, 0.35)
+api.record(1, 10)
+api.optimise(10000, 20, 10, 0.65, 0.35)
