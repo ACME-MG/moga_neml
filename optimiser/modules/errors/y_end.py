@@ -13,8 +13,8 @@ import modules.errors.__error__ as error
 class YEnd(error.Error):
 
     # Constructor
-    def __init__(self, type, exp_curves):
-        super().__init__("y_end", type, exp_curves)
+    def __init__(self, type, weight, exp_curves):
+        super().__init__("y_end", type, weight, exp_curves)
     
     # Prepares for evaluation
     def prepare(self):

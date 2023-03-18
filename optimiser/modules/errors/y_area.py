@@ -12,7 +12,8 @@ import modules.errors.__error__ as error
 # Helper libraries
 import sys
 sys.path += ["../__common__"]
-from derivative import Interpolator, get_thin_indexes
+from curve import get_thin_indexes
+from derivative import Interpolator
 
 # Constants
 NUM_POINTS = 50
@@ -21,11 +22,12 @@ NUM_POINTS = 50
 class YArea(error.Error):
 
     # Constructor
-    def __init__(self, type, exp_curves):
-        super().__init__("y_area", type, exp_curves)
+    def __init__(self, type, weight, exp_curves):
+        super().__init__("y_area", type, weight, exp_curves)
     
     # Prepares for evaluation
-    def prepare(self):
+    def prepare(self, thin_function=get_thin_indexes):
+        self.thin_function = thin_function
         self.interpolator_list, self.exp_x_end_list, self.avg_y_list = [], [], []
         for exp_curve in self.exp_curves:
             self.interpolator_list.append(Interpolator(exp_curve["x"], exp_curve["y"], NUM_POINTS))
@@ -38,7 +40,7 @@ class YArea(error.Error):
         for i in range(len(prd_curves)):
             if self.exp_curves[i]["type"] != self.type:
                 continue
-            thin_indexes = get_thin_indexes(len(prd_curves[i]["x"]), NUM_POINTS)
+            thin_indexes = self.thin_function(len(prd_curves[i]["x"]), NUM_POINTS)
             prd_x_list = [prd_curves[i]["x"][j] for j in thin_indexes]
             prd_y_list = [prd_curves[i]["y"][j] for j in thin_indexes]
             exp_y_list = self.interpolator_list[i].evaluate(prd_x_list)

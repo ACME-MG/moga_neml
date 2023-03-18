@@ -9,7 +9,7 @@
 import math
 
 # Constants
-BIG_VALUE = 100
+BIG_VALUE = 10000
 
 # The Objective class
 class Objective():
@@ -36,7 +36,7 @@ class Objective():
     def get_error_values(self, prd_curves):
         if prd_curves == []:
             return [BIG_VALUE] * len(self.error_list)
-        error_values = [error.get_value(prd_curves) for error in self.error_list]
+        error_values = [error.get_value(prd_curves)*error.get_weight() for error in self.error_list]
         error_values = [BIG_VALUE if math.isnan(error_value) else error_value for error_value in error_values]
         return error_values
     

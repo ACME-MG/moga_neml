@@ -9,9 +9,10 @@
 class Error:
 
     # Constructor
-    def __init__(self, name, type, exp_curves):
+    def __init__(self, name, type, weight, exp_curves):
         self.name = name
         self.type = type
+        self.weight = weight
         self.exp_curves = exp_curves
 
     # Returns the name of the error
@@ -21,6 +22,10 @@ class Error:
     # Returns the type of the error
     def get_type(self):
         return self.type
+
+    # Returns the weight of the error
+    def get_weight(self):
+        return self.weight
 
     # Returns the experimental curve
     def get_exp_curves(self):

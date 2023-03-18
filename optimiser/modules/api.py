@@ -7,13 +7,13 @@
 
 # Libraries
 import sys, os
-from modules.reader import read_experimental_data, export_data_summary, prematurely_end_curve
+from modules.reader import read_experimental_data, export_data_summary
 from modules.moga.objective import Objective
 from modules.moga.problem import Problem, PENALTY_FACTOR
 from modules.moga.moga import MOGA
 from modules.recorder import Recorder
-from modules.errors.__error_factory__ import get_error_list
-from modules.constraints.__constraint_factory__ import get_constraint_list
+from modules.errors.__error_factory__ import create_error, create_custom_y_area_error
+from modules.constraints.__constraint_factory__ import create_constraint
 
 # Helper libraries
 sys.path += ["../__common__", "../__models__"]
@@ -26,99 +26,76 @@ from derivative import remove_after_sp
 class API(APITemplate):
 
     # Constructor
-    def __init__(self, title="", display=2):
+    def __init__(self, title:str="", display:int=2):
         super().__init__(title, display)
         self.error_list, self.constraint_list = [], []
         self.train_curves, self.test_curves = [], []
         self.plot_count = 1
         self.csv_path = self.get_output("moga")
     
-    # Reads in the experimental data from files
-    def read_files(self, train_files=[], test_files=[]):
-        self.add(f"Reading experimental data from files ({len(train_files)}/{len(test_files)})")
-        train_file_paths = [f"{self.get_input(file)}" for file in train_files]
-        test_file_paths = [f"{self.get_input(file)}" for file in test_files]
-        self.train_curves += read_experimental_data(train_file_paths)
-        self.test_curves += read_experimental_data(test_file_paths)
+    # Reads in the experimental data from a file
+    def read_file(self, file_name:str, train:bool=True):
+        self.add(f"Reading {'train' if train else 'test'}ing data from {file_name}")
+        experimental_data = read_experimental_data([self.get_input(file_name)])
+        if train:
+            self.train_curves += experimental_data
+        else:
+            self.test_curves += experimental_data
 
     # Reads in the experimental data from folders
-    def read_folder(self, train_folder="", test_folder=""):
-        self.add(f"Reading experimental data from folders")
-        train_file_paths = [self.get_input(f"{train_folder}/{file}") for file in os.listdir(self.get_input(train_folder)) if file.endswith(".csv")]
-        test_file_paths = [self.get_input(f"{test_folder}/{file}") for file in os.listdir(self.get_input(test_folder)) if file.endswith(".csv")]
-        self.train_curves = read_experimental_data(train_file_paths)
-        self.test_curves = read_experimental_data(test_file_paths)
+    def read_folder(self, folder_name:str, train:bool=True):
+        self.add(f"Reading {'train' if train else 'test'}ing data from {folder_name}")
+        data_paths = [self.get_input(f"{folder_name}/{file}") for file in os.listdir(self.get_input(folder_name)) if file.endswith(".csv")]
+        experimental_data = read_experimental_data(data_paths)
+        if train:
+            self.train_curves += experimental_data
+        else:
+            self.test_curves += experimental_data
 
     # Exports summary about the experimental data
-    def export_summary(self, file_name="summary.csv"):
+    def export_summary(self, file_name:str="summary.csv"):
         self.add("Exporting summaries of experimental data")
         export_data_summary(self.get_output(file_name), self.train_curves + self.test_curves)
 
-    # Visualises the training and testing data together
-    def visualise_together(self, file_name=None):
-        self.add("Visualising training and testing curves together")
-        file_name = f"plot_{self.plot_count}.png" if file_name == None else f"{file_name}.png"
-        quick_plot_N(self.get_output(file_name), [self.train_curves, self.test_curves], ["Training", "Testing"], ["gray", "silver"])
-        self.plot_count += 1
-
-    # Visualises the training and testing data separately
-    def visualise_separately(self, file_name=None):
-        self.add("Visualising training and testing curves separately")
-        file_name = f"plot_{self.plot_count}.png" if file_name == None else f"{file_name}.png"
-        all_curves = self.train_curves+self.test_curves
-        quick_subplot(self.get_output(file_name), all_curves, [curve["file_path"] for curve in all_curves])
-        self.plot_count += 1
-
-    # Prematurely ends the creep curves
-    def remove_manual(self, train_ruptures=[], test_ruptures=[]):
-        self.add(f"Removing creep after custom rupture times")
-        self.train_curves = [prematurely_end_curve(self.train_curves[i], train_ruptures[i]) for i in range(len(self.train_curves))]
-        self.test_curves = [prematurely_end_curve(self.test_curves[i], test_ruptures[i]) for i in range(len(self.test_curves))]
-
-    # Removes the tertiary creep from creep curves
-    def remove_tertiary_creep(self, window=200, acceptance=0.9):
-        self.add("Removing tertiary creep strain")
-        self.train_curves = [remove_after_sp(curve, "min", window, acceptance, 0) for curve in self.train_curves if curve["type"] == "creep"]
-        self.test_curves = [remove_after_sp(curve, "min", window, acceptance, 0) for curve in self.test_curves if curve["type"] == "creep"]
-
-    # Removes the data after the tertiary creep
-    def remove_oxidised_creep(self, window=300, acceptance=0.9):
-        self.add("Removing oxidised creep strain")
-        self.train_curves = [remove_after_sp(curve, "max", window, acceptance, 0) for curve in self.train_curves if curve["type"] == "creep"]
-        self.test_curves = [remove_after_sp(curve, "max", window, acceptance, 0) for curve in self.test_curves if curve["type"] == "creep"]
-
-    # Initialising the model
-    def define_model(self, model_name, args=[]):
+    # Defines the model
+    def define_model(self, model_name:str, args:list=[]):
         self.add(f"Defining the model ({model_name})")
-        self.model = get_model(model_name, self.train_curves, args)
+        self.model_name = model_name
+        self.args = args
     
-    # Defining the errors
-    def define_errors(self, type, error_names):
-        self.add(f"Defining the errors to minimise ({len(error_names)})")
-        self.error_list += get_error_list(type, error_names, self.train_curves)
+    # Adds an error
+    def add_error(self, error_name:str, type:str, weight:int=1):
+        self.add(f"Preparing to minimise the {error_name} error")
+        self.error_list.append(create_error(error_name, type, weight, self.train_curves))
 
-    # Defining the constraints
-    def define_constraints(self, type, constraint_names):
-        self.add(f"Defining the constraints to adhere ({len(constraint_names)})")
-        self.constraint_list += get_constraint_list(type, constraint_names, self.train_curves)
+    # Adds a constraint
+    def add_constraint(self, constraint_name:str, type:str):
+        self.add(f"Preparing to apply the {constraint_name} constraint")
+        self.constraint_list.append(create_constraint(constraint_name, type, self.train_curves))
 
-    # Prepares the recorder
-    def define_recorder(self, interval=10, population=10):
+    # Prepares the model and results recorder
+    def record(self, interval:int=10, population:int=10):
         self.add("Preparing the results recorder")
+        self.model = get_model(self.model_name, self.train_curves, self.args)
         self.objective = Objective(self.model, self.error_list, self.constraint_list)
         self.recorder = Recorder(self.objective, self.train_curves, self.test_curves, self.csv_path, interval, population)
 
     # Conducts the optimisation
-    def optimise(self, num_gens=10000, init_pop=400, offspring=400, crossover=0.65, mutation=0.35):
+    def optimise(self, num_gens:int=10000, init_pop:int=400, offspring:int=400, crossover:float=0.65, mutation:float=0.35):
         self.add("Optimising the parameters of the model")
         self.recorder.define_hyperparameters(num_gens, init_pop, offspring, crossover, mutation)
         problem = Problem(self.objective, self.recorder)
         moga = MOGA(problem, num_gens, init_pop, offspring, crossover, mutation)
         moga.optimise()
 
+    # Adds the vertical area error with a custom CDF (x**0.5 for right skewed, x**2 for left skewed)
+    def __add_custom_y_area__(self, type:str, weight:int=1, cdf=lambda x:x):
+        self.add("[Experimental] Preparing to minimise custom y_area error")
+        self.error_list.append(create_custom_y_area_error(type, weight, self.train_curves, cdf))
+
     # Plots the results of a set of parameters
-    def plot_results(self, params):
-        self.add("Plotting experimental and predicted curves")
+    def __plot_results__(self, params:list):
+        self.add("[Experimental] Plotting experimental and predicted curves")
 
         # Get recorder
         objective = Objective(self.model, self.error_list, self.constraint_list)
@@ -135,3 +112,26 @@ class API(APITemplate):
         # Output results
         recorder.update_population(params, error_values, constraint_values)
         recorder.write_results(self.get_output("results.xlsx"))
+
+    # Visualises the training and testing data
+    def __visualise__(self, file_name:str="", separate:bool=False):
+        self.add(f"[Experimental] Visualising training and testing curves {'separately' if separate else 'together'}")
+        file_name = f"plot_{self.plot_count}.png" if file_name == None else f"{file_name}.png"
+        if separate:
+            quick_plot_N(self.get_output(file_name), [self.train_curves, self.test_curves], ["Training", "Testing"], ["gray", "silver"])
+        else:
+            all_curves = self.train_curves+self.test_curves
+            quick_subplot(self.get_output(file_name), all_curves, [curve["file_path"] for curve in all_curves])
+        self.plot_count += 1
+
+    # Removes the tertiary creep from creep curves
+    def __remove_tertiary_creep__(self, window:int=200, acceptance:float=0.9):
+        self.add("[Experimental] Removing tertiary creep strain")
+        self.train_curves = [remove_after_sp(curve, "min", window, acceptance, 0) for curve in self.train_curves if curve["type"] == "creep"]
+        self.test_curves = [remove_after_sp(curve, "min", window, acceptance, 0) for curve in self.test_curves if curve["type"] == "creep"]
+
+    # Removes the data after the tertiary creep
+    def __remove_oxidised_creep__(self, window:int=300, acceptance:float=0.9):
+        self.add("[Experimental] Removing oxidised creep strain")
+        self.train_curves = [remove_after_sp(curve, "max", window, acceptance, 0) for curve in self.train_curves if curve["type"] == "creep"]
+        self.test_curves = [remove_after_sp(curve, "max", window, acceptance, 0) for curve in self.test_curves if curve["type"] == "creep"]

@@ -7,6 +7,7 @@
 
 # Libraries
 import numpy as np
+import math
 
 # Returns a curve dictionary
 def get_curve(x_list, y_list, info_dict={}):
@@ -41,3 +42,17 @@ def validate_curve(curve, min_data=50):
         return False
     valid_list = [y >= 0 and y <= 1 for y in curve["y"]]
     return not (False in valid_list)
+
+# Returns a list of indexes corresponding to thinned data
+def get_thin_indexes(src_data_size, dst_data_size):
+    step_size = src_data_size/dst_data_size
+    thin_indexes = [math.floor(step_size*i) for i in range(1,dst_data_size-1)]
+    thin_indexes = [0] + thin_indexes + [src_data_size-1]
+    return thin_indexes
+
+# Returns a list of indexes corresponding to thinned data based on a defined cumulative distribution function
+def get_custom_thin_indexes(src_data_size, dst_data_size, distribution):
+    unmapped_indexes = [distribution(i/dst_data_size) for i in range(1,dst_data_size-1)]
+    thin_indexes = [math.floor(i*src_data_size) for i in unmapped_indexes]
+    thin_indexes = [0] + thin_indexes + [src_data_size-1]
+    return thin_indexes

@@ -12,7 +12,8 @@ import modules.errors.__error__ as error
 # Helper libraries
 import sys
 sys.path += ["../__common__"]
-from derivative import Interpolator, get_thin_indexes
+from curve import get_thin_indexes
+from derivative import Interpolator
 
 # Constants
 NUM_POINTS = 50
@@ -21,8 +22,8 @@ NUM_POINTS = 50
 class XArea(error.Error):
 
     # Constructor
-    def __init__(self, type, exp_curves):
-        super().__init__("x_area", type, exp_curves)
+    def __init__(self, type, weight, exp_curves):
+        super().__init__("x_area", type, weight, exp_curves)
     
     # Prepares for evaluation
     def prepare(self):

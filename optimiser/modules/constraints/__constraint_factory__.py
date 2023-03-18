@@ -9,11 +9,11 @@
 from modules.constraints.dec_x_end import DecXEnd
 from modules.constraints.inc_y_end import IncYEnd
 
-# Returns a list of constraints
-def get_constraint_list(type, constraint_names, exp_curves):
+# Returns a constraint given a name
+def create_constraint(constraint_name, type, exp_curves):
     constraint_list = (
         DecXEnd(type, exp_curves),
         IncYEnd(type, exp_curves),
     )
-    constraint_list = [constraint for constraint in constraint_list if constraint.get_name() in constraint_names]
-    return constraint_list
+    constraint = [constraint for constraint in constraint_list if constraint.get_name() == constraint_name][0]
+    return constraint

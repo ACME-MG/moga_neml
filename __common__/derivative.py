@@ -5,10 +5,10 @@
 
 """
 # Libraries
-import math
 import matplotlib.pyplot as plt
 from copy import deepcopy
 from scipy.interpolate import splev, splrep, splder
+from curve import get_thin_indexes
 
 # The Interpolator Class
 class Interpolator:
@@ -37,13 +37,6 @@ class Interpolator:
         plt.plot(self.thin_x_list, y_list, color="r")
         plt.savefig(path)
         plt.cla()
-
-# Returns a list of indexes corresponding to thinned data
-def get_thin_indexes(src_data_size, dst_data_size):
-    step_size = src_data_size/dst_data_size
-    thin_indexes = [math.floor(step_size*i) for i in range(1,dst_data_size-1)]
-    thin_indexes = [0] + thin_indexes + [src_data_size-1]
-    return thin_indexes
 
 # Returns the derivative via backward finite difference
 def get_bfd(x_list, y_list):

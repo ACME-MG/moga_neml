@@ -48,12 +48,12 @@ class EVPWD_S(model.Model):
 
         # Define elastic-plastic model
         self.elastic_model = elasticity.IsotropicLinearElasticModel(YOUNGS, "youngs", POISSONS, "poissons")
-        yield_surface   = surfaces.IsoJ2()
-        iso_hardening   = hardening.VoceIsotropicHardeningRule(self.evp_s0, self.evp_R, self.evp_d)
-        g_power         = visco_flow.GPowerLaw(self.evp_n, self.evp_eta)
-        visco_model     = visco_flow.PerzynaFlowRule(yield_surface, iso_hardening, g_power)
-        integrator      = general_flow.TVPFlowRule(self.elastic_model, visco_model)
-        self.evp_model  = models.GeneralIntegrator(self.elastic_model, integrator, verbose=False)
+        yield_surface  = surfaces.IsoJ2()
+        iso_hardening  = hardening.VoceIsotropicHardeningRule(self.evp_s0, self.evp_R, self.evp_d)
+        g_power        = visco_flow.GPowerLaw(self.evp_n, self.evp_eta)
+        visco_model    = visco_flow.PerzynaFlowRule(yield_surface, iso_hardening, g_power)
+        integrator     = general_flow.TVPFlowRule(self.elastic_model, visco_model)
+        self.evp_model = models.GeneralIntegrator(self.elastic_model, integrator, verbose=False)
 
         # Define interpolator
         def log_line(x, m=1, b=0):
