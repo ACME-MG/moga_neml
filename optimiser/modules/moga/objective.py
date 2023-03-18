@@ -7,6 +7,7 @@
 
 # Libraries
 import math
+import numpy as np
 
 # Constants
 BIG_VALUE = 10000
@@ -48,10 +49,15 @@ class Objective():
     def get_constraint_types(self):
         return [constraint.get_type() for constraint in self.constraint_list]
 
-    # Gets all the constraint values
+    # Gets all the constraint penalty values
     def get_constraint_values(self, prd_curves):
         if prd_curves == []:
-            return [BIG_VALUE] * len(self.constraint_list)
+            return [False] * len(self.constraint_list)
         constraint_values = [constraint.get_value(prd_curves) for constraint in self.constraint_list]
-        constraint_values = [BIG_VALUE if math.isnan(constraint_value) else constraint_value for constraint_value in constraint_values]
         return constraint_values
+    
+    # Gets the penalised error values
+    def get_penalised_error_values(self, error_values, constraint_values):
+        total_penalty = np.prod([self.constraint_list[i].get_penalty() if constraint_values[i] else 1 for i in range(len(constraint_values))])
+        penalised_error_values = [total_penalty * error_value for error_value in error_values]
+        return penalised_error_values

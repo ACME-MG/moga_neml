@@ -9,9 +9,10 @@
 class Constraint:
 
     # Constructor
-    def __init__(self, name, type, exp_curves):
+    def __init__(self, name, type, penalty, exp_curves):
         self.name = name
         self.type = type
+        self.penalty = penalty
         self.exp_curves = exp_curves
 
     # Returns the name of the constraint
@@ -22,12 +23,15 @@ class Constraint:
     def get_type(self):
         return self.type
 
+    # Returns the penalty of the constraint
+    def get_penalty(self):
+        return self.penalty
+
     # Returns the experimental curve
     def get_exp_curves(self):
         return self.exp_curves
     
     # Returns a constraint (placeholder)
-    #   Constraint is violated if value > 0
     def get_value(self):
         raise NotImplementedError
 

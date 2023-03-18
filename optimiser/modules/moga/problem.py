@@ -10,9 +10,6 @@ import warnings
 import numpy as np
 from pymoo.core.problem import ElementwiseProblem
 
-# Constants
-PENALTY_FACTOR = 100
-
 # The Problem class
 class Problem(ElementwiseProblem):
 
@@ -37,15 +34,14 @@ class Problem(ElementwiseProblem):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore") # ignore warnings
 
-            # Get errors and constraints
+            # Get curves
             prd_curves = self.model.get_prd_curves(*params)
             prd_curves = self.model.ensure_validity(prd_curves)
-            error_values = self.objective.get_error_values(prd_curves)
-            constraint_values = self.objective.get_constraint_values(prd_curves)
 
             # Check constraints and adjust error values
-            feasible_list = [constraint <= 0 for constraint in constraint_values]
-            error_values = [PENALTY_FACTOR*error for error in error_values] if False in feasible_list else error_values
+            error_values = self.objective.get_error_values(prd_curves)
+            constraint_values = self.objective.get_constraint_values(prd_curves)
+            error_values = self.objective.get_penalised_error_values(error_values, constraint_values)
             
             # Update the recorder and pass in error values
             self.recorder.update_results(params, error_values, constraint_values)

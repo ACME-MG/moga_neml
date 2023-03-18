@@ -95,7 +95,6 @@ class Recorder:
     # Updates the population
     def update_population(self, params, errors, constraints):
         params, errors = list(params), list(errors)
-        constraints = [constraint <= 0 for constraint in constraints]
         err_sqr_sum = sum([error**2 for error in errors])
 
         # If the stored parameters exceed the limit, remove the worst
@@ -178,10 +177,10 @@ class Recorder:
             return
         
         # Create plot for curves
-        train_curves = [curve for curve in self.train_curves if curve["type"] == type]
         test_curves = [curve for curve in self.test_curves if curve["type"] == type]
-        prd_train_curves = self.model.get_specified_prd_curves(self.opt_params[0], train_curves)
+        train_curves = [curve for curve in self.train_curves if curve["type"] == type]
         prd_test_curves = self.model.get_specified_prd_curves(self.opt_params[0], test_curves)
+        prd_train_curves = self.model.get_specified_prd_curves(self.opt_params[0], train_curves)
         add_plot_sheet(writer, f"{type}_y", test_curves, train_curves, prd_test_curves, prd_train_curves)
 
         # Create plot for derivative of curves

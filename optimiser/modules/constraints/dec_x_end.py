@@ -12,13 +12,12 @@ import modules.constraints.__constraint__ as constraint
 class DecXEnd(constraint.Constraint):
 
     # Constructor
-    def __init__(self, type, exp_curves):
-        super().__init__("dec_x_end", type, exp_curves)
+    def __init__(self, type, penalty, exp_curves):
+        super().__init__("dec_x_end", type, penalty, exp_curves)
         self.curve_dict = constraint.get_curve_map(exp_curves)
     
-    # Returns the constraint vayue
+    # Returns True if passed, and False if not passed
     def get_value(self, prd_curves):
-        constraint_value = 0
         for temp in self.curve_dict.keys():
             curves = [prd_curves[i] for i in self.curve_dict[temp]]
             for i in range(1,len(curves)):
@@ -26,5 +25,5 @@ class DecXEnd(constraint.Constraint):
                     continue
                 x_end_diff = curves[i]["x"][-1] - curves[i-1]["x"][-1]
                 if x_end_diff > 0:
-                    constraint_value += x_end_diff
-        return constraint_value
+                    return False
+        return True

@@ -9,7 +9,7 @@
 import sys, os
 from modules.reader import read_experimental_data, export_data_summary
 from modules.moga.objective import Objective
-from modules.moga.problem import Problem, PENALTY_FACTOR
+from modules.moga.problem import Problem
 from modules.moga.moga import MOGA
 from modules.recorder import Recorder
 from modules.errors.__error_factory__ import create_error, create_custom_y_area_error
@@ -69,9 +69,9 @@ class API(APITemplate):
         self.error_list.append(create_error(error_name, type, weight, self.train_curves))
 
     # Adds a constraint
-    def add_constraint(self, constraint_name:str, type:str):
+    def add_constraint(self, constraint_name:str, type:str, penalty:float=1):
         self.add(f"Preparing to apply the {constraint_name} constraint")
-        self.constraint_list.append(create_constraint(constraint_name, type, self.train_curves))
+        self.constraint_list.append(create_constraint(constraint_name, type, penalty, self.train_curves))
 
     # Prepares the model and results recorder
     def record(self, interval:int=10, population:int=10):
@@ -106,8 +106,7 @@ class API(APITemplate):
         prd_curves        = self.model.get_specified_prd_curves(params, self.train_curves)
         error_values      = objective.get_error_values(prd_curves)
         constraint_values = objective.get_constraint_values(prd_curves)
-        feasible_list     = [constraint <= 0 for constraint in constraint_values]
-        error_values      = [PENALTY_FACTOR*error for error in error_values] if False in feasible_list else error_values
+        error_values      = objective.get_penalised_error_values(error_values, constraint_values)
         
         # Output results
         recorder.update_population(params, error_values, constraint_values)
