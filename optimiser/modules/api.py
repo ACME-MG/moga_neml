@@ -64,7 +64,7 @@ class API(APITemplate):
         self.args = args
     
     # Adds an error
-    def add_error(self, error_name:str, type:str, weight:int=1):
+    def add_error(self, error_name:str, type:str, weight:float=1):
         self.add(f"Preparing to minimise the {error_name} error")
         self.error_list.append(create_error(error_name, type, weight, self.train_curves))
 

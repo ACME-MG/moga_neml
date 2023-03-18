@@ -33,6 +33,10 @@ class Objective():
     def get_error_types(self):
         return [error.get_type() for error in self.error_list]
 
+    # Returns the objective weights
+    def get_error_weights(self):
+        return [error.get_weight() for error in self.error_list]
+
     # Gets all the errors
     def get_error_values(self, prd_curves):
         if prd_curves == []:
@@ -48,6 +52,10 @@ class Objective():
     # Returns the constraint types
     def get_constraint_types(self):
         return [constraint.get_type() for constraint in self.constraint_list]
+    
+    # Returns the constraint penalty
+    def get_constraint_penalties(self):
+        return [constraint.get_penalty() for constraint in self.constraint_list]
 
     # Gets all the constraint penalty values
     def get_constraint_values(self, prd_curves):

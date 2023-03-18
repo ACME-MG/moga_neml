@@ -32,12 +32,14 @@ class Recorder:
         self.population       = population
 
         # Define error names / types
-        error_types      = objective.get_error_types()
         error_names      = objective.get_error_names()
-        constraint_types = objective.get_constraint_types()
+        error_types      = objective.get_error_types()
+        error_weights    = objective.get_error_weights()
         constraint_names = objective.get_constraint_names()
-        self.error_info  = [f"{error_types[i]}_{error_names[i]}" for i in range(len(error_types))]
-        self.constraint_info = [f"{constraint_types[i]}_{constraint_names[i]}" for i in range(len(constraint_types))]
+        constraint_types = objective.get_constraint_types()
+        constraint_weights = objective.get_constraint_weights()
+        self.error_info  = [f"{error_names[i]}_{error_types[i]}_{error_weights[i]}" for i in range(len(error_types))]
+        self.constraint_info = [f"{constraint_names[i]}_{constraint_types[i]}_{constraint_weights[i]}" for i in range(len(constraint_types))]
 
         # Track optimisation progress
         self.start_time = time.time()
