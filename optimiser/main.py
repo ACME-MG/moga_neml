@@ -1,5 +1,5 @@
 from modules.api import API
-api = API("evpwd 80 p", 0)
+api = API("evpwd st p", 0)
 api.define_model("evpwd_p")
 
 api.read_file("inl_1/AirBase_800_80_G25.csv", True)
