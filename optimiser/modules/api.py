@@ -52,6 +52,17 @@ class API(APITemplate):
         else:
             self.test_curves += experimental_data
 
+    # Visualises the training and testing data
+    def visualise(self, file_name:str="", separate:bool=False):
+        self.add(f"[Experimental] Visualising training and testing curves {'separately' if separate else 'together'}")
+        file_name = f"plot_{self.plot_count}.png" if file_name == "" else f"{file_name}.png"
+        if separate:
+            all_curves = self.train_curves+self.test_curves
+            quick_subplot(self.get_output(file_name), all_curves, [curve["file_path"] for curve in all_curves])
+        else:
+            quick_plot_N(self.get_output(file_name), [self.train_curves, self.test_curves], ["Training", "Testing"], ["gray", "silver"])
+        self.plot_count += 1
+
     # Exports summary about the experimental data
     def export_summary(self, file_name:str="summary.csv"):
         self.add("Exporting summaries of experimental data")
@@ -111,17 +122,6 @@ class API(APITemplate):
         # Output results
         recorder.update_population(params, error_values, constraint_values)
         recorder.write_results(self.get_output("results.xlsx"))
-
-    # Visualises the training and testing data
-    def __visualise__(self, file_name:str="", separate:bool=False):
-        self.add(f"[Experimental] Visualising training and testing curves {'separately' if separate else 'together'}")
-        file_name = f"plot_{self.plot_count}.png" if file_name == None else f"{file_name}.png"
-        if separate:
-            quick_plot_N(self.get_output(file_name), [self.train_curves, self.test_curves], ["Training", "Testing"], ["gray", "silver"])
-        else:
-            all_curves = self.train_curves+self.test_curves
-            quick_subplot(self.get_output(file_name), all_curves, [curve["file_path"] for curve in all_curves])
-        self.plot_count += 1
 
     # Removes the tertiary creep from creep curves
     def __remove_tertiary_creep__(self, window:int=200, acceptance:float=0.9):

@@ -103,3 +103,4 @@ def quick_subplot(path, curve_list=[], titles=[]):
 
     # Save results
     figure.savefig(path)
+    plt.clf()

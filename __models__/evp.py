@@ -39,17 +39,16 @@ class EVP(model.Model):
     def prepare(self, args):
         self.elastic_model  = elasticity.IsotropicLinearElasticModel(YOUNGS, "youngs", POISSONS, "poissons")
         self.yield_surface  = surfaces.IsoJ2()
-        self.cd_model       = damage.VonMisesEffectiveStress()
     
     # Gets the predicted curves
     def get_prd_curves(self, evp_s0, evp_R, evp_d, evp_n, evp_eta):
 
         # Define model
-        iso_hardening   = hardening.VoceIsotropicHardeningRule(evp_s0, evp_R, evp_d)
-        g_power         = visco_flow.GPowerLaw(evp_n, evp_eta)
-        visco_model     = visco_flow.PerzynaFlowRule(self.yield_surface, iso_hardening, g_power)
-        integrator      = general_flow.TVPFlowRule(self.elastic_model, visco_model)
-        evp_model       = models.GeneralIntegrator(self.elastic_model, integrator, verbose=False)
+        iso_hardening = hardening.VoceIsotropicHardeningRule(evp_s0, evp_R, evp_d)
+        g_power       = visco_flow.GPowerLaw(evp_n, evp_eta)
+        visco_model   = visco_flow.PerzynaFlowRule(self.yield_surface, iso_hardening, g_power)
+        integrator    = general_flow.TVPFlowRule(self.elastic_model, visco_model)
+        evp_model     = models.GeneralIntegrator(self.elastic_model, integrator, verbose=False)
 
         # Iterate through predicted curves
         prd_curves = super().get_prd_curves()

@@ -7,7 +7,6 @@
 
 # Libraries
 import __model__ as model
-import math
 from neml import models, elasticity, drivers, surfaces, hardening, visco_flow, general_flow, damage, interpolate
 from neml.nlsolvers import MaximumIterations
 
@@ -20,6 +19,7 @@ NUM_STEPS_UP = 50
 NUM_STEPS    = 251
 STRAIN_MAX   = 0.5
 DAMAGE_TOL   = 0.95
+EPSILON      = 1e-40
 
 # The Elastic Visco Plastic Work Damage Class
 class EVPWD(model.Model):
@@ -35,31 +35,19 @@ class EVPWD(model.Model):
                 {"name": "evp_n",   "min": 1.0e0,   "max": 1.0e2},
                 {"name": "evp_eta", "min": 0.0e1,   "max": 1.0e6},
                 {"name": "wd_m",    "min": 0.0e0,   "max": 1.0e2},
-                {"name": "wd_b",    "min": 0.0e0,   "max": 1.0e1},
-                {"name": "wd_n",    "min": 0.0e1,   "max": 2.0e0},
+                {"name": "wd_b",    "min": 0.0e0,   "max": 1.0e2},
+                {"name": "wd_n",    "min": 1.0e0,   "max": 3.0e0},
             ],
             exp_curves = exp_curves
         )
 
     # Prepares the model
     def prepare(self, args):
-        
-        # Define auxiliary models
         self.elastic_model  = elasticity.IsotropicLinearElasticModel(YOUNGS, "youngs", POISSONS, "poissons")
         self.yield_surface  = surfaces.IsoJ2()
-        
-        # Define interpolator
-        def log_line(x, m=1, b=0):
-            return m*x + b
-        self.interp_function = log_line
 
     # Gets the predicted curves
     def get_prd_curves(self, evp_s0, evp_R, evp_d, evp_n, evp_eta, wd_m, wd_b, wd_n):
-
-        # Define interpolator
-        x_interp = [1e-8,1e4]
-        y_interp = [self.interp_function(x, wd_m, wd_b) for x in x_interp]
-        wd_wc    = interpolate.PiecewiseSemiLogXLinearInterpolate(x_interp, y_interp)
 
         # Define model
         iso_hardening = hardening.VoceIsotropicHardeningRule(evp_s0, evp_R, evp_d)
@@ -67,7 +55,8 @@ class EVPWD(model.Model):
         visco_model   = visco_flow.PerzynaFlowRule(self.yield_surface, iso_hardening, g_power)
         integrator    = general_flow.TVPFlowRule(self.elastic_model, visco_model)
         evp_model     = models.GeneralIntegrator(self.elastic_model, integrator, verbose=False)
-        wd_model      = damage.WorkDamage(self.elastic_model, wd_wc, wd_n, log=True)
+        wd_wc         = interpolate.PolynomialInterpolate([wd_m, wd_b])
+        wd_model      = damage.WorkDamage(self.elastic_model, wd_wc, wd_n, log=True, eps=EPSILON)
         evpwd_model   = damage.NEMLScalarDamagedModel_sd(self.elastic_model, evp_model, wd_model, verbose=False)
 
         # Iterate through predicted curves
