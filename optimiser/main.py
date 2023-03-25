@@ -1,6 +1,6 @@
 from modules.api import API
-api = API("evpwd st 1poly", 0)
-api.define_model("evpwd")
+api = API("evpwd 80 p", 0)
+api.define_model("evpwd_p")
 
 api.read_file("inl_1/AirBase_800_80_G25.csv", True)
 api.read_file("inl_1/AirBase_800_70_G44.csv", True)
@@ -12,8 +12,8 @@ api.add_error("dy_area", "creep")
 api.add_error("y_area", "creep")
 api.add_error("x_end", "creep")
 api.add_error("y_end", "creep")
-# api.__add_custom_y_area__("creep", cdf=lambda x:x**2) # left
-# api.__add_custom_y_area__("creep", cdf=lambda x:x**0.5) # right
+api.__add_custom_y_area__("creep", cdf=lambda x:x**2) # left
+api.__add_custom_y_area__("creep", cdf=lambda x:x**0.5) # right
 # api.add_error("y_area", "tensile")
 
 api.add_constraint("dec_x_end", "creep", 10)

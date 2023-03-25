@@ -10,6 +10,7 @@ from evp import EVP
 from evpcd import EVPCD
 from evpwd import EVPWD
 from evpwd_s import EVPWD_S
+from evpwd_p import EVPWD_P
 from th import TH
 from thkr import THKR
 from thkr_s import THKR_S
@@ -23,6 +24,7 @@ def get_model(model_name, exp_curves, args=[]):
         EVPCD(exp_curves),
         EVPWD(exp_curves),
         EVPWD_S(exp_curves),
+        EVPWD_P(exp_curves),
         TH(exp_curves),
         THKR(exp_curves),
         THKR_S(exp_curves),
