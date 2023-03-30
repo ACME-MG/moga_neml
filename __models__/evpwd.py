@@ -16,7 +16,7 @@ POISSONS     = 0.3
 STRESS_RATE  = 0.0001
 TIME_HOLD    = 11500.0 * 3600.0
 NUM_STEPS_UP = 50
-NUM_STEPS    = 251
+NUM_STEPS    = 10001
 STRAIN_MAX   = 0.5
 DAMAGE_TOL   = 0.95
 EPSILON      = 1e-40
@@ -29,11 +29,11 @@ class EVPWD(model.Model):
         super().__init__(
             name = "evpwd",
             param_info = [
-                {"name": "evp_s0",  "min": 0.0e1,   "max": 1.0e2},
-                {"name": "evp_R",   "min": 0.0e1,   "max": 1.0e2},
-                {"name": "evp_d",   "min": 0.0e1,   "max": 1.0e2},
+                {"name": "evp_s0",  "min": 0.0e0,   "max": 1.0e2},
+                {"name": "evp_R",   "min": 0.0e0,   "max": 1.0e2},
+                {"name": "evp_d",   "min": 0.0e0,   "max": 1.0e2},
                 {"name": "evp_n",   "min": 1.0e0,   "max": 1.0e2},
-                {"name": "evp_eta", "min": 0.0e1,   "max": 1.0e6},
+                {"name": "evp_eta", "min": 0.0e0,   "max": 1.0e6},
                 {"name": "wd_m",    "min": 0.0e0,   "max": 1.0e2},
                 {"name": "wd_b",    "min": 0.0e0,   "max": 1.0e2},
                 {"name": "wd_n",    "min": 1.0e0,   "max": 1.0e1},
@@ -43,8 +43,8 @@ class EVPWD(model.Model):
 
     # Prepares the model
     def prepare(self, args):
-        self.elastic_model  = elasticity.IsotropicLinearElasticModel(YOUNGS, "youngs", POISSONS, "poissons")
-        self.yield_surface  = surfaces.IsoJ2()
+        self.elastic_model = elasticity.IsotropicLinearElasticModel(YOUNGS, "youngs", POISSONS, "poissons")
+        self.yield_surface = surfaces.IsoJ2()
 
     # Gets the predicted curves
     def get_prd_curves(self, evp_s0, evp_R, evp_d, evp_n, evp_eta, wd_m, wd_b, wd_n):

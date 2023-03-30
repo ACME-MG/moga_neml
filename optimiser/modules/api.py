@@ -34,7 +34,7 @@ class API(APITemplate):
         self.csv_path = self.get_output("moga")
     
     # Reads in the experimental data from a file
-    def read_file(self, file_name:str, train:bool=True):
+    def read_file(self, file_name:str, train:bool=True) -> None:
         self.add(f"Reading {'train' if train else 'test'}ing data from {file_name}")
         experimental_data = read_experimental_data([self.get_input(file_name)])
         if train:
@@ -43,7 +43,7 @@ class API(APITemplate):
             self.test_curves += experimental_data
 
     # Reads in the experimental data from folders
-    def read_folder(self, folder_name:str, train:bool=True):
+    def read_folder(self, folder_name:str, train:bool=True) -> None:
         self.add(f"Reading {'train' if train else 'test'}ing data from {folder_name}")
         data_paths = [self.get_input(f"{folder_name}/{file}") for file in os.listdir(self.get_input(folder_name)) if file.endswith(".csv")]
         experimental_data = read_experimental_data(data_paths)
@@ -53,7 +53,7 @@ class API(APITemplate):
             self.test_curves += experimental_data
 
     # Visualises the training and testing data
-    def visualise(self, file_name:str="", separate:bool=False):
+    def visualise(self, file_name:str="", separate:bool=False) -> None:
         self.add(f"[Experimental] Visualising training and testing curves {'separately' if separate else 'together'}")
         file_name = f"plot_{self.plot_count}.png" if file_name == "" else f"{file_name}.png"
         if separate:
@@ -64,35 +64,35 @@ class API(APITemplate):
         self.plot_count += 1
 
     # Exports summary about the experimental data
-    def export_summary(self, file_name:str="summary.csv"):
+    def export_summary(self, file_name:str="summary.csv") -> None:
         self.add("Exporting summaries of experimental data")
         export_data_summary(self.get_output(file_name), self.train_curves + self.test_curves)
 
     # Defines the model
-    def define_model(self, model_name:str, args:list=[]):
+    def define_model(self, model_name:str, args:list=[]) -> None:
         self.add(f"Defining the model ({model_name})")
         self.model_name = model_name
         self.args = args
     
     # Adds an error
-    def add_error(self, error_name:str, type:str, weight:float=1):
+    def add_error(self, error_name:str, type:str, weight:float=1) -> None:
         self.add(f"Preparing to minimise the {error_name} error")
         self.error_list.append(create_error(error_name, type, weight, self.train_curves))
 
     # Adds a constraint
-    def add_constraint(self, constraint_name:str, type:str, penalty:float=1):
+    def add_constraint(self, constraint_name:str, type:str, penalty:float=1) -> None:
         self.add(f"Preparing to apply the {constraint_name} constraint")
         self.constraint_list.append(create_constraint(constraint_name, type, penalty, self.train_curves))
 
     # Prepares the model and results recorder
-    def record(self, interval:int=10, population:int=10):
+    def record(self, interval:int=10, population:int=10) -> None:
         self.add("Preparing the results recorder")
         self.model = get_model(self.model_name, self.train_curves, self.args)
         self.objective = Objective(self.model, self.error_list, self.constraint_list)
         self.recorder = Recorder(self.objective, self.train_curves, self.test_curves, self.csv_path, interval, population)
 
     # Conducts the optimisation
-    def optimise(self, num_gens:int=10000, init_pop:int=400, offspring:int=400, crossover:float=0.65, mutation:float=0.35):
+    def optimise(self, num_gens:int=10000, init_pop:int=400, offspring:int=400, crossover:float=0.65, mutation:float=0.35) -> None:
         self.add("Optimising the parameters of the model")
         self.recorder.define_hyperparameters(num_gens, init_pop, offspring, crossover, mutation)
         problem = Problem(self.objective, self.recorder)
@@ -100,15 +100,16 @@ class API(APITemplate):
         moga.optimise()
 
     # Adds the vertical area error with a custom CDF (x**0.5 for right skewed, x**2 for left skewed)
-    def __add_custom_y_area__(self, type:str, weight:int=1, cdf=lambda x:x):
+    def __add_custom_y_area__(self, type:str, weight:int=1, cdf=lambda x:x) -> None:
         self.add("[Experimental] Preparing to minimise custom y_area error")
         self.error_list.append(create_custom_y_area_error(type, weight, self.train_curves, cdf))
 
     # Plots the results of a set of parameters
-    def __plot_results__(self, params:list):
+    def __plot_results__(self, params:list[float]) -> None:
         self.add("[Experimental] Plotting experimental and predicted curves")
 
         # Get recorder
+        self.model = get_model(self.model_name, self.train_curves, self.args)
         objective = Objective(self.model, self.error_list, self.constraint_list)
         recorder = Recorder(objective, self.train_curves, self.test_curves, self.csv_path, 0, 1)
         recorder.define_hyperparameters(0,0,0,0,0)
@@ -124,13 +125,13 @@ class API(APITemplate):
         recorder.write_results(self.get_output("results.xlsx"))
 
     # Removes the tertiary creep from creep curves
-    def __remove_tertiary_creep__(self, window:int=200, acceptance:float=0.9):
+    def __remove_tertiary_creep__(self, window:int=200, acceptance:float=0.9) -> None:
         self.add("[Experimental] Removing tertiary creep strain")
         self.train_curves = [remove_after_sp(curve, "min", window, acceptance, 0) for curve in self.train_curves if curve["type"] == "creep"]
         self.test_curves = [remove_after_sp(curve, "min", window, acceptance, 0) for curve in self.test_curves if curve["type"] == "creep"]
 
     # Removes the data after the tertiary creep
-    def __remove_oxidised_creep__(self, window:int=300, acceptance:float=0.9):
+    def __remove_oxidised_creep__(self, window:int=300, acceptance:float=0.9) -> None:
         self.add("[Experimental] Removing oxidised creep strain")
         self.train_curves = [remove_after_sp(curve, "max", window, acceptance, 0) for curve in self.train_curves if curve["type"] == "creep"]
         self.test_curves = [remove_after_sp(curve, "max", window, acceptance, 0) for curve in self.test_curves if curve["type"] == "creep"]

@@ -11,7 +11,7 @@ sys.path += ["../__common__"]
 from curve import get_curve
 
 # For reading experimental data
-def read_experimental_data(file_paths):
+def read_experimental_data(file_paths:list[str]) -> list[dict]:
     exp_curves = []
 
     # Get experimental data for each path
@@ -45,7 +45,7 @@ def read_experimental_data(file_paths):
     return exp_curves
 
 # For exporting experimental data
-def export_data_summary(file_path, curves):
+def export_data_summary(file_path:str, curves:list[dict]) -> None:
     
     # Open file and write header
     file = open(file_path, "w+")
@@ -60,7 +60,7 @@ def export_data_summary(file_path, curves):
     file.close()
 
 # Removes values of a curve after a specific x value
-def prematurely_end_curve(curve, x_value):
+def prematurely_end_curve(curve:dict, x_value:float) -> dict:
     curve["y"] = [curve["y"][i] for i in range(len(curve["x"])) if curve["y"][i] < x_value]
     curve["x"] = [curve["x"][i] for i in range(len(curve["x"])) if curve["x"][i] < x_value]
     return curve

@@ -8,7 +8,7 @@
 # Libraries
 import time, math, sys
 import pandas as pd
-from modules.moga.objective import BIG_VALUE
+from modules.moga.objective import BIG_VALUE, Objective
 
 # Helper libraries
 sys.path += ["../__common__"]
@@ -21,7 +21,7 @@ CURVE_DENSITY = 100
 class Recorder:
 
     # Constructor
-    def __init__(self, objective, train_curves, test_curves, path, interval, population):
+    def __init__(self, objective:Objective, train_curves:list[dict], test_curves:list[dict], path:str, interval:int, population:int):
 
         # Initialise
         self.model            = objective.get_model()
@@ -49,7 +49,7 @@ class Recorder:
         self.opt_params, self.opt_errors, self.opt_constraints = [], [], []
 
     # Define MOGA hyperparameters
-    def define_hyperparameters(self, num_gens, init_pop, offspring, crossover, mutation):
+    def define_hyperparameters(self, num_gens:int, init_pop:int, offspring:int, crossover:float, mutation:float) -> None:
         self.num_gens   = num_gens
         self.init_pop   = init_pop
         self.offspring  = offspring
@@ -57,16 +57,16 @@ class Recorder:
         self.mutation   = mutation
 
     # Returns a writer object
-    def write_results(self, file_path):
+    def write_results(self, file_path:str) -> None:
         writer = pd.ExcelWriter(file_path, engine = "xlsxwriter")
         self.record_settings(writer)
         self.record_results(writer)
         self.record_plot(writer, "creep")
         self.record_plot(writer, "tensile")
-        writer.save()
+        writer.close()
 
     # Updates the results after X iterations
-    def update_results(self, params, errors, constraints):
+    def update_results(self, params:list[float], errors:list[float], constraints:list[bool]) -> None:
 
         # Update optimisation progress
         self.num_evals_completed += 1
@@ -95,7 +95,7 @@ class Recorder:
             print(f"  {index}]\tRecorded ({progress} in {update_duration}s)")
     
     # Updates the population
-    def update_population(self, params, errors, constraints):
+    def update_population(self, params:list[float], errors:list[float], constraints:list[bool]) -> None:
         params, errors = list(params), list(errors)
         err_sqr_sum = sum([error**2 for error in errors])
 
@@ -124,7 +124,7 @@ class Recorder:
             self.opt_constraints.append(constraints)
 
     # Records the settings
-    def record_settings(self, writer):
+    def record_settings(self, writer:pd.ExcelWriter):
         settings = {
             "Status":           ["Complete" if self.num_gens_completed == self.num_gens else "Incomplete"],
             "Progress":         [f"{round(self.num_gens_completed)}/{self.num_gens}"],
@@ -148,7 +148,7 @@ class Recorder:
         write_with_fit_column_widths(settings, writer, "settings")
     
     # Records the results
-    def record_results(self, writer):
+    def record_results(self, writer:pd.ExcelWriter):
         
         # Add parameters
         results = {"P": ["|" for _ in range(len(self.opt_params))]}
@@ -172,7 +172,7 @@ class Recorder:
         write_with_fit_column_widths(results, writer, "results")
 
     # Records the plot
-    def record_plot(self, writer, type):
+    def record_plot(self, writer:pd.ExcelWriter, type:str):
 
         # If there are no optimal parameters / curves, leave
         if len(self.opt_params) == 0 or not type in [curve["type"] for curve in self.train_curves+self.test_curves]:
@@ -195,7 +195,7 @@ class Recorder:
         add_plot_sheet(writer, f"{type}_dy", test_d_curves, train_d_curves, prd_test_d_curves, prd_train_d_curves)
 
 # For creating a sheet for a plot
-def add_plot_sheet(writer, sheet_name, test_curves, train_curves, prd_test_curves, prd_train_curves):
+def add_plot_sheet(writer:pd.ExcelWriter, sheet_name:str, test_curves:list[dict], train_curves:list[dict], prd_test_curves:list[dict], prd_train_curves:list[dict]):
     
     # Flatten data
     test_x_flat, test_y_flat = thin_and_flatten(test_curves)
@@ -223,7 +223,7 @@ def add_plot_sheet(writer, sheet_name, test_curves, train_curves, prd_test_curve
     sheet.insert_chart("A1", chart)
 
 # For adding series to a chart
-def add_series(chart, sheet_name, series_name, col_num, curve_length, type, size, colour):
+def add_series(chart, sheet_name:str, series_name:str, col_num:int, curve_length:float, type:str, size:float, colour:str):
     if curve_length > 0:
         chart.add_series({
             "name":       series_name,
@@ -233,7 +233,7 @@ def add_series(chart, sheet_name, series_name, col_num, curve_length, type, size
         })
 
 # For thinning and flattening data
-def thin_and_flatten(curves):
+def thin_and_flatten(curves:list[dict]):
     x_data = [get_thinned_list(curve["x"]) for curve in curves]
     y_data = [get_thinned_list(curve["y"]) for curve in curves]
     x_data_flat = [x for x_list in x_data for x in x_list]
@@ -241,7 +241,7 @@ def thin_and_flatten(curves):
     return x_data_flat, y_data_flat
 
 # For writing to a sheet with fitted column widths
-def write_with_fit_column_widths(data_dict, writer, sheet_name):
+def write_with_fit_column_widths(data_dict:dict, writer:pd.ExcelWriter, sheet_name:str):
 
     # Convert dictionary to dataframe
     columns = list(data_dict.keys())
@@ -258,11 +258,11 @@ def write_with_fit_column_widths(data_dict, writer, sheet_name):
         sheet.set_column(column_index, column_index, column_length)
 
 # For centre-aligning the cellss
-def centre_align(x):
+def centre_align(x:float):
     return ["text-align: center" for _ in x]
 
 # Returns a thinned list
-def get_thinned_list(unthinned_list):
+def get_thinned_list(unthinned_list:list[int]):
     src_data_size = len(unthinned_list)
     step_size = src_data_size / CURVE_DENSITY
     thin_indexes = [math.floor(step_size*i) for i in range(1, CURVE_DENSITY - 1)]
@@ -270,7 +270,7 @@ def get_thinned_list(unthinned_list):
     return [unthinned_list[i] for i in thin_indexes]
 
 # Imitates zip longest but for a list of lists
-def zip_longest(list_list):
+def zip_longest(list_list:list[dict]):
     max_values = max([len(list) for list in list_list])
     new_list_list = []
     for list in list_list:

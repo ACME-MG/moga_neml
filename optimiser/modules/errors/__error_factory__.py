@@ -6,6 +6,7 @@
 """
 
 # Errors
+from modules.errors.__error__ import Error
 from modules.errors.dy_area import DyArea
 from modules.errors.x_area import XArea
 from modules.errors.y_area import YArea
@@ -18,7 +19,7 @@ sys.path += ["../__common__"]
 from curve import get_custom_thin_indexes
 
 # Returns an error given a name
-def create_error(error_name, type, weight, exp_curves):
+def create_error(error_name:str, type:str, weight:float, exp_curves:list[dict]) -> Error:
     error_list = (
         DyArea(type, weight, exp_curves),
         XArea(type, weight, exp_curves),
@@ -31,7 +32,7 @@ def create_error(error_name, type, weight, exp_curves):
     return error
 
 # Returns the YArea error with a custom CDF
-def create_custom_y_area_error(type, weight, exp_curves, cdf):
+def create_custom_y_area_error(type:str, weight:float, exp_curves:list[dict], cdf) -> YArea:
     y_area = YArea(type, weight, exp_curves)
     def get_thin_indexes(src_data_size, dst_data_size):
         return get_custom_thin_indexes(src_data_size, dst_data_size, cdf)

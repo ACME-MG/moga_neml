@@ -34,7 +34,7 @@ class XArea(error.Error):
             self.avg_x_list.append(np.average(exp_curve["x"]))
 
     # Computing the error
-    def get_value(self, prd_curves):
+    def get_value(self, prd_curves:list[dict]) -> float:
         value_list = []
         for i in range(len(prd_curves)):
             if self.exp_curves[i]["type"] != self.type:

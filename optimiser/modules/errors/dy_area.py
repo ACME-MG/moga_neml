@@ -36,7 +36,7 @@ class DyArea(error.Error):
             self.avg_dy_list.append(np.average(interpolator.evaluate(exp_curve["x"])))
 
     # Computes the error value
-    def get_value(self, prd_curves):
+    def get_value(self, prd_curves:list[dict]) -> float:
         value_list = []
         for i in range(len(prd_curves)):
             if self.exp_curves[i]["type"] != self.type:

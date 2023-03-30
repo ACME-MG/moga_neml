@@ -32,6 +32,7 @@ Please replace `<path_to_neml>` with the absolute path to the installed NEML fol
 
 In addition to NEML, the code in the repository also relies on several Python libraries that can be installed via `pip`.
 
+* Numpy (`pip3 install numpy`)
 * Pandas (`pip3 install pandas`) for creating and manipulating Excel files.
 * PyMOO (`pip3 install pymoo`) for parameter optimisation.
 * XLSXWriter (`pip3 install xlsxwriter`) for creating Excel files to store results.

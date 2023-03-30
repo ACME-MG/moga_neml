@@ -12,12 +12,12 @@ import modules.constraints.__constraint__ as constraint
 class IncYEnd(constraint.Constraint):
 
     # Constructor
-    def __init__(self, type, penalty, exp_curves):
+    def __init__(self, type:str, penalty:float, exp_curves:list[dict]):
         super().__init__("inc_y_end", type, penalty, exp_curves)
         self.curve_dict = constraint.get_curve_map(exp_curves)
 
     # Returns True if passed, and False if not passed
-    def get_value(self, prd_curves):
+    def get_value(self, prd_curves:list[dict]) -> bool:
         for temp in self.curve_dict.keys():
             curves = [prd_curves[i] for i in self.curve_dict[temp]]
             for i in range(1,len(curves)):

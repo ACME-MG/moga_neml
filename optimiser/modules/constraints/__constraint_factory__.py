@@ -8,9 +8,10 @@
 # Constraints
 from modules.constraints.dec_x_end import DecXEnd
 from modules.constraints.inc_y_end import IncYEnd
+from modules.constraints.__constraint__ import Constraint
 
 # Returns a constraint given a name
-def create_constraint(constraint_name, type, penalty, exp_curves):
+def create_constraint(constraint_name:str, type:str, penalty:float, exp_curves:list[dict]) -> Constraint:
     constraint_list = (
         DecXEnd(type, penalty, exp_curves),
         IncYEnd(type, penalty, exp_curves),

@@ -40,7 +40,7 @@ class VSHAI(model.Model):
         )
 
     # Prepares the model
-    # Alloy 617: ["other/input_orientations.csv", 1.0, [1,1,0], [1,1,1], 8]
+    # api.define_model("vshai", ["cp_ebsd/ebsd_statistics.csv", 1.0, [1,1,0], [1,1,1], 16])
     def prepare(self, args):
 
         # Extract information from arguments

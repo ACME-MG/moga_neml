@@ -11,12 +11,13 @@ from pymoo.operators.sampling.lhs import LHS
 from pymoo.operators.crossover.sbx import SBX
 from pymoo.operators.mutation.pm import PolynomialMutation
 from pymoo.optimize import minimize
+from modules.moga.problem import Problem
 
 # The Multi-Objective Genetic Algorithm (MOGA) class
 class MOGA:
     
     # Constructor
-    def __init__(self, problem, num_gens, init_pop, offspring, crossover, mutation):
+    def __init__(self, problem:Problem, num_gens:int, init_pop:int, offspring:int, crossover:float, mutation:float):
         
         # Initialise
         self.problem    = problem
@@ -37,5 +38,5 @@ class MOGA:
         )
 
     # Runs the genetic optimisation
-    def optimise(self):
+    def optimise(self) -> None:
         minimize(self.problem, self.algo, ("n_gen", self.num_gens), verbose=False, seed=None)

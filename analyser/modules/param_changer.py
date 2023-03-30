@@ -20,7 +20,7 @@ def investigate_params(model, base_params, change, steps, output_path):
     # Initialise plots
     figure, axis = plt.subplots(1, num_params)
     axes = [axis] if num_params == 1 else axis
-    figure.set_size_inches(6*num_params-1, 5)
+    figure.set_size_inches(6*num_params-1, 6)
     figure.suptitle(f"Changes to Parameters for {model_name}\n(red=100%, green={(1+change)*100}%)")
     [axes[i].set_title(f"{param_names[i]}") for i in range(num_params)]
     [axes[i].set_xlabel("x") for i in range(num_params)]
@@ -36,19 +36,21 @@ def investigate_params(model, base_params, change, steps, output_path):
         
         # Gets the corresponding curves
         print("====================================================================================================")
-        curve_list = []
+        curve_list_list = []
         for j in range(len(params_list)):
             rounded_params = [round(param, 4) for param in params_list[j]]
             print(f"  Changing {param_names[i]}\t({j+1}/{steps+1})\t{rounded_params}")
-            curves = model.get_prd_curves(*params_list[j])
-            curve = {"x": curves[0]["x"], "y": curves[0]["y"]} if curves != [] else {"x": [], "y": []}
-            curve_list.append(curve)
+            curve_list = model.get_prd_curves(*params_list[j])
+            curve_list_list.append(curve_list)
         
         # Plot the data
-        for j in range(1,len(curve_list)-1):
-            axes[i].plot(curve_list[j]["x"], curve_list[j]["y"], color="silver")
-        axes[i].plot(curve_list[0]["x"], curve_list[0]["y"], color="r")
-        axes[i].plot(curve_list[-1]["x"], curve_list[-1]["y"], color="g")
+        for j in range(1,len(curve_list_list)-1):
+            for curve in curve_list_list[j]:
+                axes[i].plot(curve["x"], curve["y"], color="silver")
+        for curve in curve_list_list[0]:
+            axes[i].plot(curve["x"], curve["y"], color="r")
+        for curve in curve_list_list[-1]:
+            axes[i].plot(curve["x"], curve["y"], color="g")
     
     # Format and save
     for i in range(num_params):

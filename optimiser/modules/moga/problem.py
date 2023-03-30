@@ -9,12 +9,14 @@
 import warnings
 import numpy as np
 from pymoo.core.problem import ElementwiseProblem
+from modules.moga.objective import Objective
+from modules.recorder import Recorder
 
 # The Problem class
 class Problem(ElementwiseProblem):
 
     # Constructor
-    def __init__(self, objective, recorder):
+    def __init__(self, objective:Objective, recorder:Recorder):
         
         # Initialise
         self.objective  = objective
@@ -30,7 +32,7 @@ class Problem(ElementwiseProblem):
         )
     
     # Minimises expression "F" such that the expression "G <= 0" is satisfied
-    def _evaluate(self, params, out, *args, **kwargs):
+    def _evaluate(self, params:list[float], out:dict, *args, **kwargs):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore") # ignore warnings
 

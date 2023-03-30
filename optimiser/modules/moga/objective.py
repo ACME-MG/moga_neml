@@ -6,8 +6,14 @@
 """
 
 # Libraries
-import math
+import math, sys
 import numpy as np
+from modules.errors.__error__ import Error
+from modules.constraints.__constraint__ import Constraint
+
+# Helper
+sys.path += ["../__models__"]
+from __model__ import Model
 
 # Constants
 BIG_VALUE = 10000
@@ -16,29 +22,29 @@ BIG_VALUE = 10000
 class Objective():
 
     # Constructor
-    def __init__(self, model, error_list, constraint_list):
+    def __init__(self, model:Model, error_list:list[Error], constraint_list:list[Constraint]):
         self.model = model
         self.error_list = error_list
         self.constraint_list = constraint_list
 
     # Returns the model
-    def get_model(self):
+    def get_model(self) -> Model:
         return self.model
 
     # Returns the objective names
-    def get_error_names(self):
+    def get_error_names(self) -> list[str]:
         return [error.get_name() for error in self.error_list]
 
     # Returns the objective types
-    def get_error_types(self):
+    def get_error_types(self) -> list[str]:
         return [error.get_type() for error in self.error_list]
 
     # Returns the objective weights
-    def get_error_weights(self):
+    def get_error_weights(self) -> list[float]:
         return [error.get_weight() for error in self.error_list]
 
     # Gets all the errors
-    def get_error_values(self, prd_curves):
+    def get_error_values(self, prd_curves:list[dict]) -> list[float]:
         if prd_curves == []:
             return [BIG_VALUE] * len(self.error_list)
         error_values = [error.get_value(prd_curves)*error.get_weight() for error in self.error_list]
@@ -46,26 +52,26 @@ class Objective():
         return error_values
     
     # Returns the constraint names
-    def get_constraint_names(self):
+    def get_constraint_names(self) -> list[str]:
         return [constraint.get_name() for constraint in self.constraint_list]
     
     # Returns the constraint types
-    def get_constraint_types(self):
+    def get_constraint_types(self) -> list[str]:
         return [constraint.get_type() for constraint in self.constraint_list]
     
     # Returns the constraint penalty
-    def get_constraint_penalties(self):
+    def get_constraint_penalties(self) -> list[float]:
         return [constraint.get_penalty() for constraint in self.constraint_list]
 
     # Gets all the constraint penalty values
-    def get_constraint_values(self, prd_curves):
+    def get_constraint_values(self, prd_curves:list[dict]) -> list[bool]:
         if prd_curves == []:
             return [False] * len(self.constraint_list)
         constraint_values = [constraint.get_value(prd_curves) for constraint in self.constraint_list]
         return constraint_values
     
     # Gets the penalised error values
-    def get_penalised_error_values(self, error_values, constraint_values):
-        total_penalty = np.prod([self.constraint_list[i].get_penalty() if constraint_values[i] else 1 for i in range(len(constraint_values))])
+    def get_penalised_error_values(self, error_values:list[float], constraint_values:list[bool]) -> list[float]:
+        total_penalty = np.prod([self.constraint_list[i].get_penalty() if not constraint_values[i] else 1 for i in range(len(constraint_values))])
         penalised_error_values = [total_penalty * error_value for error_value in error_values]
         return penalised_error_values
