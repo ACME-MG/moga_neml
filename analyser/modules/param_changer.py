@@ -10,7 +10,7 @@ from copy import deepcopy
 import matplotlib.pyplot as plt
 
 # Changes the parameters and plots the results
-def investigate_params(model, base_params, change, steps, output_path):
+def investigate_params(model, change_params, base_params, change, steps, output_path):
 
     # Initialise model
     param_names = model.get_param_names()
@@ -28,6 +28,8 @@ def investigate_params(model, base_params, change, steps, output_path):
 
     # Iterate through the parameters
     for i in range(len(param_names)):
+        if not param_names[i] in change_params:
+            continue
 
         # Gets a list of the changed values
         params_list = [deepcopy(base_params) for _ in range(steps+1)]

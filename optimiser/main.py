@@ -1,11 +1,11 @@
 from modules.api import API
-api = API("wd s1k d3", 0)
+api = API("contrained all", 0)
 api.define_model("evpwd")
 
 api.read_file("inl_1/AirBase_800_80_G25.csv", True)
 api.read_file("inl_1/AirBase_800_70_G44.csv", True)
-api.read_file("inl_1/AirBase_800_65_G33.csv", False)
-api.read_file("inl_1/AirBase_800_60_G32.csv", False)
+api.read_file("inl_1/AirBase_800_65_G33.csv", True)
+api.read_file("inl_1/AirBase_800_60_G32.csv", True)
 # api.read_file("tensile/AirBase_800_D7.csv", True)
 
 api.add_error("dy_area", "creep")

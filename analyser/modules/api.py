@@ -34,6 +34,7 @@ class API(APITemplate):
     def define_model(self, model_name=""):
         self.add(f"Defining the {model_name} model")
         self.model = get_model(model_name, self.curve_list)
+        self.change_params = self.model.get_param_names()
 
     # Assesses the failure points for individual parameters
     def locate_failure(self, dependency=False, trials=10):
@@ -45,8 +46,13 @@ class API(APITemplate):
             domain_explorer.assess_individual(self.model, self.get_output(f"plot_{self.plot_count}"), trials)
         self.plot_count += 1
     
+    # Isolates the parameters for changing
+    def isolate_params(self, params):
+        self.add(f"Isolating {len(params)} parameters")
+        self.change_params = params
+
     # Investigates the effects of changing individual parameters
     def param_effects(self, base_params, change=0.1, steps=3):
         self.add(f"Investigating the effects of changing parameters")
-        param_changer.investigate_params(self.model, base_params, change, steps, self.get_output(f"plot_{self.plot_count}"))
+        param_changer.investigate_params(self.model, self.change_params, base_params, change, steps, self.get_output(f"plot_{self.plot_count}"))
         self.plot_count += 1
