@@ -17,9 +17,9 @@ STRESS_RATE  = 0.0001
 TIME_HOLD    = 11500.0 * 3600.0
 NUM_STEPS_UP = 50
 NUM_STEPS    = 2001
-STRAIN_MAX   = 0.5
+STRAIN_MAX   = 0.99
 DAMAGE_TOL   = 0.95
-EPSILON      = 1e-40
+EPSILON      = 1e-50 # 1e-40
 
 # The Elastic Visco Plastic Work Damage Class
 class EVPWD(model.Model):

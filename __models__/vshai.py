@@ -77,8 +77,8 @@ class VSHAI(model.Model):
         slip_model      = sliprules.PowerLawSlipRule(strength_model, ai_g0, ai_n)
         ai_model        = inelasticity.AsaroInelasticity(slip_model)
         ep_model        = kinematics.StandardKinematicModel(self.elastic_model, ai_model)
-        cp_model        = singlecrystal.SingleCrystalModel(ep_model, self.lattice, verbose=False, miter=MAX_ITER, max_divide=MAX_DIVIDE)
-        vshai_model     = polycrystal.TaylorModel(cp_model, self.grain_orientations, nthreads=self.num_threads, weights=self.weights)
+        sc_model        = singlecrystal.SingleCrystalModel(ep_model, self.lattice, verbose=False, miter=MAX_ITER, max_divide=MAX_DIVIDE)
+        vshai_model     = polycrystal.TaylorModel(sc_model, self.grain_orientations, nthreads=self.num_threads, weights=self.weights)
 
         # Iterate through predicted curves
         prd_curves = super().get_prd_curves()
