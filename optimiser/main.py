@@ -1,5 +1,5 @@
 from modules.api import API
-api = API("900 all", 0)
+api = API("900 cd all", 0)
 api.define_model("evpwd")
 
 # api.read_file("inl_1/AirBase_800_80_G25.csv", True)
@@ -14,6 +14,13 @@ api.read_file("inl_1/AirBase_900_28_G45.csv", True)
 api.read_file("inl_1/AirBase_900_26_G59.csv", True)
 api.__remove_oxidised_creep__()
 api.read_file("tensile/AirBase_900_D10.csv", False)
+
+# api.read_file("inl_1/AirBase_1000_11_G39.csv", True)
+# api.read_file("inl_1/AirBase_1000_12_G52.csv", True)
+# api.read_file("inl_1/AirBase_1000_13_G30.csv", True)
+# api.read_file("inl_1/AirBase_1000_16_G18.csv", True)
+# api.__remove_oxidised_creep__()
+# api.read_file("tensile/AirBase_1000_D12.csv", False)
 
 api.add_error("dy_area", "creep")
 api.add_error("y_area", "creep")
