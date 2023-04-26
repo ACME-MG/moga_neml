@@ -60,7 +60,7 @@ class API(APITemplate):
             all_curves = self.train_curves+self.test_curves
             quick_subplot(self.get_output(file_name), all_curves, [curve["file_path"] for curve in all_curves])
         else:
-            quick_plot_N(self.get_output(file_name), [self.train_curves, self.test_curves], ["Training", "Testing"], ["gray", "silver"])
+            quick_plot_N(self.get_output(file_name), [self.train_curves, self.test_curves], ["Training", "Testing"], ["gray", "silver"], markers=["scat", "scat"])
         self.plot_count += 1
 
     # Exports summary about the experimental data

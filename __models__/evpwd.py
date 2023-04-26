@@ -19,7 +19,7 @@ NUM_STEPS_UP = 50
 NUM_STEPS    = 2001
 STRAIN_MAX   = 0.99
 DAMAGE_TOL   = 0.95
-EPSILON      = 1e-50 # 1e-40
+EPSILON      = 1e-40
 
 # The Elastic Visco Plastic Work Damage Class
 class EVPWD(model.Model):

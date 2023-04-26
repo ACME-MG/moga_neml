@@ -37,8 +37,8 @@ class EVP(model.Model):
 
     # Prepares the model
     def prepare(self, args):
-        self.elastic_model  = elasticity.IsotropicLinearElasticModel(YOUNGS, "youngs", POISSONS, "poissons")
-        self.yield_surface  = surfaces.IsoJ2()
+        self.elastic_model = elasticity.IsotropicLinearElasticModel(YOUNGS, "youngs", POISSONS, "poissons")
+        self.yield_surface = surfaces.IsoJ2()
     
     # Gets the predicted curves
     def get_prd_curves(self, evp_s0, evp_R, evp_d, evp_n, evp_eta):
