@@ -1,5 +1,5 @@
 from modules.api import API
-api = API("all cnt", 0)
+api = API("900 all", 0)
 api.define_model("evpwd")
 
 # api.read_file("inl_1/AirBase_800_80_G25.csv", True)
@@ -21,7 +21,7 @@ api.add_error("x_end", "creep")
 api.add_error("y_end", "creep")
 # api.__add_custom_y_area__("creep", cdf=lambda x:x**2) # left
 # api.__add_custom_y_area__("creep", cdf=lambda x:x**0.5) # right
-api.add_error("y_area", "tensile")
+# api.add_error("y_area", "tensile")
 api.add_constraint("dec_x_end", "creep", 10)
 api.add_constraint("inc_y_end", "creep", 2)
 
