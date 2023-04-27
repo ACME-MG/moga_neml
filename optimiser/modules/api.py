@@ -6,7 +6,9 @@
 """
 
 # Libraries
-import sys, os
+import sys, os, math
+import numpy as np
+import matplotlib.pyplot as plt
 from modules.reader import read_experimental_data, export_data_summary
 from modules.moga.objective import Objective
 from modules.moga.problem import Problem
@@ -20,7 +22,7 @@ sys.path += ["../__common__", "../__models__"]
 from api_template import APITemplate
 from plotter import quick_plot_N, quick_subplot
 from __model_factory__ import get_model
-from derivative import remove_after_sp
+from derivative import remove_after_sp, differentiate_curve
 
 # API Class
 class API(APITemplate):
@@ -135,3 +137,16 @@ class API(APITemplate):
         self.add("[Experimental] Removing oxidised creep strain")
         self.train_curves = [remove_after_sp(curve, "max", window, acceptance, 0) for curve in self.train_curves if curve["type"] == "creep"]
         self.test_curves = [remove_after_sp(curve, "max", window, acceptance, 0) for curve in self.test_curves if curve["type"] == "creep"]
+    
+    # Visualises the work damage with the work rate of the curves
+    def __visualise_work__(self) -> None:
+        self.add("[Experimental] Plotting the work damage against the average work rate")
+        for curve in self.train_curves + self.test_curves:
+            d_curve = differentiate_curve(curve)
+            work_rate_list = [curve["stress"] * dy for dy in d_curve["y"]]
+            avg_work_rate = np.average(work_rate_list)
+            if avg_work_rate <= 0:
+                continue
+            work_failure = curve["y"][-1] * curve["stress"]
+            plt.scatter([math.log10(avg_work_rate)], [work_failure])
+        plt.savefig(self.get_output("work_damage.png"))

@@ -49,7 +49,7 @@ def get_bfd(x_list, y_list):
 
 # Removes data after the Xth local minima/maxima
 def remove_after_sp(curve, nature, window, acceptance, nominal=0):
-    
+
     # Get all stationary points
     curve = deepcopy(curve)
     d_curve = differentiate_curve(curve)
@@ -112,7 +112,7 @@ def get_sp_nature(dy_list, index, window=200, acceptance=0.9):
     
 # For differentiating a curve
 def differentiate_curve(curve):
-    curve= deepcopy(curve)
+    curve = deepcopy(curve)
     interpolator = Interpolator(curve["x"], curve["y"])
     interpolator.differentiate()
     curve["y"] = interpolator.evaluate(curve["x"])
