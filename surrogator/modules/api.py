@@ -8,14 +8,14 @@
 # Libraries
 import sys
 from modules.sampler import Sampler
-from modules.surrogates.__surrogate_factory__ import get_surrogate
-from modules.trainers.__trainer_factory__ import get_trainer
+from modules.surrogates.__surrogate__ import get_surrogate
+from modules.trainers.__trainer__ import get_trainer
 
 # Helper libraries
 sys.path += ["../__common__", "../__models__"]
 from api_template import APITemplate
 from plotter import quick_plot_N
-from __model_factory__ import get_model
+from __model__ import get_model
 from curve import get_curve, get_sample_creep_curve
 
 # API Class

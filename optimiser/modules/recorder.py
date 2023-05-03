@@ -32,14 +32,12 @@ class Recorder:
         self.population       = population
 
         # Define error names / types
-        error_names      = objective.get_error_names()
-        error_types      = objective.get_error_types()
-        error_weights    = objective.get_error_weights()
-        constraint_names = objective.get_constraint_names()
-        constraint_types = objective.get_constraint_types()
-        constraint_penalties = objective.get_constraint_penalties()
-        self.error_info  = [f"{error_names[i]}_{error_types[i]}_{error_weights[i]}" for i in range(len(error_types))]
-        self.constraint_info = [f"{constraint_names[i]}_{constraint_types[i]}_{constraint_penalties[i]}" for i in range(len(constraint_types))]
+        self.error_names          = objective.get_error_names()
+        self.error_types          = objective.get_error_types()
+        self.error_weights        = objective.get_error_weights()
+        self.constraint_names     = objective.get_constraint_names()
+        self.constraint_types     = objective.get_constraint_types()
+        self.constraint_penalties = objective.get_constraint_penalties()
 
         # Track optimisation progress
         self.start_time = time.time()
@@ -135,8 +133,12 @@ class Recorder:
             "Params":           self.model.get_param_names(),
             "Lower Bound":      self.model.get_param_lower_bounds(),
             "Upper Bound":      self.model.get_param_upper_bounds(),
-            "Errors":           self.error_info,
-            "Constraints":      self.constraint_info,
+            "Errors":           self.error_names,
+            "Error Types":      self.error_types,
+            "Error Weights":    self.error_weights,
+            "Constraints":      self.constraint_names,
+            "Constraint Types": self.constraint_types,
+            "Constraint Penalties": self.constraint_penalties,
             "Training Data":    [f"{train_curve['title']}" for train_curve in self.train_curves],
             "Testing Data":     [f"{test_curve['title']}" for test_curve in self.test_curves],
             "num_gens":         [self.num_gens],
@@ -156,17 +158,17 @@ class Recorder:
             results[self.model.param_info[i]["name"]] = [params[i] for params in self.opt_params]
         
         # Add errors (and total error)
-        if len(self.error_info) > 0:
+        if len(self.error_names) > 0:
             results["E"] = ["|" for _ in range(len(self.opt_errors))]
-        for i in range(len(self.error_info)):
-            results[self.error_info[i]] = [errors[i] for errors in self.opt_errors]
+        for i in range(len(self.error_names)):
+            results[self.error_names[i]] = [errors[i] for errors in self.opt_errors]
         results["error_sqr_sum"] = [errors[-1] for errors in self.opt_errors]
 
         # Add constraints
-        if len(self.constraint_info) > 0:
+        if len(self.constraint_names) > 0:
             results["C"] = ["|" for _ in range(len(self.opt_constraints))]
-        for i in range(len(self.constraint_info)):
-            results[self.constraint_info[i]] = [constraints[i] for constraints in self.opt_constraints]
+        for i in range(len(self.constraint_names)):
+            results[self.constraint_names[i]] = [constraints[i] for constraints in self.opt_constraints]
         
         # Write all results
         write_with_fit_column_widths(results, writer, "results")

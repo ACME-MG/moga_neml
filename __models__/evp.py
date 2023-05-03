@@ -19,21 +19,17 @@ NUM_STEPS    = 251
 STRAIN_MAX   = 0.3
 
 # The Elastic Visco Plastic Class
-class EVP(model.Model):
+class Model(model.ModelTemplate):
 
     # Constructor
-    def __init__(self, exp_curves):
-        super().__init__(
-            name = "evp",
-            param_info = [
-                {"name": "evp_s0",  "min": 0.0e1,   "max": 1.0e2},
-                {"name": "evp_R",   "min": 0.0e1,   "max": 1.0e3},
-                {"name": "evp_d",   "min": 0.0e1,   "max": 1.0e3},
-                {"name": "evp_n",   "min": 1.0e0,   "max": 1.0e2},
-                {"name": "evp_eta", "min": 0.0e1,   "max": 1.0e5},
-            ],
-            exp_curves = exp_curves
-        )
+    def __init__(self):
+        super().__init__([
+            {"name": "evp_s0",  "min": 0.0e1,   "max": 1.0e2},
+            {"name": "evp_R",   "min": 0.0e1,   "max": 1.0e3},
+            {"name": "evp_d",   "min": 0.0e1,   "max": 1.0e3},
+            {"name": "evp_n",   "min": 1.0e0,   "max": 1.0e2},
+            {"name": "evp_eta", "min": 0.0e1,   "max": 1.0e5},
+        ])
 
     # Prepares the model
     def prepare(self, args):

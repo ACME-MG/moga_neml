@@ -19,11 +19,7 @@ from derivative import Interpolator
 NUM_POINTS = 50
 
 # The XArea class
-class XArea(error.Error):
-
-    # Constructor
-    def __init__(self, type, weight, exp_curves):
-        super().__init__("x_area", type, weight, exp_curves)
+class Error(error.ErrorTemplate):
     
     # Prepares for evaluation
     def prepare(self):

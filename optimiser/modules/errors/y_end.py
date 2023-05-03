@@ -10,11 +10,7 @@ import numpy as np
 import modules.errors.__error__ as error
 
 # The YEnd class
-class YEnd(error.Error):
-
-    # Constructor
-    def __init__(self, type, weight, exp_curves):
-        super().__init__("y_end", type, weight, exp_curves)
+class Error(error.ErrorTemplate):
     
     # Prepares for evaluation
     def prepare(self) -> None:

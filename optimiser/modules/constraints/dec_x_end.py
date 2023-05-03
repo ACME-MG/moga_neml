@@ -9,12 +9,7 @@
 import modules.constraints.__constraint__ as constraint
 
 # The DecXEnd Class
-class DecXEnd(constraint.Constraint):
-
-    # Constructor
-    def __init__(self, type:str, penalty:float, exp_curves:list[dict]):
-        super().__init__("dec_x_end", type, penalty, exp_curves)
-        self.curve_dict = constraint.get_curve_map(exp_curves)
+class Constraint(constraint.ConstraintTemplate):
     
     # Returns True if passed, and False if not passed
     def get_value(self, prd_curves:list[dict]) -> bool:

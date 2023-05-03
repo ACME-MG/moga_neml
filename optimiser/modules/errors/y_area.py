@@ -19,11 +19,7 @@ from derivative import Interpolator
 NUM_POINTS = 50
 
 # The YArea class
-class YArea(error.Error):
-
-    # Constructor
-    def __init__(self, type, weight, exp_curves):
-        super().__init__("y_area", type, weight, exp_curves)
+class Error(error.ErrorTemplate):
     
     # Prepares for evaluation
     def prepare(self, thin_function=get_thin_indexes):

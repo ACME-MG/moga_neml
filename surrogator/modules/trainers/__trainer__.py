@@ -6,16 +6,21 @@
 """
 
 # Libraries
-import sys
+import sys, os, importlib
 from modules.mapper import MultiMapper
 
 # Helper libraries
-sys.path.append("../__common__")
+sys.path += ["../__common__", "../__models__"]
 from plotter import quick_plot_N
 from curve import validate_curve
+from __model__ import ModelTemplate
 
-# The Trainer Class
-class Trainer:
+# Constants
+PATH_TO_TRAINERS = "modules/trainers"
+EXCLUSION_LIST = ["__trainer__", "__pycache__"]
+
+# The Trainer Template Class
+class TrainerTemplate:
 
     # Constructor
     def __init__(self, model, name, output_lb, output_ub):
@@ -90,3 +95,23 @@ class Trainer:
     # Converts the outputs into a curve (placeholder)
     def restore_curve(self, unmapped_output):
         raise NotImplementedError
+    
+# Creates and return a trainer
+def get_trainer(trainer_name:str, model:ModelTemplate) -> TrainerTemplate:
+
+    # Get available trainers in current folder
+    files = os.listdir(PATH_TO_TRAINERS)
+    files = [file.replace(".py", "") for file in files]
+    files = [file for file in files if not file in EXCLUSION_LIST]
+    
+    # Raise trainer if trainer name not in available trainers
+    if not trainer_name in files:
+        raise NotImplementedError(f"The trainer '{trainer_name}' has not been implemented")
+
+    # Import and prepare trainer
+    module = f"{PATH_TO_TRAINERS}/{trainer_name}".replace("/", ".")
+    trainer_file = importlib.import_module(module)
+    trainer = trainer_file.Trainer(model)
+
+    # Return the trainer
+    return trainer

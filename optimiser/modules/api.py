@@ -14,14 +14,14 @@ from modules.moga.objective import Objective
 from modules.moga.problem import Problem
 from modules.moga.moga import MOGA
 from modules.recorder import Recorder
-from modules.errors.__error_factory__ import create_error, create_custom_y_area_error
-from modules.constraints.__constraint_factory__ import create_constraint
+from modules.errors.__error__ import get_error
+from modules.constraints.__constraint__ import get_constraint
 
 # Helper libraries
 sys.path += ["../__common__", "../__models__"]
 from api_template import APITemplate
 from plotter import quick_plot_N, quick_subplot
-from __model_factory__ import get_model
+from __model__ import get_model
 from derivative import remove_after_sp, differentiate_curve
 
 # API Class
@@ -79,12 +79,14 @@ class API(APITemplate):
     # Adds an error
     def add_error(self, error_name:str, type:str, weight:float=1) -> None:
         self.add(f"Preparing to minimise the {error_name} error")
-        self.error_list.append(create_error(error_name, type, weight, self.train_curves))
+        error = get_error(error_name, type, weight, self.train_curves)
+        self.error_list.append(error)
 
     # Adds a constraint
     def add_constraint(self, constraint_name:str, type:str, penalty:float=1) -> None:
         self.add(f"Preparing to apply the {constraint_name} constraint")
-        self.constraint_list.append(create_constraint(constraint_name, type, penalty, self.train_curves))
+        constraint = get_constraint(constraint_name, type, penalty, self.train_curves)
+        self.constraint_list.append(constraint)
 
     # Prepares the model and results recorder
     def record(self, interval:int=10, population:int=10) -> None:
@@ -100,11 +102,6 @@ class API(APITemplate):
         problem = Problem(self.objective, self.recorder)
         moga = MOGA(problem, num_gens, init_pop, offspring, crossover, mutation)
         moga.optimise()
-
-    # Adds the vertical area error with a custom CDF (x**0.5 for right skewed, x**2 for left skewed)
-    def __add_custom_y_area__(self, type:str, weight:int=1, cdf=lambda x:x) -> None:
-        self.add("[Experimental] Preparing to minimise custom y_area error")
-        self.error_list.append(create_custom_y_area_error(type, weight, self.train_curves, cdf))
 
     # Plots the results of a set of parameters
     def __plot_results__(self, params:list[float]) -> None:

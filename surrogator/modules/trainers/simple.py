@@ -6,7 +6,7 @@
 """
 
 # Libraries
-from modules.trainers.__trainer__ import Trainer
+from modules.trainers.__trainer__ import TrainerTemplate
 from scipy.interpolate import splev, splrep, splder
 import math
 
@@ -15,7 +15,7 @@ AXIAL_DISTANCE = 1.2
 RESTORE_SIZE   = 10
 
 # Simple Trainer Class
-class Simple(Trainer):
+class Trainer(TrainerTemplate):
 
     # Constructor
     def __init__(self, model):

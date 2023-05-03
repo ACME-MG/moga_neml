@@ -22,24 +22,20 @@ DAMAGE_TOL   = 0.95
 EPSILON      = 1e-40
 
 # The Elastic Visco Plastic Work Damage Class
-class EVPWD_P(model.Model):
+class Model(model.Model):
 
     # Constructor
-    def __init__(self, exp_curves):
-        super().__init__(
-            name = "evpwd_p",
-            param_info = [
-                {"name": "evp_s0",  "min": 0.0e1,   "max": 1.0e2},
-                {"name": "evp_R",   "min": 0.0e1,   "max": 1.0e2},
-                {"name": "evp_d",   "min": 0.0e1,   "max": 1.0e2},
-                {"name": "evp_n",   "min": 1.0e0,   "max": 1.0e2},
-                {"name": "evp_eta", "min": 0.0e1,   "max": 1.0e6},
-                {"name": "wd_A",    "min": 0.0e0,   "max": 1.0e3},
-                {"name": "wd_m",    "min": 0.0e0,   "max": 1.0e3},
-                {"name": "wd_n",    "min": 1.0e0,   "max": 1.0e1},
-            ],
-            exp_curves = exp_curves
-        )
+    def __init__(self):
+        super().__init__([
+            {"name": "evp_s0",  "min": 0.0e1,   "max": 1.0e2},
+            {"name": "evp_R",   "min": 0.0e1,   "max": 1.0e2},
+            {"name": "evp_d",   "min": 0.0e1,   "max": 1.0e2},
+            {"name": "evp_n",   "min": 1.0e0,   "max": 1.0e2},
+            {"name": "evp_eta", "min": 0.0e1,   "max": 1.0e6},
+            {"name": "wd_A",    "min": 0.0e0,   "max": 1.0e3},
+            {"name": "wd_m",    "min": 0.0e0,   "max": 1.0e3},
+            {"name": "wd_n",    "min": 1.0e0,   "max": 1.0e1},
+        ])
 
     # Prepares the model
     def prepare(self, args):

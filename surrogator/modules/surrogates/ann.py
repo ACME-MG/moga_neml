@@ -6,21 +6,13 @@
 """
 
 # Libraries
-from modules.surrogates.__surrogate__ import Surrogate
+from modules.surrogates.__surrogate__ import SurrogateTemplate
 import numpy as np
 import os; os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3" # disable warnings
 import tensorflow.keras as kr
 
 # ANN Class
-class ANN(Surrogate):
-
-    # Constructor
-    def __init__(self, input_size, output_size):
-        super().__init__(
-            name        = "ann",
-            input_size  = input_size,
-            output_size = output_size,
-        )
+class Surrogate(SurrogateTemplate):
 
     # Prepares the surrogate
     def prepare(self):

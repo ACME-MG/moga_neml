@@ -8,12 +8,12 @@
 # Libraries
 import math, sys
 import numpy as np
-from modules.errors.__error__ import Error
-from modules.constraints.__constraint__ import Constraint
+from modules.errors.__error__ import ErrorTemplate
+from modules.constraints.__constraint__ import ConstraintTemplate
 
 # Helper
 sys.path += ["../__models__"]
-from __model__ import Model
+from __model__ import ModelTemplate
 
 # Constants
 BIG_VALUE = 10000
@@ -22,13 +22,13 @@ BIG_VALUE = 10000
 class Objective():
 
     # Constructor
-    def __init__(self, model:Model, error_list:list[Error], constraint_list:list[Constraint]):
+    def __init__(self, model:ModelTemplate, error_list:list[ErrorTemplate], constraint_list:list[ConstraintTemplate]):
         self.model = model
         self.error_list = error_list
         self.constraint_list = constraint_list
 
     # Returns the model
-    def get_model(self) -> Model:
+    def get_model(self) -> ModelTemplate:
         return self.model
 
     # Returns the objective names

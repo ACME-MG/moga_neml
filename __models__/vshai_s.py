@@ -23,19 +23,15 @@ MAX_ITER     = 16
 MAX_DIVIDE   = 2
 
 # The Voce Slip Hardening Asaro Inelasticity (Separated) Class
-class VSHAI_S(model.Model):
+class Model(model.ModelTemplate):
 
     # Constructor
-    def __init__(self, exp_curves):
-        super().__init__(
-            name = "vshai_s",
-            param_info = [
-                {"name": "vsh_ts",  "min": 0.0e1,   "max": 1.0e2},
-                {"name": "vsh_b",   "min": 0.0e1,   "max": 1.0e2},
-                {"name": "vsh_t0",  "min": 0.0e1,   "max": 1.0e2},
-            ],
-            exp_curves = exp_curves
-        )
+    def __init__(self):
+        super().__init__([
+            {"name": "vsh_ts",  "min": 0.0e1,   "max": 1.0e2},
+            {"name": "vsh_b",   "min": 0.0e1,   "max": 1.0e2},
+            {"name": "vsh_t0",  "min": 0.0e1,   "max": 1.0e2},
+        ])
 
     # Prepares the model
     # api.define_model("vshai_s", ["cp_ebsd/ebsd_statistics.csv", 1.0, [1,1,0], [1,1,1], 16, 1e-4/3, 15])

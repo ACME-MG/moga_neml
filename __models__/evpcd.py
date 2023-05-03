@@ -20,24 +20,20 @@ NUM_STEPS    = 1001
 STRAIN_MAX   = 0.5
 
 # The Elastic Visco Plastic Creep Damage Class
-class EVPCD(model.Model):
+class Model(model.ModelTemplate):
 
     # Constructor
-    def __init__(self, exp_curves):
-        super().__init__(
-            name = "evpcd",
-            param_info = [
-                {"name": "evp_s0",  "min": 0.0e1,   "max": 1.0e2},
-                {"name": "evp_R",   "min": 0.0e1,   "max": 1.0e2},
-                {"name": "evp_d",   "min": 0.0e1,   "max": 1.0e2},
-                {"name": "evp_n",   "min": 1.0e0,   "max": 1.0e2},
-                {"name": "evp_eta", "min": 0.0e1,   "max": 1.0e6},
-                {"name": "cd_A",    "min": 0.0e1,   "max": 1.0e4},
-                {"name": "cd_xi",   "min": 0.0e1,   "max": 1.0e2},
-                {"name": "cd_phi",  "min": 0.0e1,   "max": 1.0e2},
-            ],
-            exp_curves = exp_curves
-        )
+    def __init__(self):
+        super().__init__([
+            {"name": "evp_s0",  "min": 0.0e1,   "max": 1.0e2},
+            {"name": "evp_R",   "min": 0.0e1,   "max": 1.0e2},
+            {"name": "evp_d",   "min": 0.0e1,   "max": 1.0e2},
+            {"name": "evp_n",   "min": 1.0e0,   "max": 1.0e2},
+            {"name": "evp_eta", "min": 0.0e1,   "max": 1.0e6},
+            {"name": "cd_A",    "min": 0.0e1,   "max": 1.0e4},
+            {"name": "cd_xi",   "min": 0.0e1,   "max": 1.0e2},
+            {"name": "cd_phi",  "min": 0.0e1,   "max": 1.0e2},
+        ])
 
     # Prepares the model
     def prepare(self, args):

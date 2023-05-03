@@ -15,21 +15,17 @@ TIME_STEP = 5
 TIME_LIMIT = 10000
 
 # The Time-Hardening Kachanov-Rabotnov (Separated) Class
-class THKR_S(model.Model):
+class Model(model.ModelTemplate):
 
     # Constructor
-    def __init__(self, exp_curves):
-        super().__init__(
-            name = "thkr_s",
-            param_info = [
-                {"name": "kr_A",    "min": 1e-20,   "max": 1e-5},
-                {"name": "kr_n",    "min": 1e-50,   "max": 1e1},
-                {"name": "kr_M",    "min": 1e-50,   "max": 1e0},
-                {"name": "kr_phi",  "min": 1e-50,   "max": 1e2},
-                {"name": "kr_chi",  "min": 1e-50,   "max": 1e1},
-            ],
-            exp_curves = exp_curves
-        )
+    def __init__(self):
+        super().__init__([
+            {"name": "kr_A",    "min": 1e-20,   "max": 1e-5},
+            {"name": "kr_n",    "min": 1e-50,   "max": 1e1},
+            {"name": "kr_M",    "min": 1e-50,   "max": 1e0},
+            {"name": "kr_phi",  "min": 1e-50,   "max": 1e2},
+            {"name": "kr_chi",  "min": 1e-50,   "max": 1e1},
+        ])
 
     # Prepares the model
     # Alloy 617 at 800C: [3.2237e-13, 4.9694, -0.24685]

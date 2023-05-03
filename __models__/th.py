@@ -15,19 +15,15 @@ UNEXPECTED_BIG_NUMBER = 10000
 MIN_DATA = 10
 
 # The Time Hardening Class
-class TH(model.Model):
+class Model(model.ModelTemplate):
 
     # Constructor
-    def __init__(self, exp_curves):
-        super().__init__(
-            name = "th",
-            param_info = [
-                {"name": "th_a",    "min": 1e-50,   "max": 1e0},
-                {"name": "th_n",    "min": 1e-50,   "max": 1e2},
-                {"name": "th_m",    "min": -1e0,    "max": -1e-50},
-            ],
-            exp_curves = exp_curves
-        )
+    def __init__(self):
+        super().__init__([
+            {"name": "th_a",    "min": 1e-50,   "max": 1e0},
+            {"name": "th_n",    "min": 1e-50,   "max": 1e2},
+            {"name": "th_m",    "min": -1e0,    "max": -1e-50},
+        ])
 
     # Prepares the model
     def prepare(self, args):

@@ -13,7 +13,7 @@ import modules.param_changer as param_changer
 # Helper libraries
 sys.path += ["../__common__", "../__models__"]
 from api_template import APITemplate
-from __model_factory__ import get_model
+from __model__ import get_model
 from curve import get_curve
 
 # API Class

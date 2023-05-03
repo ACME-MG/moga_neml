@@ -21,19 +21,15 @@ NUM_STEPS    = 251
 STRAIN_MAX   = 0.5
 
 # The Elastic Visco Plastic Work Damage (Separated) Class
-class EVPWD_S(model.Model):
+class Model(model.ModelTemplate):
 
     # Constructor
-    def __init__(self, exp_curves):
-        super().__init__(
-            name = "evpwd_s",
-            param_info = [
-                {"name": "wd_m",    "min": 0.0e0,   "max": 1.0e2},
-                {"name": "wd_b",    "min": 0.0e0,   "max": 2.0e1},
-                {"name": "wd_n",    "min": 0.0e1,   "max": 2.0e0},
-            ],
-            exp_curves = exp_curves
-        )
+    def __init__(self):
+        super().__init__([
+            {"name": "wd_m",    "min": 0.0e0,   "max": 1.0e2},
+            {"name": "wd_b",    "min": 0.0e0,   "max": 2.0e1},
+            {"name": "wd_n",    "min": 0.0e1,   "max": 2.0e0},
+        ])
 
     # Prepares the model
     # api.define_model("evpwd_s", [41.51219348, 26.94208619, 0.382454248, 2.54294033, 18404.70135]) # A617, 800C

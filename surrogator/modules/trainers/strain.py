@@ -6,7 +6,7 @@
 """
 
 # Libraries
-from modules.trainers.__trainer__ import Trainer
+from modules.trainers.__trainer__ import TrainerTemplate
 from scipy.interpolate import splev, splrep
 
 # Constants
@@ -14,7 +14,7 @@ CURVE_SIZE = 1000
 STEP_SIZE  = 10
 
 # Strain Trainer Class
-class Strain(Trainer):
+class Trainer(TrainerTemplate):
 
     # Constructor
     def __init__(self, model):
