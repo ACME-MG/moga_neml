@@ -71,7 +71,7 @@ class API(APITemplate):
         export_data_summary(self.get_output(file_name), self.train_curves + self.test_curves)
 
     # Defines the model
-    def define_model(self, model_name:str, args:list=[]) -> None:
+    def define_model(self, model_name:str, *args) -> None:
         self.add(f"Defining the model ({model_name})")
         self.model_name = model_name
         self.args = args

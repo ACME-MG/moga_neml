@@ -12,7 +12,7 @@ import modules.errors.__error__ as error
 # The XEnd class
 class Error(error.ErrorTemplate):
     
-    # Prepares for evaluation
+    # Runs at the start, once
     def prepare(self):
         self.exp_x_end_list = [exp_curve["x"][-1] for exp_curve in self.exp_curves]
     

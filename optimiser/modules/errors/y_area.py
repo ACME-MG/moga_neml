@@ -21,9 +21,8 @@ NUM_POINTS = 50
 # The YArea class
 class Error(error.ErrorTemplate):
     
-    # Prepares for evaluation
-    def prepare(self, thin_function=get_thin_indexes):
-        self.thin_function = thin_function
+    # Runs at the start, once
+    def prepare(self):
         self.interpolator_list, self.exp_x_end_list, self.avg_y_list = [], [], []
         for exp_curve in self.exp_curves:
             self.interpolator_list.append(Interpolator(exp_curve["x"], exp_curve["y"], NUM_POINTS))
@@ -36,7 +35,7 @@ class Error(error.ErrorTemplate):
         for i in range(len(prd_curves)):
             if self.exp_curves[i]["type"] != self.type:
                 continue
-            thin_indexes = self.thin_function(len(prd_curves[i]["x"]), NUM_POINTS)
+            thin_indexes = get_thin_indexes(len(prd_curves[i]["x"]), NUM_POINTS)
             prd_x_list = [prd_curves[i]["x"][j] for j in thin_indexes]
             prd_y_list = [prd_curves[i]["y"][j] for j in thin_indexes]
             exp_y_list = self.interpolator_list[i].evaluate(prd_x_list)

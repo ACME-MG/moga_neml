@@ -12,8 +12,8 @@ import modules.errors.__error__ as error
 # The YEnd class
 class Error(error.ErrorTemplate):
     
-    # Prepares for evaluation
-    def prepare(self) -> None:
+    # Runs at the start, once
+    def prepare(self):
         self.exp_y_end_list = [exp_curve["y"][-1] for exp_curve in self.exp_curves]
     
     # Computing the error

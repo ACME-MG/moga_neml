@@ -37,10 +37,6 @@ class ConstraintTemplate:
     # Returns the experimental curve
     def get_exp_curves(self) -> list[dict]:
         return self.exp_curves
-    
-    # Prepares the object for evaluation (optional placeholder)
-    def prepare(self) -> None:
-        pass
 
     # Returns a constraint (placeholder)
     def get_value(self) -> None:
@@ -64,6 +60,10 @@ class ConstraintTemplate:
             # Get their indexes and add to map
             index_list = [exp_curves.index(temp_curve) for temp_curve in curve_list]
             self.curve_dict[temp] = index_list
+
+    # Runs at the start, once (optional placeholder)
+    def prepare(self):
+        pass
 
 # Returns the stress from a curve
 def get_stress(curve:dict) -> float:

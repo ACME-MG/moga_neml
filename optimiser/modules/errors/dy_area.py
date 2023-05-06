@@ -21,7 +21,7 @@ NUM_POINTS = 50
 # The DyArea class
 class Error(error.ErrorTemplate):
     
-    # Prepares for evaluation
+    # Runs at the start, once
     def prepare(self):
         self.interpolator_list, self.exp_x_end_list, self.avg_dy_list = [], [], []
         for exp_curve in self.exp_curves:

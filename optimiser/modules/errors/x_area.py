@@ -21,7 +21,7 @@ NUM_POINTS = 50
 # The XArea class
 class Error(error.ErrorTemplate):
     
-    # Prepares for evaluation
+    # Runs at the start, once
     def prepare(self):
         self.interpolator_list, self.exp_y_end_list, self.avg_x_list = [], [], []
         for exp_curve in self.exp_curves:

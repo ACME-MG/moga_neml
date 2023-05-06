@@ -20,9 +20,17 @@ EXCLUSION_LIST = ["__model__", "__model__", "__pycache__"]
 class ModelTemplate:
 
     # Constructor
-    def __init__(self, param_info:dict) -> None:
-        self.param_info = param_info
+    def __init__(self) -> None:
+        self.param_info = []
+
+    # Adds a parameter and bounds
+    def add_param(self, name:str, min:float=0.0e0, max:float=1.0e0):
+        self.param_info += [{"name": name, "min": min, "max": max}]
    
+    # Sets a list of arguments
+    def set_args(self, args):
+        self.args = args
+
     # Sets the name
     def set_name(self, name:str) -> None:
         self.name = name
@@ -54,14 +62,20 @@ class ModelTemplate:
     # Returns the experimental curves
     def get_exp_curves(self) -> list[dict]:
         return self.exp_curves
-    
-    # Prepares the model (placeholder)
-    def prepare(self, args) -> None:
+
+    # Gets a predicted curve (must be overridden)
+    def get_prd_curve(self, _1, _2) -> dict:
         raise NotImplementedError
 
-    # Gets the predicted curves (to be overridden)
-    def get_prd_curves(self) -> list[dict]:
-        return [get_curve([], []) for _ in range(len(self.exp_curves))] # do not remove [], []
+    # Gets the predicted curves
+    def get_prd_curves(self, *params) -> list[dict]:
+        prd_curves = []
+        for exp_curve in self.exp_curves:
+            prd_curve = self.get_prd_curve(exp_curve, *params)
+            if prd_curve == {}:
+                return []
+            prd_curves.append(prd_curve)
+        return prd_curves
 
     # Gets the predicted curves for specified curves
     def get_specified_prd_curves(self, params:list, exp_curves:list[dict]) -> list[dict]:
@@ -77,6 +91,10 @@ class ModelTemplate:
             if len(prd_curve["x"]) != len(prd_curve["y"]) or len(prd_curve["x"]) < MIN_DATA:
                 return []
         return prd_curves
+
+    # Runs at the start, once (optional placeholder)
+    def prepare(self):
+        pass
 
 # Creates and return a model
 def get_model(model_name:str, exp_curves:list[dict], args:list=[]) -> ModelTemplate:
@@ -95,7 +113,8 @@ def get_model(model_name:str, exp_curves:list[dict], args:list=[]) -> ModelTempl
     model = model_file.Model()
     model.set_name(model_name)
     model.set_exp_curves(exp_curves)
-    model.prepare(args)
+    model.set_args(args)
+    model.prepare()
 
     # Return the model
     return model

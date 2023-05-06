@@ -37,14 +37,14 @@ class ErrorTemplate:
     # Returns the experimental curve
     def get_exp_curves(self) -> list[dict]:
         return self.exp_curves
-
-    # Prepares the object for evaluation (optional placeholder)
-    def prepare(self) -> None:
-        pass
     
     # Returns an error (placeholder)
     def get_value(self) -> None:
         raise NotImplementedError
+
+    # Runs at the start, once (optional placeholder)
+    def prepare(self):
+        pass
 
 # Creates and return a error
 def get_error(error_name:str, type:str, weight:float, exp_curves:list[dict]) -> ErrorTemplate:

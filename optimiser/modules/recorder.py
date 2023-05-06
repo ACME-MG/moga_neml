@@ -161,14 +161,16 @@ class Recorder:
         if len(self.error_names) > 0:
             results["E"] = ["|" for _ in range(len(self.opt_errors))]
         for i in range(len(self.error_names)):
-            results[self.error_names[i]] = [errors[i] for errors in self.opt_errors]
+            error_id = f"{self.error_names[i]}_{self.error_types[i]}"
+            results[error_id] = [errors[i] for errors in self.opt_errors]
         results["error_sqr_sum"] = [errors[-1] for errors in self.opt_errors]
 
         # Add constraints
         if len(self.constraint_names) > 0:
             results["C"] = ["|" for _ in range(len(self.opt_constraints))]
         for i in range(len(self.constraint_names)):
-            results[self.constraint_names[i]] = [constraints[i] for constraints in self.opt_constraints]
+            constraint_id = f"{self.constraint_names[i]}_{self.constraint_types[i]}"
+            results[constraint_id] = [constraints[i] for constraints in self.opt_constraints]
         
         # Write all results
         write_with_fit_column_widths(results, writer, "results")
