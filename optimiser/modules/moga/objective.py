@@ -6,14 +6,11 @@
 """
 
 # Libraries
-import math, sys
+import math
 import numpy as np
 from modules.errors.__error__ import ErrorTemplate
 from modules.constraints.__constraint__ import ConstraintTemplate
-
-# Helper
-sys.path += ["../__models__"]
-from __model__ import ModelTemplate
+from modules.models.__model__ import ModelTemplate
 
 # Constants
 BIG_VALUE = 10000

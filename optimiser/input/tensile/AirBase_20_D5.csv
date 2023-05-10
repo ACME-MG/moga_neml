@@ -1,4 +1,4 @@
-x,y,temp,type,title,medium,strain_rate
+strain,stress,temp,type,title,medium,strain_rate
 0,0,20,tensile,D5,Air,0.389506436
 1.97E-06,17.07003359,,,,,
 1.97E-06,17.11003367,,,,,

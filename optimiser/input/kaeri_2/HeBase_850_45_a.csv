@@ -1,4 +1,4 @@
-x,y,temp,stress,type,state,form,process,medium,title
+time,strain,temp,stress,type,state,form,process,medium,title
 0,0,850,45,creep,Ruptured,Plate,Base,He,HeBase_850_45_a
 0,0.0,,,
 0.02889,0.00083,,,

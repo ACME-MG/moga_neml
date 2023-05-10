@@ -1,4 +1,4 @@
-x,y,temp,stress,type,state,form,process,medium,title
+time,strain,temp,stress,type,state,form,process,medium,title
 0,0,950,19,creep,Discontinued,Plate,Base,Air,AirBase_950_19_a
 0,0.0,,,
 0.013,4e-05,,,

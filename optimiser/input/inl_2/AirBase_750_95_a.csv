@@ -1,4 +1,4 @@
-x,y,temp,stress,type,state,form,process,medium,title
+time,strain,temp,stress,type,state,form,process,medium,title
 0,0,750,95,creep,Ruptured,Plate,Base,Air,AirBase_750_95_a
 0,0.0,,,
 0.07,4e-05,,,

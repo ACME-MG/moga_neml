@@ -7,7 +7,7 @@
 
 # Libraries
 import math
-import __model__ as model
+import modules.models.__model__ as model
 from cmath import inf
 
 # Constants
@@ -33,9 +33,13 @@ class Model(model.ModelTemplate):
     # Gets the predicted curves
     def get_prd_curve(self, exp_curve, th_a, th_n, th_m, kr_A, kr_n, kr_M, kr_phi, kr_chi):
 
+        # If the curve is not a creep curve, return nothing
+        if exp_curve["type"] != "creep":
+            return
+
         # Initialise
         stress = exp_curve["stress"]
-        prd_curve = {"x": [], "y": []}
+        time_list, strain_list = [], []
 
         # Calculate primary strain with TH model
         offset_time, offset_strain = 0, 0
@@ -45,8 +49,8 @@ class Model(model.ModelTemplate):
             th_strain = th_a*stress**th_n/(th_m+1)*time**(th_m+1)
             if math.isnan(th_strain) or abs(th_strain) == inf:
                 break
-            prd_curve["x"].append(time)
-            prd_curve["y"].append(th_strain)
+            time_list.append(time)
+            strain_list.append(th_strain)
 
             # Start using KR model when strain rate < minimum creep rate
             offset_time, offset_strain = time, th_strain
@@ -59,8 +63,8 @@ class Model(model.ModelTemplate):
             kr_strain = kr_A*stress**kr_n*((1-(kr_phi+1)*kr_M*stress**kr_chi*kr_time)**((kr_phi+1-kr_n)/(kr_phi+1))-1)/(kr_M*stress**kr_chi*(kr_n-kr_phi-1))
             if isinstance(kr_strain, complex) or math.isnan(kr_strain) or abs(kr_strain) == inf:
                 break
-            prd_curve["x"].append(time)
-            prd_curve["y"].append(kr_strain + offset_strain)
+            time_list.append(time)
+            strain_list.append(kr_strain + offset_strain)
 
         # Return predicted curve
-        return prd_curve
+        return {"x": time_list, "y": strain_list}

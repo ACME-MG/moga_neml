@@ -2,6 +2,8 @@ from modules.api import API
 api = API("", 0)
 api.define_model("evpwd")
 
+# api.read_file("cyclic/AirBase316_time_strain.csv", True)
+
 # api.read_file("inl_1/AirBase_800_80_G25.csv", True)
 # api.read_file("inl_1/AirBase_800_70_G44.csv", True)
 # api.read_file("inl_1/AirBase_800_65_G33.csv", True)

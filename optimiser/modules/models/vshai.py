@@ -1,16 +1,15 @@
 """
  Title:         The Voce Slip Hardening Asaro Inelasticity Model
- Description:   Predicts primary creep via crystal plasticity
+ Description:   Incorporates crystal plasticity
  Author:        Janzen Choi
 
 """
 
 # Libraries
-import __model__ as model
+import modules.models.__model__ as model
 from neml import elasticity, drivers
 from neml.cp import crystallography, slipharden, sliprules, inelasticity, kinematics, singlecrystal, polycrystal
 from neml.math import rotations
-from neml.nlsolvers import MaximumIterations
 
 # Model Parameters
 YOUNGS       = 211000.0
@@ -75,13 +74,11 @@ class Model(model.ModelTemplate):
         vshai_model     = polycrystal.TaylorModel(sc_model, self.grain_orientations, nthreads=self.num_threads, weights=self.weights)
 
         # Get predictions
-        try:
-            if exp_curve["type"] == "creep":
-                creep_results = drivers.creep(vshai_model, exp_curve["stress"], STRESS_RATE, HOLD, T=exp_curve["temp"], verbose=False, check_dmg=False, dtol=0.95, nsteps_up=NUM_STEPS_UP, nsteps=NUM_STEPS, logspace=False)
-                return {"x": list(creep_results["rtime"] / 3600), "y": list(creep_results["rstrain"])}
-            elif exp_curve["type"] == "tensile":
-                strain_rate = exp_curve["strain_rate"] / 3600
-                tensile_results = drivers.uniaxial_test(vshai_model, erate=strain_rate, T=exp_curve["temp"], verbose=False, emax=STRAIN_MAX, nsteps=NUM_STEPS)
-                return {"x": list(tensile_results["strain"]), "y": list(tensile_results["stress"])}
-        except MaximumIterations:
-            return {}
+        if exp_curve["type"] == "creep":
+            creep_results = drivers.creep(vshai_model, exp_curve["stress"], STRESS_RATE, HOLD, T=exp_curve["temp"], verbose=False,
+                                            check_dmg=False, dtol=0.95, nsteps_up=NUM_STEPS_UP, nsteps=NUM_STEPS, logspace=False)
+            return {"x": list(creep_results["rtime"] / 3600), "y": list(creep_results["rstrain"])}
+        elif exp_curve["type"] == "tensile":
+            strain_rate = exp_curve["strain_rate"] / 3600
+            tensile_results = drivers.uniaxial_test(vshai_model, erate=strain_rate, T=exp_curve["temp"], verbose=False, emax=STRAIN_MAX, nsteps=NUM_STEPS)
+            return {"x": list(tensile_results["strain"]), "y": list(tensile_results["stress"])}

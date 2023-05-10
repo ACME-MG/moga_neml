@@ -10,8 +10,7 @@ import numpy as np
 import modules.errors.__error__ as error
 
 # Helper libraries
-import sys
-sys.path += ["../__common__"]
+import sys; sys.path += ["../__common__"]
 from curve import get_thin_indexes
 from derivative import Interpolator, get_bfd
 

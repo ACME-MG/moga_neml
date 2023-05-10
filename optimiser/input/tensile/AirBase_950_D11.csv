@@ -1,4 +1,4 @@
-x,y,temp,type,title,medium,strain_rate
+strain,stress,temp,type,title,medium,strain_rate
 0,0,950,tensile,D11,Air,0.36097834895845443
 1.5290883093824094e-05,10.14015505074,,,,,
 1.5290883093824094e-05,10.260156885659999,,,,,

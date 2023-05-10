@@ -9,13 +9,6 @@
 import numpy as np
 import math
 
-# Returns a curve dictionary
-def get_curve(x_list, y_list, info_dict={}):
-    curve = {"x": x_list, "y": y_list}
-    for key in info_dict.keys():
-        curve[key] = info_dict[key]
-    return curve
-
 # Returns the coordinates of non-outliers (good to use with derivatives)
 def exclude_outliers(x_list, y_list):
     q_1 = np.percentile(y_list, 25)
@@ -35,13 +28,6 @@ def get_sample_creep_curve():
     y_list = list(np.polyval(polynomial, scaled_x_list))
     y_list = [y/8 for y in y_list]
     return {"x": x_list, "y": y_list}
-
-# Checks if corresponding creep curve is successful and within bounds
-def validate_curve(curve, min_data=50):
-    if len(curve["x"]) < min_data or len(curve["y"]) < min_data: # or curve["y"][-1] < 0.01:
-        return False
-    valid_list = [y >= 0 and y <= 1 for y in curve["y"]]
-    return not (False in valid_list)
 
 # Returns a list of indexes corresponding to thinned data
 def get_thin_indexes(src_data_size, dst_data_size):

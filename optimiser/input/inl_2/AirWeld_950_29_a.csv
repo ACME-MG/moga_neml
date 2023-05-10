@@ -1,4 +1,4 @@
-x,y,temp,stress,type,state,form,process,medium,title
+time,strain,temp,stress,type,state,form,process,medium,title
 0,0,950,29,creep,Ruptured,Plate,Weld,Air,AirWeld_950_29_a
 0,0.0,,,
 0.013,0.0017399999999999998,,,

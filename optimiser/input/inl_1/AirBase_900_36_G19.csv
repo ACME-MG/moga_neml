@@ -1,4 +1,4 @@
-x,y,temp,stress,type,title
+time,strain,temp,stress,type,title
 0,0,900,36,creep,G19
 0.000,0.00018700000000000002,,,
 0.000,0.000189,,,

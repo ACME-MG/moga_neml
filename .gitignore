@@ -1,20 +1,10 @@
 __common__/__pycache__
-__models__/__pycache__
 .vscode
 
 optimiser/results
 optimiser/modules/__pycache__
 optimiser/modules/constraints/__pycache__
 optimiser/modules/errors/__pycache__
+optimiser/modules/models/__pycache__
 optimiser/modules/moga/__pycache__
 optimiser/nohup.out
-
-surrogator/results
-surrogator/modules/__pycache__
-surrogator/modules/trainers/__pycache__
-surrogator/modules/surrogates/__pycache__
-surrogator/nohup.out
-
-analyser/results
-analyser/modules/__pycache__
-analyser/nohup.out

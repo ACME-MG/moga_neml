@@ -19,16 +19,17 @@ class Problem(ElementwiseProblem):
     def __init__(self, objective:Objective, recorder:Recorder):
         
         # Initialise
-        self.objective  = objective
-        self.model      = objective.get_model()
-        self.recorder   = recorder
+        self.objective = objective
+        self.model     = objective.get_model()
+        self.recorder  = recorder
         
         # Define the element wise problem
+        unfixed_params = self.model.get_unfixed_param_info()
         super().__init__(
-            n_var = len(self.model.get_param_info()),
+            n_var = len(unfixed_params),
             n_obj = len(self.objective.get_error_names()),
-            xl    = np.array(self.model.get_param_lower_bounds()),
-            xu    = np.array(self.model.get_param_upper_bounds()),
+            xl    = np.array([param["min"] for param in unfixed_params]),
+            xu    = np.array([param["max"] for param in unfixed_params]),
         )
     
     # Minimises expression "F" such that the expression "G <= 0" is satisfied

@@ -8,27 +8,32 @@
 # Libraries
 import importlib, os, sys
 from copy import deepcopy
-sys.path += ["../__common__"]
-from curve import get_curve
 
 # Constants
 MIN_DATA = 10
-PATH_TO_MODELS = "../__models__"
-EXCLUSION_LIST = ["__model__", "__model__", "__pycache__"]
+PATH_TO_MODELS = "modules/models"
+EXCLUSION_LIST = ["__model__", "__pycache__"]
 
 # The Model Template Class
 class ModelTemplate:
 
     # Constructor
-    def __init__(self) -> None:
+    def __init__(self):
         self.param_info = []
+        self.fixed_params = {}
 
     # Adds a parameter and bounds
-    def add_param(self, name:str, min:float=0.0e0, max:float=1.0e0):
+    def add_param(self, name:str, min:float=0.0e0, max:float=1.0e0) -> None:
         self.param_info += [{"name": name, "min": min, "max": max}]
-   
+    
+    # Fixes a parameter
+    def fix_param(self, name:str, value:float) -> None:
+        all_param_names = [param["name"] for param in self.param_info]
+        if name in all_param_names:
+            self.fixed_params[name] = value
+
     # Sets a list of arguments
-    def set_args(self, args):
+    def set_args(self, args) -> None:
         self.args = args
 
     # Sets the name
@@ -44,20 +49,30 @@ class ModelTemplate:
         self.exp_curves = exp_curves
 
     # Returns the parameter info
-    def get_param_info(self) -> dict:
+    def get_param_info(self) -> list[dict]:
         return self.param_info
+    
+    # Returns a dict of the fixed parameters
+    def get_fixed_params(self) -> dict:
+        return self.fixed_params
 
-    # Returns the parameter names
-    def get_param_names(self) -> list[str]:
-        return [param["name"] for param in self.param_info]
+    # Returns the information of unfixed parameters
+    def get_unfixed_param_info(self) -> list[dict]:
+        unfixed_param_info = []
+        for param in self.param_info:
+            if not param["name"] in self.fixed_params.keys():
+                unfixed_param_info.append(param)
+        return unfixed_param_info
 
-    # Returns the parameter lower bounds
-    def get_param_lower_bounds(self) -> list[float]:
-        return [param["min"] for param in self.param_info]
-
-    # Returns the parameter upper bounds
-    def get_param_upper_bounds(self) -> list[float]:
-        return [param["max"] for param in self.param_info]
+    # Incorporates the fixed parameters
+    def incorporate_fixed_params(self, *params) -> list[float]:
+        param_names = [param["name"] for param in self.param_info]
+        fixed_indexes = [i for i in range(len(param_names)) if param_names[i] in self.fixed_params.keys()]
+        params = list(params)
+        for fixed_index in fixed_indexes:
+            fixed_value = self.fixed_params[param_names[fixed_index]]
+            params.insert(fixed_index, fixed_value)
+        return tuple(params)
 
     # Returns the experimental curves
     def get_exp_curves(self) -> list[dict]:
@@ -69,12 +84,15 @@ class ModelTemplate:
 
     # Gets the predicted curves
     def get_prd_curves(self, *params) -> list[dict]:
+        params = self.incorporate_fixed_params(*params)
         prd_curves = []
         for exp_curve in self.exp_curves:
-            prd_curve = self.get_prd_curve(exp_curve, *params)
-            if prd_curve == {}:
+            try:
+                prd_curve = self.get_prd_curve(exp_curve, *params)
+                if prd_curve != None:
+                    prd_curves.append(prd_curve)
+            except:
                 return []
-            prd_curves.append(prd_curve)
         return prd_curves
 
     # Gets the predicted curves for specified curves
@@ -85,16 +103,17 @@ class ModelTemplate:
         self.exp_curves = old_exp_curves
         return prd_curves
 
-    # For checking the validity of a predicted curve
-    def ensure_validity(self, prd_curves:list[dict]) -> list[dict]:
-        for prd_curve in prd_curves:
-            if len(prd_curve["x"]) != len(prd_curve["y"]) or len(prd_curve["x"]) < MIN_DATA:
+    # For checking the validity of a curve
+    def ensure_validity(self, curves:list[dict]) -> list[dict]:
+        for curve in curves:
+            list_values = [key for key in curve.keys() if len(curve[key]) > 1]
+            if len(list_values) == 0 or False in [len(list_values[0]) == len(lv) for lv in list_values]:
                 return []
-        return prd_curves
+        return curves
 
-    # Runs at the start, once (optional placeholder)
+    # Runs at the start, once (placeholder)
     def prepare(self):
-        pass
+        raise NotImplementedError
 
 # Creates and return a model
 def get_model(model_name:str, exp_curves:list[dict], args:list=[]) -> ModelTemplate:
@@ -109,7 +128,8 @@ def get_model(model_name:str, exp_curves:list[dict], args:list=[]) -> ModelTempl
         raise NotImplementedError(f"The model '{model_name}' has not been implemented")
 
     # Import and prepare model
-    model_file = importlib.import_module(model_name)
+    module = f"{PATH_TO_MODELS}/{model_name}".replace("/", ".")
+    model_file = importlib.import_module(module)
     model = model_file.Model()
     model.set_name(model_name)
     model.set_exp_curves(exp_curves)

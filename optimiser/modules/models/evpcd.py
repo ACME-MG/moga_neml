@@ -1,14 +1,13 @@
 """
- Title:         The Elastic Visco Plastic Creep Damage Model
- Description:   Predicts primary, secondary, and tertiary creep
+ Title:         The Elastic Viscoplastic Creep Damage Model
+ Description:   Incorporates elasto-viscoplasticity and creep damage
  Author:        Janzen Choi
 
 """
 
 # Libraries
-import __model__ as model
+import modules.models.__model__ as model
 from neml import models, elasticity, drivers, surfaces, hardening, visco_flow, general_flow, damage
-from neml.nlsolvers import MaximumIterations
 
 # Model Parameters
 YOUNGS       = 157000.0
@@ -56,16 +55,14 @@ class Model(model.ModelTemplate):
         evpcd_model   = damage.NEMLScalarDamagedModel_sd(self.elastic_model, evp_model, cd_model)
 
         # Get predictions
-        try:
-            if exp_curve["type"] == "creep":
-                stress_max = exp_curve["stress"]
-                with model.BlockPrint():
-                    creep_results = drivers.creep(evpcd_model, stress_max, STRESS_RATE, HOLD, T=exp_curve["temp"], verbose=False, check_dmg=False, dtol=0.95, nsteps_up=NUM_STEPS_UP, nsteps=NUM_STEPS, logspace=False)
-                return {"x": list(creep_results["rtime"] / 3600), "y": list(creep_results["rstrain"])}
-            elif exp_curve["type"] == "tensile":
-                strain_rate = exp_curve["strain_rate"] / 3600
-                with model.BlockPrint():
-                    tensile_results = drivers.uniaxial_test(evpcd_model, erate=strain_rate, T=exp_curve["temp"], emax=STRAIN_MAX, nsteps=NUM_STEPS)
-                return {"x": list(tensile_results["strain"]), "y": list(tensile_results["stress"])}
-        except MaximumIterations:
-            return {}
+        if exp_curve["type"] == "creep":
+            stress_max = exp_curve["stress"]
+            with model.BlockPrint():
+                creep_results = drivers.creep(evpcd_model, stress_max, STRESS_RATE, HOLD, T=exp_curve["temp"], verbose=False,
+                                                check_dmg=False, dtol=0.95, nsteps_up=NUM_STEPS_UP, nsteps=NUM_STEPS, logspace=False)
+            return {"x": list(creep_results["rtime"] / 3600), "y": list(creep_results["rstrain"])}
+        elif exp_curve["type"] == "tensile":
+            strain_rate = exp_curve["strain_rate"] / 3600
+            with model.BlockPrint():
+                tensile_results = drivers.uniaxial_test(evpcd_model, erate=strain_rate, T=exp_curve["temp"], emax=STRAIN_MAX, nsteps=NUM_STEPS)
+            return {"x": list(tensile_results["strain"]), "y": list(tensile_results["stress"])}

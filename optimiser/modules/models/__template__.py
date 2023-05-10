@@ -6,7 +6,7 @@
  """
 
 # Libraries
-import __model__ as model
+import modules.models.__model__ as model
 
 # Model Class
 class Model(model.ModelTemplate):
