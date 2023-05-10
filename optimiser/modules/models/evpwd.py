@@ -8,11 +8,8 @@
 # Libraries
 import modules.models.__model__ as model
 from neml import models, elasticity, drivers, surfaces, hardening, visco_flow, general_flow, damage, interpolate
-from neml.nlsolvers import MaximumIterations
 
 # Model Parameters
-YOUNGS       = 157000.0
-POISSONS     = 0.3
 STRESS_RATE  = 0.0001
 TIME_HOLD    = 11500.0 * 3600.0
 NUM_STEPS_UP = 50
@@ -26,8 +23,6 @@ class Model(model.ModelTemplate):
 
     # Runs at the start, once
     def prepare(self):
-
-        # Add parameters
         self.add_param("evp_s0",  0.0e1, 1.0e2)
         self.add_param("evp_R",   0.0e1, 1.0e2)
         self.add_param("evp_d",   0.0e1, 1.0e2)
@@ -37,22 +32,20 @@ class Model(model.ModelTemplate):
         self.add_param("wd_b",    0.0e1, 1.0e1)
         self.add_param("wd_n",    1.0e0, 1.0e1)
 
-        # Prepares the model
-        self.elastic_model = elasticity.IsotropicLinearElasticModel(YOUNGS, "youngs", POISSONS, "poissons")
-        self.yield_surface = surfaces.IsoJ2()
-
     # Gets the predicted curves
     def get_prd_curve(self, exp_curve, evp_s0, evp_R, evp_d, evp_n, evp_eta, wd_m, wd_b, wd_n):
 
         # Define model
+        elastic_model = elasticity.IsotropicLinearElasticModel(exp_curve["youngs"], "youngs", exp_curve["poissons"], "poissons")
+        yield_surface = surfaces.IsoJ2()
         iso_hardening = hardening.VoceIsotropicHardeningRule(evp_s0, evp_R, evp_d)
         g_power       = visco_flow.GPowerLaw(evp_n, evp_eta)
-        visco_model   = visco_flow.PerzynaFlowRule(self.yield_surface, iso_hardening, g_power)
-        integrator    = general_flow.TVPFlowRule(self.elastic_model, visco_model)
-        evp_model     = models.GeneralIntegrator(self.elastic_model, integrator, verbose=False)
+        visco_model   = visco_flow.PerzynaFlowRule(yield_surface, iso_hardening, g_power)
+        integrator    = general_flow.TVPFlowRule(elastic_model, visco_model)
+        evp_model     = models.GeneralIntegrator(elastic_model, integrator, verbose=False)
         wd_wc         = interpolate.PolynomialInterpolate([wd_m, wd_b])
-        wd_model      = damage.WorkDamage(self.elastic_model, wd_wc, wd_n, log=True, eps=EPSILON)
-        evpwd_model   = damage.NEMLScalarDamagedModel_sd(self.elastic_model, evp_model, wd_model, verbose=False)
+        wd_model      = damage.WorkDamage(elastic_model, wd_wc, wd_n, log=True, eps=EPSILON)
+        evpwd_model   = damage.NEMLScalarDamagedModel_sd(elastic_model, evp_model, wd_model, verbose=False)
 
         # Get predictions
         if exp_curve["type"] == "creep":

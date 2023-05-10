@@ -25,4 +25,4 @@ api.add_error("y_end", "creep")
 # api.add_constraint("inc_y_end", "creep", 2)
 
 api.record(1, 10)
-api.optimise(10000, 200, 100, 0.65, 0.35)
+api.optimise(10000, 2, 1, 0.65, 0.35)

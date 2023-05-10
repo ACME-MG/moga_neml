@@ -12,8 +12,6 @@ from neml.cp import crystallography, slipharden, sliprules, inelasticity, kinema
 from neml.math import rotations
 
 # Model Parameters
-YOUNGS       = 211000.0
-POISSONS     = 0.3
 STRESS_RATE  = 0.0001
 STRAIN_MAX   = 0.005
 HOLD         = 11500.0 * 3600.0
@@ -57,7 +55,6 @@ class Model(model.ModelTemplate):
         file.close()
 
         # Define lattice structure
-        self.elastic_model = elasticity.IsotropicLinearElasticModel(YOUNGS, "youngs", POISSONS, "poissons")
         self.lattice = crystallography.CubicLattice(lattice_a)
         self.lattice.add_slip_system(slip_direction, slip_plane)
         
@@ -66,12 +63,13 @@ class Model(model.ModelTemplate):
     def get_prd_curve(self, exp_curve, vsh_ts, vsh_b, vsh_t0, ai_g0, ai_n):
 
         # Define model
-        strength_model  = slipharden.VoceSlipHardening(vsh_ts, vsh_b, vsh_t0)
-        slip_model      = sliprules.PowerLawSlipRule(strength_model, ai_g0, ai_n)
-        ai_model        = inelasticity.AsaroInelasticity(slip_model)
-        ep_model        = kinematics.StandardKinematicModel(self.elastic_model, ai_model)
-        sc_model        = singlecrystal.SingleCrystalModel(ep_model, self.lattice, verbose=False, miter=MAX_ITER, max_divide=MAX_DIVIDE)
-        vshai_model     = polycrystal.TaylorModel(sc_model, self.grain_orientations, nthreads=self.num_threads, weights=self.weights)
+        elastic_model  = elasticity.IsotropicLinearElasticModel(exp_curve["youngs"], "youngs", exp_curve["poissons"], "poissons")
+        strength_model = slipharden.VoceSlipHardening(vsh_ts, vsh_b, vsh_t0)
+        slip_model     = sliprules.PowerLawSlipRule(strength_model, ai_g0, ai_n)
+        ai_model       = inelasticity.AsaroInelasticity(slip_model)
+        ep_model       = kinematics.StandardKinematicModel(elastic_model, ai_model)
+        sc_model       = singlecrystal.SingleCrystalModel(ep_model, self.lattice, verbose=False, miter=MAX_ITER, max_divide=MAX_DIVIDE)
+        vshai_model    = polycrystal.TaylorModel(sc_model, self.grain_orientations, nthreads=self.num_threads, weights=self.weights)
 
         # Get predictions
         if exp_curve["type"] == "creep":

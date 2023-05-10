@@ -72,34 +72,32 @@ def check_lists(exp_curve:dict, key_1:str, key_2:str):
 #   Does not check that the 'lists' are all numbers
 def check_exp_curve(exp_curve:dict):
     check_header(exp_curve, "type", str)
+    check_header(exp_curve, "temp", Number)
+    check_header(exp_curve, "youngs", Number)
+    check_header(exp_curve, "poissons", Number)
     if exp_curve["type"] == "creep":
         check_header(exp_curve, "time", list)
         check_header(exp_curve, "strain", list)
-        check_header(exp_curve, "temp", Number)
         check_header(exp_curve, "stress", Number)
         check_lists(exp_curve, "time", "strain")
     elif exp_curve["type"] == "tensile":
         check_header(exp_curve, "strain", list)
         check_header(exp_curve, "stress", list)
-        check_header(exp_curve, "temp", Number)
         check_header(exp_curve, "strain_rate", Number)
         check_lists(exp_curve, "strain", "stress")
     elif exp_curve["type"] == "cyclic-time-strain":
         check_header(exp_curve, "time", list)
         check_header(exp_curve, "strain", list)
-        check_header(exp_curve, "temp", Number)
         check_header(exp_curve, "strain_rate", Number)
         check_lists(exp_curve, "time", "strain")
     elif exp_curve["type"] == "cyclic-time-stress":
         check_header(exp_curve, "time", list)
         check_header(exp_curve, "stress", list)
-        check_header(exp_curve, "temp", Number)
         check_header(exp_curve, "strain_rate", Number)
         check_lists(exp_curve, "time", "stress")
     elif exp_curve["type"] == "cyclic-strain-stress":
         check_header(exp_curve, "strain", list)
         check_header(exp_curve, "stress", list)
-        check_header(exp_curve, "temp", Number)
         check_header(exp_curve, "strain_rate", Number)
         check_lists(exp_curve, "strain", "stress")
 
