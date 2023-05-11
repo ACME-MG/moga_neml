@@ -1,5 +1,5 @@
 strain,stress,temp,type,title,max_strain,strain_rate,youngs,poissons
-1.71E-06,4.66602,25,cyclic-strain-stress,cyclic-strain-stress,0.015,4.30E-04,157000,0.3
+1.71E-06,4.66602,25,cyclic-strain-stress,cyclic-strain-stress,0.015,4.30E-04,195600,0.29
 -4.65E-05,-1.57012,,,,,,,,
 -1.90E-05,-2.27169,,,,,,,,
 -3.96E-05,-0.16699,,,,,,,,

@@ -1,5 +1,5 @@
 time,strain,temp,stress,type,state,form,process,medium,title,youngs,poissons
-0,0,750,95,creep,Ruptured,Plate,Weld,Air,AirWeld_750_95_a,157000,0.3
+0,0,750,95,creep,Ruptured,Plate,Weld,Air,AirWeld_750_95_a,161000,0.3
 0,0,,,,,,
 0.013,0.012,,,,,,
 0.018,-0.008,,,,,,

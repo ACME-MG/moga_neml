@@ -1,5 +1,5 @@
 time,strain,temp,stress,type,title,youngs,poissons
-0,0,900,28,creep,G45,157000,0.3
+0,0,900,28,creep,G45,149000,0.3
 0.00,0.0,,,,,,
 0.00,-0.0,,,,,,
 0.00,0.0,,,,,,

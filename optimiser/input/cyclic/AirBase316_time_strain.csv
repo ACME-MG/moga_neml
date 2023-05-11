@@ -1,5 +1,5 @@
 time,strain,temp,type,title,max_strain,strain_rate,youngs,poissons
-0.2366,1.71E-06,25,cyclic-time-strain,cyclic-time-strain,0.015,4.30E-04,157000,0.3
+0.2366,1.71E-06,25,cyclic-time-strain,cyclic-time-strain,0.015,4.30E-04,195600,0.29
 0.3366,-4.65E-05,,,,,,,,
 0.4366,-1.90E-05,,,,,,,,
 0.5368,-3.96E-05,,,,,,,,
