@@ -26,7 +26,7 @@ class Error(error.ErrorTemplate):
         for exp_curve in self.exp_curves:
             self.interpolator_list.append(Interpolator(exp_curve["x"], exp_curve["y"], NUM_POINTS))
             self.exp_x_end_list.append(exp_curve["x"][-1])
-            self.avg_y_list.append(np.average(exp_curve["y"]))
+            self.avg_y_list.append(abs(np.average(exp_curve["y"])))
             
     # Computing the error
     def get_value(self, prd_curves:list[dict]) -> float:

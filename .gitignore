@@ -3,7 +3,6 @@ __common__/__pycache__
 
 optimiser/results
 optimiser/modules/__pycache__
-optimiser/modules/constraints/__pycache__
 optimiser/modules/errors/__pycache__
 optimiser/modules/models/__pycache__
 optimiser/modules/moga/__pycache__

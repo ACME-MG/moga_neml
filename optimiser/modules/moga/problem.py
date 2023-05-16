@@ -37,15 +37,11 @@ class Problem(ElementwiseProblem):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore") # ignore warnings
 
-            # Get curves
+            # Get curves and error values
             prd_curves = self.model.get_prd_curves(*params)
             prd_curves = self.model.ensure_validity(prd_curves)
-
-            # Check constraints and adjust error values
             error_values = self.objective.get_error_values(prd_curves)
-            constraint_values = self.objective.get_constraint_values(prd_curves)
-            error_values = self.objective.get_penalised_error_values(error_values, constraint_values)
-            
+
             # Update the recorder and pass in error values
-            self.recorder.update_results(params, error_values, constraint_values)
+            self.recorder.update_results(params, error_values)
             out["F"] = error_values

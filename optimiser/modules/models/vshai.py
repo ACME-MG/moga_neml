@@ -10,6 +10,7 @@ import modules.models.__model__ as model
 from neml import elasticity, drivers
 from neml.cp import crystallography, slipharden, sliprules, inelasticity, kinematics, singlecrystal, polycrystal
 from neml.math import rotations
+from neml.nlsolvers import MaximumIterations
 
 # Model Parameters
 STRESS_RATE  = 0.0001
@@ -58,8 +59,8 @@ class Model(model.ModelTemplate):
         self.lattice = crystallography.CubicLattice(lattice_a)
         self.lattice.add_slip_system(slip_direction, slip_plane)
         
-    # Gets the predicted curves
-    # api.define_model("vshai", ["cp_ebsd/ebsd_statistics.csv", 1.0, [1,1,0], [1,1,1], 16])
+    # Gets the predicted curve
+    #   api.define_model("vshai", ["cp_ebsd/ebsd_statistics.csv", 1.0, [1,1,0], [1,1,1], 16])
     def get_prd_curve(self, exp_curve, vsh_ts, vsh_b, vsh_t0, ai_g0, ai_n):
 
         # Define model
@@ -73,10 +74,16 @@ class Model(model.ModelTemplate):
 
         # Get predictions
         if exp_curve["type"] == "creep":
-            creep_results = drivers.creep(vshai_model, exp_curve["stress"], STRESS_RATE, HOLD, T=exp_curve["temp"], verbose=False,
-                                            check_dmg=False, dtol=0.95, nsteps_up=NUM_STEPS_UP, nsteps=NUM_STEPS, logspace=False)
-            return {"x": list(creep_results["rtime"] / 3600), "y": list(creep_results["rstrain"])}
+            try:
+                creep_results = drivers.creep(vshai_model, exp_curve["stress"], STRESS_RATE, HOLD, T=exp_curve["temp"], verbose=False,
+                                                check_dmg=False, dtol=0.95, nsteps_up=NUM_STEPS_UP, nsteps=NUM_STEPS, logspace=False)
+                return {"x": list(creep_results["rtime"] / 3600), "y": list(creep_results["rstrain"])}
+            except MaximumIterations:
+                return
         elif exp_curve["type"] == "tensile":
             strain_rate = exp_curve["strain_rate"] / 3600
-            tensile_results = drivers.uniaxial_test(vshai_model, erate=strain_rate, T=exp_curve["temp"], verbose=False, emax=STRAIN_MAX, nsteps=NUM_STEPS)
-            return {"x": list(tensile_results["strain"]), "y": list(tensile_results["stress"])}
+            try:
+                tensile_results = drivers.uniaxial_test(vshai_model, erate=strain_rate, T=exp_curve["temp"], verbose=False, emax=STRAIN_MAX, nsteps=NUM_STEPS)
+                return {"x": list(tensile_results["strain"]), "y": list(tensile_results["stress"])}
+            except MaximumIterations:
+                return

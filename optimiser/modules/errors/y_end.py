@@ -14,7 +14,7 @@ class Error(error.ErrorTemplate):
     
     # Runs at the start, once
     def prepare(self):
-        self.exp_y_end_list = [exp_curve["y"][-1] for exp_curve in self.exp_curves]
+        self.exp_y_end_list = [abs(exp_curve["y"][-1]) for exp_curve in self.exp_curves]
     
     # Computing the error
     def get_value(self, prd_curves:list[dict]) -> float:

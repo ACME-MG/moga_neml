@@ -30,7 +30,7 @@ class Model(model.ModelTemplate):
         self.add_param("kr_phi", 0.0e0, 1.0e2)
         self.add_param("kr_chi", 0.0e0, 1.0e1)
 
-    # Gets the predicted curves
+    # Gets the predicted curve
     def get_prd_curve(self, exp_curve, th_a, th_n, th_m, kr_A, kr_n, kr_M, kr_phi, kr_chi):
 
         # If the curve is not a creep curve, return nothing

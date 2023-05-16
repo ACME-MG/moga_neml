@@ -15,7 +15,7 @@ import sys; sys.path += ["../__common__"]
 from derivative import differentiate_curve
 
 # Constants
-CURVE_DENSITY = 100
+CURVE_DENSITY = 500
 
 # The Recorder class
 class Recorder:
@@ -31,24 +31,18 @@ class Recorder:
         self.interval         = interval
         self.population       = population
 
-        # Define errors and constraints
-        self.error_names          = objective.get_error_names()
-        self.error_types          = objective.get_error_types()
-        self.error_weights        = objective.get_error_weights()
-        self.constraint_names     = objective.get_constraint_names()
-        self.constraint_types     = objective.get_constraint_types()
-        self.constraint_penalties = objective.get_constraint_penalties()
-
-        # Summarise error and constraint info
+        # Define errors
+        self.error_names   = objective.get_error_names()
+        self.error_types   = objective.get_error_types()
+        self.error_weights = objective.get_error_weights()
         self.error_info = [f"{self.error_names[i]} ({self.error_types[i]}) ({self.error_weights[i]})" for i in range(len(self.error_names))]
-        self.constraint_info = [f"{self.constraint_names[i]} ({self.constraint_types[i]}) ({self.constraint_penalties[i]})" for i in range(len(self.constraint_names))]
 
         # Track optimisation progress
         self.start_time = time.time()
         self.update_time = self.start_time
         self.start_time_str = time.strftime("%A, %D, %H:%M:%S", time.localtime())
         self.num_evals_completed, self.num_gens_completed = 0, 0
-        self.opt_params, self.opt_errors, self.opt_constraints = [], [], []
+        self.opt_params, self.opt_errors = [], []
 
     # Define MOGA hyperparameters
     def define_hyperparameters(self, num_gens:int, init_pop:int, offspring:int, crossover:float, mutation:float) -> None:
@@ -66,12 +60,13 @@ class Recorder:
         writer = pd.ExcelWriter(file_path, engine = "xlsxwriter")
         self.record_settings(writer)
         self.record_results(writer)
-        self.record_plot(writer, "creep")
-        self.record_plot(writer, "tensile")
+        all_types = list(set([curve["type"] for curve in self.train_curves + self.test_curves]))
+        for type in all_types:
+            self.record_plot(writer, type)
         writer.close()
 
     # Updates the results after X iterations
-    def update_results(self, params:list[float], errors:list[float], constraints:list[bool]) -> None:
+    def update_results(self, params:list[float], errors:list[float]) -> None:
 
         # Update optimisation progress
         self.num_evals_completed += 1
@@ -79,7 +74,7 @@ class Recorder:
         
         # If parameters are valid, update the population
         if not BIG_VALUE in errors:
-            self.update_population(params, errors, constraints)
+            self.update_population(params, errors)
 
         # Record results after X generations
         if self.num_gens_completed > 0 and self.num_gens_completed % self.interval == 0:
@@ -100,7 +95,7 @@ class Recorder:
             print(f"  {index}]\tRecorded ({progress} in {update_duration}s)")
     
     # Updates the population
-    def update_population(self, params:tuple[float], errors:tuple[float], constraints:list[bool]) -> None:
+    def update_population(self, params:tuple[float], errors:tuple[float]) -> None:
         params, errors = list(params), list(errors)
         err_sqr_sum = sum([error**2 for error in errors])
 
@@ -110,7 +105,6 @@ class Recorder:
                 return
             self.opt_params.pop()
             self.opt_errors.pop()
-            self.opt_constraints.pop()
         
         # Adds new params in order
         inserted = False
@@ -118,7 +112,6 @@ class Recorder:
             if err_sqr_sum < self.opt_errors[i][-1]:
                 self.opt_params.insert(i, params)
                 self.opt_errors.insert(i, errors + [err_sqr_sum])
-                self.opt_constraints.insert(i, constraints)
                 inserted = True
                 break
 
@@ -126,7 +119,6 @@ class Recorder:
         if not inserted:
             self.opt_params.append(params)
             self.opt_errors.append(errors + [err_sqr_sum])
-            self.opt_constraints.append(constraints)
 
     # Records the settings
     def record_settings(self, writer:pd.ExcelWriter):
@@ -141,7 +133,6 @@ class Recorder:
             "Unfixed Parameters": [param["name"] for param in unfixed_params],
             "Unfixed Bounds":     [f"[{param['min']}, {param['max']}]" for param in unfixed_params],
             "Errors":             self.error_info,
-            "Constraints":        self.constraint_info,
             "Training Data":      [f"{train_curve['file_path']}" for train_curve in self.train_curves],
             "Testing Data":       [f"{test_curve['file_path']}" for test_curve in self.test_curves],
             "Hyperparameters":    self.moga_summary,
@@ -150,27 +141,20 @@ class Recorder:
     
     # Records the results
     def record_results(self, writer:pd.ExcelWriter):
+        results = {}
         
         # Add parameters
-        results = {"P": ["|" for _ in range(len(self.opt_params))]}
         param_info = self.model.get_unfixed_param_info()
         for i in range(len(param_info)):
             results[param_info[i]["name"]] = [params[i] for params in self.opt_params]
         
         # Add errors (and total error)
         if len(self.error_names) > 0:
-            results["E"] = ["|" for _ in range(len(self.opt_errors))]
+            results["|"] = ["|" for _ in range(len(self.opt_errors))]
         for i in range(len(self.error_names)):
             error_id = f"{self.error_names[i]}_{self.error_types[i]}"
             results[error_id] = [errors[i] for errors in self.opt_errors]
         results["error_sqr_sum"] = [errors[-1] for errors in self.opt_errors]
-
-        # Add constraints
-        if len(self.constraint_names) > 0:
-            results["C"] = ["|" for _ in range(len(self.opt_constraints))]
-        for i in range(len(self.constraint_names)):
-            constraint_id = f"{self.constraint_names[i]}_{self.constraint_types[i]}"
-            results[constraint_id] = [constraints[i] for constraints in self.opt_constraints]
         
         # Write all results
         write_with_fit_column_widths(results, writer, "results")
@@ -254,7 +238,7 @@ def write_with_fit_column_widths(data_dict:dict, writer:pd.ExcelWriter, sheet_na
     dataframe = pd.DataFrame(data, columns = columns)
     
     # Apply fit column widths
-    dataframe.style.apply(centre_align, axis = 0).to_excel(writer, sheet_name, index = False)
+    dataframe.style.apply(centre_align, axis=0).to_excel(writer, sheet_name, index = False)
     sheet = writer.sheets[sheet_name]
     for column in dataframe:
         column_length = max(dataframe[column].astype(str).map(len).max(), len(column)) + 1

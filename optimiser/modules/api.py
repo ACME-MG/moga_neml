@@ -15,7 +15,6 @@ from modules.moga.problem import Problem
 from modules.moga.moga import MOGA
 from modules.recorder import Recorder
 from modules.errors.__error__ import get_error
-from modules.constraints.__constraint__ import get_constraint
 from modules.models.__model__ import get_model
 
 # Helper libraries
@@ -30,7 +29,7 @@ class API(APITemplate):
     # Constructor
     def __init__(self, title:str="", display:int=2):
         super().__init__(title, display)
-        self.__error_list__, self.__constraint_list__ = [], []
+        self.__error_list__ = []
         self.__train_curves__, self.__test_curves__ = [], []
         self.__plot_count__ = 1
         self.__csv_path__ = self.get_output("moga")
@@ -78,12 +77,6 @@ class API(APITemplate):
         error = get_error(error_name, type, weight, self.__train_curves__)
         self.__error_list__.append(error)
 
-    # Adds a constraint
-    def add_constraint(self, constraint_name:str, type:str, penalty:float=1) -> None:
-        self.add(f"Preparing to apply the {constraint_name} constraint")
-        constraint = get_constraint(constraint_name, type, penalty, self.__train_curves__)
-        self.__constraint_list__.append(constraint)
-
     # Fixes a parameter
     def fix_param(self, param_name:str, param_value:float) -> None:
         self.add(f"Fixing the {param_name} to {param_value}")
@@ -96,7 +89,7 @@ class API(APITemplate):
         [self.__model__.fix_param(name, self.__fixed_params__[name]) for name in self.__fixed_params__.keys()]
         if len(self.__model__.get_fixed_params()) == len(self.__model__.get_param_info()):
             raise ValueError("All parameters have been fixed so no parameters need to be calibrated!")
-        self.__objective__ = Objective(self.__model__, self.__error_list__, self.__constraint_list__)
+        self.__objective__ = Objective(self.__model__, self.__error_list__)
         self.__recorder__ = Recorder(self.__objective__, self.__train_curves__, self.__test_curves__, self.__csv_path__, interval, population)
 
     # Conducts the optimisation
@@ -113,18 +106,16 @@ class API(APITemplate):
 
         # Get recorder
         self.__model__ = get_model(self.__model_name__, self.__train_curves__, self.__args__)
-        objective = Objective(self.__model__, self.__error_list__, self.__constraint_list__)
+        objective = Objective(self.__model__, self.__error_list__)
         recorder = Recorder(objective, self.__train_curves__, self.__test_curves__, self.__csv_path__, 0, 1)
         recorder.define_hyperparameters(0,0,0,0,0)
 
-        # Get errors and constraints
-        prd_curves        = self.__model__.get_specified_prd_curves(params, self.__train_curves__)
-        error_values      = objective.get_error_values(prd_curves)
-        constraint_values = objective.get_constraint_values(prd_curves)
-        error_values      = objective.get_penalised_error_values(error_values, constraint_values)
+        # Get errors
+        prd_curves   = self.__model__.get_specified_prd_curves(params, self.__train_curves__)
+        error_values = objective.get_error_values(prd_curves)
         
         # Output results
-        recorder.update_population(params, error_values, constraint_values)
+        recorder.update_population(params, error_values)
         recorder.write_results(self.get_output("results.xlsx"))
 
     # Removes the tertiary creep from creep curves

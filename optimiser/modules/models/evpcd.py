@@ -8,6 +8,7 @@
 # Libraries
 import modules.models.__model__ as model
 from neml import models, elasticity, drivers, surfaces, hardening, visco_flow, general_flow, damage
+from neml.nlsolvers import MaximumIterations
 
 # Model Parameters
 STRESS_RATE  = 0.0001
@@ -30,7 +31,7 @@ class Model(model.ModelTemplate):
         self.add_param("cd_xi",   0.0e1, 1.0e2)
         self.add_param("cd_phi",  0.0e1, 1.0e2)
     
-    # Gets the predicted curves
+    # Gets the predicted curve
     #   Alloy 617 @ 800:    [48.96021,17.82262,9.568748,2.031041,56309.59,1995.801,5.438601,6.79012]
     #   Alloy 617 @ 900:    [0.567351,24.64534,34.15175,2.103748,31803.17,2679.531,4.155071,9.270845]
     #   Alloy 617 @ 1000:   [7.805677767,0.036500284,6.99330568,2.186529312,20539.05913,2388.920806,3.591732525,6.751795258]
@@ -51,12 +52,16 @@ class Model(model.ModelTemplate):
         # Get predictions
         if exp_curve["type"] == "creep":
             stress_max = exp_curve["stress"]
-            with model.BlockPrint():
+            try:
                 creep_results = drivers.creep(evpcd_model, stress_max, STRESS_RATE, HOLD, T=exp_curve["temp"], verbose=False,
-                                                check_dmg=False, dtol=0.95, nsteps_up=NUM_STEPS_UP, nsteps=NUM_STEPS, logspace=False)
-            return {"x": list(creep_results["rtime"] / 3600), "y": list(creep_results["rstrain"])}
+                                              check_dmg=False, dtol=0.95, nsteps_up=NUM_STEPS_UP, nsteps=NUM_STEPS, logspace=False)
+                return {"x": list(creep_results["rtime"] / 3600), "y": list(creep_results["rstrain"])}
+            except MaximumIterations:
+                return
         elif exp_curve["type"] == "tensile":
             strain_rate = exp_curve["strain_rate"] / 3600
-            with model.BlockPrint():
+            try:
                 tensile_results = drivers.uniaxial_test(evpcd_model, erate=strain_rate, T=exp_curve["temp"], emax=STRAIN_MAX, nsteps=NUM_STEPS)
-            return {"x": list(tensile_results["strain"]), "y": list(tensile_results["stress"])}
+                return {"x": list(tensile_results["strain"]), "y": list(tensile_results["stress"])}
+            except MaximumIterations:
+                return

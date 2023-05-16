@@ -88,16 +88,19 @@ def check_exp_curve(exp_curve:dict):
     elif exp_curve["type"] == "cyclic-time-strain":
         check_header(exp_curve, "time", list)
         check_header(exp_curve, "strain", list)
+        check_header(exp_curve, "num_cycles", Number)
         check_header(exp_curve, "strain_rate", Number)
         check_lists(exp_curve, "time", "strain")
     elif exp_curve["type"] == "cyclic-time-stress":
         check_header(exp_curve, "time", list)
         check_header(exp_curve, "stress", list)
+        check_header(exp_curve, "num_cycles", Number)
         check_header(exp_curve, "strain_rate", Number)
         check_lists(exp_curve, "time", "stress")
     elif exp_curve["type"] == "cyclic-strain-stress":
         check_header(exp_curve, "strain", list)
         check_header(exp_curve, "stress", list)
+        check_header(exp_curve, "num_cycles", Number)
         check_header(exp_curve, "strain_rate", Number)
         check_lists(exp_curve, "strain", "stress")
 

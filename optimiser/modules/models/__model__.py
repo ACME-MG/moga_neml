@@ -82,20 +82,18 @@ class ModelTemplate:
     def get_prd_curve(self, _1, _2) -> dict:
         raise NotImplementedError
 
-    # Gets the predicted curves
+    # Gets the predicted curve
     def get_prd_curves(self, *params) -> list[dict]:
         params = self.incorporate_fixed_params(*params)
         prd_curves = []
         for exp_curve in self.exp_curves:
-            try:
-                prd_curve = self.get_prd_curve(exp_curve, *params)
-                if prd_curve != None:
-                    prd_curves.append(prd_curve)
-            except:
+            prd_curve = self.get_prd_curve(exp_curve, *params)
+            if prd_curve == None:
                 return []
+            prd_curves.append(prd_curve)
         return prd_curves
 
-    # Gets the predicted curves for specified curves
+    # Gets the predicted curve for specified curves
     def get_specified_prd_curves(self, params:list, exp_curves:list[dict]) -> list[dict]:
         old_exp_curves = deepcopy(self.exp_curves)
         self.exp_curves = exp_curves

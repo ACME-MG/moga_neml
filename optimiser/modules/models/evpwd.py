@@ -8,6 +8,7 @@
 # Libraries
 import modules.models.__model__ as model
 from neml import models, elasticity, drivers, surfaces, hardening, visco_flow, general_flow, damage, interpolate
+from neml.nlsolvers import MaximumIterations
 
 # Model Parameters
 STRESS_RATE  = 0.0001
@@ -32,7 +33,7 @@ class Model(model.ModelTemplate):
         self.add_param("wd_b",    0.0e1, 1.0e1)
         self.add_param("wd_n",    1.0e0, 1.0e1)
 
-    # Gets the predicted curves
+    # Gets the predicted curve
     def get_prd_curve(self, exp_curve, evp_s0, evp_R, evp_d, evp_n, evp_eta, wd_m, wd_b, wd_n):
 
         # Define model
@@ -49,12 +50,16 @@ class Model(model.ModelTemplate):
 
         # Get predictions
         if exp_curve["type"] == "creep":
-            with model.BlockPrint():
+            try:
                 creep_results = drivers.creep(evpwd_model, exp_curve["stress"], STRESS_RATE, TIME_HOLD, T=exp_curve["temp"], verbose=False,
-                                                check_dmg=False, dtol=DAMAGE_TOL, nsteps_up=NUM_STEPS_UP, nsteps=NUM_STEPS, logspace=False)
-            return {"x": list(creep_results["rtime"] / 3600), "y": list(creep_results["rstrain"])}
+                                              check_dmg=False, dtol=DAMAGE_TOL, nsteps_up=NUM_STEPS_UP, nsteps=NUM_STEPS, logspace=False)
+                return {"x": list(creep_results["rtime"] / 3600), "y": list(creep_results["rstrain"])}
+            except MaximumIterations:
+                return
         elif exp_curve["type"] == "tensile":
             strain_rate = exp_curve["strain_rate"] / 3600
-            with model.BlockPrint():
+            try:
                 tensile_results = drivers.uniaxial_test(evpwd_model, erate=strain_rate, T=exp_curve["temp"], emax=STRAIN_MAX, nsteps=NUM_STEPS)
-            return {"x": list(tensile_results["strain"]), "y": list(tensile_results["stress"])}
+                return {"x": list(tensile_results["strain"]), "y": list(tensile_results["stress"])}
+            except MaximumIterations:
+                return
