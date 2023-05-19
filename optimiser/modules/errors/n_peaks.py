@@ -7,7 +7,6 @@
 
 # Libraries
 import sys
-from math import ceil
 import modules.errors.__error__ as error
 
 # Helper libraries
@@ -21,10 +20,8 @@ class Error(error.ErrorTemplate):
     def prepare(self):
         exp_curve = self.get_exp_curve()
         self.exp_num_cycles = len(get_stationary_points(exp_curve, 100, 0.9))
-        self.exp_num_cycles = ceil(self.exp_num_cycles / 2)
 
     # Computes the error value
     def get_value(self, prd_curve:dict) -> float:
         prd_num_cycles = len(get_stationary_points(prd_curve, 100, 0.9))
-        prd_num_cycles = ceil(prd_num_cycles / 2)
         return abs(self.exp_num_cycles - prd_num_cycles) / self.exp_num_cycles
