@@ -12,7 +12,7 @@ from neml.nlsolvers import MaximumIterations
 
 # Model Parameters
 STRESS_RATE  = 0.0001
-HOLD         = 11500.0 * 3600.0
+TIME_HOLD    = 11500.0 * 3600.0
 NUM_STEPS_UP = 50
 NUM_STEPS    = 1001
 STRAIN_MAX   = 0.5
@@ -22,6 +22,8 @@ class Model(model.ModelTemplate):
 
     # Runs at the start, once
     def prepare(self):
+
+        # Define parameters
         self.add_param("evp_s0",  0.0e1, 1.0e2)
         self.add_param("evp_R",   0.0e1, 1.0e2)
         self.add_param("evp_d",   0.0e1, 1.0e2)
@@ -30,15 +32,22 @@ class Model(model.ModelTemplate):
         self.add_param("cd_A",    0.0e1, 1.0e4)
         self.add_param("cd_xi",   0.0e1, 1.0e2)
         self.add_param("cd_phi",  0.0e1, 1.0e2)
+
+        # Define test conditions
+        exp_curve = self.get_exp_curve()
+        self.youngs = exp_curve["youngs"]
+        self.poissons = exp_curve["poissons"]
+        self.temp = exp_curve["temp"]
+        self.type = exp_curve["type"]
     
     # Gets the predicted curve
     #   Alloy 617 @ 800:    [48.96021,17.82262,9.568748,2.031041,56309.59,1995.801,5.438601,6.79012]
     #   Alloy 617 @ 900:    [0.567351,24.64534,34.15175,2.103748,31803.17,2679.531,4.155071,9.270845]
     #   Alloy 617 @ 1000:   [7.805677767,0.036500284,6.99330568,2.186529312,20539.05913,2388.920806,3.591732525,6.751795258]
-    def get_prd_curve(self, exp_curve, evp_s0, evp_R, evp_d, evp_n, evp_eta, cd_A, cd_xi, cd_phi):
+    def get_prd_curve(self, evp_s0, evp_R, evp_d, evp_n, evp_eta, cd_A, cd_xi, cd_phi):
 
         # Define model
-        elastic_model = elasticity.IsotropicLinearElasticModel(exp_curve["youngs"], "youngs", exp_curve["poissons"], "poissons")
+        elastic_model = elasticity.IsotropicLinearElasticModel(self.youngs, "youngs", self.poissons, "poissons")
         yield_surface = surfaces.IsoJ2()
         iso_hardening = hardening.VoceIsotropicHardeningRule(evp_s0, evp_R, evp_d)
         g_power       = visco_flow.GPowerLaw(evp_n, evp_eta)
@@ -50,18 +59,19 @@ class Model(model.ModelTemplate):
         evpcd_model   = damage.NEMLScalarDamagedModel_sd(elastic_model, evp_model, cd_model)
 
         # Get predictions
-        if exp_curve["type"] == "creep":
-            stress_max = exp_curve["stress"]
+        exp_curve = self.get_exp_curve()
+        if self.type == "creep":
             try:
-                creep_results = drivers.creep(evpcd_model, stress_max, STRESS_RATE, HOLD, T=exp_curve["temp"], verbose=False,
+                stress = exp_curve["stress"]
+                creep_results = drivers.creep(evpcd_model, stress, STRESS_RATE, TIME_HOLD, T=self.temp, verbose=False,
                                               check_dmg=False, dtol=0.95, nsteps_up=NUM_STEPS_UP, nsteps=NUM_STEPS, logspace=False)
                 return {"x": list(creep_results["rtime"] / 3600), "y": list(creep_results["rstrain"])}
             except MaximumIterations:
                 return
-        elif exp_curve["type"] == "tensile":
-            strain_rate = exp_curve["strain_rate"] / 3600
+        elif self.type == "tensile":
             try:
-                tensile_results = drivers.uniaxial_test(evpcd_model, erate=strain_rate, T=exp_curve["temp"], emax=STRAIN_MAX, nsteps=NUM_STEPS)
+                strain_rate = exp_curve["strain_rate"] / 3600
+                tensile_results = drivers.uniaxial_test(evpcd_model, erate=strain_rate, T=self.temp, emax=STRAIN_MAX, nsteps=NUM_STEPS)
                 return {"x": list(tensile_results["strain"]), "y": list(tensile_results["stress"])}
             except MaximumIterations:
                 return

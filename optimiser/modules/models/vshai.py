@@ -27,7 +27,7 @@ class Model(model.ModelTemplate):
     # Runs at the start, once
     def prepare(self):
 
-        # Add parameters
+        # Define parameters
         self.add_param("vsh_ts", 0.0e0, 1.0e2)
         self.add_param("vsh_b",  0.0e0, 1.0e2)
         self.add_param("vsh_t0", 0.0e0, 1.0e2)
@@ -58,13 +58,20 @@ class Model(model.ModelTemplate):
         # Define lattice structure
         self.lattice = crystallography.CubicLattice(lattice_a)
         self.lattice.add_slip_system(slip_direction, slip_plane)
+
+        # Define test conditions
+        exp_curve = self.get_exp_curve()
+        self.youngs = exp_curve["youngs"]
+        self.poissons = exp_curve["poissons"]
+        self.temp = exp_curve["temp"]
+        self.type = exp_curve["type"]
         
     # Gets the predicted curve
     #   api.define_model("vshai", ["cp_ebsd/ebsd_statistics.csv", 1.0, [1,1,0], [1,1,1], 16])
-    def get_prd_curve(self, exp_curve, vsh_ts, vsh_b, vsh_t0, ai_g0, ai_n):
+    def get_prd_curve(self, vsh_ts, vsh_b, vsh_t0, ai_g0, ai_n):
 
         # Define model
-        elastic_model  = elasticity.IsotropicLinearElasticModel(exp_curve["youngs"], "youngs", exp_curve["poissons"], "poissons")
+        elastic_model  = elasticity.IsotropicLinearElasticModel(self.youngs, "youngs", self.poissons, "poissons")
         strength_model = slipharden.VoceSlipHardening(vsh_ts, vsh_b, vsh_t0)
         slip_model     = sliprules.PowerLawSlipRule(strength_model, ai_g0, ai_n)
         ai_model       = inelasticity.AsaroInelasticity(slip_model)
@@ -73,17 +80,19 @@ class Model(model.ModelTemplate):
         vshai_model    = polycrystal.TaylorModel(sc_model, self.grain_orientations, nthreads=self.num_threads, weights=self.weights)
 
         # Get predictions
-        if exp_curve["type"] == "creep":
+        exp_curve = self.get_exp_curve()
+        if self.type == "creep":
             try:
-                creep_results = drivers.creep(vshai_model, exp_curve["stress"], STRESS_RATE, HOLD, T=exp_curve["temp"], verbose=False,
+                stress = exp_curve["stress"]
+                creep_results = drivers.creep(vshai_model, stress, STRESS_RATE, HOLD, T=self.temp, verbose=False,
                                                 check_dmg=False, dtol=0.95, nsteps_up=NUM_STEPS_UP, nsteps=NUM_STEPS, logspace=False)
                 return {"x": list(creep_results["rtime"] / 3600), "y": list(creep_results["rstrain"])}
             except MaximumIterations:
                 return
-        elif exp_curve["type"] == "tensile":
-            strain_rate = exp_curve["strain_rate"] / 3600
+        elif self.type == "tensile":
             try:
-                tensile_results = drivers.uniaxial_test(vshai_model, erate=strain_rate, T=exp_curve["temp"], verbose=False, emax=STRAIN_MAX, nsteps=NUM_STEPS)
+                strain_rate = exp_curve["strain_rate"]
+                tensile_results = drivers.uniaxial_test(vshai_model, erate=strain_rate, T=self.temp, verbose=False, emax=STRAIN_MAX, nsteps=NUM_STEPS)
                 return {"x": list(tensile_results["strain"]), "y": list(tensile_results["stress"])}
             except MaximumIterations:
                 return

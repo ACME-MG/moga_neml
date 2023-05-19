@@ -21,15 +21,15 @@ CURVE_DENSITY = 500
 class Recorder:
 
     # Constructor
-    def __init__(self, objective:Objective, train_curves:list[dict], test_curves:list[dict], path:str, interval:int, population:int):
+    def __init__(self, objective:Objective, path:str, interval:int, population:int):
 
         # Initialise
-        self.model            = objective.get_model()
-        self.train_curves     = train_curves
-        self.test_curves      = test_curves
-        self.path             = path
-        self.interval         = interval
-        self.population       = population
+        self.objective    = objective
+        self.train_curves = self.objective.get_exp_curves("train")
+        self.test_curves  = self.objective.get_exp_curves("test")
+        self.path         = path
+        self.interval     = interval
+        self.population   = population
 
         # Define errors
         self.error_names   = objective.get_error_names()
@@ -122,20 +122,20 @@ class Recorder:
 
     # Records the settings
     def record_settings(self, writer:pd.ExcelWriter):
-        unfixed_params = self.model.get_unfixed_param_info()
+        unfixed_params = self.objective.get_unfixed_param_info()
         curr_time = time.strftime("%A, %D, %H:%M:%S", time.localtime())
         settings = {
-            "Progress":           [f"{round(self.num_gens_completed)}/{self.num_gens}"],
-            "Start / End Time":   [self.start_time_str, curr_time],
-            "Model":              [self.model.get_name()],
-            "Fixed Parameters":   list(self.model.fixed_params.keys()),
-            "Fixed Values":       list(self.model.fixed_params.values()),
-            "Unfixed Parameters": [param["name"] for param in unfixed_params],
-            "Unfixed Bounds":     [f"[{param['min']}, {param['max']}]" for param in unfixed_params],
-            "Errors":             self.error_info,
-            "Training Data":      [f"{train_curve['file_path']}" for train_curve in self.train_curves],
-            "Testing Data":       [f"{test_curve['file_path']}" for test_curve in self.test_curves],
-            "Hyperparameters":    self.moga_summary,
+            "Progress":       [f"{round(self.num_gens_completed)}/{self.num_gens}"],
+            "Start / End":    [self.start_time_str, curr_time],
+            "Model":          [self.objective.get_model_name()],
+            "Fixed Params":   list(self.objective.get_fixed_params().keys()),
+            "Fixed Values":   list(self.objective.get_fixed_params().values()),
+            "Unfixed Params": [param["name"] for param in unfixed_params],
+            "Unfixed Bounds": [f"[{param['min']}, {param['max']}]" for param in unfixed_params],
+            "Errors":         self.error_info,
+            "Training Data":  [f"{train_curve['file_path']}" for train_curve in self.train_curves],
+            "Testing Data":   [f"{test_curve['file_path']}" for test_curve in self.test_curves],
+            "Hyperparams":    self.moga_summary,
         }
         write_with_fit_column_widths(settings, writer, "settings")
     
@@ -144,7 +144,7 @@ class Recorder:
         results = {}
         
         # Add parameters
-        param_info = self.model.get_unfixed_param_info()
+        param_info = self.objective.get_unfixed_param_info()
         for i in range(len(param_info)):
             results[param_info[i]["name"]] = [params[i] for params in self.opt_params]
         
@@ -169,16 +169,14 @@ class Recorder:
         # Create plot for curves
         test_curves = [curve for curve in self.test_curves if curve["type"] == type]
         train_curves = [curve for curve in self.train_curves if curve["type"] == type]
-        prd_test_curves = self.model.get_specified_prd_curves(self.opt_params[0], test_curves)
-        prd_train_curves = self.model.get_specified_prd_curves(self.opt_params[0], train_curves)
+        prd_test_curves = self.objective.get_prd_curves("test", *self.opt_params[0])
+        prd_train_curves = self.objective.get_prd_curves("train", *self.opt_params[0])
         add_plot_sheet(writer, f"{type}_y", test_curves, train_curves, prd_test_curves, prd_train_curves)
 
         # Create plot for derivative of curves
         test_d_curves       = [differentiate_curve(curve) for curve in test_curves]
         train_d_curves      = [differentiate_curve(curve) for curve in train_curves]
-        prd_test_curves     = self.model.get_specified_prd_curves(self.opt_params[0], test_curves)
         prd_test_d_curves   = [differentiate_curve(curve) for curve in prd_test_curves]
-        prd_train_curves    = self.model.get_specified_prd_curves(self.opt_params[0], train_curves)
         prd_train_d_curves  = [differentiate_curve(curve) for curve in prd_train_curves]
         add_plot_sheet(writer, f"{type}_dy", test_d_curves, train_d_curves, prd_test_d_curves, prd_train_d_curves)
 

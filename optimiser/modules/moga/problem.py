@@ -20,11 +20,10 @@ class Problem(ElementwiseProblem):
         
         # Initialise
         self.objective = objective
-        self.model     = objective.get_model()
         self.recorder  = recorder
         
         # Define the element wise problem
-        unfixed_params = self.model.get_unfixed_param_info()
+        unfixed_params = self.objective.get_unfixed_param_info()
         super().__init__(
             n_var = len(unfixed_params),
             n_obj = len(self.objective.get_error_names()),
@@ -36,12 +35,6 @@ class Problem(ElementwiseProblem):
     def _evaluate(self, params:list[float], out:dict, *args, **kwargs):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore") # ignore warnings
-
-            # Get curves and error values
-            prd_curves = self.model.get_prd_curves(*params)
-            prd_curves = self.model.ensure_validity(prd_curves)
-            error_values = self.objective.get_error_values(prd_curves)
-
-            # Update the recorder and pass in error values
+            error_values = self.objective.get_error_values(*params)
             self.recorder.update_results(params, error_values)
             out["F"] = error_values

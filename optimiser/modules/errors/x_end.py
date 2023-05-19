@@ -14,11 +14,9 @@ class Error(error.ErrorTemplate):
     
     # Runs at the start, once
     def prepare(self):
-        self.exp_x_end_list = [abs(exp_curve["x"][-1]) for exp_curve in self.exp_curves]
-    
+        exp_curve = self.get_exp_curve()
+        self.exp_x_end = abs(exp_curve["x"][-1])
+
     # Computing the error
-    def get_value(self, prd_curves:list[dict]) -> float:
-        prd_x_end_list = [prd_curves[i]["x"][-1] for i in range(len(prd_curves))]
-        value_list = [abs(prd_x_end_list[i] - self.exp_x_end_list[i]) / self.exp_x_end_list[i] for i in range(len(self.exp_x_end_list))]
-        value_list = [value_list[i] if self.exp_curves[i]["type"] == self.type else 0 for i in range(len(value_list))]
-        return np.average(value_list)
+    def get_value(self, prd_curve:dict) -> float:
+        return abs(prd_curve["x"][-1] - self.exp_x_end) / self.exp_x_end

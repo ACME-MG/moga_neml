@@ -15,39 +15,40 @@ EXCLUSION_LIST = ["__error__", "__pycache__"]
 # The Error Template Class
 class ErrorTemplate:
 
-    # Sets values
-    def set_vals(self, name:str, type:str, weight:float, exp_curves:list[dict]) -> None:
+    # Sets the name
+    def set_name(self, name:str) -> None:
         self.name = name
-        self.type = type
+
+    # Sets the experimental curve
+    def set_exp_curve(self, exp_curve:dict) -> None:
+        self.exp_curve = exp_curve
+
+    # Sets the weight
+    def set_weight(self, weight:float) -> None:
         self.weight = weight
-        self.exp_curves = exp_curves
 
     # Returns the name of the error
     def get_name(self) -> str:
         return self.name
-
-    # Returns the type of the error
-    def get_type(self) -> str:
-        return self.type
 
     # Returns the weight of the error
     def get_weight(self) -> float:
         return self.weight
 
     # Returns the experimental curve
-    def get_exp_curves(self) -> list[dict]:
-        return self.exp_curves
-    
-    # Returns an error (placeholder)
-    def get_value(self) -> None:
+    def get_exp_curve(self) -> dict:
+        return self.exp_curve
+
+    # Returns an error (must be overridden)
+    def get_value(self) -> float:
         raise NotImplementedError
 
     # Runs at the start, once (optional placeholder)
-    def prepare(self):
+    def prepare(self) -> None:
         pass
 
 # Creates and return a error
-def get_error(error_name:str, type:str, weight:float, exp_curves:list[dict]) -> ErrorTemplate:
+def get_error(error_name:str, exp_curve:dict, weight:float) -> ErrorTemplate:
 
     # Get available errors in current folder
     files = os.listdir(PATH_TO_ERRORS)
@@ -58,12 +59,14 @@ def get_error(error_name:str, type:str, weight:float, exp_curves:list[dict]) -> 
     if not error_name in files:
         raise NotImplementedError(f"The error '{error_name}' has not been implemented")
 
-    # Import and prepare error
+    # Import and initialise error
     module = f"{PATH_TO_ERRORS}/{error_name}".replace("/", ".")
     error_file = importlib.import_module(module)
     error = error_file.Error()
-    error.set_vals(error_name, type, weight, exp_curves)
+    
+    # Prepare and return error
+    error.set_name(error_name)
+    error.set_exp_curve(exp_curve)
+    error.set_weight(weight)
     error.prepare()
-
-    # Return the error
     return error

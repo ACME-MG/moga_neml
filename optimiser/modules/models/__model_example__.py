@@ -19,20 +19,22 @@ class Model(model.ModelTemplate):
         self.add_param("param_2", 0.0e1, 1.0e0)
         self.add_param("param_3", 0.0e1, 1.0e0)
         
+        # Define test condition (optional)
+        exp_curve = self.get_exp_curve()
+        self.temp = exp_curve["temp"]
+        self.stress = exp_curve["stress"]
+
         # Define useful arguments (optional)
-        self.arg_1 = self.args[0]
-        self.arg_2 = self.args[1]
+        args = self.get_args()
+        self.arg_1 = args[0]
+        self.arg_2 = args[1]
     
     # Gets the predicted curve
-    def get_prd_curve(self, exp_curve, param_1, param_2, param_3):
-
-        # Extract important information from experimental curve
-        temp = exp_curve["temp"]
-        stress = exp_curve["stress"]
+    def get_prd_curve(self, param_1, param_2, param_3):
 
         # Derive curve from parameters, experimental curve, and/or useful arguments
-        x_list = [self.arg_1, param_2, param_3-stress]
-        y_list = [param_1, self.arg_2, temp+param_3]
+        x_list = [self.arg_1, param_2, param_3-self.stress]
+        y_list = [param_1, self.arg_2, self.temp+param_3]
 
         # Return curve if valid
         if x_list[0] >= 0:

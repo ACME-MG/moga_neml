@@ -13,9 +13,8 @@ class Error(error.ErrorTemplate):
     
     # Runs at the start, once (optional)
     def prepare(self):
-        for exp_curve in self.exp_curves:
-            pass # do stuff
+        exp_curve = self.get_exp_curve()
 
     # Computes the error value
-    def get_value(self, prd_curves:list[dict]) -> float:
+    def get_value(self, prd_curve:dict) -> float:
         return 100
