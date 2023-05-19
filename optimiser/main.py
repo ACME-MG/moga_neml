@@ -6,7 +6,7 @@ api.read_file("cyclic/AirBase316_time_strain.csv", True)
 # api.read_file("cyclic/AirBase316_time_stress.csv", True)
 # api.add_error("y_area", "cyclic-time-strain")
 api.add_error("x_end", "cyclic-time-strain")
-api.add_error("n_cycles", "cyclic-time-strain", 100)
+api.add_error("n_peaks", "cyclic-time-strain", 100)
 api.add_error("x_peaks", "cyclic-time-strain")
 
 # api.define_model("evpcd")
