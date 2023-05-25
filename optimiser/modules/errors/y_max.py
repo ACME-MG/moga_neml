@@ -1,6 +1,6 @@
 """
- Title:         The y_end objective function
- Description:   The objective function for calculating the vertical distance in which two curves end
+ Title:         The y_max objective function
+ Description:   The objective function for calculating the maximum y magnitude of two curves
  Author:        Janzen Choi
 
 """
@@ -8,14 +8,14 @@
 # Libraries
 import modules.errors.__error__ as error
 
-# The YEnd class
+# The YArea class
 class Error(error.ErrorTemplate):
     
     # Runs at the start, once
     def prepare(self):
         exp_curve = self.get_exp_curve()
-        self.exp_y_end = abs(exp_curve["y"][-1])
-
+        self.y_max = abs(max(exp_curve["y"]))
+            
     # Computing the error
     def get_value(self, prd_curve:list[dict]) -> float:
-        return abs(prd_curve["y"][-1] - self.exp_y_end) / self.exp_y_end
+        return abs(self.y_max - max(prd_curve["y"])) / self.y_max

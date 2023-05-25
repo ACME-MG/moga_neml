@@ -1,7 +1,7 @@
 """
- Title:         The x_area obiective function
- Description:   The obiective function for calculating the horizontal areas between two curves
- Author:        ianzen Choi
+ Title:         The x_area objective function
+ Description:   The objective function for calculating the horizontal areas between two curves
+ Author:        Janzen Choi
 
 """
 

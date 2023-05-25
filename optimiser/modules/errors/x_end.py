@@ -6,7 +6,6 @@
 """
 
 # Libraries
-import numpy as np
 import modules.errors.__error__ as error
 
 # The XEnd class

@@ -24,10 +24,11 @@ class Model(model.ModelTemplate):
         self.add_param("ih_s0", 0.0e0, 1.0e3)
         self.add_param("ih_Q",  0.0e0, 1.0e3)
         self.add_param("ih_b",  0.0e0, 1.0e2)
-        self.add_param("c_gs1", 0.0e0, 1.0e6)
-        self.add_param("c_gs2", 0.0e0, 1.0e6)
+        self.add_param("c_gs1", 0.0e0, 1.0e6) # 6
+        self.add_param("c_gs2", 0.0e0, 1.0e6) # 6
         self.add_param("c_cs1", 0.0e0, 1.0e6)
-        self.add_param("c_cs2", 0.0e0, 1.0e6)
+        self.add_param("c_cs2", 0.0e0, 1.0e6) # 6
+        self.add_param("t_d",   1.0e0, 2.0e0)
         
         # Define test conditions
         exp_curve = self.get_exp_curve()
@@ -44,7 +45,7 @@ class Model(model.ModelTemplate):
         self.c_ns = [2.0, 2.0]
     
     # Gets the predicted curves
-    def get_prd_curve(self, ih_s0, ih_Q, ih_b, c_gs1, c_gs2, c_cs1, c_cs2):
+    def get_prd_curve(self, ih_s0, ih_Q, ih_b, c_gs1, c_gs2, c_cs1, c_cs2, t_d):
 
         # Define model
         elastic_model      = elasticity.IsotropicLinearElasticModel(self.youngs, "youngs", self.poissons, "poissons")
@@ -60,6 +61,7 @@ class Model(model.ModelTemplate):
             try:
                 cyclic_results = drivers.strain_cyclic(cih_model, T=self.temp, emax=self.max_strain, erate=self.strain_rate,
                                                       R=CYCLIC_STRAIN_RATIO, ncycles=int(self.num_cycles), nsteps=NUM_STEPS)
+                cyclic_results["time"] = [t*t_d for t in list(cyclic_results["time"])]
             except MaximumIterations:
                 return
             if self.type == "cyclic-time-strain":

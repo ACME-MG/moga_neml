@@ -1,7 +1,7 @@
 """
- Title:         The dy_area obiective function
- Description:   The obiective function for calculating the vertical areas between the derivatives of two curves
- Author:        ianzen Choi
+ Title:         The dy_area objective function
+ Description:   The objective function for calculating the vertical areas between the derivatives of two curves
+ Author:        Janzen Choi
 
 """
 

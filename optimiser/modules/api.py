@@ -6,7 +6,7 @@
 """
 
 # Libraries
-import sys, os, math
+import os, math
 import numpy as np
 import matplotlib.pyplot as plt
 from modules.reader import read_experimental_data
@@ -16,7 +16,7 @@ from modules.moga.moga import MOGA
 from modules.recorder import Recorder
 
 # Helper libraries
-sys.path += ["../__common__"]
+import sys; sys.path += ["../__common__"]
 from api_template import APITemplate
 from plotter import quick_plot_N, quick_subplot
 from derivative import remove_after_sp, differentiate_curve

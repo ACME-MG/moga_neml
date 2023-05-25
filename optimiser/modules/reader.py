@@ -17,11 +17,11 @@ def try_float_cast(value:str) -> float:
 
 # Converts CSV data into a curve dict
 def get_curve_dict(headers:list[str], data:list) -> dict:
-
+    
     # Get indexes of data
     list_indexes = [i for i in range(len(data[2])) if data[2][i] != ""]
     info_indexes = [i for i in range(len(data[2])) if data[2][i] == ""]
-
+    
     # Create curve
     curve = {}
     for index in list_indexes:

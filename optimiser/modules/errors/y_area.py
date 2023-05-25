@@ -1,7 +1,7 @@
 """
- Title:         The y_area obiective function
- Description:   The obiective function for calculating the vertical areas between two curves
- Author:        ianzen Choi
+ Title:         The y_area objective function
+ Description:   The objective function for calculating the vertical areas between two curves
+ Author:        Janzen Choi
 
 """
 
@@ -33,5 +33,5 @@ class Error(error.ErrorTemplate):
         prd_x_list = [prd_curve["x"][i] for i in thin_indexes]
         prd_y_list = [prd_curve["y"][i] for i in thin_indexes]
         exp_y_list = self.interpolator.evaluate(prd_x_list)
-        area = [abs(prd_y_list[i] - exp_y_list[i]) for i in range(NUM_POINTS) if prd_x_list[i] <= self.exp_x_end]
+        area = [abs(exp_y_list[i] - prd_y_list[i]) for i in range(NUM_POINTS) if prd_x_list[i] <= self.exp_x_end]
         return np.average(area) / self.avg_y

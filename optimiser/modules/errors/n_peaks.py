@@ -6,11 +6,10 @@
  """
 
 # Libraries
-import sys
 import modules.errors.__error__ as error
 
 # Helper libraries
-sys.path += ["../__common__"]
+import sys; sys.path += ["../__common__"]
 from derivative import get_stationary_points
 
 # The Error class

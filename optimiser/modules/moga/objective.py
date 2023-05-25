@@ -115,14 +115,15 @@ class Objective():
         return unfixed_param_info
 
     # Gets the predicted curves
-    def get_prd_curves(self, data_types:list[str]=["train", "test"], *params) -> list[dict]:
+    def get_prd_curves(self, data_types:list[str]=["train", "test"], curve_type:str="all", *params) -> list[dict]:
         
         # Iterate through curves
         prd_curves = []
         for objective in self.objective_list:
             
             # Ignore if not applicable
-            if not objective["data_type"] in data_types:
+            if (not objective["data_type"] in data_types
+            or (curve_type != "all" and objective["curve"]["type"] != curve_type)):
                 continue
 
             # Fix parameters and get curves
@@ -140,7 +141,7 @@ class Objective():
     def get_error_values(self, *params) -> list[float]:
 
         # Gets the predicted curves and check
-        prd_curves = self.get_prd_curves(["train"], *params)
+        prd_curves = self.get_prd_curves(["train"], "all", *params)
         if prd_curves == []:
             return [BIG_VALUE] * len(self.error_info_list)
 

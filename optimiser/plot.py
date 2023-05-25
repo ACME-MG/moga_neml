@@ -1,14 +1,12 @@
 from modules.api import API
 api = API("", 0)
-api.define_model("evpwd")
-
-# api.read_file("cyclic/AirBase316_time_strain.csv", True)
+api.define_model("cihd")
 
 # api.read_file("inl_1/AirBase_800_80_G25.csv", True)
 # api.read_file("inl_1/AirBase_800_70_G44.csv", True)
 # api.read_file("inl_1/AirBase_800_65_G33.csv", True)
 # api.read_file("inl_1/AirBase_800_60_G32.csv", True)
-# api.read_file("tensile/AirBase_800_D7.csv", True)
+# api.read_file("tensile/AirBase_800_D7.csv", False)
 
 # api.read_file("inl_1/AirBase_900_36_G22.csv", True)
 # api.read_file("inl_1/AirBase_900_31_G50.csv", True)
@@ -49,12 +47,20 @@ api.define_model("evpwd")
 # api.read_file("kaeri_2/AirBase_950_30_a.csv", False)
 # api.read_file("kaeri_2/AirBase_950_35_a.csv", True)
 
-api.read_file("kaeri_3/AirBase_900_25_a.csv", False)
-api.read_file("kaeri_3/AirBase_900_28_a.csv", False)
-api.read_file("kaeri_3/AirBase_900_35_a.csv", True)
+# api.read_file("kaeri_3/AirBase_900_25_a.csv", False)
+# api.read_file("kaeri_3/AirBase_900_28_a.csv", False)
+# api.read_file("kaeri_3/AirBase_900_35_a.csv", True)
 # api.read_file("kaeri_3/AirBase_900_40_a.csv", True)
 # api.read_file("kaeri_3/AirBase_900_45_a.csv", False)
 # api.read_file("kaeri_3/AirBase_900_50_a.csv", True)
 
-api.visualise()
-api.plot_results(6.548501602,44.04643902,50.93493579,2.05416603,68466.00514,0.33925536,3.356367201,6.625275181)
+api.read_file("cyclic/AirBase316_time_strain.csv", True)
+api.read_file("cyclic/AirBase316_time_stress.csv", True)
+
+# api.add_error("x_end", "cyclic-time-strain")
+# api.add_error("n_peaks", "cyclic-time-strain", 100)
+# api.add_error("x_peaks", "cyclic-time-strain")
+
+# api.visualise()
+api.plot_results(125.60, 153.40, 6.9, 1410.85, 47.19, 156435, 6134, 1.03)
+# api.plot_results(699.0802398, 113.0069076, 50.70734069, 730311.7653, 655658.1886, 149741.8685, 557031.8)

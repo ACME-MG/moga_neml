@@ -27,6 +27,7 @@ class Recorder:
         self.objective    = objective
         self.train_curves = self.objective.get_exp_curves("train")
         self.test_curves  = self.objective.get_exp_curves("test")
+        self.all_types    = list(set([curve["type"] for curve in self.train_curves+self.test_curves]))
         self.path         = path
         self.interval     = interval
         self.population   = population
@@ -60,8 +61,7 @@ class Recorder:
         writer = pd.ExcelWriter(file_path, engine = "xlsxwriter")
         self.record_settings(writer)
         self.record_results(writer)
-        all_types = list(set([curve["type"] for curve in self.train_curves + self.test_curves]))
-        for type in all_types:
+        for type in self.all_types:
             self.record_plot(writer, type)
         writer.close()
 
@@ -163,14 +163,14 @@ class Recorder:
     def record_plot(self, writer:pd.ExcelWriter, type:str):
 
         # If there are no optimal parameters / curves, leave
-        if len(self.opt_params) == 0 or not type in [curve["type"] for curve in self.train_curves+self.test_curves]:
+        if len(self.opt_params) == 0 or not type in self.all_types:
             return
         
         # Create plot for curves
         test_curves = [curve for curve in self.test_curves if curve["type"] == type]
         train_curves = [curve for curve in self.train_curves if curve["type"] == type]
-        prd_test_curves = self.objective.get_prd_curves("test", *self.opt_params[0])
-        prd_train_curves = self.objective.get_prd_curves("train", *self.opt_params[0])
+        prd_test_curves = self.objective.get_prd_curves(["test"], type, *self.opt_params[0])
+        prd_train_curves = self.objective.get_prd_curves(["train"], type, *self.opt_params[0])
         add_plot_sheet(writer, f"{type}_y", test_curves, train_curves, prd_test_curves, prd_train_curves)
 
         # Create plot for derivative of curves
