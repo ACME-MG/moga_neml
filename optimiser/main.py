@@ -1,5 +1,5 @@
 from modules.api import API
-api = API("cihd", 0)
+api = API("cihd constrained", 0)
 
 api.define_model("cihd")
 api.read_file("cyclic/AirBase316_time_strain.csv", True)
