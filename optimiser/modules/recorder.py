@@ -173,12 +173,15 @@ class Recorder:
         prd_train_curves = self.objective.get_prd_curves(["train"], type, *self.opt_params[0])
         add_plot_sheet(writer, f"{type}_y", test_curves, train_curves, prd_test_curves, prd_train_curves)
 
-        # Create plot for derivative of curves
-        test_d_curves       = [differentiate_curve(curve) for curve in test_curves]
-        train_d_curves      = [differentiate_curve(curve) for curve in train_curves]
-        prd_test_d_curves   = [differentiate_curve(curve) for curve in prd_test_curves]
-        prd_train_d_curves  = [differentiate_curve(curve) for curve in prd_train_curves]
-        add_plot_sheet(writer, f"{type}_dy", test_d_curves, train_d_curves, prd_test_d_curves, prd_train_d_curves)
+        # Create plot for derivative of curves (for curves that can be easily differentiated)
+        try:
+            test_d_curves       = [differentiate_curve(curve) for curve in test_curves]
+            train_d_curves      = [differentiate_curve(curve) for curve in train_curves]
+            prd_test_d_curves   = [differentiate_curve(curve) for curve in prd_test_curves]
+            prd_train_d_curves  = [differentiate_curve(curve) for curve in prd_train_curves]
+            add_plot_sheet(writer, f"{type}_dy", test_d_curves, train_d_curves, prd_test_d_curves, prd_train_d_curves)
+        except:
+            pass
 
 # For creating a sheet for a plot
 def add_plot_sheet(writer:pd.ExcelWriter, sheet_name:str, test_curves:list[dict], train_curves:list[dict], prd_test_curves:list[dict], prd_train_curves:list[dict]):

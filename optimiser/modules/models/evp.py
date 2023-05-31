@@ -15,7 +15,7 @@ STRESS_RATE  = 0.0001
 HOLD         = 11500.0 * 3600.0
 NUM_STEPS_UP = 50
 NUM_STEPS    = 251
-STRAIN_MAX   = 0.3
+STRAIN_MAX   = 0.5
 
 # The Elastic Visco Plastic Class
 class Model(model.ModelTemplate):
@@ -24,11 +24,11 @@ class Model(model.ModelTemplate):
     def prepare(self):
 
         # Define parameters
-        self.add_param("evp_s0",  0.0e1, 1.0e2)
-        self.add_param("evp_R",   0.0e1, 1.0e2)
-        self.add_param("evp_d",   0.0e1, 1.0e2)
-        self.add_param("evp_n",   1.0e0, 1.0e2)
-        self.add_param("evp_eta", 0.0e1, 1.0e5)
+        self.add_param("evp_s0",  1.0e2, 1.0e3) # 2
+        self.add_param("evp_R",   0.0e0, 1.0e3) # 2
+        self.add_param("evp_d",   0.0e1, 1.0e3) # 2
+        self.add_param("evp_n",   1.0e0, 1.0e3) # 2
+        self.add_param("evp_eta", 0.0e1, 1.0e6) # 5
 
         # Define test conditions
         exp_curve = self.get_exp_curve()

@@ -54,13 +54,14 @@ api.define_model("cihd")
 # api.read_file("kaeri_3/AirBase_900_45_a.csv", False)
 # api.read_file("kaeri_3/AirBase_900_50_a.csv", True)
 
-api.read_file("cyclic/AirBase316_time_strain.csv", True)
-api.read_file("cyclic/AirBase316_time_stress.csv", True)
+# api.read_file("cyclic/AirBase316_time_strain.csv", True)
+# api.read_file("cyclic/AirBase316_time_stress.csv", True)
+api.read_file("cyclic/AirBase316_strain_stress.csv", True)
 
 # api.add_error("x_end", "cyclic-time-strain")
 # api.add_error("n_peaks", "cyclic-time-strain", 100)
 # api.add_error("x_peaks", "cyclic-time-strain")
 
 # api.visualise()
-api.plot_results(125.60, 153.40, 6.9, 1410.85, 47.19, 156435, 6134, 1.03)
-# api.plot_results(699.0802398, 113.0069076, 50.70734069, 730311.7653, 655658.1886, 149741.8685, 557031.8)
+# api.plot_results(125.60, 153.40, 6.9, 1410.85, 47.19, 156435, 6134, 1.03)
+api.plot_results(39.70978165,126.8057237,9.12540942,4316.455748,2359.083872,746069.3289,1710.568152,1.032120222)

@@ -24,10 +24,10 @@ class Model(model.ModelTemplate):
         self.add_param("ih_s0", 0.0e0, 1.0e3)
         self.add_param("ih_Q",  0.0e0, 1.0e3)
         self.add_param("ih_b",  0.0e0, 1.0e2)
-        self.add_param("c_gs1", 0.0e0, 1.0e4) # 6
-        self.add_param("c_gs2", 0.0e0, 1.0e2) # 6
+        self.add_param("c_gs1", 0.0e0, 1.0e5) # 6
+        self.add_param("c_gs2", 0.0e0, 1.0e3) # 6
         self.add_param("c_cs1", 0.0e0, 1.0e6)
-        self.add_param("c_cs2", 0.0e0, 1.0e4) # 6
+        self.add_param("c_cs2", 0.0e0, 1.0e5) # 6
         self.add_param("t_d",   1.0e0, 2.0e0)
         
         # Define test conditions
