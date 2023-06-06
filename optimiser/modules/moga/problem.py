@@ -32,7 +32,7 @@ class Problem(ElementwiseProblem):
         )
     
     # Minimises expression "F" such that the expression "G <= 0" is satisfied
-    def _evaluate(self, params:list[float], out:dict, *args, **kwargs):
+    def _evaluate(self, params:list, out:dict, *args, **kwargs):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore") # ignore warnings
             error_values = self.objective.get_error_values(*params)

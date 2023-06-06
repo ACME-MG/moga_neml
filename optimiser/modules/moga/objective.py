@@ -26,7 +26,7 @@ class Objective():
         self.fixed_params = {}
     
     # Adds experimental curves to the optimisation information list
-    def add_curves(self, curves:list[dict], data_type:str) -> None:
+    def add_curves(self, curves:list, data_type:str) -> None:
         for curve in curves:
             self.objective_list.append({
                 "curve": curve,
@@ -72,19 +72,19 @@ class Objective():
         return self.model_name
 
     # Returns the error names
-    def get_error_names(self) -> list[str]:
+    def get_error_names(self) -> list:
         return [error_info["name"] for error_info in self.error_info_list]
 
     # Returns the error types
-    def get_error_types(self) -> list[str]:
+    def get_error_types(self) -> list:
         return [error_info["type"] for error_info in self.error_info_list]
 
     # Returns the error weights
-    def get_error_weights(self) -> list[str]:
+    def get_error_weights(self) -> list:
         return [error_info["weight"] for error_info in self.error_info_list]
 
     # Gets the experimental curves
-    def get_exp_curves(self, data_types:list[str]=["train", "test"]):
+    def get_exp_curves(self, data_types:list=["train", "test"]):
         return [objective["curve"] for objective in self.objective_list if objective["data_type"] in data_types]
 
     # Gets the parameter information from the model
@@ -115,7 +115,7 @@ class Objective():
         return unfixed_param_info
 
     # Gets the predicted curves
-    def get_prd_curves(self, data_types:list[str]=["train", "test"], curve_type:str="all", *params) -> list[dict]:
+    def get_prd_curves(self, data_types:list=["train", "test"], curve_type:str="all", *params) -> list[dict]:
         
         # Iterate through curves
         prd_curves = []

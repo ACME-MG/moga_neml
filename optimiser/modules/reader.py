@@ -16,7 +16,7 @@ def try_float_cast(value:str) -> float:
         return value
 
 # Converts CSV data into a curve dict
-def get_curve_dict(headers:list[str], data:list) -> dict:
+def get_curve_dict(headers:list, data:list) -> dict:
     
     # Get indexes of data
     list_indexes = [i for i in range(len(data[2])) if data[2][i] != ""]
@@ -33,7 +33,7 @@ def get_curve_dict(headers:list[str], data:list) -> dict:
     return curve
 
 # For reading experimental data
-def read_experimental_data(file_paths:list[str]) -> list[dict]:
+def read_experimental_data(file_paths:list) -> list[dict]:
     exp_curves = []
 
     # Get experimental data for each path

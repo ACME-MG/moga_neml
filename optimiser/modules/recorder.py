@@ -66,7 +66,7 @@ class Recorder:
         writer.close()
 
     # Updates the results after X iterations
-    def update_results(self, params:list[float], errors:list[float]) -> None:
+    def update_results(self, params:list, errors:list) -> None:
 
         # Update optimisation progress
         self.num_evals_completed += 1
@@ -184,7 +184,7 @@ class Recorder:
             pass
 
 # For creating a sheet for a plot
-def add_plot_sheet(writer:pd.ExcelWriter, sheet_name:str, test_curves:list[dict], train_curves:list[dict], prd_test_curves:list[dict], prd_train_curves:list[dict]):
+def add_plot_sheet(writer:pd.ExcelWriter, sheet_name:str, test_curves:list, train_curves:list, prd_test_curves:list, prd_train_curves:list):
     
     # Flatten data
     test_x_flat, test_y_flat = thin_and_flatten(test_curves)
@@ -222,7 +222,7 @@ def add_series(chart, sheet_name:str, series_name:str, col_num:int, curve_length
         })
 
 # For thinning and flattening data
-def thin_and_flatten(curves:list[dict]):
+def thin_and_flatten(curves:list):
     x_data = [get_thinned_list(curve["x"]) for curve in curves]
     y_data = [get_thinned_list(curve["y"]) for curve in curves]
     x_data_flat = [x for x_list in x_data for x in x_list]
@@ -251,7 +251,7 @@ def centre_align(x:float):
     return ["text-align: center" for _ in x]
 
 # Returns a thinned list
-def get_thinned_list(unthinned_list:list[int]):
+def get_thinned_list(unthinned_list:list):
     src_data_size = len(unthinned_list)
     step_size = src_data_size / CURVE_DENSITY
     thin_indexes = [math.floor(step_size*i) for i in range(1, CURVE_DENSITY - 1)]
@@ -259,7 +259,7 @@ def get_thinned_list(unthinned_list:list[int]):
     return [unthinned_list[i] for i in thin_indexes]
 
 # Imitates zip longest but for a list of lists
-def zip_longest(list_list:list[dict]):
+def zip_longest(list_list:list):
     max_values = max([len(list) for list in list_list])
     new_list_list = []
     for list in list_list:

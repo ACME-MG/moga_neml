@@ -17,5 +17,5 @@ class Error(error.ErrorTemplate):
         self.y_max = abs(max(exp_curve["y"]))
             
     # Computing the error
-    def get_value(self, prd_curve:list[dict]) -> float:
+    def get_value(self, prd_curve:list) -> float:
         return abs(self.y_max - max(prd_curve["y"])) / self.y_max

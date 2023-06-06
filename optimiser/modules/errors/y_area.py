@@ -28,7 +28,7 @@ class Error(error.ErrorTemplate):
         self.avg_y = abs(np.average(exp_curve["y"]))
             
     # Computing the error
-    def get_value(self, prd_curve:list[dict]) -> float:
+    def get_value(self, prd_curve:list) -> float:
         thin_indexes = get_thin_indexes(len(prd_curve["x"]), NUM_POINTS)
         prd_x_list = [prd_curve["x"][i] for i in thin_indexes]
         prd_y_list = [prd_curve["y"][i] for i in thin_indexes]
