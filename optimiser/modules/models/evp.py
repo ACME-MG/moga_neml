@@ -24,7 +24,7 @@ class Model(model.ModelTemplate):
     def prepare(self):
 
         # Define parameters
-        self.add_param("evp_s0",  1.0e2, 1.0e3) # 2
+        self.add_param("evp_s0",  0.0e0, 1.0e3) # 2
         self.add_param("evp_R",   0.0e0, 1.0e3) # 2
         self.add_param("evp_d",   0.0e1, 1.0e3) # 2
         self.add_param("evp_n",   1.0e0, 1.0e3) # 2
