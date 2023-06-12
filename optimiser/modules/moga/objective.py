@@ -97,7 +97,7 @@ class Objective():
         return self.fixed_params
 
     # Incorporates the fixed parameters
-    def incorporate_fixed_params(self, *params) -> list[float]:
+    def incorporate_fixed_params(self, *params) -> list:
         param_names = [param["name"] for param in self.get_param_info()]
         fixed_indexes = [i for i in range(len(param_names)) if param_names[i] in self.fixed_params.keys()]
         params = list(params)
@@ -107,7 +107,7 @@ class Objective():
         return tuple(params)
 
     # Returns the information of unfixed parameters
-    def get_unfixed_param_info(self) -> list[dict]:
+    def get_unfixed_param_info(self) -> list:
         unfixed_param_info = []
         for param in self.get_param_info():
             if not param["name"] in self.fixed_params.keys():
@@ -115,7 +115,7 @@ class Objective():
         return unfixed_param_info
 
     # Gets the predicted curves
-    def get_prd_curves(self, data_types:list=["train", "test"], curve_type:str="all", *params) -> list[dict]:
+    def get_prd_curves(self, data_types:list=["train", "test"], curve_type:str="all", *params) -> list:
         
         # Iterate through curves
         prd_curves = []
@@ -138,7 +138,7 @@ class Objective():
         return prd_curves
 
     # Gets the error values
-    def get_error_values(self, *params) -> list[float]:
+    def get_error_values(self, *params) -> list:
 
         # Gets the predicted curves and check
         prd_curves = self.get_prd_curves(["train"], "all", *params)

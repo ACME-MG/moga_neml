@@ -33,7 +33,7 @@ def get_curve_dict(headers:list, data:list) -> dict:
     return curve
 
 # For reading experimental data
-def read_experimental_data(file_paths:list) -> list[dict]:
+def read_experimental_data(file_paths:list) -> list:
     exp_curves = []
 
     # Get experimental data for each path
@@ -105,7 +105,7 @@ def check_exp_curve(exp_curve:dict):
         check_lists(exp_curve, "strain", "stress")
 
 # Converts an experimental curve into a suitable format
-def convert_exp_curve(exp_curve:dict) -> list[dict]:
+def convert_exp_curve(exp_curve:dict) -> list:
     if exp_curve["type"] == "creep":
         exp_curve["x"] = exp_curve.pop("time")
         exp_curve["y"] = exp_curve.pop("strain")

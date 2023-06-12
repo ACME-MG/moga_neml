@@ -44,11 +44,11 @@ class ModelTemplate:
         return self.name
 
     # Returns the experimental curve
-    def get_exp_curve(self) -> list[dict]:
+    def get_exp_curve(self) -> list:
         return self.exp_curve
 
     # Returns the parameter info
-    def get_param_info(self) -> list[dict]:
+    def get_param_info(self) -> list:
         return self.param_info
         
     # Gets a list of arguments
