@@ -9,3 +9,6 @@ api.add_error("x_end", "cyclic-time-strain")
 api.add_error("n_peaks", "cyclic-time-strain", 10)
 api.add_error("x_peaks", "cyclic-time-strain")
 api.add_error("y_area", "cyclic-time-stress", 0.1)
+
+api.record(10, 10)
+api.optimise(10000, 100, 50, 0.65, 0.35)
