@@ -48,7 +48,7 @@ class API(APITemplate):
     # Defines the model
     def define_model(self, model_name:str, *args) -> None:
         self.add(f"Defining the model ({model_name})")
-        self.__objective__.define_model(model_name, args[0])
+        self.__objective__.define_model(model_name, args)
     
     # Adds an error
     def add_error(self, error_name:str, type:str, weight:float=1) -> None:
