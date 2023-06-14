@@ -14,7 +14,7 @@ from neml.nlsolvers import MaximumIterations
 
 # Model Parameters
 STRESS_RATE  = 0.0001
-STRAIN_MAX   = 0.005
+STRAIN_MAX   = 0.47
 HOLD         = 11500.0 * 3600.0
 NUM_STEPS_UP = 50
 NUM_STEPS    = 100
