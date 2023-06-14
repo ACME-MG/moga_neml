@@ -35,7 +35,6 @@ class Objective():
 
     # Defines the model's name
     def define_model(self, model_name:str, *model_args) -> None:
-        print(*model_args)
         self.model_name = model_name
         self.model_args = model_args
 
@@ -56,7 +55,7 @@ class Objective():
 
         # Add data to optimisation
         for objective in self.objective_list:
-            objective["model"] = get_model(self.model_name, objective["curve"], self.model_args)
+            objective["model"] = get_model(self.model_name, objective["curve"], *self.model_args)
             objective["errors"] = {}
             for error_info in self.error_info_list:
                 if objective["curve"]["type"] == error_info["type"]:
