@@ -1,7 +1,6 @@
 
 # Libraries
 import os
-import numpy as np
 from math import log
 
 def get_bfd(x_list, y_list):

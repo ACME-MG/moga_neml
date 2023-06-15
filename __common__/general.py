@@ -75,5 +75,5 @@ def is_number(variable):
 
 # Transposes a 2D list of lists
 def transpose(list_of_lists):
-    transposed = pd.DataFrame(list_of_lists).T.values.tolist()
+    transposed = np.array(list_of_lists).T.tolist()
     return transposed

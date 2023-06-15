@@ -28,9 +28,9 @@ class Model(model.ModelTemplate):
     def prepare(self):
 
         # Define parameters
-        self.add_param("vsh_ts", 0.0e0, 1.0e2)
-        self.add_param("vsh_b",  0.0e0, 1.0e2)
-        self.add_param("vsh_t0", 0.0e0, 1.0e2)
+        self.add_param("vsh_ts", 0.0e0, 2.0e3) # 1e2
+        self.add_param("vsh_b",  0.0e0, 1.0e3) # 1e2
+        self.add_param("vsh_t0", 0.0e0, 1.0e3) # 1e2
         self.add_param("ai_g0",  0.0e0, 1.0e0)
         self.add_param("ai_n",   0.0e0, 1.0e2)
 
@@ -67,7 +67,7 @@ class Model(model.ModelTemplate):
         self.type = exp_curve["type"]
         
     # Gets the predicted curve
-    #   api.define_model("vshai", ["cp_ebsd/ebsd_statistics.csv", 1.0, [1,1,0], [1,1,1], 16])
+    #   api.define_model("vshai", ["ebsd/ebsd_statistics.csv", 1.0, [1,1,0], [1,1,1], 16])
     def get_prd_curve(self, vsh_ts, vsh_b, vsh_t0, ai_g0, ai_n):
 
         # Define model
