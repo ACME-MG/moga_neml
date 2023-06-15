@@ -1,5 +1,5 @@
 from modules.api import API
-api = API("vshai tensile", 0)
+api = API("vshai tensile fixed", 0)
 
 api.define_model("vshai", "ebsd/ebsd_statistics.csv", 1.0, [1,1,0], [1,1,1], 16)
 api.fix_param("ai_g0", 0.001)
