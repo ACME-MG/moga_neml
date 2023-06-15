@@ -63,9 +63,9 @@ class Objective():
         
         # Check that fixed parameters exist
         param_names = [param["name"] for param in self.get_param_info()]
-        for fixed_param in self.fixed_params:
-            if not fixed_param["name"] in param_names:
-                raise ValueError(f"'{fixed_param['name']}' cannot be fixed because it is not defined in the model!")
+        for fixed_param_name in self.fixed_params.keys():
+            if not fixed_param_name in param_names:
+                raise ValueError(f"'{fixed_param_name}' cannot be fixed because it is not defined in the model!")
 
     # Returns the model's name
     def get_model_name(self):
