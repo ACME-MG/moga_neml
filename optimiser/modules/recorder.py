@@ -95,7 +95,7 @@ class Recorder:
             print(f"  {index}]\tRecorded ({progress} in {update_duration}s)")
     
     # Updates the population
-    def update_population(self, params:tuple[float], errors:tuple[float]) -> None:
+    def update_population(self, params:tuple, errors:tuple) -> None:
         params, errors = list(params), list(errors)
         err_sqr_sum = sum([error**2 for error in errors])
 

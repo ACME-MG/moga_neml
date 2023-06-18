@@ -27,9 +27,10 @@ Please replace `<path_to_neml>` with the absolute path to the installed NEML fol
 
 ## Python Packages
 
-The scripts also require several Python packages. To install these packages, `pip` is required. If you do not have `pip` installed, please following [these instructions](https://linuxize.com/post/how-to-install-pip-on-ubuntu-18.04/).
+The scripts also require several Python packages.
 
-* Numpy (`pip install numpy`).
-* Pandas (`pip install pandas`) for creating and manipulating Excel files.
-* PyMOO (`pip install pymoo`) for parameter optimisation.
-* XLSXWriter (`pip install xlsxwriter`) for creating Excel files to store results.
+To install these packages, `pip` is required.
+
+If you do not have `pip` installed, please following [these instructions](https://linuxize.com/post/how-to-install-pip-on-ubuntu-18.04/).
+
+Once `pip` is installed, you can run `pip3 install -r requirements.txt` from the directory to install the Python packages.

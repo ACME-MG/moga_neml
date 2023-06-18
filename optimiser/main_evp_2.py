@@ -1,5 +1,5 @@
 from modules.api import API
-api = API("evp all", 0)
+api = API("evp t 20c", 0)
 
 api.define_model("evp")
 
