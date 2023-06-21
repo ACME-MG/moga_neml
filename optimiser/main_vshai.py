@@ -1,9 +1,9 @@
 from modules.api import API
-api = API("vshai tensile unconstrained", 0)
+api = API("vshai tensile constrained", 0)
 
 api.define_model("vshai", "ebsd/ebsd_statistics.csv", 1.0, [1,1,0], [1,1,1], 16)
-# api.fix_param("ai_g0", 0.001)
-# api.fix_param("ai_n", 15)
+api.fix_param("ai_g0", 0.00010906 / 3)
+api.fix_param("ai_n", 15)
 
 api.read_file("tensile/AirBase_20_D5.csv", True)
 

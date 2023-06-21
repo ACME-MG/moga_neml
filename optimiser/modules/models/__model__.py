@@ -7,7 +7,6 @@
 
 # Libraries
 import importlib, os
-from copy import deepcopy
 
 # Constants
 MIN_DATA = 10
