@@ -1,6 +1,6 @@
-# Introduction (Calibrate)
+# Optimiser
 
-The repository contains code for calibrating the constitutive parameters of phenomenological creep models. The following README was last updated on the 6th of June, 2023.
+The repository contains code for calibrating the constitutive parameters of phenomenological creep models. The following README was last updated on the 26th of June, 2023.
 
 # Dependencies
 
