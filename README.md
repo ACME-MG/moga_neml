@@ -20,7 +20,7 @@ $ cmake -D WRAP_PYTHON=ON -D USE_OPENMP=ON .
 
 After installing NEML using the official instructions, add NEML to the system path. You can do this by going to your home directory, adding the following line to the `.bashrc` file or the `.profile` file, and restarting the terminal.
 ```
-$ export PYTHONPATH=<path_to_neml>:$PYTHONPATH
+$ export PYTHONPATH=$PYTHONPATH:<path_to_neml>
 ```
 
 Please replace `<path_to_neml>` with the absolute path to the installed NEML folder.

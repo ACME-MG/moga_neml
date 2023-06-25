@@ -1,4 +1,5 @@
 numpy
 pandas
 pymoo
+scipy
 xlsxwriter
