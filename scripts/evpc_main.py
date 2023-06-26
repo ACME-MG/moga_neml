@@ -1,9 +1,9 @@
 import sys; sys.path += [".."]
 from opt_neml.api import API
 
-api = API("evp t 20c constrained", 0)
+api = API("evpc 20c", 0)
 
-api.define_model("evp")
+api.define_model("evpc")
 api.fix_param("evp_n", 15)
 
 api.read_file("tensile/AirBase_20_D5.csv", True)

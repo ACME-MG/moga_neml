@@ -1,0 +1,52 @@
+Traceback (most recent call last):
+  File "evpc_main.py", line 14, in <module>
+    api.optimise(10000, 200, 100, 0.65, 0.35)
+  File "/mnt/c/Users/z5208868/OneDrive - UNSW/Desktop/code/opt_neml/scripts/../opt_neml/api.py", line 87, in optimise
+    moga.optimise()
+  File "/mnt/c/Users/z5208868/OneDrive - UNSW/Desktop/code/opt_neml/scripts/../opt_neml/moga/moga.py", line 42, in optimise
+    minimize(self.problem, self.algo, ("n_gen", self.num_gens), verbose=False, seed=None)
+  File "/home/janzen/.local/lib/python3.8/site-packages/pymoo/optimize.py", line 67, in minimize
+    res = algorithm.run()
+  File "/home/janzen/.local/lib/python3.8/site-packages/pymoo/core/algorithm.py", line 141, in run
+    self.next()
+  File "/home/janzen/.local/lib/python3.8/site-packages/pymoo/core/algorithm.py", line 161, in next
+    self.evaluator.eval(self.problem, infills, algorithm=self)
+  File "/home/janzen/.local/lib/python3.8/site-packages/pymoo/core/evaluator.py", line 69, in eval
+    self._eval(problem, pop[I], evaluate_values_of, **kwargs)
+  File "/home/janzen/.local/lib/python3.8/site-packages/pymoo/core/evaluator.py", line 90, in _eval
+    out = problem.evaluate(X, return_values_of=evaluate_values_of, return_as_dictionary=True, **kwargs)
+  File "/home/janzen/.local/lib/python3.8/site-packages/pymoo/core/problem.py", line 187, in evaluate
+    _out = self.do(X, return_values_of, *args, **kwargs)
+  File "/home/janzen/.local/lib/python3.8/site-packages/pymoo/core/problem.py", line 227, in do
+    self._evaluate_elementwise(X, out, *args, **kwargs)
+  File "/home/janzen/.local/lib/python3.8/site-packages/pymoo/core/problem.py", line 245, in _evaluate_elementwise
+    elems = self.elementwise_runner(f, X)
+  File "/home/janzen/.local/lib/python3.8/site-packages/pymoo/core/problem.py", line 27, in __call__
+    return [f(x) for x in X]
+  File "/home/janzen/.local/lib/python3.8/site-packages/pymoo/core/problem.py", line 27, in <listcomp>
+    return [f(x) for x in X]
+  File "/home/janzen/.local/lib/python3.8/site-packages/pymoo/core/problem.py", line 20, in __call__
+    self.problem._evaluate(x, out, *self.args, **self.kwargs)
+  File "/mnt/c/Users/z5208868/OneDrive - UNSW/Desktop/code/opt_neml/scripts/../opt_neml/moga/problem.py", line 38, in _evaluate
+    error_values = self.objective.get_error_values(*params)
+  File "/mnt/c/Users/z5208868/OneDrive - UNSW/Desktop/code/opt_neml/scripts/../opt_neml/moga/objective.py", line 144, in get_error_values
+    prd_curves = self.get_prd_curves(["train"], "all", *params)
+  File "/mnt/c/Users/z5208868/OneDrive - UNSW/Desktop/code/opt_neml/scripts/../opt_neml/moga/objective.py", line 131, in get_prd_curves
+    prd_curve = objective["model"].get_prd_curve(*params)
+  File "/mnt/c/Users/z5208868/OneDrive - UNSW/Desktop/code/opt_neml/opt_neml/models/evpc.py", line 67, in get_prd_curve
+    tensile_results = drivers.uniaxial_test(evpc_model, erate=strain_rate, T=self.temp, emax=STRAIN_MAX, nsteps=NUM_STEPS)
+  File "/home/janzen/moose/neml/neml/drivers.py", line 411, in uniaxial_test
+    einc, ainc = driver.erate_einc_step(sdir, erate, e_inc, T,
+  File "/home/janzen/moose/neml/neml/drivers.py", line 293, in erate_einc_step
+    return self.erate_step(sdir, erate, self.t_int[-1] + dt, T_np1, **kwargs)
+  File "/home/janzen/moose/neml/neml/drivers.py", line 274, in erate_step
+    x = self.solve_try(RJ, x0)
+  File "/home/janzen/moose/neml/neml/drivers.py", line 131, in solve_try
+    x, success = solv(xi)
+  File "/home/janzen/moose/neml/neml/drivers.py", line 103, in s1
+    x = newton(RJ, x0i, verbose = self.verbose,
+  File "/home/janzen/moose/neml/neml/nlsolvers.py", line 107, in newton
+    R, J = RJ(x)
+  File "/home/janzen/moose/neml/neml/drivers.py", line 244, in RJ
+    s, h, A, u, p = self.model.update_sd(self.strain_int[-1] + e_inc - enext,
+KeyboardInterrupt

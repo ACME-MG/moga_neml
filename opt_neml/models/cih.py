@@ -38,10 +38,6 @@ class Model(model.ModelTemplate):
         self.strain_rate = exp_curve["strain_rate"]
         self.num_cycles = exp_curve["num_cycles"]
         self.type = exp_curve["type"]
-
-        # Prepare auxiliary variables
-        self.c_As = [0.0, 0.0]
-        self.c_ns = [2.0, 2.0]
     
     # Gets the predicted curves
     def get_prd_curve(self, ih_s0, ih_Q, ih_b, c_gs1, c_gs2, c_cs1, c_cs2):
@@ -51,7 +47,7 @@ class Model(model.ModelTemplate):
         yield_surface      = surfaces.IsoKinJ2()
         iso_hardening      = hardening.VoceIsotropicHardeningRule(ih_s0, ih_Q, ih_b)
         gamma_hardening    = [hardening.ConstantGamma(g) for g in [c_gs1, c_gs2]]
-        chaboche_hardening = hardening.Chaboche(iso_hardening, [c_cs1, c_cs2], gamma_hardening, self.c_As, self.c_ns)
+        chaboche_hardening = hardening.Chaboche(iso_hardening, [c_cs1, c_cs2], gamma_hardening, [0.0, 0.0], [2.0, 2.0])
         non_ass_hardening  = ri_flow.RateIndependentNonAssociativeHardening(yield_surface, chaboche_hardening)
         cih_model          = models.SmallStrainRateIndependentPlasticity(elastic_model, non_ass_hardening)
 
