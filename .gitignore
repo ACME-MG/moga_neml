@@ -1,9 +1,10 @@
 .vscode
 
-opt_neml/__pycache__
-opt_neml/errors/__pycache__
-opt_neml/helper/__pycache__
-opt_neml/models/__pycache__
-opt_neml/moga/__pycache__
-opt_neml/scripts/results
-opt_neml/scripts/nohup.out
+moga_neml/__pycache__
+moga_neml/_interface/__pycache__
+moga_neml/_math/__pycache__
+moga_neml/_optimise/__pycache__
+moga_neml/errors/__pycache__
+moga_neml/models/__pycache__
+scripts/results
+scripts/nohup.out

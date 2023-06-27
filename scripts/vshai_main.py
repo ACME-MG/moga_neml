@@ -1,7 +1,7 @@
 import sys; sys.path += [".."]
-from opt_neml.api import API
+from moga_neml.api import API
 
-api = API("vshai tensile constrained", 0)
+api = API("vshai tensile constrained")
 
 api.define_model("vshai", "ebsd/ebsd_statistics.csv", 1.0, [1,1,0], [1,1,1], 16)
 # api.fix_param("ai_g0", 0.00010906 / 3)

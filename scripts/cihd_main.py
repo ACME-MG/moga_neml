@@ -1,7 +1,7 @@
 import sys; sys.path += [".."]
-from opt_neml.api import API
+from moga_neml.api import API
 
-api = API("cihd", 0)
+api = API("cihd")
 
 api.define_model("cihd")
 
