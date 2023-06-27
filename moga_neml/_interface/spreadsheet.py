@@ -22,10 +22,10 @@ class Spreadsheet:
         columns = list(data_dict.keys())
         data = zip_longest([data_dict[column] for column in columns])
         data = list(map(list, zip(*data)))
-        dataframe = pd.DataFrame(data, columns = columns)
+        dataframe = pd.DataFrame(data, columns=columns)
         
         # Apply fit column widths and write
-        dataframe.style.apply(centre_align, axis=0).to_excel(self.writer, sheet_name, index = False)
+        dataframe.style.apply(centre_align, axis=0).to_excel(self.writer, sheet_name, index=False)
         sheet = self.writer.sheets[sheet_name]
         for column in dataframe:
             column_length = max(dataframe[column].astype(str).map(len).max(), len(column)) + 1
@@ -77,8 +77,8 @@ class Spreadsheet:
     def close(self):
         self.writer.close()
 
-# For centre-aligning the cellss
-def centre_align(x:float):
+# For centre aligning the cells
+def centre_align(x:int) -> list:
     return ["text-align: center" for _ in x]
 
 # Imitates zip longest but for a list of lists
