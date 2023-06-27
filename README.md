@@ -1,6 +1,6 @@
-# Optimiser
+# MOGA NEML
 
-The repository contains code for calibrating the constitutive parameters of phenomenological creep models. The following README was last updated on the 26th of June, 2023.
+The repository contains code for calibrating the constitutive parameters of phenomenological creep models. The code combines the multi-objective genetic algorithm (MOGA) implemented in Pymoo with the nuclear engineering material model library (NEML). The following README was last updated on the 27th of June, 2023.
 
 # Dependencies
 
@@ -8,7 +8,7 @@ The following section details the requirements to run the script.
 
 ## NEML
 
-NEML (Nuclear Engineering Material model Library) is a tool for developing / running structural material models. To install NEML, please follow the [official instructions](https://neml.readthedocs.io/en/dev/started.html). However, instead of a normal `git clone`, please clone the NEML repository recursively. In other words, use the following command to clone the NEML repository.
+NEML is a tool for developing / running structural material models. To install NEML, please follow the [official instructions](https://neml.readthedocs.io/en/dev/started.html). However, instead of a normal `git clone`, please clone the NEML repository recursively. In other words, use the following command to clone the NEML repository.
 ```
 $ git clone --recursive https://github.com/Argonne-National-Laboratory/neml.git
 ```
