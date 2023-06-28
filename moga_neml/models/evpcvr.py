@@ -6,6 +6,7 @@
 """
 
 # Libraries
+import math
 import moga_neml.models.__model__ as model
 from neml import models, elasticity, surfaces, hardening, visco_flow, general_flow
 
@@ -16,14 +17,14 @@ class Model(model.__Model__):
     def prepare(self):
 
         # Define parameters
-        self.add_param("evp_eta",   0.0e0, 1.0e5)
-        self.add_param("evp_n",     0.0e0, 1.0e5)
-        self.add_param("cvr_s0",    0.0e0, 1.0e4)
-        self.add_param("cvr_t0",    0.0e0, 1.0e5)
-        self.add_param("cvr_R_min", 0.0e0, 1.0e5)
-        self.add_param("cvr_R_max", 0.0e0, 1.0e5)
-        self.add_param("cvr_r1",    1.0e0, 2.0e1)
-        self.add_param("cvr_r2",    1.0e-14, 1.0e-8)
+        self.add_param("evp_eta",   0.0e0,  1.0e5)
+        self.add_param("evp_n",     0.0e0,  1.0e5)
+        self.add_param("cvr_s0",    0.0e0,  1.0e4)
+        self.add_param("cvr_t0",    0.0e0,  1.0e5)
+        self.add_param("cvr_R_min", 0.0e0,  1.0e5)
+        self.add_param("cvr_R_max", 0.0e0,  1.0e5)
+        self.add_param("cvr_r1",   -1.4e1, -8.0e0)
+        self.add_param("cvr_r2",    1.0e0,  2.0e1)
 
         # Define test conditions
         exp_curve = self.get_exp_curve()
@@ -38,6 +39,7 @@ class Model(model.__Model__):
         
     # Gets the predicted curve
     def get_model(self, evp_eta, evp_n, cvr_s0, cvr_t0, cvr_R_min, cvr_R_max, cvr_r1, cvr_r2):
+        cvr_r1 = math.pow(10, cvr_r1)
         if cvr_R_min >= cvr_R_max:
             return None
         elastic_model = elasticity.IsotropicLinearElasticModel(self.youngs, "youngs", self.poissons, "poissons")
