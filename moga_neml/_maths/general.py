@@ -11,7 +11,7 @@ import numpy as np
 
 # Stores x and y labels
 DATA_LABELS = {
-    "creep":                {"x": "type",   "y": "strain"},
+    "creep":                {"x": "time",   "y": "strain"},
     "tensile":              {"x": "strain", "y": "stress"},
     "cyclic-time-strain":   {"x": "time",   "y": "strain"},
     "cyclic-time-stress":   {"x": "time",   "y": "stress"},
