@@ -84,7 +84,7 @@ class API:
     # Visualises teh training and testing data
     def visualise(self, file_name:str="", type:str="creep", separate:bool=False) -> None:
         file_name = f"plot_{self.__plot_count__}.png" if file_name == "" else f"{file_name}.png"
-        self.__print__(f"Visualising the data at '{file_name}'")
+        self.__print__(f"Visualising the {type} data at '{file_name}'")
         exp_test_curves = self.__objective__.get_exp_curves(["test"])
         exp_test_curves = [curve for curve in exp_test_curves if curve["type"] == type]
         exp_train_curves = self.__objective__.get_exp_curves(["train"])
