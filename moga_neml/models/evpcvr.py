@@ -18,7 +18,7 @@ class Model(model.__Model__):
 
         # Define parameters
         self.add_param("evp_eta",   0.0e0,  1.0e5)
-        self.add_param("evp_n",     0.0e0,  1.0e5)
+        self.add_param("evp_n",     0.0e0,  1.0e2)
         self.add_param("cvr_s0",    0.0e0,  1.0e4)
         self.add_param("cvr_t0",    0.0e0,  1.0e5)
         self.add_param("cvr_R_min", 0.0e0,  1.0e5)
