@@ -13,7 +13,7 @@ from neml import drivers
 MIN_DATA     = 10
 TIME_HOLD    = 11500.0 * 3600.0
 NUM_STEPS_UP = 50
-NUM_STEPS    = 1001
+NUM_STEPS    = 501
 REL_TOL      = 1.0E-8 # -6
 ABS_TOL      = 1.0E-12 # -!0
 VERBOSE      = False
@@ -47,8 +47,7 @@ class Driver:
     def creep(self) -> dict:
         stress = self.exp_curve["stress"]
         creep_results = drivers.creep(self.model, stress, STRESS_RATE, TIME_HOLD, T=self.exp_curve["temp"], verbose=VERBOSE,
-                                        check_dmg=False, dtol=0.95, nsteps_up=NUM_STEPS_UP, nsteps=NUM_STEPS, logspace=False,
-                                        rtol=REL_TOL, atol=ABS_TOL)
+                                        check_dmg=False, dtol=0.95, nsteps_up=NUM_STEPS_UP, nsteps=NUM_STEPS, logspace=False)
         return {"x": list(creep_results["rtime"] / 3600), "y": list(creep_results["rstrain"])}
     
     # Runs the tensile driver
