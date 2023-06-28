@@ -134,7 +134,7 @@ class Recorder:
         
         # Initialise
         results = {}
-        sf_format = lambda x : float("{:0.3}".format(float(x)))
+        sf_format = lambda x : float("{:0.5}".format(float(x)))
         param_info = self.objective.get_unfixed_param_info()
         
         # Add parameters and errors

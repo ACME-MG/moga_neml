@@ -54,6 +54,7 @@ def remove_after_sp(curve, nature, window, acceptance, nominal=0):
     curve = deepcopy(curve)
     d_curve = differentiate_curve(curve)
     sp_list = get_stationary_points(d_curve, window, acceptance)
+    # print([sp for sp in sp_list if sp["nature"] == "max"])
     
     # Get all stationary points
     sp_list = [sp for sp in sp_list if sp["nature"] == nature]
