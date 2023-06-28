@@ -8,20 +8,19 @@
 # Libraries
 import moga_neml.models.__model__ as __model__
 from neml import drivers
-from neml.nlsolvers import MaximumIterations
 
 # General Driver Constants
 MIN_DATA     = 10
 TIME_HOLD    = 11500.0 * 3600.0
 NUM_STEPS_UP = 50
-NUM_STEPS    = 501
+NUM_STEPS    = 1001
 REL_TOL      = 1.0E-8 # -6
 ABS_TOL      = 1.0E-12 # -!0
 VERBOSE      = False
 
 # Specific Driver Constants
 STRESS_RATE  = 0.0001
-STRAIN_MAX   = 0.47
+STRAIN_MAX   = 0.7
 CYCLIC_RATIO = -1
 
 # Driver class

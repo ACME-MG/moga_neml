@@ -23,7 +23,7 @@ class Model(model.__Model__):
         self.add_param("cvr_R_min", 0.0e0, 1.0e5)
         self.add_param("cvr_R_max", 0.0e0, 1.0e5)
         self.add_param("cvr_r1",    1.0e0, 2.0e1)
-        self.add_param("cvr_r2",    0.0e0, 1.0e0)
+        self.add_param("cvr_r2",    1.0e-14, 1.0e-8)
 
         # Define test conditions
         exp_curve = self.get_exp_curve()
