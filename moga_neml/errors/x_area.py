@@ -8,8 +8,8 @@
 # Libraries
 import numpy as np
 import moga_neml.errors.__error__ as error
-from moga_neml._math.curve import get_thin_indexes
-from moga_neml._math.derivative import Interpolator
+from moga_neml._maths.curve import get_thin_indexes
+from moga_neml._maths.derivative import Interpolator
 
 # Constants
 NUM_POINTS = 50

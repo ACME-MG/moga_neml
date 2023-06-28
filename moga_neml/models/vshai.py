@@ -32,7 +32,7 @@ class Model(model.__Model__):
         self.num_threads = self.args[4]
 
         # Define grain orientations
-        file = open(f"input/{orientation_file}", "r")
+        file = open(f"{orientation_file}", "r")
         self.grain_orientations, self.weights = [], []
         for line in file.readlines():
             data = line.replace("\n","").split(",")

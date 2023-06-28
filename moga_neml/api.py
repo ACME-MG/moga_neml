@@ -15,8 +15,8 @@ from moga_neml._optimise.problem import Problem
 from moga_neml._optimise.moga import MOGA
 from moga_neml._optimise.recorder import Recorder
 from moga_neml._interface.plotter import quick_plot_N, quick_subplot
-from moga_neml._math.derivative import remove_after_sp, differentiate_curve
-from moga_neml._math.general import safe_mkdir
+from moga_neml._maths.derivative import remove_after_sp, differentiate_curve
+from moga_neml._maths.general import safe_mkdir
 
 # API Class
 class API:
@@ -101,7 +101,7 @@ class API:
         recorder.define_hyperparameters(0,0,0,0,0)
         errors = self.__objective__.get_error_values(*params)
         recorder.update_population(params, errors)
-        recorder.write_results(self.get_output("results.xlsx"))
+        recorder.create_record(self.get_output("results.xlsx"))
 
     # Removes the tertiary creep from creep curves
     def __remove_tertiary_creep__(self, window:int=200, acceptance:float=0.9) -> None:

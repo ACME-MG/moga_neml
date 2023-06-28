@@ -7,7 +7,7 @@
 
 # Libraries
 from numbers import Number
-from moga_neml._math.general import get_thinned_list
+from moga_neml._maths.general import get_thinned_list
 
 # Constants
 EXP_CURVE_DENSITY = 500

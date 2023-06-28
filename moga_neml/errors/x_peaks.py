@@ -8,7 +8,7 @@
 # Libraries
 import numpy as np
 import moga_neml.errors.__error__ as error
-from moga_neml._math.derivative import get_stationary_points
+from moga_neml._maths.derivative import get_stationary_points
 
 # The Error class
 class Error(error.__Error__):

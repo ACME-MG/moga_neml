@@ -41,7 +41,7 @@ class Driver:
                 return self.tensile()
             elif "cyclic" in self.exp_curve["cyclic"]:
                 return self.cyclic()
-        except MaximumIterations:
+        except:
             return None
     
     # Runs the creep driver

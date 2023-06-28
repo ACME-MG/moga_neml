@@ -8,7 +8,7 @@
 import matplotlib.pyplot as plt
 from copy import deepcopy
 from scipy.interpolate import splev, splrep, splder
-from moga_neml._math.curve import get_thin_indexes
+from moga_neml._maths.curve import get_thin_indexes
 
 # The Interpolator Class
 class Interpolator:

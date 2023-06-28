@@ -9,7 +9,7 @@
 import time
 from moga_neml._optimise.objective import BIG_VALUE, Objective
 from moga_neml._interface.spreadsheet import Spreadsheet
-from moga_neml._math.general import DATA_LABELS, DATA_UNITS, get_thinned_list
+from moga_neml._maths.general import DATA_LABELS, DATA_UNITS, get_thinned_list
 
 # Constants
 CURVE_DENSITY = 100
