@@ -2,7 +2,7 @@
 
 moga_neml/__pycache__
 moga_neml/_interface/__pycache__
-moga_neml/_math/__pycache__
+moga_neml/_maths/__pycache__
 moga_neml/_optimise/__pycache__
 moga_neml/errors/__pycache__
 moga_neml/models/__pycache__
