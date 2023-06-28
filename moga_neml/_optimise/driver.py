@@ -20,7 +20,7 @@ VERBOSE      = False
 
 # Specific Driver Constants
 STRESS_RATE  = 0.0001
-STRAIN_MAX   = 0.7
+STRAIN_MAX   = 0.47
 CYCLIC_RATIO = -1
 
 # Driver class
