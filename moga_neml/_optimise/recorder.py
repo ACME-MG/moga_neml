@@ -30,11 +30,17 @@ class Recorder:
         self.population   = population
 
         # Define parameter information
-        fixed_params = self.objective.get_fixed_params()
-        self.fixed_param_info = [f"{param_name} ({fixed_params[param_name]})"
-                                 for param_name in self.objective.get_fixed_params().keys()]
-        self.unfixed_param_info = ["{} ([{:0.3}, {:0.3}])".format(param["name"], param["min"], param["max"])
-                                   for param in self.objective.get_unfixed_param_info()]
+        fix_param_dict = self.objective.get_fix_param_dict()
+        self.fix_param_info = [f"{param_name} ({fix_param_dict[param_name]})"
+                                 for param_name in fix_param_dict.keys()]
+        unfix_param_dict = self.objective.get_unfix_param_dict()
+        self.unfix_param_info = [
+            "{} ([{:0.3}, {:0.3}])".format(
+                param_name,
+                unfix_param_dict[param_name]["l_bound"],
+                unfix_param_dict[param_name]["u_bound"]
+            ) for param_name in unfix_param_dict
+        ]
 
         # Define error information
         self.error_names   = objective.get_error_names()
@@ -121,8 +127,8 @@ class Recorder:
             "Progress":       [f"{round(self.num_gens_completed)}/{self.num_gens}"],
             "Start / End":    [self.start_time_str, time.strftime("%A, %D, %H:%M:%S", time.localtime())],
             "Model":          [self.objective.get_model_name()],
-            "Fixed Params":   self.fixed_param_info,
-            "Unfixed Params": self.unfixed_param_info,
+            "Fixed Params":   self.fix_param_info,
+            "unfix Params": self.unfix_param_info,
             "Errors":         self.error_info,
             "Training Data":  [f"{train_curve['file_path']}" for train_curve in self.train_curves],
             "Testing Data":   [f"{test_curve['file_path']}" for test_curve in self.test_curves],
@@ -135,11 +141,11 @@ class Recorder:
         # Initialise
         results = {}
         sf_format = lambda x : float("{:0.5}".format(float(x)))
-        param_info = self.objective.get_unfixed_param_info()
+        unfix_param_names = list(self.objective.get_unfix_param_dict().keys())
         
         # Add parameters and errors
-        for i in range(len(param_info)):
-            results[param_info[i]["name"]] = [sf_format(params[i]) for params in self.opt_params]
+        for i in range(len(unfix_param_names)):
+            results[unfix_param_names[i]] = [sf_format(params[i]) for params in self.opt_params]
         for i in range(len(self.error_names)):
             results[self.error_info[i]] = [sf_format(errors[i]) for errors in self.opt_errors]
         

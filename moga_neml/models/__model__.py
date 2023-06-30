@@ -22,13 +22,15 @@ class __Model__:
 
     # Constructor
     def __init__(self):
-        self.param_info = []
+        self.param_dict = {}
         self.exp_curve = None
         self.args = ()
 
     # Adds a parameter and bounds
-    def add_param(self, name:str, min:float=0.0e0, max:float=1.0e0) -> None:
-        self.param_info += [{"name": name, "min": min, "max": max}]
+    def add_param(self, name:str, l_bound:float=0.0e0, u_bound:float=1.0e0) -> None:
+        if name in self.param_dict.keys():
+            raise ValueError("The parameter has already been defined!")
+        self.param_dict[name] = {"l_bound": l_bound, "u_bound": u_bound}
 
     # Sets the name
     def set_name(self, name:str) -> None:
@@ -51,8 +53,8 @@ class __Model__:
         return self.exp_curve
 
     # Returns the parameter info
-    def get_param_info(self) -> list:
-        return self.param_info
+    def get_param_dict(self) -> list:
+        return self.param_dict
         
     # Gets a list of arguments
     def get_args(self) -> tuple:

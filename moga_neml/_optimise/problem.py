@@ -22,14 +22,26 @@ class Problem(ElementwiseProblem):
         self.objective = objective
         self.recorder  = recorder
         
+        # Get unfixed parameter information
+        unfix_param_dict = self.objective.get_unfix_param_dict()
+        l_bound_list = [unfix_param_dict[param_name]["l_bound"] for param_name in unfix_param_dict.keys()]
+        u_bound_list = [unfix_param_dict[param_name]["u_bound"] for param_name in unfix_param_dict.keys()]
+        
         # Define the element wise problem
-        unfixed_params = self.objective.get_unfixed_param_info()
         super().__init__(
-            n_var = len(unfixed_params),
+            n_var = len(unfix_param_dict.keys()),
             n_obj = len(self.objective.get_error_names()),
-            xl    = np.array([param["min"] for param in unfixed_params]),
-            xu    = np.array([param["max"] for param in unfixed_params]),
+            xl    = np.array(l_bound_list),
+            xu    = np.array(u_bound_list),
         )
+    
+    # Gets the objective
+    def get_objective(self) -> Objective:
+        return self.objective
+    
+    # Gets the recorder
+    def get_recorder(self) -> Recorder:
+        return self.recorder
     
     # Minimises expression "F" such that the expression "G <= 0" is satisfied
     def _evaluate(self, params:list, out:dict, *args, **kwargs):

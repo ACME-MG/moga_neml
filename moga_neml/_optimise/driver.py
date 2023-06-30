@@ -20,7 +20,6 @@ VERBOSE      = False
 
 # Specific Driver Constants
 STRESS_RATE  = 0.0001
-STRAIN_MAX   = 0.47
 CYCLIC_RATIO = -1
 
 # Driver class
@@ -53,7 +52,8 @@ class Driver:
     # Runs the tensile driver
     def tensile(self) -> dict:
         strain_rate = self.exp_curve["strain_rate"] / 3600
-        tensile_results = drivers.uniaxial_test(self.model, erate=strain_rate, T=self.exp_curve["temp"], emax=STRAIN_MAX,
+        strain_max = max(self.exp_curve["x"])
+        tensile_results = drivers.uniaxial_test(self.model, erate=strain_rate, T=self.exp_curve["temp"], emax=strain_max,
                                                 nsteps=NUM_STEPS, verbose=VERBOSE, rtol=REL_TOL, atol=ABS_TOL)
         return {"x": list(tensile_results["strain"]), "y": list(tensile_results["stress"])}
     

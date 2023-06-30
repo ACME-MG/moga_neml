@@ -8,6 +8,7 @@
 # Libraries
 import numpy as np
 import math
+from copy import deepcopy
 
 # Returns the coordinates of non-outliers (good to use with derivatives)
 def exclude_outliers(x_list, y_list):
@@ -42,3 +43,13 @@ def get_custom_thin_indexes(src_data_size, dst_data_size, distribution):
     thin_indexes = [math.floor(i*src_data_size) for i in unmapped_indexes]
     thin_indexes = [0] + thin_indexes + [src_data_size-1]
     return thin_indexes
+
+# Removes data after a specific x value of a curve
+def remove_data_after(curve:dict, x_value:float) -> dict:
+    new_curve = deepcopy(curve)
+    new_curve["x"], new_curve["y"] = [], []
+    for i in range(len(curve["x"])):
+        if curve["x"][i] < x_value:
+            new_curve["x"].append(curve["x"][i])
+            new_curve["y"].append(curve["y"][i])
+    return new_curve

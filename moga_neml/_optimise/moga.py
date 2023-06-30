@@ -6,6 +6,7 @@
 """
 
 # Libraries
+import numpy as np
 from pymoo.algorithms.moo.nsga2 import NSGA2
 from pymoo.operators.sampling.lhs import LHS
 from pymoo.operators.crossover.sbx import SBX
@@ -21,11 +22,16 @@ class MOGA:
         
         # Initialise
         self.problem    = problem
+        self.objective  = problem.get_objective()
         self.num_gens   = num_gens
         self.init_pop   = init_pop
         self.offspring  = offspring
         self.crossover  = crossover
         self.mutation   = mutation
+
+        # Gets initialised parameters
+        init_param_dict = self.objective.get_init_param_dict()
+        print(self.get_custom_population(init_param_dict))
 
         # Define algorithm
         self.algo = NSGA2(
@@ -36,6 +42,38 @@ class MOGA:
             mutation     = PolynomialMutation(prob=mutation),   # polynomial mutation
             eliminate_duplicates = True
         )
+
+    # Given a set of parameters, returns a population with some deviation
+    #   TODO ACCOUNT FOR WHEN SOME PARAMETERS ARE NOT INITIALISED
+    def get_custom_population(self, initial_param_dict:dict) -> tuple:
+        
+        # Initialise
+        param_dict = self.objective.get_param_dict()
+        mean_list  = []
+        stdev_list = []
+        
+        # Determine mean and std values
+        for param_name in param_dict.keys():
+            
+            # If the user defined a starting value
+            if param_name in initial_param_dict.keys():
+                mean_list.append(initial_param_dict[param_name])
+                stdev_list.append(0)
+            
+            # Otherwise, define normal sampling
+            else:
+                mid_point = (param_dict[param_name]["u_bound"] + param_dict[param_name]["l_bound"]) / 2
+                range = param_dict[param_name]["u_bound"] - param_dict[param_name]["l_bound"]
+                mean_list.append(mid_point)
+                stdev_list.append(range/2)
+
+        # Create the population and return it
+        param_population = np.random.normal(
+            loc   = np.array(mean_list),
+            scale = np.array(stdev_list),
+            size  = (self.init_pop, len(param_dict.keys())),
+        )
+        return param_population
 
     # Runs the genetic optimisation
     def optimise(self) -> None:

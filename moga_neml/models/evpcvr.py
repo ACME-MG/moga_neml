@@ -21,8 +21,8 @@ class Model(model.__Model__):
         self.add_param("evp_n",     0.0e0,  1.0e2)
         self.add_param("cvr_s0",    0.0e0,  1.0e4)
         self.add_param("cvr_t0",    0.0e0,  1.0e5)
-        self.add_param("cvr_R_min", 0.0e0,  1.0e5)
-        self.add_param("cvr_R_max", 0.0e0,  1.0e5)
+        self.add_param("cvr_R_min", 0.0e0,  1.0e4)
+        self.add_param("cvr_R_max", 0.0e0,  1.0e4)
         self.add_param("cvr_r1",   -1.4e1, -8.0e0)
         self.add_param("cvr_r2",    1.0e0,  2.0e1)
 
