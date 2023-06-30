@@ -37,7 +37,7 @@ class Objective():
             })
 
     # Defines the model's name
-    def define_model(self, model_name:str, *model_args) -> None:
+    def def_model(self, model_name:str, *model_args) -> None:
         self.model_name = model_name
         self.model_args = model_args
 

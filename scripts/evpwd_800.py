@@ -2,7 +2,7 @@ import sys; sys.path += [".."]
 from moga_neml.api import API
 
 api = API("evpwd 800")
-api.define_model("evpwd")
+api.def_model("evpwd")
 
 api.read_file("creep/inl_1/AirBase_800_80_G25.csv", True)
 api.read_file("creep/inl_1/AirBase_800_70_G44.csv", True)
@@ -16,5 +16,5 @@ api.add_error("y_area", "creep")
 api.add_error("x_end", "creep")
 api.add_error("y_end", "creep")
 api.add_error("y_area", "tensile")
-api.record(10, 10)
-api.optimise(10000, 200, 100, 0.65, 0.35)
+api.start_rec(10, 10)
+api.start_opt(10000, 200, 100, 0.65, 0.35)

@@ -128,7 +128,7 @@ class Recorder:
             "Start / End":    [self.start_time_str, time.strftime("%A, %D, %H:%M:%S", time.localtime())],
             "Model":          [self.objective.get_model_name()],
             "Fixed Params":   self.fix_param_info,
-            "unfix Params": self.unfix_param_info,
+            "Unfixed Params": self.unfix_param_info,
             "Errors":         self.error_info,
             "Training Data":  [f"{train_curve['file_path']}" for train_curve in self.train_curves],
             "Testing Data":   [f"{test_curve['file_path']}" for test_curve in self.test_curves],

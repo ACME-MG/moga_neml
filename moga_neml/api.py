@@ -71,7 +71,7 @@ class API:
         self.__objective__.add_curves(curves, data_type)
 
     # Reads in the experimental data from folders
-    def read_folder(self, folder_name:str, train:bool=True) -> None:
+    def read_fold(self, folder_name:str, train:bool=True) -> None:
         data_type = "train" if train else "test"
         self.__print__(f"Reading data from '{folder_name}' for {data_type}ing")
         data_paths = [self.get_input(f"{folder_name}/{file}") for file in os.listdir(self.get_input(folder_name)) if file.endswith(".csv")]
@@ -79,9 +79,9 @@ class API:
         self.__objective__.add_curves(curves, data_type)
 
     # Defines the model
-    def define_model(self, model_name:str, *args) -> None:
+    def def_model(self, model_name:str, *args) -> None:
         self.__print__(f"Defining model '{model_name}'")
-        self.__objective__.define_model(model_name, args)
+        self.__objective__.def_model(model_name, args)
     
     # Adds an error
     def add_error(self, error_name:str, type:str, weight:float=1) -> None:
@@ -94,18 +94,18 @@ class API:
         self.__objective__.fix_param(param_name, param_value)
 
     # Initialises a parameter
-    def init_param(self, param_name:str, param_value:float) -> None:
+    def set_param(self, param_name:str, param_value:float) -> None:
         self.__print__("Initialised the '{}' parameter to {:0.4}".format(param_name, float(param_value)))
         self.__objective__.init_param(param_name, param_value)
 
     # Prepares the model and results recorder
-    def record(self, interval:int=10, population:int=10) -> None:
+    def start_rec(self, interval:int=10, population:int=10) -> None:
         self.__print__(f"Initialising the recorder with an interval of {interval} and population of {population}")
         self.interval = interval
         self.population = population
         
     # Conducts the optimisation
-    def optimise(self, num_gens:int=10000, init_pop:int=400, offspring:int=400, crossover:float=0.65, mutation:float=0.35) -> None:
+    def start_opt(self, num_gens:int=10000, init_pop:int=400, offspring:int=400, crossover:float=0.65, mutation:float=0.35) -> None:
         self.__print__(f"Conducting the optimisation ({num_gens}, {init_pop}, {offspring}, {crossover}, {mutation})")
         self.__objective__.define_optimisation()
         self.__recorder__ = Recorder(self.__objective__, self.get_output("moga"), self.interval, self.population)
@@ -115,19 +115,23 @@ class API:
         moga.optimise()
 
     # Removes the tertiary creep from the most recently added creep curve
-    def remove_tertiary_creep(self, window:int=200, acceptance:float=0.9) -> None:
+    def rm_damage(self, window:int=200, acceptance:float=0.9) -> None:
         self.__print__(f"Removing the tertiary creep")
         objective = self.__get_recent_objective__()
+        if objective["curve"]["type"] != "creep":
+            raise ValueError("Damage can only be removed for creep curves!")
         objective["curve"] = remove_after_sp(objective["curve"], "min", window, acceptance, 0)
 
     # Removes the data after the tertiary creep for the most recently added 
-    def remove_oxidised_creep(self, window:int=300, acceptance:float=0.9) -> None:
+    def rm_ocreep(self, window:int=300, acceptance:float=0.9) -> None:
         self.__print__(f"Removing the oxidised creep")
         objective = self.__get_recent_objective__()
+        if objective["curve"]["type"] != "creep":
+            raise ValueError("Oxidised creep region can only be removed for creep curves!")
         objective["curve"] = remove_after_sp(objective["curve"], "max", window, acceptance, 0)
     
     # Removes the data for a curve at a specific x value
-    def remove_manual(self, x_value:float) -> None:
+    def rm_manual(self, x_value:float) -> None:
         objective = self.__get_recent_objective__()
         x_label = DATA_LABELS[objective["curve"]["type"]]["x"]
         x_units = DATA_UNITS[x_label]
@@ -150,7 +154,7 @@ class API:
         self.__plot_count__ += 1
 
     # Plots the results of a set of parameters
-    def plot_results(self, *params:tuple) -> None:
+    def fast_plot(self, *params:tuple) -> None:
         param_str = ["{:0.4}".format(float(param)) for param in params]
         self.__print__("Plotting the results for {}".format(str(param_str).replace("'", "")))
         self.__objective__.define_optimisation()

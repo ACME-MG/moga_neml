@@ -59,7 +59,7 @@ class Model(model.__Model__):
         self.poissons = exp_curve["poissons"]
         
     # Gets the predicted curve
-    #   api.define_model("vshai", ["ebsd/ebsd_statistics.csv", 1.0, [1,1,0], [1,1,1], 16])
+    #   api.def_model("vshai", ["ebsd/ebsd_statistics.csv", 1.0, [1,1,0], [1,1,1], 16])
     def get_model(self, vsh_ts, vsh_b, vsh_t0, ai_g0, ai_n):
         elastic_model  = elasticity.IsotropicLinearElasticModel(self.youngs, "youngs", self.poissons, "poissons")
         strength_model = slipharden.VoceSlipHardening(vsh_ts, vsh_b, vsh_t0)

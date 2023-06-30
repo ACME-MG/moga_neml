@@ -1,6 +1,6 @@
 from moga_neml.api import API
 api = API("", 0)
-api.define_model("cihd")
+api.def_model("cihd")
 
 # api.read_file("creep/inl_1/AirBase_800_80_G25.csv", True)
 # api.read_file("creep/inl_1/AirBase_800_70_G44.csv", True)
