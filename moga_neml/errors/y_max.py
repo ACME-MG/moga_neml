@@ -6,16 +6,17 @@
 """
 
 # Libraries
-import moga_neml.errors.__error__ as error
+from moga_neml.errors.__error__ import __Error__
 
 # The YArea class
-class Error(error.__Error__):
+class Error(__Error__):
     
     # Runs at the start, once
-    def prepare(self):
-        exp_curve = self.get_exp_curve()
-        self.y_max = abs(max(exp_curve["y"]))
+    def initialise(self):
+        y_list = self.get_y_data()
+        self.y_max = abs(max(y_list))
             
     # Computing the error
-    def get_value(self, prd_curve:list) -> float:
-        return abs(self.y_max - max(prd_curve["y"])) / self.y_max
+    def get_value(self, prd_data:list) -> float:
+        y_label = self.get_y_label()
+        return abs(self.y_max - max(prd_data[y_label])) / self.y_max

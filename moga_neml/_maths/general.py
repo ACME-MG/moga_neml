@@ -6,25 +6,8 @@
 """
 
 # Libraries
-import csv, inspect, math, os, subprocess
+import csv, inspect, os, subprocess, sys
 import numpy as np
-
-# Stores x and y labels
-DATA_LABELS = {
-    "creep":                {"x": "time",   "y": "strain"},
-    "tensile":              {"x": "strain", "y": "stress"},
-    "cyclic-time-strain":   {"x": "time",   "y": "strain"},
-    "cyclic-time-stress":   {"x": "time",   "y": "stress"},
-    "cyclic-strain-stress": {"x": "strain", "y": "stress"},
-}
-
-# Stores all the units
-DATA_UNITS = {
-    "stress": "MPa",
-    "strain": "mm/mm",
-    "temperature": "°C",
-    "time": "s",
-}
 
 # For safely making a directory
 def safe_mkdir(dir_path:str) -> None:
@@ -94,10 +77,13 @@ def transpose(list_of_lists) -> list:
     transposed = np.array(list_of_lists).T.tolist()
     return transposed
 
-# Returns a thinned list
-def get_thinned_list(unthinned_list:list, density:int) -> list:
-    src_data_size = len(unthinned_list)
-    step_size = src_data_size / density
-    thin_indexes = [math.floor(step_size*i) for i in range(1, density - 1)]
-    thin_indexes = [0] + thin_indexes + [src_data_size - 1]
-    return [unthinned_list[i] for i in thin_indexes]
+# Blocks print messages
+#   https://stackoverflow.com/questions/8391411/how-to-block-calls-to-print
+class BlockPrint:
+    def __enter__(self):
+        self._original_stdout = sys.stdout
+        sys.stdout = open(os.devnull, 'w')
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        sys.stdout.close()
+        sys.stdout = self._original_stdout

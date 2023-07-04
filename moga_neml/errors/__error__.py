@@ -11,40 +11,73 @@ import importlib, os, pathlib, sys
 # The Error Template Class
 class __Error__:
 
-    # Sets the name
-    def set_name(self, name:str) -> None:
-        self.name = name
-
-    # Sets the experimental curve
-    def set_exp_curve(self, exp_curve:dict) -> None:
-        self.exp_curve = exp_curve
-
-    # Sets the weight
-    def set_weight(self, weight:float) -> None:
-        self.weight = weight
+    # Constructor
+    def __init__(self, name:str, x_label:str, y_label:str, weight:str, exp_data:dict) -> None:
+        self.name    = name
+        self.x_label = x_label
+        self.y_label = y_label
+        self.weight  = weight
+        self.exp_data = exp_data
 
     # Returns the name of the error
     def get_name(self) -> str:
         return self.name
 
+    # Returns the x label of the error
+    def get_x_label(self) -> str:
+        return self.x_label
+
+    # Returns the y label of the error
+    def get_y_label(self) -> str:
+        if self.y_label == "":
+            raise ValueError("The y label has not been defined!")
+        return self.y_label
+
+    # Gets error name, type, and both labels (if they exist)
+    def get_summary(self) -> str:
+        summary = f"{self.name}_{self.exp_data['type']}_{self.x_label}"
+        summary = summary if self.y_label == "" else summary + f"_{self.y_label}"
+        return summary
+
     # Returns the weight of the error
     def get_weight(self) -> float:
         return self.weight
 
-    # Returns the experimental curve
-    def get_exp_curve(self) -> dict:
-        return self.exp_curve
+    # Gets the experimental data
+    def get_exp_data(self) -> dict:
+        return self.exp_data
+
+    # Returns a field of the experimental data
+    def get_data(self, field:str):
+        if not field in self.exp_data.keys():
+            raise ValueError(f"The experimental data does not contain the {field} field")
+        return self.exp_data[field]
+
+    # Gets the x data
+    def get_x_data(self) -> list:
+        x_label = self.get_x_label()
+        return self.exp_data[x_label]
+
+    # Gets the y data
+    def get_y_data(self) -> list:
+        y_label = self.get_y_label()
+        return self.exp_data[y_label]
+
+    # Enforces a certain type of data
+    def enforce_data_type(self, type:str) -> None:
+        if self.exp_data["type"] != type:
+            raise ValueError(f"Failed to initialise the '{self.name}' error because it only works with {type} data!")
+
+    # Runs at the start, once (optional placeholder)
+    def initialise(self) -> None:
+        pass
 
     # Returns an error (must be overridden)
     def get_value(self) -> float:
         raise NotImplementedError
 
-    # Runs at the start, once (optional placeholder)
-    def prepare(self) -> None:
-        pass
-
 # Creates and return a error
-def get_error(error_name:str, exp_curve:dict, weight:float) -> __Error__:
+def get_error(error_name:str, x_label:str, y_label:str, weight:str, exp_data:dict) -> __Error__:
 
     # Get available errors in current folder
     errors_dir = pathlib.Path(__file__).parent.resolve()
@@ -63,13 +96,8 @@ def get_error(error_name:str, exp_curve:dict, weight:float) -> __Error__:
     sys.modules[spec.name] = module
     spec.loader.exec_module(module)
     
-    # Import and initialise error
+    # Import, initialise, and return error
     from error_file import Error
-    error = Error()
-    
-    # Prepare and return error
-    error.set_name(error_name)
-    error.set_exp_curve(exp_curve)
-    error.set_weight(weight)
-    error.prepare()
+    error = Error(error_name, x_label, y_label, weight, exp_data)
+    error.initialise()
     return error

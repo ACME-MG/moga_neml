@@ -44,7 +44,8 @@ class Spreadsheet:
                 continue
             data_list_list += [data_dict["x"], data_dict["y"]]
         
-        # Convert data into pandas' desired format
+        # Convert data into pandas' desired 
+        data_list_list = zip_longest(data_list_list)
         data_list_map = list(map(list, zip(*data_list_list)))
         pd.DataFrame(data_list_map).to_excel(self.writer, sheet_name, index=False)
         
@@ -56,8 +57,10 @@ class Spreadsheet:
         for i in range(len(data_dict_dict.keys())):
             data_dict = data_dict_dict[list(data_dict_dict.keys())[i]]
             marker_style = {
-                "type": "circle",
-                "size": data_dict["size"]
+                "type":   "circle",
+                "size":   data_dict["size"],
+                "border": {"color": data_dict["colour"]},
+                "fill":   {"color": data_dict["colour"]},
             }
             chart.add_series({
                 "name":       list(data_dict_dict.keys())[i],

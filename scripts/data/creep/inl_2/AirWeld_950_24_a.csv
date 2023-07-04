@@ -1,4 +1,4 @@
-time,strain,temp,stress,type,state,form,process,medium,title,youngs,poissons
+time,strain,temperature,stress,type,state,form,process,medium,title,youngs,poissons
 0,0,950,24,creep,Ruptured,Plate,Weld,Air,AirWeld_950_24_a,144000,0.3
 0,0.0,,,,,,
 0.013,0.0,,,,,,

@@ -7,21 +7,28 @@
 
 # Libraries
 import numpy as np
-import moga_neml.errors.__error__ as error
+from moga_neml.errors.__error__ import __Error__
 from moga_neml._maths.derivative import get_stationary_points
 
 # The Error class
-class Error(error.__Error__):
+class Error(__Error__):
     
     # Runs at the start, once (optional)
-    def prepare(self):
-        exp_curve = self.get_exp_curve()
-        exp_stationary_points = get_stationary_points(exp_curve, 100, 0.9)
-        self.exp_x_peaks = [esp["x"] for esp in exp_stationary_points]
+    def initialise(self):
+        self.enforce_data_type("cyclic")
+        exp_data = self.get_exp_data()
+        self.x_label = self.get_x_label()
+        self.y_label = self.get_y_label()
+        self.exp_x_peaks = get_x_peaks(exp_data, self.x_label, self.y_label)
 
     # Computes the error value
-    def get_value(self, prd_curve:dict) -> float:
-        prd_stationary_points = get_stationary_points(prd_curve, 100, 0.9)
-        prd_x_peaks = [psp["x"] for psp in prd_stationary_points]
+    def get_value(self, prd_data:dict) -> float:
+        prd_x_peaks = get_x_peaks(prd_data, self.x_label, self.y_label)
         min_peaks = min(len(self.exp_x_peaks), len(prd_x_peaks))
         return np.average([abs((self.exp_x_peaks[i] - prd_x_peaks[i]) / self.exp_x_peaks[i]) for i in range(min_peaks)])
+
+# Returns the number of peaks
+def get_x_peaks(data_dict:dict, x_label:str, y_label:str) -> int:
+    sp_list = get_stationary_points(data_dict, x_label, y_label, 0.2, 0.9)
+    x_peaks = [sp[x_label] for sp in sp_list]
+    return x_peaks

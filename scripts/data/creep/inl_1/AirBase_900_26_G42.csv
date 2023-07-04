@@ -1,4 +1,4 @@
-time,strain,temp,stress,type,title,youngs,poissons
+time,strain,temperature,stress,type,title,youngs,poissons
 0,0,900,26,creep,G42,149000,0.3
 0.00,2.9999999999999997e-06,,,,,,
 0.63,0.000395,,,,,,

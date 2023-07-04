@@ -7,30 +7,32 @@
 
 # Libraries
 import numpy as np
-import moga_neml.errors.__error__ as error
-from moga_neml._maths.curve import get_thin_indexes
-from moga_neml._maths.derivative import Interpolator, get_bfd
+from moga_neml.errors.__error__ import __Error__
+from moga_neml._maths.curve import get_thinned_list
+from moga_neml._maths.derivative import Interpolator, differentiate_curve
 
 # Constants
 NUM_POINTS = 50
 
 # The DyArea class
-class Error(error.__Error__):
+class Error(__Error__):
     
     # Runs at the start, once
-    def prepare(self):
-        exp_curve = self.get_exp_curve()
-        self.interpolator = Interpolator(exp_curve["x"], exp_curve["y"], NUM_POINTS)
+    def initialise(self):
+        x_list = self.get_x_data()
+        y_list = self.get_y_data()
+        self.interpolator = Interpolator(x_list, y_list, NUM_POINTS)
         self.interpolator.differentiate()
-        self.exp_x_end = exp_curve["x"][-1]
-        self.avg_dy = abs(np.average(self.interpolator.evaluate(exp_curve["x"])))
+        self.exp_x_end = x_list[-1]
+        self.avg_dy = abs(np.average(self.interpolator.evaluate(x_list)))
 
     # Computes the error value
-    def get_value(self, prd_curve:dict) -> float:
-        thin_indexes = get_thin_indexes(len(prd_curve["x"]), NUM_POINTS)
-        prd_x_list = [prd_curve["x"][i] for i in thin_indexes]
-        prd_y_list = [prd_curve["y"][i] for i in thin_indexes]
-        prd_x_list, prd_dy_list = get_bfd(prd_x_list, prd_y_list)
-        exp_dy_list = self.interpolator.evaluate(prd_x_list)
-        area = [abs(prd_dy_list[i] - exp_dy_list[i]) for i in range(len(prd_dy_list)) if prd_x_list[i] <= self.exp_x_end]
+    def get_value(self, prd_data:dict) -> float:
+        x_label = self.get_x_label()
+        y_label = self.get_y_label()
+        prd_data[x_label] = get_thinned_list(prd_data[x_label], NUM_POINTS)
+        prd_data[y_label] = get_thinned_list(prd_data[y_label], NUM_POINTS)
+        prd_data = differentiate_curve(prd_data, x_label, y_label)
+        exp_dy_list = self.interpolator.evaluate(prd_data[x_label])
+        area = [abs(prd_data[y_label][i] - exp_dy_list[i]) for i in range(len(prd_data[y_label])) if prd_data[x_label][i] <= self.exp_x_end]
         return np.average(area) / self.avg_dy

@@ -21,9 +21,15 @@ CYCLIC_RATIO = -1
 class __Model__:
 
     # Constructor
-    def __init__(self):
+    def __init__(self, name:str, args:tuple):
+        
+        # Initialise input variables
+        self.name = name
+        self.args = args
+        
+        # Initialise internal variables
         self.param_dict = {}
-        self.exp_curve = None
+        self.exp_data = {}
         self.args = ()
 
     # Adds a parameter and bounds
@@ -32,36 +38,34 @@ class __Model__:
             raise ValueError("The parameter has already been defined!")
         self.param_dict[name] = {"l_bound": l_bound, "u_bound": u_bound}
 
-    # Sets the name
-    def set_name(self, name:str) -> None:
-        self.name = name
-
-    # Sets the experimental curve
-    def set_exp_curve(self, exp_curve:dict) -> None:
-        self.exp_curve = exp_curve
-    
-    # Sets a list of arguments
-    def set_args(self, args) -> None:
-        self.args = args
+    # Sets the experimental data
+    def set_exp_data(self, exp_data:dict) -> None:
+        self.exp_data = exp_data
 
     # Gets the name
     def get_name(self) -> str:
         return self.name
 
-    # Returns the experimental curve
-    def get_exp_curve(self) -> list:
-        return self.exp_curve
+    # Returns the experimental data
+    def get_exp_data(self) -> list:
+        return self.exp_data
+
+    # Returns a field of the experimental data
+    def get_data(self, field:str):
+        if not field in self.exp_data.keys():
+            raise ValueError(f"The experimental data does not contain the {field} field")
+        return self.exp_data[field]
 
     # Returns the parameter info
-    def get_param_dict(self) -> list:
+    def get_param_dict(self) -> dict:
         return self.param_dict
         
-    # Gets a list of arguments
-    def get_args(self) -> tuple:
-        return self.args
+    # Gets an argument
+    def get_arg(self, index) -> tuple:
+        return self.args[index]
 
     # Runs at the start, once (must be overridden)
-    def prepare(self) -> None:
+    def initialise(self) -> None:
         raise NotImplementedError
 
     # Gets the model (must be overridden)
@@ -69,7 +73,7 @@ class __Model__:
         raise NotImplementedError
 
 # Creates and return a model
-def get_model(model_name:str, exp_curve:dict, args:list=[]) -> __Model__:
+def get_model(model_name:str, args:list=[]) -> __Model__:
 
     # Get available models in current folder
     models_dir = pathlib.Path(__file__).parent.resolve()
@@ -88,13 +92,8 @@ def get_model(model_name:str, exp_curve:dict, args:list=[]) -> __Model__:
     sys.modules[spec.name] = module
     spec.loader.exec_module(module)
     
-    # Import and initialise model
+    # Initialise and return the model
     from model_file import Model
-    model = Model()
-
-    # Prepare and return model
-    model.set_name(model_name)
-    model.set_exp_curve(exp_curve)
-    model.set_args(args)
-    model.prepare()
+    model = Model(model_name, args)
+    model.initialise()
     return model

@@ -21,21 +21,13 @@ def exclude_outliers(x_list, y_list):
     y_list = [y_list[i] for i in index_list]
     return x_list, y_list
 
-# Returns a sample creep curve
-def get_sample_creep_curve():
-    polynomial = [0.1, -0.6, 1.3, 0]
-    x_list = [10*x for x in range(100)]
-    scaled_x_list = [x/225 for x in x_list]
-    y_list = list(np.polyval(polynomial, scaled_x_list))
-    y_list = [y/8 for y in y_list]
-    return {"x": x_list, "y": y_list}
-
-# Returns a list of indexes corresponding to thinned data
-def get_thin_indexes(src_data_size, dst_data_size):
-    step_size = src_data_size/dst_data_size
-    thin_indexes = [math.floor(step_size*i) for i in range(1,dst_data_size-1)]
-    thin_indexes = [0] + thin_indexes + [src_data_size-1]
-    return thin_indexes
+# Returns a thinned list
+def get_thinned_list(unthinned_list:list, density:int) -> list:
+    src_data_size = len(unthinned_list)
+    step_size = src_data_size / density
+    thin_indexes = [math.floor(step_size*i) for i in range(1, density - 1)]
+    thin_indexes = [0] + thin_indexes + [src_data_size - 1]
+    return [unthinned_list[i] for i in thin_indexes]
 
 # Returns a list of indexes corresponding to thinned data based on a defined cumulative distribution function
 def get_custom_thin_indexes(src_data_size, dst_data_size, distribution):
@@ -45,11 +37,21 @@ def get_custom_thin_indexes(src_data_size, dst_data_size, distribution):
     return thin_indexes
 
 # Removes data after a specific x value of a curve
-def remove_data_after(curve:dict, x_value:float) -> dict:
+def remove_data_after(curve:dict, x_value:float, x_label:str) -> dict:
+    
+    # Initialise new curve
     new_curve = deepcopy(curve)
-    new_curve["x"], new_curve["y"] = [], []
-    for i in range(len(curve["x"])):
-        if curve["x"][i] < x_value:
-            new_curve["x"].append(curve["x"][i])
-            new_curve["y"].append(curve["y"][i])
+    for header in new_curve.keys():
+        if isinstance(new_curve[header], list):
+            new_curve[header] = []
+            
+    # Remove data after specific value
+    for i in range(len(curve[x_label])):
+        if curve[x_label][i] > x_value:
+            break
+        for header in new_curve.keys():
+            if isinstance(new_curve[header], list):
+                new_curve[header].append(curve[header][i])
+    
+    # Return new data
     return new_curve

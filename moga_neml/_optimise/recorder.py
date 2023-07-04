@@ -7,79 +7,105 @@
 
 # Libraries
 import time
-from moga_neml._optimise.objective import BIG_VALUE, Objective
 from moga_neml._interface.spreadsheet import Spreadsheet
-from moga_neml._maths.general import DATA_LABELS, DATA_UNITS, get_thinned_list
-
-# Constants
-CURVE_DENSITY = 100
+from moga_neml._maths.curve import  get_thinned_list
+from moga_neml._maths.experiment import DATA_DENSITY, DATA_FIELD_PLOT_MAP, DATA_UNITS
+from moga_neml._optimise.controller import Controller
 
 # The Recorder class
 class Recorder:
-
+    
     # Constructor
-    def __init__(self, objective:Objective, path:str, interval:int, population:int):
-
-        # Initialise
-        self.objective    = objective
-        self.train_curves = self.objective.get_exp_curves("train")
-        self.test_curves  = self.objective.get_exp_curves("test")
-        self.all_types    = list(set([curve["type"] for curve in self.train_curves+self.test_curves]))
-        self.path         = path
-        self.interval     = interval
-        self.population   = population
-
-        # Define parameter information
-        fix_param_dict = self.objective.get_fix_param_dict()
-        self.fix_param_info = [f"{param_name} ({fix_param_dict[param_name]})"
-                                 for param_name in fix_param_dict.keys()]
-        unfix_param_dict = self.objective.get_unfix_param_dict()
-        self.unfix_param_info = [
-            "{} ([{:0.3}, {:0.3}])".format(
-                param_name,
-                unfix_param_dict[param_name]["l_bound"],
-                unfix_param_dict[param_name]["u_bound"]
-            ) for param_name in unfix_param_dict
-        ]
-
-        # Define error information
-        self.error_names   = objective.get_error_names()
-        self.error_types   = objective.get_error_types()
-        self.error_weights = objective.get_error_weights()
-        self.error_info = [f"{self.error_names[i]} ({self.error_types[i]}) ({self.error_weights[i]})" for i in range(len(self.error_names))]
-
-        # Track optimisation progress
-        self.start_time = time.time()
-        self.update_time = self.start_time
-        self.start_time_str = time.strftime("%A, %D, %H:%M:%S", time.localtime())
-        self.num_evals_completed, self.num_gens_completed = 0, 0
-        self.opt_params, self.opt_errors = [], []
-
+    def __init__(self, controller:Controller, interval:int, population:int, result_path:str):
+        
+        # Initialise inputs
+        self.controller  = controller
+        self.interval    = interval
+        self.result_path = result_path
+        self.population  = population
+        
+        # Initialise internal variables
+        self.objective_list      = controller.get_objective_list()
+        self.num_evals_completed = 0
+        self.num_gens_completed  = 0
+        self.start_time          = time.time()
+        self.update_time         = self.start_time
+        self.start_time_str      = time.strftime("%A, %D, %H:%M:%S", time.localtime())
+        self.all_types           = list(set([objective.get_type() for objective in  self.objective_list]))
+        
+        # Get parameter information
+        param_dict     = self.controller.get_model().get_param_dict()
+        fix_param_dict = self.controller.get_fix_param_dict()
+        set_param_dict = self.controller.get_set_param_dict()
+        
+        # Summarise parameter information
+        self.param_info_list = []
+        for param_name in param_dict.keys():
+            if param_name in fix_param_dict.keys():
+                param_info = "{} (fixed={:0.4})".format(param_name, float(fix_param_dict[param_name]))
+            elif param_name in set_param_dict.keys():
+                param_info = "{} (set={:0.4})".format(param_name, float(set_param_dict[param_name]["value"]))
+            else:
+                l_bound = float(param_dict[param_name]["l_bound"])
+                u_bound = float(param_dict[param_name]["u_bound"])
+                param_info = "{} (opt=[{:0.4}, {:0.4}])".format(param_name, l_bound, u_bound)
+            self.param_info_list.append(param_info)
+        
+        # Summarise data information
+        self.data_info_list = []
+        for objective in self.objective_list:
+            status = "training" if objective.get_train() else "validation"
+            data_info = "{} ({})".format(objective.get_exp_data()["file_name"], status)
+            self.data_info_list.append(data_info)
+        
+        # Initialise optimal solution
+        self.optimal_solution_list = []
+        
+        # Initialise error reduction name and technique
+        self.err_red_name = "err_sqr_sum"
+        self.err_red_func = lambda x_list : sum([x**2 for x in list(x_list)])
+    
     # Define MOGA hyperparameters
     def define_hyperparameters(self, num_gens:int, init_pop:int, offspring:int, crossover:float, mutation:float) -> None:
         self.num_gens  = num_gens
         self.init_pop  = init_pop
         self.offspring = offspring
-        self.crossover = crossover
-        self.mutation  = mutation
         hp_names = ["num_gens", "init_pop", "offspring", "crossover", "mutation"]
         hp_values = [num_gens, init_pop, offspring, crossover, mutation]
         self.moga_summary = [f"{hp_names[i]} ({hp_values[i]})" for i in range(len(hp_names))]
-
-    # Updates the results after X iterations
-    def update_results(self, params:list, errors:list) -> None:
-
+    
+    # Updates the population
+    def update_optimal_solution(self, param_dict:dict, error_dict:dict):
+        
+        # Get the solution
+        err_red = self.err_red_func(error_dict.values())
+        solution = {"params": param_dict, "errors": error_dict, self.err_red_name: err_red}
+        
+        # If the stored parameters exceed the limit, remove the worst
+        if len(self.optimal_solution_list) == self.population:
+            if self.optimal_solution_list[-1][self.err_red_name] < solution[self.err_red_name]:
+                return
+            self.optimal_solution_list.pop()
+        
+        # Adds new solution in order
+        for i in range(len(self.optimal_solution_list)):
+            if solution[self.err_red_name] < self.optimal_solution_list[i][self.err_red_name]:
+                self.optimal_solution_list.insert(i, solution)
+                return
+        self.optimal_solution_list.append(solution)
+    
+    # Updates the results after a MOGA iteration
+    def update_iteration(self, param_dict:dict, error_dict:dict):
+        
         # Update optimisation progress
+        print() if self.num_evals_completed == 0 else None
         self.num_evals_completed += 1
         self.num_gens_completed = (self.num_evals_completed - self.init_pop) / self.offspring + 1
+        self.update_optimal_solution(param_dict, error_dict)
         
-        # If parameters are valid, update the population
-        if not BIG_VALUE in errors:
-            self.update_population(params, errors)
-
         # Record results after X generations
         if self.num_gens_completed > 0 and self.num_gens_completed % self.interval == 0:
-
+            
             # Get time since previous update in seconds
             current_time = time.time()
             update_duration = round(current_time - self.update_time)
@@ -87,120 +113,113 @@ class Recorder:
 
             # Display output
             num_gens_completed_padded = str(round(self.num_gens_completed)).zfill(len(str(self.num_gens)))
-            file_path = f"{self.path}_{num_gens_completed_padded} ({update_duration}s).xlsx"
+            file_path = f"{self.result_path}_{num_gens_completed_padded} ({update_duration}s).xlsx"
             self.create_record(file_path)
 
             # Display progress in console
             progress = f"{num_gens_completed_padded}/{self.num_gens}"
             index = round(self.num_gens_completed//self.interval)
-            print(f"  {index}]\tRecorded ({progress} in {update_duration}s)")
-    
-    # Updates the population
-    def update_population(self, params:tuple, errors:tuple) -> None:
-        params, errors = list(params), list(errors)
-        err_sqr_sum = sum([error**2 for error in errors])
-
-        # If the stored parameters exceed the limit, remove the worst
-        if len(self.opt_params) == self.population:
-            if self.opt_errors[-1][-1] < err_sqr_sum:
-                return
-            self.opt_params.pop()
-            self.opt_errors.pop()
+            print(f"    {index}]\tRecorded ({progress} in {update_duration}s)")
         
-        # Adds new params in order
-        inserted = False
-        for i in range(0, len(self.opt_params)):
-            if err_sqr_sum < self.opt_errors[i][-1]:
-                self.opt_params.insert(i, params)
-                self.opt_errors.insert(i, errors + [err_sqr_sum])
-                inserted = True
-                break
-
-        # If new params is worst between existing params
-        if not inserted:
-            self.opt_params.append(params)
-            self.opt_errors.append(errors + [err_sqr_sum])
-
-    # Returns a dictionary of optimisation summary
-    def get_summary(self) -> dict:
+    # Gets the optimisation summary
+    def get_summary_dict(self):
         return {
-            "Progress":       [f"{round(self.num_gens_completed)}/{self.num_gens}"],
-            "Start / End":    [self.start_time_str, time.strftime("%A, %D, %H:%M:%S", time.localtime())],
-            "Model":          [self.objective.get_model_name()],
-            "Fixed Params":   self.fix_param_info,
-            "Unfixed Params": self.unfix_param_info,
-            "Errors":         self.error_info,
-            "Training Data":  [f"{train_curve['file_path']}" for train_curve in self.train_curves],
-            "Testing Data":   [f"{test_curve['file_path']}" for test_curve in self.test_curves],
-            "Hyperparams":    self.moga_summary,
+            "Progress":     [f"{round(self.num_gens_completed)}/{self.num_gens}"],
+            "Start / End":  [self.start_time_str, time.strftime("%A, %D, %H:%M:%S", time.localtime())],
+            "Model":        [self.controller.get_model().get_name()],
+            "Parameters":   self.param_info_list,
+            "Files":        self.data_info_list,
+            "Errors":       self.controller.get_error_info_list(),
+            "MOGA Summary": self.moga_summary,
         }
-
+    
     # Gets a dictionary of the optimisation results
-    def get_results(self) -> dict:
+    def get_result_dict(self) -> dict:
         
         # Initialise
         results = {}
         sf_format = lambda x : float("{:0.5}".format(float(x)))
-        unfix_param_names = list(self.objective.get_unfix_param_dict().keys())
         
-        # Add parameters and errors
-        for i in range(len(unfix_param_names)):
-            results[unfix_param_names[i]] = [sf_format(params[i]) for params in self.opt_params]
-        for i in range(len(self.error_names)):
-            results[self.error_info[i]] = [sf_format(errors[i]) for errors in self.opt_errors]
+        # Add parameter information
+        unfix_param_names = list(self.controller.get_unfix_param_dict().keys())
+        for param_name in unfix_param_names:
+            results[param_name] = [sf_format(o_sol["params"][param_name]) for o_sol in self.optimal_solution_list]
+        
+        # Add error information
+        error_info_list = self.controller.get_error_info_list()
+        for error_info in error_info_list:
+            results[error_info] = [sf_format(o_sol["errors"][error_info]) for o_sol in self.optimal_solution_list]
         
         # Add total error and return
-        results["sqr_sum"] = [sf_format(errors[-1]) for errors in self.opt_errors]
+        results[self.err_red_name] = [sf_format(o_sol[self.err_red_name]) for o_sol in self.optimal_solution_list]
         return results
-
+    
     # Gets the curves for a curve type
-    def get_curves(self, type:str) -> dict:
+    #   Returns None if predicted data is invalid
+    def get_plot_dict(self, type:str, x_label:str, y_label:str) -> dict:
 
-        # If there are no optimal parameters / curves, leave
-        if len(self.opt_params) == 0 or not type in self.all_types:
+        # If there are no optimal parameters, leave
+        if len(self.optimal_solution_list) == 0:
             return
+        optimal_solution = self.optimal_solution_list[0]
         
-        # Otherwise, get the curves
-        test_curves = [curve for curve in self.test_curves if curve["type"] == type]
-        train_curves = [curve for curve in self.train_curves if curve["type"] == type]
-        prd_test_curves = self.objective.get_prd_curves(["test"], type, *self.opt_params[0])
-        prd_train_curves = self.objective.get_prd_curves(["train"], type, *self.opt_params[0])
+        # Initialise data structure
+        train_dict = {"exp_x": [], "exp_y": [], "prd_x": [], "prd_y": []}
+        valid_dict = {"exp_x": [], "exp_y": [], "prd_x": [], "prd_y": []}
         
-        # Flatten the curves
-        test_x_flat, test_y_flat = thin_and_flatten(test_curves)
-        train_x_flat, train_y_flat = thin_and_flatten(train_curves)
-        prd_test_x_flat, prd_test_y_flat = thin_and_flatten(prd_test_curves)
-        prd_train_x_flat, prd_train_y_flat = thin_and_flatten(prd_train_curves)
-        prd_x_flat = prd_test_x_flat + prd_train_x_flat
-        prd_y_flat = prd_test_y_flat + prd_train_y_flat
-        
-        # Create dictionary
-        data_dict = {}
-        if test_x_flat != []:
-            data_dict["testing"]   = {"x": test_x_flat,  "y": test_y_flat,  "size": 5, "colour": "silver"}
-        if train_x_flat != []:
-            data_dict["training"]  = {"x": train_x_flat, "y": train_y_flat, "size": 5, "colour": "gray"}
-        if prd_x_flat != []:
-            data_dict["predicted"] = {"x": prd_x_flat,   "y": prd_y_flat,   "size": 3, "colour": "red"}
-        return data_dict
+        # Get the experimental training and validation data
+        for objective in self.objective_list:
+            
+            # Ignore data not of desired type
+            if objective.get_type() != type:
+                continue
+            
+            # Get experimental data and thin
+            exp_data = objective.get_exp_data()
+            exp_x_list, exp_y_list = process_data_dict(exp_data, x_label, y_label)
+            
+            # Get predicted data and thin
+            opt_params = optimal_solution["params"].values()
+            prd_data = self.controller.get_prd_data(objective, *opt_params)
+            if prd_data == None:
+                return None
+            prd_x_list, prd_y_list = process_data_dict(prd_data, x_label, y_label)
+            
+            # Add to data structure
+            data_dict = train_dict if objective.get_train() else valid_dict
+            data_dict["exp_x"] += exp_x_list
+            data_dict["exp_y"] += exp_y_list
+            data_dict["prd_x"] += prd_x_list
+            data_dict["prd_y"] += prd_y_list
+
+        # Prepare dict for plotting data
+        plot_dict = {}
+        plot_dict["training"] = {"x": train_dict["exp_x"], "y": train_dict["exp_y"], "size": 5, "colour": "silver"}
+        if valid_dict["exp_x"] != []:
+            plot_dict["validation"] = {"x": valid_dict["exp_x"], "y": valid_dict["exp_y"], "size": 5, "colour": "gray"}
+        all_x = train_dict["prd_x"] + valid_dict["prd_x"]
+        all_y = train_dict["prd_y"] + valid_dict["prd_y"]
+        plot_dict["prediction"] = {"x": all_x , "y": all_y, "size": 2, "colour": "red"}
+        return plot_dict
 
     # Returns a writer object
-    def create_record(self, file_path:str) -> None:
+    def create_record(self, file_path:str, type_list:list=None, x_label:str=None, y_label:str=None) -> None:
         
-        # Get record information
+        # Get summary and results
         spreadsheet = Spreadsheet(file_path)
-        summary = self.get_summary()
-        spreadsheet.write_data(summary, "summary")
-        results = self.get_results()
-        spreadsheet.write_data(results, "results")
-        for type in self.all_types:
-            curves = self.get_curves(type)
-            if curves == None:
+        spreadsheet.write_data(self.get_summary_dict(), "summary")
+        spreadsheet.write_data(self.get_result_dict(), "results")
+
+        # Get plots
+        all_types = self.all_types if type_list == None else type_list
+        for type in all_types:
+            x_label = DATA_FIELD_PLOT_MAP[type]["x"] if x_label == None else x_label
+            y_label = DATA_FIELD_PLOT_MAP[type]["y"] if y_label == None else y_label
+            plot_dict = self.get_plot_dict(type, x_label, y_label)
+            if plot_dict == None:
                 continue
-            x_label = DATA_LABELS[type]["x"]
-            y_label = DATA_LABELS[type]["y"]
             spreadsheet.write_plot(
-                data_dict_dict = curves,
+                data_dict_dict = plot_dict,
                 sheet_name     = f"plot_{type}",
                 x_label        = f"{x_label} ({DATA_UNITS[x_label]})",
                 y_label        = f"{y_label} ({DATA_UNITS[y_label]})",
@@ -208,10 +227,8 @@ class Recorder:
             )
         spreadsheet.close()
 
-# For thinning and flattening data
-def thin_and_flatten(curves:list) -> tuple:
-    x_data = [get_thinned_list(curve["x"], CURVE_DENSITY) for curve in curves]
-    y_data = [get_thinned_list(curve["y"], CURVE_DENSITY) for curve in curves]
-    x_data_flat = [x for x_list in x_data for x in x_list]
-    y_data_flat = [y for y_list in y_data for y in y_list]
-    return x_data_flat, y_data_flat
+# For thinning data
+def process_data_dict(data_dict:dict, x_label:str, y_label:str) -> tuple:
+    data_dict[x_label] = get_thinned_list(data_dict[x_label], DATA_DENSITY)
+    data_dict[y_label] = get_thinned_list(data_dict[y_label], DATA_DENSITY)
+    return data_dict[x_label], data_dict[y_label]

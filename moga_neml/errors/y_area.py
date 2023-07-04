@@ -7,28 +7,30 @@
 
 # Libraries
 import numpy as np
-import moga_neml.errors.__error__ as error
-from moga_neml._maths.curve import get_thin_indexes
+from moga_neml.errors.__error__ import __Error__
+from moga_neml._maths.curve import get_thinned_list
 from moga_neml._maths.derivative import Interpolator
 
 # Constants
 NUM_POINTS = 50
 
 # The YArea class
-class Error(error.__Error__):
+class Error(__Error__):
     
     # Runs at the start, once
-    def prepare(self):
-        exp_curve = self.get_exp_curve()
-        self.interpolator = Interpolator(exp_curve["x"], exp_curve["y"], NUM_POINTS)
-        self.exp_x_end = exp_curve["x"][-1]
-        self.avg_y = abs(np.average(exp_curve["y"]))
-            
+    def initialise(self):
+        x_list = self.get_x_data()
+        y_list = self.get_y_data()
+        self.interpolator = Interpolator(x_list, y_list, NUM_POINTS)
+        self.exp_x_end = x_list[-1]
+        self.avg_y = abs(np.average(y_list))
+
     # Computing the error
-    def get_value(self, prd_curve:list) -> float:
-        thin_indexes = get_thin_indexes(len(prd_curve["x"]), NUM_POINTS)
-        prd_x_list = [prd_curve["x"][i] for i in thin_indexes]
-        prd_y_list = [prd_curve["y"][i] for i in thin_indexes]
+    def get_value(self, prd_data:dict) -> float:
+        x_label = self.get_x_label()
+        y_label = self.get_y_label()
+        prd_x_list = get_thinned_list(prd_data[x_label], NUM_POINTS)
+        prd_y_list = get_thinned_list(prd_data[y_label], NUM_POINTS)
         exp_y_list = self.interpolator.evaluate(prd_x_list)
-        area = [abs(exp_y_list[i] - prd_y_list[i]) for i in range(NUM_POINTS) if prd_x_list[i] <= self.exp_x_end]
+        area = [abs(prd_y_list[i] - exp_y_list[i]) for i in range(NUM_POINTS) if prd_x_list[i] <= self.exp_x_end]
         return np.average(area) / self.avg_y
