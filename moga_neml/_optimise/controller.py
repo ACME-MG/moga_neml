@@ -165,7 +165,7 @@ class Controller():
         # Sum the errors and return
         error_value_dict = {}
         for error_info in error_info_list:
-            error_value_dict[error_info] = error_list_dict[error_info]
+            error_value_dict[error_info] = sum(error_list_dict[error_info])
         return error_value_dict
 
     # Plots the curves for a given type

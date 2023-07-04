@@ -7,6 +7,7 @@
 
 # Libraries
 from neml import drivers
+from neml.nlsolvers import MaximumIterations, MaximumSubdivisions
 from moga_neml._maths.experiment import NEML_FIELD_CONVERSION
 from moga_neml._maths.general import BlockPrint
 
@@ -29,8 +30,9 @@ class Driver:
     # Constructor
     def __init__(self, exp_data:dict, model):
         self.exp_data        = exp_data
+        self.type            = self.exp_data["type"]
         self.model           = model
-        self.conversion_dict = NEML_FIELD_CONVERSION[self.exp_data["type"]]
+        self.conversion_dict = NEML_FIELD_CONVERSION[self.type]
     
     # Runs the driver based on the experimental curve type
     def run(self) -> dict:
@@ -38,13 +40,8 @@ class Driver:
         # Get the results
         try:
             with BlockPrint():
-                if self.exp_data["type"] == "creep":
-                    results = self.run_creep()
-                elif self.exp_data["type"] == "tensile":
-                    results = self.run_tensile()
-                elif self.exp_data["type"] == "cyclic":
-                    results = self.run_cyclic()
-        except:
+                results = self.run_selected()
+        except (MaximumIterations, MaximumSubdivisions):
             return
         
         # Convert results and return
@@ -53,6 +50,16 @@ class Driver:
             converted_results[self.conversion_dict[field]] = results[field]
         return converted_results
     
+    # Gets the results based on the type
+    def run_selected(self):
+        if self.type == "creep":
+            return self.run_creep()
+        elif self.type == "tensile":
+            return self.run_tensile()
+        elif self.type == "cyclic":
+            return self.run_cyclic()
+        raise ValueError(f"The data type '{self.type}' is not supported")
+
     # Runs the creep driver
     def run_creep(self) -> dict:
         stress = self.exp_data["stress"]
