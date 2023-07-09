@@ -214,7 +214,7 @@ class Controller():
         return objective_dict
 
     # Plots the curves for a given type
-    def plot_curves(self, type:str, file_path:str="", x_label:str=None, y_label:str=None, derivative:int=0):
+    def plot_exp_curves(self, type:str, file_path:str="", x_label:str=None, y_label:str=None, derivative:int=0):
         
         # Gets the data of defined type
         exp_data_list = [curve.get_exp_data() for curve in self.curve_list if curve.get_type() == type]
@@ -234,3 +234,25 @@ class Controller():
             plotter.scat_plot(exp_data)
         plotter.save_plot()
         plotter.clear()
+
+    # Plots the curves for a given type
+    def plot_prd_curves(self, *params:tuple, type:str, file_path:str="", x_label:str=None, y_label:str=None):
+        
+        # Initialise plotter
+        x_label = DATA_FIELD_PLOT_MAP[type]["x"] if x_label == None else x_label
+        y_label = DATA_FIELD_PLOT_MAP[type]["y"] if y_label == None else y_label
+        plotter = Plotter(file_path, x_label, y_label)
+        
+        # Plot experimental and predicted data
+        for curve in self.curve_list:
+            exp_data = curve.get_exp_data()
+            prd_data = self.get_prd_data(curve, *params)
+            if prd_data == None:
+                raise ValueError("The model is unable to run with the parameters!")
+            plotter.scat_plot(exp_data)
+            plotter.line_plot(prd_data)
+        plotter.save_plot()
+        plotter.clear()
+
+
+    

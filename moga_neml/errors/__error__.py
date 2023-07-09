@@ -45,12 +45,10 @@ class __Error__:
             group_str_list.append(self.name)
         if group_type:
             group_str_list.append(self.exp_data["type"])
-        if group_labels:
-            group_label_str = ""
-            group_label_str += "" if self.x_label == "" else self.x_label
-            group_label_str += "" if self.y_label == "" else self.y_label
-            if group_label_str != "":
-                group_str_list.append(group_label_str)
+        if group_labels and self.x_label != "":
+            group_str_list.append(self.x_label)
+        if group_labels and self.y_label != "":
+            group_str_list.append(self.y_label)
         if group_str_list != []:
             return "_".join(group_str_list)
         return "error" # combine all errors to one

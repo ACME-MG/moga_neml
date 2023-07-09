@@ -31,7 +31,6 @@ class Recorder:
         self.start_time          = time.time()
         self.update_time         = self.start_time
         self.start_time_str      = time.strftime("%A, %D, %H:%M:%S", time.localtime())
-        self.all_types           = list(set([curve.get_type() for curve in  self.curve_list]))
         
         # Get parameter information
         param_dict      = self.controller.get_model().get_param_dict()
@@ -209,7 +208,7 @@ class Recorder:
         return plot_dict
 
     # Returns a writer object
-    def create_record(self, file_path:str, type_list:list=None, x_label:str=None, y_label:str=None) -> None:
+    def create_record(self, file_path:str, type_list:list=None, in_x_label:str=None, in_y_label:str=None) -> None:
         
         # Get summary and results
         spreadsheet = Spreadsheet(file_path)
@@ -217,10 +216,9 @@ class Recorder:
         spreadsheet.write_data(self.get_result_dict(), "results")
 
         # Get plots
-        all_types = self.all_types if type_list == None else type_list
-        for type in all_types:
-            x_label = DATA_FIELD_PLOT_MAP[type]["x"] if x_label == None else x_label
-            y_label = DATA_FIELD_PLOT_MAP[type]["y"] if y_label == None else y_label
+        for type in type_list:
+            x_label = DATA_FIELD_PLOT_MAP[type]["x"] if in_x_label == None else in_x_label
+            y_label = DATA_FIELD_PLOT_MAP[type]["y"] if in_y_label == None else in_y_label
             plot_dict = self.get_plot_dict(type, x_label, y_label)
             if plot_dict == None:
                 continue

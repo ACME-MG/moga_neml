@@ -20,7 +20,7 @@ from moga_neml._maths.experiment import DATA_UNITS
 # API Class
 class API:
 
-    def __init__(self, title:str="", input_path="./data", output_path="./results"):
+    def __init__(self, title:str="", input_path:str="./data", output_path:str="./results", verbose:bool=True, output_here:bool=False):
         """
         Class to interact with the optimisation code
         
@@ -28,44 +28,55 @@ class API:
         * `title`:       Title of the output folder
         * `input_path`:  Path to the input folder
         * `output_path`: Path to the output folder
+        * `verbose`:     If true, outputs messages for each function call
+        * `output_here`: If true, just dumps the output in ths executing directory
         """
-        
-        # Print starting message
-        time_str = time.strftime("%A, %D, %H:%M:%S", time.localtime())
-        print(f"\n  Starting on {time_str}\n")
-                
-        # Prepare progressor
-        title = "" if title == "" else f"_{title}"
-        title = re.sub(r"[^a-zA-Z0-9_]", "", title.replace(" ", "_"))
-        
-        # Define input
-        self.input_path  = input_path
-        self.get_input   = lambda x : f"{self.input_path}/{x}"
-        
-        # Define output
-        self.start_time  = time.time()
-        self.output_dir  = time.strftime("%y%m%d%H%M%S", time.localtime(self.start_time))
-        self.output_path = f"{output_path}/{self.output_dir}{title}"
-        self.get_output  = lambda x : f"{self.output_path}/{x}"
-        
-        # Create directories
-        safe_mkdir(output_path)
-        safe_mkdir(self.output_path)
         
         # Initialise internal variables
         self.__controller__  = Controller()
         self.__recorder__    = None
         self.__print_count__ = 1
+        self.__verbose__     = verbose
+        
+        # Print starting message
+        time_str = time.strftime("%A, %D, %H:%M:%S", time.localtime())
+        self.__print__(f"\n  Starting on {time_str}\n", add_index=False)
+                
+        # Prepare progressor
+        title = "" if title == "" else f"_{title}"
+        title = re.sub(r"[^a-zA-Z0-9_]", "", title.replace(" ", "_"))
+        
+        # Get start time
+        self.__start_time__ = time.time()
+        time_stamp = time.strftime("%y%m%d%H%M%S", time.localtime(self.__start_time__))
+        
+        # Define input
+        self.__input_path__ = input_path
+        self.__get_input__  = lambda x : f"{self.__input_path__}/{x}"
+        
+        # Define output
+        self.__output_dir__ = "." if output_here else time_stamp
+        self.__output_path__ = "." if output_here else f"{output_path}/{self.__output_dir__}{title}"
+        self.__get_output__ = lambda x : f"{self.__output_path__}/{x}"
+        
+        # Create directories
+        safe_mkdir(output_path)
+        safe_mkdir(self.__output_path__)
     
-    def __print__(self, message:str) -> None:
+    def __print__(self, message:str, add_index:bool=True) -> None:
         """
         Displays a message before running the command (for internal use only)
         
         Parameters:
-        * `message`: the message to be displayed with an index
+        * `message`:   the message to be displayed
+        * `add_index`: if true, adds a number at the start of the emssage
         """
-        print(f"   {self.__print_count__})\t{message}")
-        self.__print_count__ += 1
+        if not self.__verbose__:
+            return
+        if add_index:
+            print(f"   {self.__print_count__})\t", end="")
+            self.__print_count__ += 1
+        print(message)
     
     def define_model(self, model_name:str, *args) -> None:
         """
@@ -86,7 +97,7 @@ class API:
         * `file_name`: The name of the file relative to the defined `input_path`
         """
         self.__print__(f"Reading data from '{file_name}'")
-        exp_data = read_exp_data(self.input_path, file_name)
+        exp_data = read_exp_data(self.__input_path__, file_name)
         self.__controller__.add_curve(exp_data["type"], exp_data)
     
     def add_error(self, error_name:str, x_label:str="", y_label:str="", weight:float=1) -> None:
@@ -181,14 +192,13 @@ class API:
         exp_data = remove_data_after(exp_data, value, label)
         curve.set_exp_data(exp_data)
     
-    def visualise(self, type:str=None, file_name:str="", x_label:str=None, y_label:str=None, derivative:int=0) -> None:
+    def plot_experimental(self, type:str=None, x_label:str=None, y_label:str=None, derivative:int=0) -> None:
         """
         Visualises the experimental data
         
         Parameters:
         * `type`:       The type of data to be visualised (e.g., creep, tensile); if none is specified,
                         then the type of the most recently added curve is visualised
-        * `file_name`:  The name of the output file of the visualisation
         * `x_label`:    The measurement to be visualised on the x-axis
         * `y_label`:    The measurement to be visualised on the y-axis
         * `derivative`: The derivative order of the data; the default is 0, meaning that the
@@ -199,8 +209,7 @@ class API:
         type = self.__controller__.get_last_curve().get_type() if type == None else type
         
         # Determine file name
-        default_file_name = f"exp_{type}_d{derivative}.png" if derivative > 0 else f"exp_{type}.png"
-        file_name = default_file_name if file_name == "" else f"{file_name}.png"
+        file_name = f"exp_{type}_d{derivative}.png" if derivative > 0 else f"exp_{type}.png"
         
         # Display informative message
         ordinal = lambda n: "%d%s" % (n,"tsnrhtdd"[(n//10%10!=1)*(n%10<4)*n%10::4])
@@ -208,11 +217,11 @@ class API:
         self.__print__(f"Visualising the{derivative_str} {type} data at '{file_name}'")
         
         # Actually plot the curves
-        self.__controller__.plot_curves(type, self.get_output(file_name), x_label, y_label, derivative)
+        self.__controller__.plot_exp_curves(type, self.__get_output__(file_name), x_label, y_label, derivative)
 
-    def get_results(self, *params:tuple, type_list:list=None, x_label:str=None, y_label:str=None) -> None:
+    def plot_predicted(self, *params:tuple, type:str=None, x_label:str=None, y_label:str=None) -> None:
         """
-        Gets the results from a set of parameters
+        Visualises the predicted curves from a set of parameters
         
         Parameters:
         * `params`:    The parameter values of the model; note that defining the parameters as
@@ -226,7 +235,35 @@ class API:
         
         # Convert parameters into a string and display
         param_str = ["{:0.4}".format(float(param)) for param in params]
-        self.__print__("Plotting the results for {}".format(str(param_str).replace("'", "")))
+        self.__print__("Plotting the curves for {}".format(str(param_str).replace("'", "")))
+
+        # Get parameters and check input
+        param_name_list = list(self.__controller__.get_model().get_param_dict().keys())
+        if len(params) != len(param_name_list):
+            raise ValueError("Could not plot because the number of inputs do not match the number of parameters!")
+        
+        # Get type and plot prediction
+        type = self.__controller__.get_last_curve().get_type() if type == None else type
+        file_path = self.__get_output__(f"prd_{type}.png")
+        self.__controller__.plot_prd_curves(*params, type=type, file_path=file_path, x_label=x_label, y_label=y_label)
+
+    def get_results(self, *params:tuple, type_list:list=None, x_label:str=None, y_label:str=None) -> None:
+        """
+        Gets the optimisation, parameter, and error summary from a set of parameters
+        
+        Parameters:
+        * `params`:    The parameter values of the model; note that defining the parameters as
+                       arguments to this function is similar to fixing the parameters via `fix_params`,
+                       meaning that there will be clashes if the parameter values are defined twice.
+        * `type_list`: The types of data (e.g., creep, tensile) to be visualised; if none are
+                       specified, then all the possible data types will be plotted
+        * `x_label`:   The measurement to be visualised on the x-axis
+        * `y_label`:   The measurement to be visualised on the y-axis
+        """
+        
+        # Convert parameters into a string and display
+        param_str = ["{:0.4}".format(float(param)) for param in params]
+        self.__print__("Getting the results for {}".format(str(param_str).replace("'", "")))
 
         # Get parameters and check input
         param_name_list = list(self.__controller__.get_model().get_param_dict().keys())
@@ -238,11 +275,15 @@ class API:
         recorder = Recorder(self.__controller__, 0, 1, "")
         recorder.define_hyperparameters("n/a","n/a","n/a","n/a","n/a")
         
+        # Gets all the types if necessary
+        all_types = list(set([curve.get_type() for curve in self.__controller__.get_curve_list()]))
+        type_list = all_types if type_list == None else type_list
+        
         # Add parameters and create record
         error_value_dict = self.__controller__.calculate_objectives(*params)
         recorder.update_optimal_solution(param_value_dict, error_value_dict)
-        recorder.create_record(self.get_output("results.xlsx"), type_list, x_label, y_label)
-        
+        recorder.create_record(self.__get_output__("results.xlsx"), type_list, x_label, y_label)
+    
     def set_recorder(self, interval:int=10, population:int=10) -> None:
         """
         Sets the options for the results recorder
@@ -253,7 +294,7 @@ class API:
         * `population`: The number of solutions to be stored and shown in the results
         """
         self.__print__(f"Initialising the recorder with an interval of {interval} and population of {population}")
-        self.__recorder__ = Recorder(self.__controller__, interval, population, self.get_output("out"))
+        self.__recorder__ = Recorder(self.__controller__, interval, population, self.__get_output__("out"))
 
     def group_errors(self, name:bool=True, type:bool=True, labels:bool=True):
         """
@@ -278,7 +319,7 @@ class API:
         by the multi-objective genetic algorithm
         
         Parameters:
-        * `method`: The reduction method ("sum", "average", "square_sum")
+        * `method`: The reduction method ("sum", "average", "square_sum", "square_average")
         """
         self.__print__(f"Reducing the errors based on {method}")
         self.__controller__.set_error_reduction_method(method)
@@ -290,7 +331,7 @@ class API:
         collection of solutions during the optimisation process
         
         Parameters:
-        * `method`: The reduction method ("sum", "average", "square_sum")
+        * `method`: The reduction method ("sum", "average", "square_sum", "square_average")
         """
         self.__print__(f"Reducing the objective functions based on {method}")
         self.__controller__.set_objective_reduction_mtehod(method)
@@ -312,11 +353,10 @@ class API:
         moga = MOGA(problem, num_gens, init_pop, offspring, crossover, mutation)
         moga.optimise()
         
-    
     def __del__(self):
         """
         Prints out the final message (for internal use only)
         """
         time_str = time.strftime("%A, %D, %H:%M:%S", time.localtime())
-        duration = round(time.time() - self.start_time)
-        print(f"\n  Finished on {time_str} in {duration}s\n")
+        duration = round(time.time() - self.__start_time__)
+        self.__print__(f"\n  Finished on {time_str} in {duration}s\n", add_index=False)

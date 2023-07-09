@@ -15,9 +15,9 @@ from moga_neml._maths.general import BlockPrint
 MIN_DATA     = 10
 TIME_HOLD    = 11500.0 * 3600.0
 NUM_STEPS_UP = 50
-NUM_STEPS    = 501
-REL_TOL      = 1.0E-8 # -6
-ABS_TOL      = 1.0E-12 # -!0
+NUM_STEPS    = 1001
+REL_TOL      = 1.0E-6 # -6
+ABS_TOL      = 1.0E-10 # -10
 VERBOSE      = False
 
 # Specific Driver Constants

@@ -48,7 +48,6 @@ def read_exp_data(file_dir:str, file_name:str) -> dict:
     exp_data = get_curve_dict(headers, data)
     exp_data["file_name"] = file_name
     check_exp_data(exp_data)
-    exp_data = add_work(exp_data) # for creep only
     
     # Return curves
     return exp_data
@@ -80,9 +79,3 @@ def check_exp_data(exp_data:dict) -> None:
         check_lists(exp_data, data_field["lists"])
         for value_field in data_field["values"]:
             check_header(exp_data, value_field, Number)
-
-# Adds work damage to creep curves
-def add_work(exp_data:dict) -> dict:
-    if exp_data["type"] == "creep":
-        exp_data["work"] = [strain*exp_data["stress"] for strain in exp_data["strain"]]
-    return exp_data

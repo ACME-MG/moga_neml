@@ -13,10 +13,12 @@ import math, numpy as np
 def reduce_list(value_list:list, method:str) -> float:
     if method == "sum":
         return sum(value_list)
-    elif method == "square_sum":
-        return sum([math.pow(value, 2) for value in value_list])
     elif method == "average":
         return np.average(value_list)
+    elif method == "square_sum":
+        return sum([math.pow(value, 2) for value in value_list])
+    elif method == "square_average":
+        return sum([math.pow(value, 2) for value in value_list])
 
 # For safely making a directory
 def safe_mkdir(dir_path:str) -> None:

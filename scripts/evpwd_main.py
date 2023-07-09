@@ -1,7 +1,7 @@
 import sys; sys.path += [".."]
 from moga_neml.api import API
 
-api = API("evpwd d1 sqr")
+api = API("evpwd sumsq")
 
 api.define_model("evpwd")
 
@@ -28,6 +28,9 @@ api.add_error("damage")
 
 api.read_data("creep/inl_1/AirBase_800_65_G33.csv")
 api.read_data("creep/inl_1/AirBase_800_60_G32.csv")
+
+api.reduce_errors("square_average")
+api.reduce_objectives("square_average")
 
 api.set_recorder(10, 10)
 api.optimise(10000, 100, 50, 0.65, 0.35)
