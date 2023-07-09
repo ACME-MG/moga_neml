@@ -275,10 +275,6 @@ class API:
         recorder = Recorder(self.__controller__, 0, 1, "")
         recorder.define_hyperparameters("n/a","n/a","n/a","n/a","n/a")
         
-        # Gets all the types if necessary
-        all_types = list(set([curve.get_type() for curve in self.__controller__.get_curve_list()]))
-        type_list = all_types if type_list == None else type_list
-        
         # Add parameters and create record
         error_value_dict = self.__controller__.calculate_objectives(*params)
         recorder.update_optimal_solution(param_value_dict, error_value_dict)

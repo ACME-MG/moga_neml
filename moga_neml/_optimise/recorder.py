@@ -215,6 +215,10 @@ class Recorder:
         spreadsheet.write_data(self.get_summary_dict(), "summary")
         spreadsheet.write_data(self.get_result_dict(), "results")
 
+        # Gets all the types if necessary
+        all_types = list(set([curve.get_type() for curve in self.curve_list]))
+        type_list = all_types if type_list == None else type_list
+
         # Get plots
         for type in type_list:
             x_label = DATA_FIELD_PLOT_MAP[type]["x"] if in_x_label == None else in_x_label
