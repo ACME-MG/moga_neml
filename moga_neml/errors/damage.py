@@ -6,10 +6,8 @@
  """
 
 # Libraries
+import math
 from moga_neml.errors.__error__ import __Error__
-
-# Desired damage
-DAMAGE_GOAL = 1
 
 # The Error class
 class Error(__Error__):
@@ -24,4 +22,5 @@ class Error(__Error__):
     def get_value(self, prd_data:dict) -> float:
         damage_history = prd_data["damage"][-1]
         damage = self.model.get_last_calibrated_model().get_damage(damage_history)
-        return abs(DAMAGE_GOAL - damage)
+        # return 1 - math.sqrt(1 - math.pow(1 - damage, 2))
+        return math.pow(1 - damage, 2)

@@ -1,7 +1,7 @@
 import sys; sys.path += [".."]
 from moga_neml.api import API
 
-api = API("evpwd mbd")
+api = API("evpwd d1 sqr")
 
 api.define_model("evpwd")
 
@@ -18,13 +18,13 @@ api.read_data("creep/inl_1/AirBase_800_80_G25.csv")
 api.add_error("y_area", "time", "strain")
 api.add_error("x_end", "time")
 api.add_error("x_end", "strain")
-api.add_error("damage", weight=0.5)
+api.add_error("damage")
 
 api.read_data("creep/inl_1/AirBase_800_70_G44.csv")
 api.add_error("y_area", "time", "strain")
 api.add_error("x_end", "time")
 api.add_error("x_end", "strain")
-api.add_error("damage", weight=0.5)
+api.add_error("damage")
 
 api.read_data("creep/inl_1/AirBase_800_65_G33.csv")
 api.read_data("creep/inl_1/AirBase_800_60_G32.csv")
