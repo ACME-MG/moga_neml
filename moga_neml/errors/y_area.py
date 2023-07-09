@@ -6,7 +6,7 @@
 """
 
 # Libraries
-import numpy as np
+import math, numpy as np
 from moga_neml.errors.__error__ import __Error__
 from moga_neml._maths.curve import get_thinned_list
 from moga_neml._maths.derivative import Interpolator
@@ -25,12 +25,12 @@ class Error(__Error__):
         self.exp_x_end = x_list[-1]
         self.avg_y = abs(np.average(y_list))
 
-    # Computing the error
+    # Computing the NRMSE
     def get_value(self, prd_data:dict) -> float:
         x_label = self.get_x_label()
         y_label = self.get_y_label()
         prd_x_list = get_thinned_list(prd_data[x_label], NUM_POINTS)
         prd_y_list = get_thinned_list(prd_data[y_label], NUM_POINTS)
         exp_y_list = self.interpolator.evaluate(prd_x_list)
-        area = [abs(prd_y_list[i] - exp_y_list[i]) for i in range(NUM_POINTS) if prd_x_list[i] <= self.exp_x_end]
-        return np.average(area) / self.avg_y
+        area = [math.pow(prd_y_list[i] - exp_y_list[i], 2) for i in range(NUM_POINTS) if prd_x_list[i] <= self.exp_x_end]
+        return math.sqrt(np.average(area)) / self.avg_y

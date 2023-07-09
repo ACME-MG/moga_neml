@@ -6,11 +6,11 @@
 """
 
 # Libraries
-import moga_neml.models.__model__ as model
+from moga_neml.models.__model__ import __Model__
 from neml import models, elasticity, surfaces, hardening, visco_flow, general_flow, damage, interpolate
 
 # The Elastic Visco Plastic Work Damage Class
-class Model(model.__Model__):
+class Model(__Model__):
 
     # Runs at the start, once
     def initialise(self):
@@ -26,7 +26,7 @@ class Model(model.__Model__):
         self.add_param("wd_n",    1.0e0, 1.0e1)
 
     # Gets the predicted curve
-    def get_model(self, evp_s0, evp_R, evp_d, evp_n, evp_eta, wd_m, wd_b, wd_n):
+    def calibrate_model(self, evp_s0, evp_R, evp_d, evp_n, evp_eta, wd_m, wd_b, wd_n):
         elastic_model = elasticity.IsotropicLinearElasticModel(self.get_data("youngs"), "youngs", self.get_data("poissons"), "poissons")
         yield_surface = surfaces.IsoJ2()
         iso_hardening = hardening.VoceIsotropicHardeningRule(evp_s0, evp_R, evp_d)
@@ -35,6 +35,6 @@ class Model(model.__Model__):
         integrator    = general_flow.TVPFlowRule(elastic_model, visco_model)
         evp_model     = models.GeneralIntegrator(elastic_model, integrator, verbose=False)
         wd_wc         = interpolate.PolynomialInterpolate([wd_m, wd_b])
-        wd_model      = damage.WorkDamage(elastic_model, wd_wc, wd_n, log=True, eps=1e-40)
+        wd_model      = damage.WorkDamage(elastic_model, wd_wc, wd_n, log=True, eps=1e-40, work_scale=1e5)
         evpwd_model   = damage.NEMLScalarDamagedModel_sd(elastic_model, evp_model, wd_model, verbose=False)
         return evpwd_model

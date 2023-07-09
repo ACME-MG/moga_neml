@@ -6,10 +6,11 @@
  """
 
 # Libraries
-import numpy as np
+import math, numpy as np
 import scipy.interpolate as inter
 import scipy.optimize as opt
 from moga_neml.errors.__error__ import __Error__
+from moga_neml._optimise.controller import BIG_VALUE
 
 # The Error class
 class Error(__Error__):
@@ -17,25 +18,28 @@ class Error(__Error__):
     # Runs at the start, once (optional)
     def initialise(self):
         self.enforce_data_type("tensile")
-        self.x_label = self.get_x_label()
-        self.y_label = self.get_y_label()
-        self.exp_yield = get_yield(self.get_exp_data(), self.x_label, self.y_label)
-        self.mag_yield = (self.exp_yield[0]**2 + self.exp_yield[1]**2)**0.5
+        self.exp_yield = get_yield(self.get_exp_data())
+        self.mag_yield = math.sqrt(math.pow(self.exp_yield[0], 2) + math.pow(self.exp_yield[1], 2))
 
     # Computes the error value
     def get_value(self, prd_data:dict) -> float:
-        prd_yield = get_yield(prd_data, self.x_label, self.y_label)
-        distance = ((self.exp_yield[0] - prd_yield[0])**2 + (self.exp_yield[1] - prd_yield[1])**2)**0.5
+        try:
+            prd_yield = get_yield(prd_data)
+        except ValueError:
+            return BIG_VALUE
+        distance = math.sqrt(math.pow(self.exp_yield[0] - prd_yield[0], 2) + math.pow(self.exp_yield[1] - prd_yield[1], 2))
         return distance / self.mag_yield
 
 # Gets the yield point
-def get_yield(data_dict:dict, x_label:str, y_label:str):
+def get_yield(data_dict:dict):
     
-    # Initialise
+    # Extract data
     x_offset = 0.2/100.0
-    x_list = data_dict[x_label]
-    y_list = data_dict[y_label]
-    youngs = y_list[1] / x_list[1]
+    x_list = data_dict["strain"]
+    y_list = data_dict["stress"]
+    
+    # Calculate elastic modulus
+    youngs = (y_list[4] - y_list[0]) / (x_list[4] - x_list[0])
     
     # Interpolate
     iff = inter.interp1d(x_list, y_list, bounds_error=False, fill_value=0)

@@ -32,7 +32,7 @@ def get_thin_indexes(src_data_size, dst_data_size):
 
 # For differentiating a curve
 def differentiate_curve(curve):
-    curve= deepcopy(curve)
+    curve = deepcopy(curve)
     interpolator = Interpolator(curve["x"], curve["y"])
     interpolator.differentiate()
     curve["y"] = interpolator.evaluate(curve["x"])
@@ -48,9 +48,9 @@ def get_curve(file_name):
     file.close()
     
     # Get x and y data
-    x_index = headers.index("x")
-    y_index = headers.index("y")
-    x_list = [float(d[x_index]) for d in data]
+    x_index = headers.index("time")
+    y_index = headers.index("strain")
+    x_list = [float(d[x_index]) * 3600 for d in data]
     y_list = [float(d[y_index]) for d in data]
 
     # Get auxiliary information
@@ -82,12 +82,14 @@ for curve in curve_list:
 
     # work to failure
     work_failure = curve["y"][-1] * curve["stress"]
+    work_failure = math.log(work_failure)
     work_failure_list.append(work_failure)
 
     # Get average work rate
     d_curve = differentiate_curve(curve)
     work_rate_list = [curve["stress"] * dy for dy in d_curve["y"]]
-    avg_work_rate = math.log10(np.average(work_rate_list))
+    avg_work_rate = np.average(work_rate_list)
+    avg_work_rate = math.log(avg_work_rate)
     avg_work_rate_list.append(avg_work_rate)
     
     # Plot the results
@@ -95,8 +97,8 @@ for curve in curve_list:
 
 # Gets the gradient and intercept
 polynomial = np.polyfit(avg_work_rate_list, work_failure_list, 1)
-print(f"M = {polynomial[1]}") # 61.96
-print(f"B = {polynomial[0]}") # 19.62
+print(f"M = {polynomial[0]}")
+print(f"B = {polynomial[1]}")
 
 # Save the plot
 plt.legend([curve["stress"] for curve in curve_list] + ["LOBF"])

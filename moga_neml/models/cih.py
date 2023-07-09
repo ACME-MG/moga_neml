@@ -7,10 +7,10 @@
 
 # Libraries
 from neml import models, elasticity, surfaces, hardening, ri_flow
-import moga_neml.models.__model__ as model
+from moga_neml.models.__model__ import __Model__
 
 # The Chaboche Isotropic Hardening Class
-class Model(model.__Model__):
+class Model(__Model__):
 
     # Runs at the start, once
     def initialise(self):
@@ -25,7 +25,7 @@ class Model(model.__Model__):
         self.add_param("c_cs2", 0.0e0, 1.0e6)
     
     # Gets the predicted curves
-    def get_model(self, ih_s0, ih_Q, ih_b, c_gs1, c_gs2, c_cs1, c_cs2):
+    def calibrate_model(self, ih_s0, ih_Q, ih_b, c_gs1, c_gs2, c_cs1, c_cs2):
         elastic_model      = elasticity.IsotropicLinearElasticModel(self.get_data("youngs"), "youngs", self.get_data("poissons"), "poissons")
         yield_surface      = surfaces.IsoKinJ2()
         iso_hardening      = hardening.VoceIsotropicHardeningRule(ih_s0, ih_Q, ih_b)

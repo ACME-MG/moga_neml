@@ -1,19 +1,20 @@
 """
- Title:         The Objective class
+ Title:         The Curve class
  Description:   For storing the errors to be minimised
  Author:        Janzen Choi
 
 """
 
 # Libraries
-import numpy as np
 from copy import deepcopy
 from moga_neml.models.__model__ import __Model__, get_model
+from moga_neml.errors.__error__ import __Error__
 from moga_neml._interface.plotter import Plotter
-from moga_neml._maths.experiment import DATA_FIELD_PLOT_MAP
 from moga_neml._optimise.driver import Driver
-from moga_neml._optimise.objective import Objective
+from moga_neml._optimise.curve import Curve
 from moga_neml._maths.derivative import differentiate_curve
+from moga_neml._maths.experiment import DATA_FIELD_PLOT_MAP
+from moga_neml._maths.general import reduce_list
 
 # Constants
 MIN_DATA = 50
@@ -24,29 +25,40 @@ class Controller():
 
     # Constructor
     def __init__(self):
+        
+        # Initialise internal variables
         self.model = None
-        self.objective_list = []
+        self.curve_list = []
         self.fix_param_dict = {}
-        self.set_param_dict = {}
+        self.init_param_dict = {}
+        
+        # Initialise variables for grouping errors
+        self.group_name = True
+        self.group_type = True
+        self.group_labels = True
+        
+        # Initialise variables for reducing errors
+        self.error_reduction_method = "average"
+        self.objective_reduction_method = "average"
         
     # Defines the model
     def define_model(self, model_name:str, *model_args:tuple) -> None:
         self.model = get_model(model_name, *model_args)
         
     # Adds experimental data
-    def add_objective(self, type:str, exp_data:dict) -> None:
-        objective = Objective(type, exp_data)
-        self.objective_list.append(objective)
+    def add_curve(self, type:str, exp_data:dict) -> None:
+        curve = Curve(type, exp_data, self.model)
+        self.curve_list.append(curve)
     
-    # Gets the list of objectives
-    def get_objective_list(self) -> list:
-        return self.objective_list
+    # Gets the list of curves
+    def get_curve_list(self) -> list:
+        return self.curve_list
     
-    # Returns the most recently added objective
-    def get_last_objective(self) -> Objective:
-        if self.objective_list == []:
-            raise ValueError("No objectives have been added yet!")
-        return self.objective_list[-1]
+    # Returns the most recently added curve
+    def get_last_curve(self) -> Curve:
+        if self.curve_list == []:
+            raise ValueError("No curves have been added yet!")
+        return self.curve_list[-1]
     
     # Fixes a parameter to a value
     def fix_param(self, param_name:str, param_value:float) -> None:
@@ -54,12 +66,12 @@ class Controller():
         pretext = f"The '{param_name}' parameter cannot be fixed because"
         if not param_name in param_dict.keys():
             raise ValueError(f"{pretext} it is not defined in {self.model.get_name()}!")
-        if param_name in self.set_param_dict.keys():
+        if param_name in self.init_param_dict.keys():
             raise ValueError(f"{pretext} it has already been set!")
         self.fix_param_dict[param_name] = param_value
 
     # Sets the initial value of a parameter
-    def set_param(self, param_name:str, param_value:float, param_std:float) -> None:
+    def init_param(self, param_name:str, param_value:float, param_std:float) -> None:
         param_dict = self.model.get_param_dict()
         pretext = f"The '{param_name}' parameter cannot be set because"
         if not param_name in param_dict.keys():
@@ -70,7 +82,7 @@ class Controller():
             raise ValueError(f"{pretext} has been set an initial 'value + deviation' smaller than its lower bound!")
         if param_value + param_std > param_dict[param_name]["u_bound"]:
             raise ValueError(f"{pretext} has been set an initial 'value + deviation' larger than its upper bound!")
-        self.set_param_dict[param_name] = {"value": param_value, "std": param_std}
+        self.init_param_dict[param_name] = {"value": param_value, "std": param_std}
 
     # Returns the model
     def get_model(self) -> __Model__:
@@ -83,8 +95,8 @@ class Controller():
         return self.fix_param_dict
 
     # Gets information about the initialised parameters
-    def get_set_param_dict(self) -> dict:
-        return self.set_param_dict
+    def get_init_param_dict(self) -> dict:
+        return self.init_param_dict
 
     # Incorporates the fixed parameters
     def incorporate_fix_param_dict(self, *params) -> list:
@@ -105,26 +117,47 @@ class Controller():
                 unfix_param_dict[param_name] = param_dict[param_name]
         return unfix_param_dict
 
+    # Changes the reduction method for errors
+    def set_error_reduction_method(self, method:str):
+        self.error_reduction_method = method
+        
+    # Changes the reduction method for objective functions
+    def set_objective_reduction_mtehod(self, method:str):
+        self.objective_reduction_method = method
+
+    # Gets the reduction method for objective functions
+    def get_objective_reduction_method(self):
+        return self.objective_reduction_method
+
+    # Changes the variables for grouping the errors together
+    def set_error_grouping(self, group_name:bool=True, group_type:bool=True, group_labels:bool=True):
+        self.group_name = group_name
+        self.group_type = group_type
+        self.group_labels = group_labels
+
     # Returns information about the errors
-    def get_error_info_list(self) -> list:
-        error_info_list = []
-        for objective in self.objective_list:
-            error_list = objective.get_error_list()
+    def get_objective_info_list(self) -> list:
+        objective_info_list = []
+        for curve in self.curve_list:
+            error_list = curve.get_error_list()
             for error in error_list:
-                error_info_list.append(error.get_summary())
-        return list(set(error_info_list))
+                error_group_key = error.get_group_key(self.group_name, self.group_type, self.group_labels)
+                objective_info_list.append(error_group_key)
+        return list(set(objective_info_list))
 
     # Gets the predicted curve
     #   Returns none if the data is invalid
-    def get_prd_data(self, objective:Objective, *params):
+    def get_prd_data(self, curve:Curve, *params):
         
         # Fix parameters and calibrate the model
         params = self.incorporate_fix_param_dict(*params)
-        self.model.set_exp_data(objective.get_exp_data())
-        calibrated_model = self.model.get_model(*params)
+        self.model.set_exp_data(curve.get_exp_data())
+        calibrated_model = self.model.get_calibrated_model(*params)
+        if calibrated_model == None:
+            return None
         
         # Get the driver and get the curve
-        model_driver = Driver(objective.get_exp_data(), calibrated_model)
+        model_driver = Driver(curve.get_exp_data(), calibrated_model)
         prd_data = model_driver.run()
 
         # Only return if data contains sufficient points
@@ -135,44 +168,56 @@ class Controller():
                 return None
         return prd_data
     
+    # Defines how the errors are reduced
+    def reduce_errors(self, error_list_dict:dict) -> dict:
+        objective_info_list = self.get_objective_info_list()
+        error_value_dict = {}
+        for error_info in objective_info_list:
+            error_value = reduce_list(error_list_dict[error_info], self.error_reduction_method)
+            error_value_dict[error_info] = error_value
+        return error_value_dict
+    
+    # Defines how the objectives are reduced
+    def reduce_objectives(self, objective_list:list) -> float:
+        objective_value = reduce_list(objective_list, self.objective_reduction_method)
+        return objective_value
+    
     # Calculates the error values for a set of parameters
-    def calculate_error_value_dict(self, *params) -> dict:
+    def calculate_objectives(self, *params) -> dict:
         
         # Create a dictionary of errors
-        error_info_list = self.get_error_info_list()
-        empty_list_list = [[] for _ in range(len(error_info_list))]
-        error_list_dict = {key: value for key, value in zip(error_info_list, empty_list_list)}
+        objective_info_list = self.get_objective_info_list()
+        empty_list_list = [[] for _ in range(len(objective_info_list))]
+        error_list_dict = {key: value for key, value in zip(objective_info_list, empty_list_list)}
         
         # Iterate through experimental data
-        for objective in self.objective_list:
+        for curve in self.curve_list:
             
             # Ignore validation data
-            error_list = objective.get_error_list()
+            error_list = curve.get_error_list()
             if len(error_list) == 0:
                 continue
             
             # Get prediction for training data
-            prd_data = self.get_prd_data(objective, *params)
+            prd_data = self.get_prd_data(curve, *params)
             if prd_data == None:
-                return {key: value for key, value in zip(error_info_list, [BIG_VALUE] * len(error_info_list))}
+                return {key: value for key, value in zip(objective_info_list, [BIG_VALUE] * len(objective_info_list))}
         
             # Gets all the errors and add to dictionary
             for error in error_list:
                 error_value = error.get_value(prd_data) * error.get_weight()
-                error_key = error.get_summary()
-                error_list_dict[error_key].append(error_value)
+                error_group_key = error.get_group_key(self.group_name, self.group_type, self.group_labels)
+                error_list_dict[error_group_key].append(error_value)
         
-        # Sum the errors and return
-        error_value_dict = {}
-        for error_info in error_info_list:
-            error_value_dict[error_info] = sum(error_list_dict[error_info])
-        return error_value_dict
+        # Reduce and return errors
+        objective_dict = self.reduce_errors(error_list_dict)
+        return objective_dict
 
     # Plots the curves for a given type
     def plot_curves(self, type:str, file_path:str="", x_label:str=None, y_label:str=None, derivative:int=0):
         
         # Gets the data of defined type
-        exp_data_list = [objective.get_exp_data() for objective in self.objective_list if objective.get_type() == type]
+        exp_data_list = [curve.get_exp_data() for curve in self.curve_list if curve.get_type() == type]
         
         # Initialise plotter
         x_label = DATA_FIELD_PLOT_MAP[type]["x"] if x_label == None else x_label

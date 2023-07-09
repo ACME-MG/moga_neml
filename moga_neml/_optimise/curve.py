@@ -1,22 +1,24 @@
 """
- Title:         Objective
- Description:   For storing information about an objective
+ Title:         Curve
+ Description:   For storing information about a curve
  Author:        Janzen Choi
 
 """
 
 # Libraries
-import moga_neml.errors.__error__ as __error__
+from moga_neml.errors.__error__ import get_error
+from moga_neml.models.__model__ import __Model__
 
-# The Objective class
-class Objective:
+# The Curve class
+class Curve:
     
     # Constructor
-    def __init__(self, type:str, exp_data:dict):
+    def __init__(self, type:str, exp_data:dict, model:__Model__):
         
         # Initialise inputs variables
         self.type     = type
         self.exp_data = exp_data
+        self.model    = model
         
         # Initialise internal variables
         self.error_list = []
@@ -37,6 +39,10 @@ class Objective:
     def get_exp_data(self) -> dict:
         return self.exp_data
     
+    # Gets the model
+    def get_model(self) -> __Model__:
+        return self.model
+    
     # Gets the list of errors
     def get_error_list(self) -> list:
         return self.error_list
@@ -50,6 +56,6 @@ class Objective:
                 raise ValueError(f"Error {error_name} cannot be added because '{label}' is not a field in the data!")
         
         # Add error
-        error = __error__.get_error(error_name, x_label, y_label, weight, self.exp_data)
+        error = get_error(error_name, x_label, y_label, weight, self.exp_data, self.model)
         self.error_list.append(error)
     

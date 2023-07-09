@@ -7,17 +7,19 @@
 
 # Libraries
 import importlib, os, pathlib, sys
+from moga_neml.models.__model__ import __Model__
 
 # The Error Template Class
 class __Error__:
 
     # Constructor
-    def __init__(self, name:str, x_label:str, y_label:str, weight:str, exp_data:dict) -> None:
-        self.name    = name
-        self.x_label = x_label
-        self.y_label = y_label
-        self.weight  = weight
+    def __init__(self, name:str, x_label:str, y_label:str, weight:str, exp_data:dict, model:__Model__) -> None:
+        self.name     = name
+        self.x_label  = x_label
+        self.y_label  = y_label
+        self.weight   = weight
         self.exp_data = exp_data
+        self.model    = model
 
     # Returns the name of the error
     def get_name(self) -> str:
@@ -25,6 +27,8 @@ class __Error__:
 
     # Returns the x label of the error
     def get_x_label(self) -> str:
+        if self.x_label == "":
+            raise ValueError("The x label has not been defined!")
         return self.x_label
 
     # Returns the y label of the error
@@ -34,10 +38,22 @@ class __Error__:
         return self.y_label
 
     # Gets error name, type, and both labels (if they exist)
-    def get_summary(self) -> str:
-        summary = f"{self.name}_{self.exp_data['type']}_{self.x_label}"
-        summary = summary if self.y_label == "" else summary + f"_{self.y_label}"
-        return summary
+    #   Controls how the errors are grouped together when optimising
+    def get_group_key(self, group_name:bool=True, group_type:bool=True, group_labels:bool=True) -> str:
+        group_str_list = []
+        if group_name:
+            group_str_list.append(self.name)
+        if group_type:
+            group_str_list.append(self.exp_data["type"])
+        if group_labels:
+            group_label_str = ""
+            group_label_str += "" if self.x_label == "" else self.x_label
+            group_label_str += "" if self.y_label == "" else self.y_label
+            if group_label_str != "":
+                group_str_list.append(group_label_str)
+        if group_str_list != []:
+            return "_".join(group_str_list)
+        return "error" # combine all errors to one
 
     # Returns the weight of the error
     def get_weight(self) -> float:
@@ -63,10 +79,19 @@ class __Error__:
         y_label = self.get_y_label()
         return self.exp_data[y_label]
 
+    # Gets the model
+    def get_model(self) -> __Model__:
+        return self.model
+
     # Enforces a certain type of data
     def enforce_data_type(self, type:str) -> None:
         if self.exp_data["type"] != type:
             raise ValueError(f"Failed to initialise the '{self.name}' error because it only works with {type} data!")
+
+    # Enforces a certail model
+    def enforce_model(self, model_name:str) -> None:
+        if self.model.get_name() != model_name:
+            raise ValueError(f"Failed to initialise the '{self.name}' error because it only works with the {model_name} model!")
 
     # Runs at the start, once (optional placeholder)
     def initialise(self) -> None:
@@ -77,7 +102,7 @@ class __Error__:
         raise NotImplementedError
 
 # Creates and return a error
-def get_error(error_name:str, x_label:str, y_label:str, weight:str, exp_data:dict) -> __Error__:
+def get_error(error_name:str, x_label:str, y_label:str, weight:str, exp_data:dict, model:__Model__) -> __Error__:
 
     # Get available errors in current folder
     errors_dir = pathlib.Path(__file__).parent.resolve()
@@ -98,6 +123,6 @@ def get_error(error_name:str, x_label:str, y_label:str, weight:str, exp_data:dic
     
     # Import, initialise, and return error
     from error_file import Error
-    error = Error(error_name, x_label, y_label, weight, exp_data)
+    error = Error(error_name, x_label, y_label, weight, exp_data, model)
     error.initialise()
     return error

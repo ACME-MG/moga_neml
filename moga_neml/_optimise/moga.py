@@ -1,5 +1,5 @@
 """
- Title:         Multi-Objective Genetic Algorithm
+ Title:         Multi-Curve Genetic Algorithm
  Description:   For parameter optimisation
  Author:        Janzen Choi
 
@@ -14,7 +14,7 @@ from pymoo.operators.mutation.pm import PolynomialMutation
 from pymoo.optimize import minimize
 from moga_neml._optimise.problem import Problem
 
-# The Multi-Objective Genetic Algorithm (MOGA) class
+# The Multi-Curve Genetic Algorithm (MOGA) class
 class MOGA:
     
     # Constructor
@@ -31,7 +31,7 @@ class MOGA:
         self.mutation   = mutation
 
         # Gets initialised parameters
-        init_param_dict = self.controller.get_set_param_dict()
+        init_param_dict = self.controller.get_init_param_dict()
         population = self.get_population(init_param_dict)
 
         # Define algorithm

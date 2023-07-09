@@ -31,7 +31,7 @@ class Problem(ElementwiseProblem):
         # Define the element wise problem
         super().__init__(
             n_var = len(unfix_param_dict.keys()),
-            n_obj = len(self.controller.get_error_info_list()),
+            n_obj = len(self.controller.get_objective_info_list()),
             xl    = np.array(l_bound_list),
             xu    = np.array(u_bound_list),
         )
@@ -62,7 +62,7 @@ class Problem(ElementwiseProblem):
             warnings.simplefilter("ignore")
             
             # Get error values
-            error_value_dict = self.controller.calculate_error_value_dict(*params)
+            error_value_dict = self.controller.calculate_objectives(*params)
             out["F"] = list(error_value_dict.values())
             
             # Get parameter values and update recorder

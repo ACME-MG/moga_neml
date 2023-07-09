@@ -11,7 +11,7 @@ from moga_neml._maths.experiment import DATA_UNITS
 
 # Constants
 DEFAULT_PATH    = "./plot"
-data_dict_COLOUR = "darkgrey"
+EXP_DATA_COLOUR = "darkgrey"
 PRD_DATA_COLOUR = "r"
 
 # Class for plotting
@@ -31,7 +31,7 @@ class Plotter:
         plt.title(title, fontsize=20)
     
     # Plots the experimental data using a scatter plot
-    def scat_plot(self, data_dict:dict, colour:str=data_dict_COLOUR):
+    def scat_plot(self, data_dict:dict, colour:str=EXP_DATA_COLOUR):
         plt.scatter(data_dict[self.x_label], data_dict[self.y_label], marker="o", color=colour, linewidth=1)
         
     # Plots the predicted data using a line plot

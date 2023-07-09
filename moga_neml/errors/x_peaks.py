@@ -6,7 +6,7 @@
  """
 
 # Libraries
-import numpy as np
+import math, numpy as np
 from moga_neml.errors.__error__ import __Error__
 from moga_neml._maths.derivative import get_stationary_points
 
@@ -20,12 +20,14 @@ class Error(__Error__):
         self.x_label = self.get_x_label()
         self.y_label = self.get_y_label()
         self.exp_x_peaks = get_x_peaks(exp_data, self.x_label, self.y_label)
+        self.avg_exp_x = np.average(self.exp_x_peaks)
 
-    # Computes the error value
+    # Computes the NRMSE value
     def get_value(self, prd_data:dict) -> float:
         prd_x_peaks = get_x_peaks(prd_data, self.x_label, self.y_label)
         min_peaks = min(len(self.exp_x_peaks), len(prd_x_peaks))
-        return np.average([abs((self.exp_x_peaks[i] - prd_x_peaks[i]) / self.exp_x_peaks[i]) for i in range(min_peaks)])
+        dist_list = [math.pow(self.exp_x_peaks[i] - prd_x_peaks[i], 2) for i in range(min_peaks)]
+        return math.sqrt(np.average(dist_list)) / self.avg_exp_x
 
 # Returns the number of peaks
 def get_x_peaks(data_dict:dict, x_label:str, y_label:str) -> int:

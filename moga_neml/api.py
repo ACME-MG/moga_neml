@@ -20,8 +20,15 @@ from moga_neml._maths.experiment import DATA_UNITS
 # API Class
 class API:
 
-    # Constructor
     def __init__(self, title:str="", input_path="./data", output_path="./results"):
+        """
+        Class to interact with the optimisation code
+        
+        Parameters:
+        * `title`:       Title of the output folder
+        * `input_path`:  Path to the input folder
+        * `output_path`: Path to the output folder
+        """
         
         # Print starting message
         time_str = time.strftime("%A, %D, %H:%M:%S", time.localtime())
@@ -50,85 +57,146 @@ class API:
         self.__recorder__    = None
         self.__print_count__ = 1
     
-    # Displays a message before running the command
     def __print__(self, message:str) -> None:
+        """
+        Displays a message before running the command (for internal use only)
+        
+        Parameters:
+        * `message`: the message to be displayed with an index
+        """
         print(f"   {self.__print_count__})\t{message}")
         self.__print_count__ += 1
     
-    # Defines the model
-    def def_model(self, model_name:str, *args) -> None:
+    def define_model(self, model_name:str, *args) -> None:
+        """
+        Defines the model to be optimised
+        
+        Parameters:
+        * `model_name`: The name of the model
+        * `args`:       Any additional parameters to pass to the model
+        """
         self.__print__(f"Defining model '{model_name}'")
         self.__controller__.define_model(model_name, args)
     
-    # Reads in the experimental data from a file
-    def read_file(self, file_name:str) -> None:
+    def read_data(self, file_name:str) -> None:
+        """
+        Reads in the experimental data from a file
+        
+        Parameters:
+        * `file_name`: The name of the file relative to the defined `input_path`
+        """
         self.__print__(f"Reading data from '{file_name}'")
         exp_data = read_exp_data(self.input_path, file_name)
-        self.__controller__.add_objective(exp_data["type"], exp_data)
+        self.__controller__.add_curve(exp_data["type"], exp_data)
     
-    # Adds an error
-    def add_error(self, error_name:str, x_label:str, y_label:str="", weight:float=1) -> None:
-        labels = f"{x_label}-{y_label}" if y_label != "" else x_label
-        self.__print__(f"Adding error '{error_name}' for {labels} with a weight of {weight}")
-        objective = self.__controller__.get_last_objective()
-        objective.add_error(error_name, x_label, y_label, weight)
+    def add_error(self, error_name:str, x_label:str="", y_label:str="", weight:float=1) -> None:
+        """
+        Adds an error to optimise for the most recenrtly added experimental data
+        
+        Parameters:
+        * `error_name`: The name of the error
+        * `x_label`:    The measurement on the x-axis (e.g., time, strain)
+        * `y_label`:    The measurement on the y-axis (e.g., strain, stress)
+        * `weight`:     The factor multipled with the error when the errors are reduced
+        """
+        labels = f"{x_label}-{y_label}" if x_label != "" and y_label != "" else f"{x_label}" if x_label != "" else ""
+        label_str = f"for {labels} " if labels != "" else ""
+        self.__print__(f"Adding error '{error_name}' {label_str}with a weight of {weight}")
+        curve = self.__controller__.get_last_curve()
+        curve.add_error(error_name, x_label, y_label, weight)
 
-    # Fixes a parameter
     def fix_param(self, param_name:str, param_value:float) -> None:
+        """
+        Fixes a parameter to a value and stops it from changing during the optimisation
+        
+        Parameters:
+        * `param_name`:  The name of the parameter
+        * `param_value`: The value the parameter will be fixed to
+        """
         self.__print__("Fixing the '{}' parameter to fixed value of {:0.4}".format(param_name, float(param_value)))
         self.__controller__.fix_param(param_name, param_value)
 
-    # Initialises a parameter
-    def set_param(self, param_name:str, param_value:float, param_std:float=0) -> None:
+    def init_param(self, param_name:str, param_value:float, param_std:float=0) -> None:
+        """
+        Gives a parameter an initial value in the initial population of the optimisation
+        
+        Parameters:
+        * `param_name`:  The name of the parameter
+        * `param_value`: The value the parameter is initialised to
+        * `param_std`:   The deviation of the parameter in the initial population
+        """
         message = "Setting the '{}' parameter to an initial value of {:0.4} and deviation of {:0.4}"
         self.__print__(message.format(param_name, float(param_value), float(param_std)))
-        self.__controller__.set_param(param_name, param_value, param_std)
+        self.__controller__.init_param(param_name, param_value, param_std)
 
-    # Prepares the results recorder
-    def start_rec(self, interval:int=10, population:int=10) -> None:
-        self.__print__(f"Initialising the recorder with an interval of {interval} and population of {population}")
-        self.__recorder__ = Recorder(self.__controller__, interval, population, self.get_output("out"))
-
-    # Prepares and conducts the optimisation
-    def start_opt(self, num_gens:int=10000, init_pop:int=100, offspring:int=50, crossover:float=0.65, mutation:float=0.35) -> None:
-        self.__print__(f"Conducting the optimisation ({num_gens}, {init_pop}, {offspring}, {crossover}, {mutation})")
-        self.__recorder__.define_hyperparameters(num_gens, init_pop, offspring, crossover, mutation)
-        problem = Problem(self.__controller__, self.__recorder__)
-        moga = MOGA(problem, num_gens, init_pop, offspring, crossover, mutation)
-        moga.optimise()
-
-    # Removes the tertiary creep from the most recently added creep curve
-    def rm_damage(self, window:int=0.1, acceptance:float=0.9) -> None:
+    def remove_damage(self, window:int=0.1, acceptance:float=0.9) -> None:
+        """
+        Removes the tertiary creep from the most recently added creep curve, by removing the data
+        points after the minimum creep rate
+        
+        Parameters:
+        * `window`:     The window ratio to identify the stationary points of the derivative; the actual
+                        window size is the product of `window` and the number of data points (500)
+        * `acceptance`: The acceptance value for identifying the nature of stationary points; should
+                        have a value between 0.5 and 1.0
+        """
         self.__print__(f"Removing the tertiary creep")
-        objective = self.__controller__.get_last_objective()
-        if objective.get_type() != "creep":
+        curve = self.__controller__.get_last_curve()
+        if curve.get_type() != "creep":
             raise ValueError("Cannot remove damage because it can only be removed for creep curves!")
-        exp_data = objective.get_exp_data()
+        exp_data = curve.get_exp_data()
         exp_data = remove_after_sp(exp_data, "min", "time", "strain", window, acceptance, 0)
-        objective.set_exp_data(exp_data)
+        curve.set_exp_data(exp_data)
 
-    # Removes the data after the tertiary creep for the most recently added 
-    def rm_ocreep(self, window:int=0.1, acceptance:float=0.9) -> None:
+    def remove_oxidation(self, window:int=0.1, acceptance:float=0.9) -> None:
+        """
+        Removes the data after the tertiary creep for the most recently added
+        
+        Parameters:
+        * `window`:     The window ratio to identify the stationary points of the derivative; the actual
+                        window size is the product of `window` and the number of data points (500)
+        * `acceptance`: The acceptance value for identifying the nature of stationary points; should
+                        have a value between 0.5 and 1.0
+        """
         self.__print__(f"Removing the oxidised creep")
-        objective = self.__controller__.get_last_objective()
-        if objective.get_type() != "creep":
+        curve = self.__controller__.get_last_curve()
+        if curve.get_type() != "creep":
             raise ValueError("Cannot remove oxidised creep because it can only be removed for creep curves!")
-        exp_data = objective.get_exp_data()
-        exp_data = remove_after_sp(objective["curve"], "max", "time", "strain", window, acceptance, 0)
-        objective.set_exp_data(exp_data)
+        exp_data = curve.get_exp_data()
+        exp_data = remove_after_sp(exp_data, "max", "time", "strain", window, acceptance, 0)
+        curve.set_exp_data(exp_data)
     
-    # Removes the data for a curve at a specific x value
-    def rm_manual(self, x_value:float, x_label:str) -> None:
-        objective = self.__controller__.get_last_objective()
-        x_units = DATA_UNITS[x_label]
-        self.__print__(f"Removing the values after {x_label} of {x_value} ({x_units})")
-        objective["curve"] = remove_data_after(objective["curve"], x_value)
+    def remove_manual(self, label:str, value:float) -> None:
+        """
+        Removes the data for a curve at a specific value
+        
+        Parameters:
+        * `label`: The measurement corresponding to the value (e.g., strain, stress)
+        * `value`: The value to start removing data
+        """
+        curve = self.__controller__.get_last_curve()
+        units = DATA_UNITS[label]
+        self.__print__(f"Removing the values after {label} of {value} ({units})")
+        exp_data = curve.get_exp_data()
+        exp_data = remove_data_after(exp_data, value, label)
+        curve.set_exp_data(exp_data)
     
-    # Visualises the experimental data
     def visualise(self, type:str=None, file_name:str="", x_label:str=None, y_label:str=None, derivative:int=0) -> None:
+        """
+        Visualises the experimental data
+        
+        Parameters:
+        * `type`:       The type of data to be visualised (e.g., creep, tensile); if none is specified,
+                        then the type of the most recently added curve is visualised
+        * `file_name`:  The name of the output file of the visualisation
+        * `x_label`:    The measurement to be visualised on the x-axis
+        * `y_label`:    The measurement to be visualised on the y-axis
+        * `derivative`: The derivative order of the data; the default is 0, meaning that the
+                        visualised data is not differentiated
+        """
         
         # Determine type (use type of last curve if undefined)
-        type = self.__controller__.get_last_objective().get_type() if type == None else type
+        type = self.__controller__.get_last_curve().get_type() if type == None else type
         
         # Determine file name
         default_file_name = f"exp_{type}_d{derivative}.png" if derivative > 0 else f"exp_{type}.png"
@@ -142,8 +210,21 @@ class API:
         # Actually plot the curves
         self.__controller__.plot_curves(type, self.get_output(file_name), x_label, y_label, derivative)
 
-    # Plots the results of a set of parameters
-    def fast_plot(self, *params:tuple, type_list:list=None, x_label:str=None, y_label:str=None) -> None:
+    def get_results(self, *params:tuple, type_list:list=None, x_label:str=None, y_label:str=None) -> None:
+        """
+        Gets the results from a set of parameters
+        
+        Parameters:
+        * `params`:    The parameter values of the model; note that defining the parameters as
+                       arguments to this function is similar to fixing the parameters via `fix_params`,
+                       meaning that there will be clashes if the parameter values are defined twice.
+        * `type_list`: The types of data (e.g., creep, tensile) to be visualised; if none are
+                       specified, then all the possible data types will be plotted
+        * `x_label`:   The measurement to be visualised on the x-axis
+        * `y_label`:   The measurement to be visualised on the y-axis
+        """
+        
+        # Convert parameters into a string and display
         param_str = ["{:0.4}".format(float(param)) for param in params]
         self.__print__("Plotting the results for {}".format(str(param_str).replace("'", "")))
 
@@ -158,12 +239,84 @@ class API:
         recorder.define_hyperparameters("n/a","n/a","n/a","n/a","n/a")
         
         # Add parameters and create record
-        error_value_dict = self.__controller__.calculate_error_value_dict(*params)
+        error_value_dict = self.__controller__.calculate_objectives(*params)
         recorder.update_optimal_solution(param_value_dict, error_value_dict)
         recorder.create_record(self.get_output("results.xlsx"), type_list, x_label, y_label)
+        
+    def set_recorder(self, interval:int=10, population:int=10) -> None:
+        """
+        Sets the options for the results recorder
+        
+        Parameters:
+        * `interval`:   The number of generations for which the most updated results will
+                        be generated
+        * `population`: The number of solutions to be stored and shown in the results
+        """
+        self.__print__(f"Initialising the recorder with an interval of {interval} and population of {population}")
+        self.__recorder__ = Recorder(self.__controller__, interval, population, self.get_output("out"))
 
-    # Prints out the final messaeg
+    def group_errors(self, name:bool=True, type:bool=True, labels:bool=True):
+        """
+        Sets the options for the grouping of errors into objective functions; if all the parameters
+        are set to false, then the errors will be grouped into a single objective function
+        
+        Parameters:
+        * `name`:   If true, the errors will be grouped by their names (e.g., x_end, y_area)
+        * `type`:   If true, the errors will be grouped by the data types (e.g., creep, tensile)
+        * `labels`: If true, the errors will be grouped by their measurements (e.g., strain, stress)
+        """
+        group_str_list = [group_str for group_str in ["name" if name else "",
+            "type" if type else "", "labels" if labels else ""] if group_str != ""] 
+        group_str = f"based on {', '.join(group_str_list)}" if group_str_list != [] else "individually"
+        self.__print__(f"Grouping the errors {group_str}")
+        self.__controller__.set_error_grouping(name, type, labels)
+    
+    def reduce_errors(self, method:str="average"):
+        """
+        Sets the reduction method to convert a list of error values into a single
+        value for each objective function; the reduced values are then optimised
+        by the multi-objective genetic algorithm
+        
+        Parameters:
+        * `method`: The reduction method ("sum", "average", "square_sum")
+        """
+        self.__print__(f"Reducing the errors based on {method}")
+        self.__controller__.set_error_reduction_method(method)
+    
+    def reduce_objectives(self, method:str="average"):
+        """
+        Sets the reduction method to convert a list of objective function values into a
+        single value; this single value is for determining the optimal solution in the
+        collection of solutions during the optimisation process
+        
+        Parameters:
+        * `method`: The reduction method ("sum", "average", "square_sum")
+        """
+        self.__print__(f"Reducing the objective functions based on {method}")
+        self.__controller__.set_objective_reduction_mtehod(method)
+    
+    def optimise(self, num_gens:int=10000, init_pop:int=100, offspring:int=50, crossover:float=0.65, mutation:float=0.35) -> None:
+        """
+        Prepares and conducts the optimisation
+        
+        Parameters:
+        * `num_gens`:  The number of generations to optimise
+        * `init_pop`:  The number of solutions in the initial population
+        * `offspring`: The number of solutions introduced after each generation
+        * `crossover`: The crossover probability; should be between 0.0 and 1.0
+        * `mutation`:  The mutation probability; should be between 0.0 and 1.0
+        """
+        self.__print__(f"Conducting the optimisation ({num_gens}, {init_pop}, {offspring}, {crossover}, {mutation})")
+        self.__recorder__.define_hyperparameters(num_gens, init_pop, offspring, crossover, mutation)
+        problem = Problem(self.__controller__, self.__recorder__)
+        moga = MOGA(problem, num_gens, init_pop, offspring, crossover, mutation)
+        moga.optimise()
+        
+    
     def __del__(self):
+        """
+        Prints out the final message (for internal use only)
+        """
         time_str = time.strftime("%A, %D, %H:%M:%S", time.localtime())
         duration = round(time.time() - self.start_time)
         print(f"\n  Finished on {time_str} in {duration}s\n")

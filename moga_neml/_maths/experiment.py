@@ -18,7 +18,7 @@ DATA_FIELD_DICT = {
 
 # Stores labels for each type of test
 NEML_FIELD_CONVERSION = {
-    "creep":   {"rtime": "time", "rstrain": "strain"},
+    "creep":   {"rtime": "time", "rstrain": "strain", "history": "damage"},
     "tensile": {"strain": "strain", "stress": "stress"},
     "cyclic":  {"time": "time", "strain": "strain", "stress": "stress"}
 }
@@ -32,10 +32,10 @@ DATA_FIELD_PLOT_MAP = {
 
 # Stores all the units
 DATA_UNITS = {
+    "poissons": "",
     "stress": "MPa",
     "strain": "mm/mm",
     "temperature": "°C",
-    "time": "s",
+    "time": "h",
     "youngs": "MPa",
-    "poissons": "",
 }

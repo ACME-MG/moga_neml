@@ -6,11 +6,11 @@
 """
 
 # Libraries
-import moga_neml.models.__model__ as model
+from moga_neml.models.__model__ import __Model__
 from neml import models, elasticity, surfaces, hardening, visco_flow, general_flow
 
 # The Elastic Visco Plastic Class
-class Model(model.__Model__):
+class Model(__Model__):
 
     # Runs at the start, once
     def initialise(self):
@@ -18,12 +18,12 @@ class Model(model.__Model__):
         # Define parameters
         self.add_param("evp_s0",  0.0e0, 1.0e3) # 2
         self.add_param("evp_R",   0.0e0, 1.0e4) # 2
-        self.add_param("evp_d",   0.0e1, 1.0e3) # 2
+        self.add_param("evp_d",   0.0e1, 1.0e2) # 2
         self.add_param("evp_n",   1.0e0, 1.0e2) # 2
-        self.add_param("evp_eta", 0.0e1, 1.0e6) # 5
+        self.add_param("evp_eta", 0.0e1, 1.0e5) # 5
         
     # Gets the model
-    def get_model(self, evp_s0, evp_R, evp_d, evp_n, evp_eta):
+    def calibrate_model(self, evp_s0, evp_R, evp_d, evp_n, evp_eta):
         elastic_model = elasticity.IsotropicLinearElasticModel(self.get_data("youngs"), "youngs", self.get_data("poissons"), "poissons")
         yield_surface = surfaces.IsoJ2()
         iso_hardening = hardening.VoceIsotropicHardeningRule(evp_s0, evp_R, evp_d)

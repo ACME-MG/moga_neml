@@ -64,12 +64,24 @@ class __Model__:
     def get_arg(self, index) -> tuple:
         return self.args[index]
 
+    # Gets the calibrated model
+    def get_calibrated_model(self, *params): # -> NEML Model
+        self.calibrated_model = self.calibrate_model(*params)
+        return self.calibrated_model
+
+    # Gets the last calibrated model
+    def get_last_calibrated_model(self):
+        if self.calibrated_model == None:
+            raise ValueError("Could not get the calibrated model because it has not been calibrated yet!")
+        return self.calibrated_model
+
     # Runs at the start, once (must be overridden)
     def initialise(self) -> None:
         raise NotImplementedError
-
+        
     # Gets the model (must be overridden)
-    def get_model(self, *params): # -> NEML Model
+    #   Returns None if the parameter set / model is invalid
+    def calibrate_model(self, *params): # -> NEML Model
         raise NotImplementedError
 
 # Creates and return a model

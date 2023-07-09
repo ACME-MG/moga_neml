@@ -6,13 +6,13 @@
 """
 
 # Libraries
-import moga_neml.models.__model__ as model
 from neml import elasticity
 from neml.cp import crystallography, slipharden, sliprules, inelasticity, kinematics, singlecrystal, polycrystal
 from neml.math import rotations
+from moga_neml.models.__model__ import __Model__
 
 # The Voce Slip Hardening Asaro Inelasticity Class
-class Model(model.__Model__):
+class Model(__Model__):
 
     # Runs at the start, once
     def initialise(self):
@@ -55,7 +55,7 @@ class Model(model.__Model__):
         
     # Gets the predicted curve
     #   api.def_model("vshai", ["ebsd/ebsd_statistics.csv", 1.0, [1,1,0], [1,1,1], 16])
-    def get_model(self, vsh_ts, vsh_b, vsh_t0, ai_g0, ai_n):
+    def calibrate_model(self, vsh_ts, vsh_b, vsh_t0, ai_g0, ai_n):
         elastic_model  = elasticity.IsotropicLinearElasticModel(self.get_data("youngs"), "youngs", self.get_data("poissons"), "poissons")
         strength_model = slipharden.VoceSlipHardening(vsh_ts, vsh_b, vsh_t0)
         slip_model     = sliprules.PowerLawSlipRule(strength_model, ai_g0, ai_n)
