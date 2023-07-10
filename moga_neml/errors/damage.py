@@ -14,7 +14,6 @@ class Error(__Error__):
     
     # Runs at the start, once (optional)
     def initialise(self):
-        self.enforce_data_type("creep")
         self.enforce_model("evpwd")
         self.model = self.get_model()
 

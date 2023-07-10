@@ -245,6 +245,8 @@ class Controller():
         
         # Plot experimental and predicted data
         for curve in self.curve_list:
+            if curve.get_type() != type:
+                continue
             exp_data = curve.get_exp_data()
             prd_data = self.get_prd_data(curve, *params)
             if prd_data == None:
@@ -253,6 +255,4 @@ class Controller():
             plotter.line_plot(prd_data)
         plotter.save_plot()
         plotter.clear()
-
-
     
