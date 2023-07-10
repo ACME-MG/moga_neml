@@ -12,7 +12,6 @@ from moga_neml._maths.experiment import NEML_FIELD_CONVERSION
 from moga_neml._maths.general import BlockPrint
 
 # General Driver Constants
-MIN_DATA     = 10
 TIME_HOLD    = 11500.0 * 3600.0
 NUM_STEPS_UP = 50
 NUM_STEPS    = 1001
@@ -47,7 +46,8 @@ class Driver:
         # Convert results and return
         converted_results = {}
         for field in list(self.conversion_dict.keys()):
-            converted_results[self.conversion_dict[field]] = results[field]
+            if field in results.keys():
+                converted_results[self.conversion_dict[field]] = results[field]
         return converted_results
     
     # Gets the results based on the type

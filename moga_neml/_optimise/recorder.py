@@ -61,6 +61,13 @@ class Recorder:
             data_info = "{} ({})".format(curve.get_exp_data()["file_name"], status)
             self.data_info_list.append(data_info)
         
+        # Summarise grouping / reduction methods
+        self.reduction_method_list = [
+            f"Grouping Errors ({self.controller.get_error_grouping()})",
+            f"Reducing Errors ({self.controller.get_error_reduction_method()})",
+            f"Reducing Objectives ({self.controller.get_objective_reduction_method()})",
+        ]
+        
         # Initialise optimal solution
         self.optimal_solution_list = []
     
@@ -134,6 +141,7 @@ class Recorder:
             "Experimental Data": self.data_info_list,
             "Objectives":   self.controller.get_objective_info_list(),
             "MOGA Summary": self.moga_summary,
+            "Reduction":    self.reduction_method_list,
         }
     
     # Gets a dictionary of the optimisation results

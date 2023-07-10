@@ -19,6 +19,9 @@ class Error(__Error__):
 
     # Computes the error value
     def get_value(self, prd_data:dict) -> float:
-        damage_history = prd_data["damage"][-1]
+        damage_history = prd_data["history"][-1]
         damage = self.model.get_last_calibrated_model().get_damage(damage_history)
-        return math.pow(1 - damage, 2)
+        try:
+            return math.pow(1 - damage, 2)
+        except OverflowError:
+            return # math domain error

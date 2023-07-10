@@ -8,15 +8,6 @@
 # Libraries
 import importlib, os, pathlib, sys
 
-# Constants
-STRESS_RATE  = 0.0001
-TIME_HOLD    = 11500.0 * 3600.0
-NUM_STEPS_UP = 50
-NUM_STEPS    = 501
-STRAIN_MAX   = 0.47
-MIN_DATA     = 10
-CYCLIC_RATIO = -1
-
 # The Model Template Class
 class __Model__:
 

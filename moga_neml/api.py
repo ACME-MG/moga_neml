@@ -35,7 +35,8 @@ class API:
         # Initialise internal variables
         self.__controller__  = Controller()
         self.__recorder__    = None
-        self.__print_count__ = 1
+        self.__print_index__ = 0
+        self.__print_subindex__ = 0
         self.__verbose__     = verbose
         
         # Print starting message
@@ -63,20 +64,32 @@ class API:
         safe_mkdir(output_path)
         safe_mkdir(self.__output_path__)
     
-    def __print__(self, message:str, add_index:bool=True) -> None:
+    def __print__(self, message:str, add_index:bool=True, sub_index:bool=False) -> None:
         """
         Displays a message before running the command (for internal use only)
         
         Parameters:
         * `message`:   the message to be displayed
-        * `add_index`: if true, adds a number at the start of the emssage
+        * `add_index`: if true, adds a number at the start of the message
+        * `sub_index`: if true, adds a number as a decimal
         """
+        
+        # Special printing cases
         if not self.__verbose__:
             return
-        if add_index:
-            print(f"   {self.__print_count__})\t", end="")
-            self.__print_count__ += 1
-        print(message)
+        if not add_index:
+            print(message)
+            return
+        
+        # Prints with an index / subindex
+        if sub_index:
+            self.__print_subindex__ += 1
+            print_index = f"     {self.__print_index__}.{self.__print_subindex__}"
+        else:
+            self.__print_index__ += 1
+            self.__print_subindex__ = 0
+            print_index = f"{self.__print_index__}"
+        print(f"   {print_index})\t{message}")
     
     def define_model(self, model_name:str, *args) -> None:
         """
@@ -112,7 +125,8 @@ class API:
         """
         labels = f"{x_label}-{y_label}" if x_label != "" and y_label != "" else f"{x_label}" if x_label != "" else ""
         label_str = f"for {labels} " if labels != "" else ""
-        self.__print__(f"Adding error '{error_name}' {label_str}with a weight of {weight}")
+        weight_str = f"with a weight of {weight}" if weight != 1 else ""
+        self.__print__(f"Adding '{error_name}' error {label_str}{weight_str}", sub_index=True)
         curve = self.__controller__.get_last_curve()
         curve.add_error(error_name, x_label, y_label, weight)
 
@@ -151,7 +165,7 @@ class API:
         * `acceptance`: The acceptance value for identifying the nature of stationary points; should
                         have a value between 0.5 and 1.0
         """
-        self.__print__(f"Removing the tertiary creep")
+        self.__print__(f"Removing the tertiary creep", sub_index=True)
         curve = self.__controller__.get_last_curve()
         if curve.get_type() != "creep":
             raise ValueError("Cannot remove damage because it can only be removed for creep curves!")
@@ -169,7 +183,7 @@ class API:
         * `acceptance`: The acceptance value for identifying the nature of stationary points; should
                         have a value between 0.5 and 1.0
         """
-        self.__print__(f"Removing the oxidised creep")
+        self.__print__(f"Removing the oxidised creep", sub_index=True)
         curve = self.__controller__.get_last_curve()
         if curve.get_type() != "creep":
             raise ValueError("Cannot remove oxidised creep because it can only be removed for creep curves!")
@@ -187,7 +201,7 @@ class API:
         """
         curve = self.__controller__.get_last_curve()
         units = DATA_UNITS[label]
-        self.__print__(f"Removing the values after {label} of {value} ({units})")
+        self.__print__(f"Removing the values after {label} of {value} ({units})", sub_index=True)
         exp_data = curve.get_exp_data()
         exp_data = remove_data_after(exp_data, value, label)
         curve.set_exp_data(exp_data)
@@ -302,11 +316,10 @@ class API:
         * `type`:   If true, the errors will be grouped by the data types (e.g., creep, tensile)
         * `labels`: If true, the errors will be grouped by their measurements (e.g., strain, stress)
         """
-        group_str_list = [group_str for group_str in ["name" if name else "",
-            "type" if type else "", "labels" if labels else ""] if group_str != ""] 
-        group_str = f"based on {', '.join(group_str_list)}" if group_str_list != [] else "individually"
-        self.__print__(f"Grouping the errors {group_str}")
         self.__controller__.set_error_grouping(name, type, labels)
+        group_str = self.__controller__.get_error_grouping()
+        group_str_out = f"based on {group_str}" if group_str != "" else "individually"
+        self.__print__(f"Grouping the errors {group_str_out}") # prints after action
     
     def reduce_errors(self, method:str="average"):
         """

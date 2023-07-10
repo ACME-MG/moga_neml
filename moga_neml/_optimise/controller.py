@@ -17,7 +17,7 @@ from moga_neml._maths.experiment import DATA_FIELD_PLOT_MAP
 from moga_neml._maths.general import reduce_list
 
 # Constants
-MIN_DATA = 50
+MIN_DATA  = 5
 BIG_VALUE = 10000
 
 # The Controller class
@@ -120,13 +120,17 @@ class Controller():
     # Changes the reduction method for errors
     def set_error_reduction_method(self, method:str):
         self.error_reduction_method = method
+
+    # Gets the reduction method for errors
+    def get_error_reduction_method(self) -> str:
+        return self.error_reduction_method
         
     # Changes the reduction method for objective functions
     def set_objective_reduction_mtehod(self, method:str):
         self.objective_reduction_method = method
 
     # Gets the reduction method for objective functions
-    def get_objective_reduction_method(self):
+    def get_objective_reduction_method(self) -> str:
         return self.objective_reduction_method
 
     # Changes the variables for grouping the errors together
@@ -134,6 +138,16 @@ class Controller():
         self.group_name = group_name
         self.group_type = group_type
         self.group_labels = group_labels
+
+    # Gets the error grouping approach as a string
+    def get_error_grouping(self) -> str:
+        group_str_list = [
+            "name" if self.group_name else "",
+            "type" if self.group_type else "",
+            "labels" if self.group_labels else ""
+        ]
+        group_str_list = [group_str for group_str in group_str_list if group_str != ""]
+        return ', '.join(group_str_list)
 
     # Returns information about the errors
     def get_objective_info_list(self) -> list:
@@ -156,16 +170,16 @@ class Controller():
         if calibrated_model == None:
             return None
         
-        # Get the driver and get the curve
+        # Get the driver and prediction
         model_driver = Driver(curve.get_exp_data(), calibrated_model)
         prd_data = model_driver.run()
-
-        # Only return if data contains sufficient points
+        
+        # Check data has some data points
         if prd_data == None:
             return
-        for data_key in prd_data.keys():
-            if len(prd_data[data_key]) < MIN_DATA:
-                return None
+        for field in prd_data.keys():
+            if len(prd_data[field]) < MIN_DATA:
+                return
         return prd_data
     
     # Defines how the errors are reduced
@@ -205,7 +219,8 @@ class Controller():
         
             # Gets all the errors and add to dictionary
             for error in error_list:
-                error_value = error.get_value(prd_data) * error.get_weight()
+                error_value = error.get_value(prd_data)
+                error_value = error_value * error.get_weight() if error_value != None else BIG_VALUE
                 error_group_key = error.get_group_key(self.group_name, self.group_type, self.group_labels)
                 error_list_dict[error_group_key].append(error_value)
         
