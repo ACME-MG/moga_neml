@@ -1,7 +1,7 @@
 import sys; sys.path += [".."]
 from moga_neml.api import API
 
-api = API("evpcd 900 all avg damage")
+api = API("evpcd 900")
 api.define_model("evpcd")
 
 api.fix_param("evp_s0",  1.854e1)
