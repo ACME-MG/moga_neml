@@ -23,7 +23,7 @@ class MOGA:
         # Initialise
         self.problem    = problem
         self.controller = problem.get_controller()
-        self.param_dict = self.controller.get_model().get_param_dict()
+        self.param_dict = self.controller.get_unfix_param_dict()
         self.num_gens   = num_gens
         self.init_pop   = init_pop
         self.offspring  = offspring
@@ -86,5 +86,6 @@ class MOGA:
 
     # Runs the genetic optimisation
     def optimise(self) -> None:
-        warnings.filterwarnings("ignore")
-        minimize(self.problem, self.algo, ("n_gen", self.num_gens), verbose=False, seed=None)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            minimize(self.problem, self.algo, ("n_gen", self.num_gens), verbose=False, seed=None)

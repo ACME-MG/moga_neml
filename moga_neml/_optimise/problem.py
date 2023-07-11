@@ -21,12 +21,12 @@ class Problem(ElementwiseProblem):
         # Initialise
         self.controller  = controller
         self.recorder    = recorder
-        self.param_names = list(self.controller.get_model().get_param_dict().keys())
         
-        # Get unfixed parameter information
+        # Get parameter information
         unfix_param_dict = self.controller.get_unfix_param_dict()
         l_bound_list = [unfix_param_dict[param_name]["l_bound"] for param_name in unfix_param_dict.keys()]
         u_bound_list = [unfix_param_dict[param_name]["u_bound"] for param_name in unfix_param_dict.keys()]
+        self.unfixed_param_names = list(unfix_param_dict.keys())
         
         # Define the element wise problem
         super().__init__(
@@ -46,7 +46,6 @@ class Problem(ElementwiseProblem):
     
     # Creates the parameter dictionary
     def get_param_value_dict(self, params:tuple):
-        
         param_dict = self.controller.get_model().get_param_dict()
         param_value_dict = {}
         for i in range(len(params)):
@@ -66,5 +65,5 @@ class Problem(ElementwiseProblem):
             out["F"] = list(error_value_dict.values())
             
             # Get parameter values and update recorder
-            param_value_dict = {key: value for key, value in zip(self.param_names, params)}
+            param_value_dict = {key: value for key, value in zip(self.unfixed_param_names, params)}
             self.recorder.update_iteration(param_value_dict, error_value_dict)

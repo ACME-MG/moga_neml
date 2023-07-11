@@ -66,14 +66,14 @@ def get_curve(file_name):
 
 # File names
 file_list = [
-    {"file_name": "AirBase_800_60_G32.csv"},
-    {"file_name": "AirBase_800_65_G33.csv"},
-    {"file_name": "AirBase_800_70_G44.csv"},
-    {"file_name": "AirBase_800_80_G25.csv"},
+    "../creep/inl_1/AirBase_900_36_G22.csv",
+    "../creep/inl_1/AirBase_900_31_G50.csv",
+    "../creep/inl_1/AirBase_900_28_G45.csv",
+    # "../creep/inl_1/AirBase_900_26_G59.csv",
 ]
 
 # Initialise
-curve_list = [get_curve(file["file_name"]) for file in file_list]
+curve_list = [get_curve(file) for file in file_list]
 work_failure_list = []
 avg_work_rate_list = []
 

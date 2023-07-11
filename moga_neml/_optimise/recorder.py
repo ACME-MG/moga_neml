@@ -83,7 +83,6 @@ class Recorder:
     # Updates the population
     def update_optimal_solution(self, param_dict:dict, objective_dict:dict):
         
-        
         # Get the solution
         reduction_method = self.controller.get_objective_reduction_method()
         objective_values = list(objective_dict.values())
@@ -95,7 +94,7 @@ class Recorder:
             if self.optimal_solution_list[-1][reduction_method] < solution[reduction_method]:
                 return
             self.optimal_solution_list.pop()
-        
+
         # Adds new solution in order
         for i in range(len(self.optimal_solution_list)):
             if solution[reduction_method] < self.optimal_solution_list[i][reduction_method]:

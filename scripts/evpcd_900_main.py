@@ -9,6 +9,8 @@ api.fix_param("evp_R",   3.049e1)
 api.fix_param("evp_d",   2.523e0)
 api.fix_param("evp_n",   3.026e0)
 api.fix_param("evp_eta", 2.495e3)
+# api.init_param("evp_eta", 2.495e3)
+# api.init_param("cd_A", 2.495e3)
 
 api.read_data("tensile/AirBase_900_D10.csv")
 api.add_error("y_area", "strain", "stress")

@@ -8,22 +8,26 @@ The following section details the requirements to run the script.
 
 ## NEML
 
-NEML is a tool for developing / running structural material models. To install NEML, please follow the [official instructions](https://neml.readthedocs.io/en/dev/started.html). However, instead of a normal `git clone`, please clone the NEML repository recursively. In other words, use the following command to clone the NEML repository.
+NEML is a tool for developing / running structural material models. To install NEML for this repository, please follow the instructions below. Note that these instructions are slightly modified from the [official instructions](https://neml.readthedocs.io/en/dev/started.html).
+
+To install NEML, first clone the repository recursively using the following command.
 ```
-$ git clone --recursive https://github.com/Argonne-National-Laboratory/neml.git
+git clone --recursive https://github.com/Argonne-National-Laboratory/neml.git
 ```
 
-For multi-threading capabilities, use the following configurations when running `cmake`.
+Then, move into the NEML directory and compile NEML using `cmake` and `make`.
 ```
-$ cmake -D WRAP_PYTHON=ON -D USE_OPENMP=ON .
-```
-
-After installing NEML using the official instructions, add NEML to the system path. You can do this by going to your home directory, adding the following line to the `.bashrc` file or the `.profile` file, and restarting the terminal.
-```
-$ export PYTHONPATH=$PYTHONPATH:<path_to_neml>
+cd neml
+cmake -D WRAP_PYTHON=ON -D USE_OPENMP=ON -D CMAKE_BUILD_TYPE=Release .
+make -j 2
 ```
 
-Please replace `<path_to_neml>` with the absolute path to the installed NEML folder.
+After installing NEML, add NEML to the system path. You can do this by going to your home directory, adding the following line to the `.bashrc` file. Note that `<path_to_neml>` refers to the absolute path to the installed NEML directory.
+```
+export PYTHONPATH=$PYTHONPATH:<path_to_neml>
+```
+
+Make sure to source the `.bashrc` file or restart the terminal, so that NEML is added to the system path properly.
 
 ## Python Packages
 

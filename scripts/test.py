@@ -10,7 +10,7 @@ api.read_data("creep/inl_1/AirBase_900_31_G50.csv")
 api.read_data("creep/inl_1/AirBase_900_28_G45.csv")
 api.read_data("creep/inl_1/AirBase_900_26_G59.csv")
 
-params = (14.955, 30.503, 2.5274, 3.026, 2500.7, 0.38852, 3.1987, 3.0996)
+params = (18.39, 30.036, 2.3999, 3.026, 2508.8, 0.80679, 5.4464, 3.8955)
 # params = (159.15, 12.871, 11.424, 1.5864, 1823.9)
 api.get_results(*params)
 # api.plot_predicted(*params, type="tensile")

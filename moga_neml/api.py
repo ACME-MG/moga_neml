@@ -280,7 +280,7 @@ class API:
         self.__print__("Getting the results for {}".format(str(param_str).replace("'", "")))
 
         # Get parameters and check input
-        param_name_list = list(self.__controller__.get_model().get_param_dict().keys())
+        param_name_list = list(self.__controller__.get_unfix_param_dict().keys())
         param_value_dict = {key: value for key, value in zip(param_name_list, params)}
         if len(params) != len(param_name_list):
             raise ValueError("Could not plot because the number of inputs do not match the number of parameters!")

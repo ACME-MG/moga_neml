@@ -11,6 +11,8 @@ import math, numpy as np
 
 # Reduces a list of values based on a method
 def reduce_list(value_list:list, method:str) -> float:
+    if value_list == []:
+        return 0
     if method == "sum":
         return sum(value_list)
     elif method == "average":

@@ -1,17 +1,14 @@
 import sys; sys.path += [".."]
 from moga_neml.api import API
 
-api = API("evpwd 900 all avg damage")
-api.define_model("evpwd")
+api = API("evpwdp 900")
+api.define_model("evpwdp")
 
-api.fix_param("evp_s0",  1.854e1)
-api.fix_param("evp_R",   3.049e1)
-api.fix_param("evp_d",   2.523e0)
-api.fix_param("evp_n",   3.026e0)
-api.fix_param("evp_eta", 2.495e3)
-
-api.init_param("wd_m",   3.69e-1)
-api.init_param("wd_b",   6.949e0)
+api.init_param("evp_s0",  1.854e1)
+api.init_param("evp_R",   3.049e1)
+api.init_param("evp_d",   2.523e0)
+api.init_param("evp_n",   3.026e0)
+api.init_param("evp_eta", 2.495e3)
 
 api.read_data("tensile/AirBase_900_D10.csv")
 api.add_error("y_area", "strain", "stress")
