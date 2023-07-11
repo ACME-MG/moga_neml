@@ -2,7 +2,7 @@ import sys; sys.path += [".."]
 from moga_neml.api import API
 
 api = API("", verbose=False, output_here=True)
-api.define_model("evp", "helllooooo", 1233434)
+api.define_model("vshai", "ebsd/ebsd_statistics.csv", 1.0, [1,1,0], [1,1,1], 16)
 
 api.read_data("tensile/AirBase_900_D10.csv")
 api.remove_manual("strain", 0.4)

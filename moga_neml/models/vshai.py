@@ -54,7 +54,7 @@ class Model(__Model__):
         self.lattice.add_slip_system(slip_direction, slip_plane)
         
     # Gets the predicted curve
-    #   api.def_model("vshai", ["ebsd/ebsd_statistics.csv", 1.0, [1,1,0], [1,1,1], 16])
+    #   api.define_model("vshai", "ebsd/ebsd_statistics.csv", 1.0, [1,1,0], [1,1,1], 16)
     def calibrate_model(self, vsh_ts, vsh_b, vsh_t0, ai_g0, ai_n):
         elastic_model  = elasticity.IsotropicLinearElasticModel(self.get_data("youngs"), "youngs", self.get_data("poissons"), "poissons")
         strength_model = slipharden.VoceSlipHardening(vsh_ts, vsh_b, vsh_t0)

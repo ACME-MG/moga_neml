@@ -21,7 +21,6 @@ class __Model__:
         # Initialise internal variables
         self.param_dict = {}
         self.exp_data = {}
-        self.args = ()
 
     # Adds a parameter and bounds
     def add_param(self, name:str, l_bound:float=0.0e0, u_bound:float=1.0e0) -> None:
