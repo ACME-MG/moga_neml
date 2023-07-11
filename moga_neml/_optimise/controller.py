@@ -42,8 +42,8 @@ class Controller():
         self.objective_reduction_method = "average"
         
     # Defines the model
-    def define_model(self, model_name:str, *model_args:tuple) -> None:
-        self.model = get_model(model_name, *model_args)
+    def define_model(self, model_name:str, model_args:tuple) -> None:
+        self.model = get_model(model_name, model_args)
         
     # Adds experimental data
     def add_curve(self, type:str, exp_data:dict) -> None:

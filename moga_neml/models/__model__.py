@@ -76,7 +76,7 @@ class __Model__:
         raise NotImplementedError
 
 # Creates and return a model
-def get_model(model_name:str, args:list=[]) -> __Model__:
+def get_model(model_name:str, args:tuple=()) -> __Model__:
 
     # Get available models in current folder
     models_dir = pathlib.Path(__file__).parent.resolve()
