@@ -15,10 +15,13 @@ To install NEML, first clone the repository recursively using the following comm
 git clone --recursive https://github.com/Argonne-National-Laboratory/neml.git
 ```
 
-Then, move into the NEML directory and compile NEML using `cmake` and `make`.
+Once done, move into the NEML directory.
 ```
 cd neml
-cmake -D WRAP_PYTHON=ON -D USE_OPENMP=ON -D CMAKE_BUILD_TYPE=Release .
+```
+Then compile NEML using the following configurations. You can run `cmake` with `-D USE_OPENMP=ON` to enable  multithreading for certain models (e.g., Taylor Models).
+```
+cmake -D WRAP_PYTHON=ON -D CMAKE_BUILD_TYPE=Release .
 make -j 2
 ```
 
