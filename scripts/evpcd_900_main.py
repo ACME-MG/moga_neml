@@ -4,13 +4,11 @@ from moga_neml.api import API
 api = API("evpcd 900")
 api.define_model("evpcd")
 
-api.fix_param("evp_s0",  1.854e1)
-api.fix_param("evp_R",   3.049e1)
-api.fix_param("evp_d",   2.523e0)
-api.fix_param("evp_n",   3.026e0)
-api.fix_param("evp_eta", 2.495e3)
-# api.init_param("evp_eta", 2.495e3)
-# api.init_param("cd_A", 2.495e3)
+api.fix_param("evp_s0",  4.871e0)
+api.fix_param("evp_R",   1.152e1)
+api.fix_param("evp_d",   7.028e0)
+api.fix_param("evp_n",   4.242e0)
+api.fix_param("evp_eta", 1.138e3)
 
 api.read_data("tensile/AirBase_900_D10.csv")
 api.add_error("y_area", "strain", "stress")
