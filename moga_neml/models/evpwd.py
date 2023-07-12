@@ -21,12 +21,12 @@ class Model(__Model__):
         self.add_param("evp_d",   0.0e1, 1.0e3) # 2
         self.add_param("evp_n",   1.0e0, 1.0e2) # 2
         self.add_param("evp_eta", 0.0e1, 1.0e6)
-        self.add_param("wd_m",    0.0e1, 1.0e0)
-        self.add_param("wd_b",    0.0e1, 1.0e1)
         self.add_param("wd_n",    1.0e0, 1.0e1)
+        self.add_param("wd_0",    0.0e1, 1.0e0)
+        self.add_param("wd_1",    0.0e1, 1.0e1)
 
     # Gets the predicted curve
-    def calibrate_model(self, evp_s0, evp_R, evp_d, evp_n, evp_eta, wd_m, wd_b, wd_n):
+    def calibrate_model(self, evp_s0, evp_R, evp_d, evp_n, evp_eta, wd_n, wd_0, wd_1):
         elastic_model = elasticity.IsotropicLinearElasticModel(self.get_data("youngs"), "youngs", self.get_data("poissons"), "poissons")
         yield_surface = surfaces.IsoJ2()
         iso_hardening = hardening.VoceIsotropicHardeningRule(evp_s0, evp_R, evp_d)
@@ -34,7 +34,7 @@ class Model(__Model__):
         visco_model   = visco_flow.PerzynaFlowRule(yield_surface, iso_hardening, g_power)
         integrator    = general_flow.TVPFlowRule(elastic_model, visco_model)
         evp_model     = models.GeneralIntegrator(elastic_model, integrator, verbose=False)
-        wd_wc         = interpolate.PolynomialInterpolate([wd_m, wd_b])
+        wd_wc         = interpolate.PolynomialInterpolate([wd_0, wd_1])
         wd_model      = damage.WorkDamage(elastic_model, wd_wc, wd_n, log=True, eps=1e-40, work_scale=1e5)
         evpwd_model   = damage.NEMLScalarDamagedModel_sd(elastic_model, evp_model, wd_model, verbose=False)
         return evpwd_model

@@ -1,14 +1,18 @@
 import sys; sys.path += [".."]
 from moga_neml.api import API
 
-api = API("evpcd 900")
+api = API("evpcd 900 init all")
 api.define_model("evpcd")
 
-api.fix_param("evp_s0",  4.871e0)
-api.fix_param("evp_R",   1.152e1)
-api.fix_param("evp_d",   7.028e0)
-api.fix_param("evp_n",   4.242e0)
-api.fix_param("evp_eta", 1.138e3)
+api.init_param("evp_s0",  4.871e0)
+api.init_param("evp_R",   1.152e1)
+api.init_param("evp_d",   7.028e0)
+api.init_param("evp_n",   4.242e0)
+api.init_param("evp_eta", 1.138e3)
+
+api.init_param("cd_A",    5.826e3)
+api.init_param("cd_xi",   3.499e0)
+api.init_param("cd_phi",  7.520e0)
 
 api.read_data("tensile/AirBase_900_D10.csv")
 api.add_error("y_area", "strain", "stress")
