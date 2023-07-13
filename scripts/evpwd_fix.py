@@ -10,8 +10,8 @@ api.fix_param("evp_d",   7.028e0)
 api.fix_param("evp_n",   4.242e0)
 api.fix_param("evp_eta", 1.138e3)
 
-api.init_param("w_0",    2.875e-1)
-api.init_param("w_1",    5.918e0)
+api.init_param("wd_0",   2.875e-1)
+api.init_param("wd_1",   5.918e0)
 
 api.read_data("tensile/AirBase_900_D10.csv")
 api.add_error("y_area", "strain", "stress")
