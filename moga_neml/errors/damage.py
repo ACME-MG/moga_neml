@@ -21,6 +21,6 @@ class Error(__Error__):
         damage_history = prd_data["history"][-1]
         damage = self.model.get_last_calibrated_model().get_damage(damage_history)
         try:
-            return math.pow(1 - damage, 2)
+            return math.pow(1 - damage, 4)
         except OverflowError:
             return # math domain error
