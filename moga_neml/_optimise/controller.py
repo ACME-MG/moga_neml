@@ -187,14 +187,18 @@ class Controller():
         objective_info_list = self.get_objective_info_list()
         error_value_dict = {}
         for error_info in objective_info_list:
-            error_value = reduce_list(error_list_dict[error_info], self.error_reduction_method)
-            error_value_dict[error_info] = error_value
+            try:
+                error_value_dict[error_info] = reduce_list(error_list_dict[error_info], self.error_reduction_method)
+            except OverflowError:
+                error_value_dict[error_info] = BIG_VALUE
         return error_value_dict
     
     # Defines how the objectives are reduced
     def reduce_objectives(self, objective_list:list) -> float:
-        objective_value = reduce_list(objective_list, self.objective_reduction_method)
-        return objective_value
+        try:
+            return reduce_list(objective_list, self.objective_reduction_method)
+        except OverflowError:
+            return BIG_VALUE
     
     # Calculates the error values for a set of parameters
     def calculate_objectives(self, *params) -> dict:
