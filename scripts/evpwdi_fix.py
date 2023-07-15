@@ -1,7 +1,7 @@
 import sys; sys.path += [".."]
 from moga_neml.api import API
 
-api = API("evpwdi 1e4 fix")
+api = API("evpwdi fix all")
 api.define_model("evpwdi")
 
 api.fix_param("evp_s0",  4.871e0)

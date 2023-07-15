@@ -1,8 +1,6 @@
 import math, numpy as np
 from copy import deepcopy
-
-def wd_poly(y, wd_0, wd_1, wd_2, wd_3):
-    return wd_0*math.pow(y, 3) + wd_1*math.pow(y, 2) + wd_2*y + wd_3
+from numpy.polynomial.polynomial import polyval
 
 def get_root(polynomial:list, value:float, eps:float=1e-5):
     offset_polynomial = deepcopy(polynomial)
@@ -11,15 +9,20 @@ def get_root(polynomial:list, value:float, eps:float=1e-5):
     real_roots = roots.real[abs(roots.imag) < eps]
     return real_roots
 
-polynomial = [0.2, 1.4, 3, 1.4]
-l_bounds = get_root(polynomial, -8)
-u_bounds = get_root(polynomial, 0)
+# Evaluates a fourth degree polynomial
+def my_poly(y, wd_0, wd_1, wd_2, wd_x, wd_y):
+    y -= wd_y
+    x = wd_0*math.pow(y, 3) + wd_1*math.pow(y, 2) + wd_2*(y) + wd_x
+    return x
 
+wd_params = [0.2, 1.4, 3, 1.4, 0]
+l_bounds = get_root(wd_params[:-1], -8)
+u_bounds = get_root(wd_params[:-1], 0)
 if len(l_bounds) == 0 or len(u_bounds) == 0:
     pass
 
-y_list = list(np.linspace(min(l_bounds), max(u_bounds), 10))
-x_list = [wd_poly(y, *polynomial) for y in y_list]
+y_list = list(np.linspace(min(l_bounds) + wd_params[-1], max(u_bounds) + wd_params[-1], 10))
+x_list = [my_poly(y, *wd_params) for y in y_list]
 
 import matplotlib.pyplot as plt
 plt.scatter(x_list, y_list)

@@ -7,7 +7,6 @@
 
 # Libraries
 import math, numpy as np
-from numpy.polynomial.polynomial import polyval
 from copy import deepcopy
 from moga_neml.models.__model__ import __Model__
 from neml import models, elasticity, surfaces, hardening, visco_flow, general_flow, damage, interpolate
@@ -28,10 +27,11 @@ class Model(__Model__):
         self.add_param("wd_0",   -1.0e4, 1.0e4)
         self.add_param("wd_1",   -1.0e4, 1.0e4)
         self.add_param("wd_2",   -1.0e4, 1.0e4)
-        self.add_param("wd_3",   -1.0e4, 1.0e4)
+        self.add_param("wd_x",   -1.0e4, 1.0e4)
+        self.add_param("wd_y",    0.0e0, 1.0e3)
 
     # Gets the predicted curve
-    def calibrate_model(self, evp_s0, evp_R, evp_d, evp_n, evp_eta, wd_n, wd_0, wd_1, wd_2, wd_3):
+    def calibrate_model(self, evp_s0, evp_R, evp_d, evp_n, evp_eta, wd_n, wd_0, wd_1, wd_2, wd_x, wd_y):
         
         # Define EVP model
         elastic_model = elasticity.IsotropicLinearElasticModel(self.get_data("youngs"), "youngs", self.get_data("poissons"), "poissons")
@@ -43,15 +43,19 @@ class Model(__Model__):
         evp_model     = models.GeneralIntegrator(elastic_model, integrator, verbose=False)
         
         # Define interpolator
-        polynomial = [wd_0, wd_1, wd_2, wd_3] # highest order first
-        l_bounds = get_root(polynomial, -8)
-        u_bounds = get_root(polynomial, 0)
+        wd_params = [wd_0, wd_1, wd_2, wd_x, wd_y]
+        l_bounds = get_root(wd_params[:-1], -8)
+        u_bounds = get_root(wd_params[:-1], 0)
         if len(l_bounds) == 0 or len(u_bounds) == 0:
             return
         
-        # Get relationship between work rate and work (logged both axes)
-        y_list = list(np.linspace(min(l_bounds), max(u_bounds), 10))
-        x_list = [polyval(y, np.flip(np.array(polynomial))) for y in y_list]
+        # Get data points for interpolation
+        l_bound = min(l_bounds) + wd_y
+        u_bound = max(u_bounds) + wd_y
+        y_list = list(np.linspace(l_bound, u_bound, 10))
+        x_list = [my_poly(y, *wd_params) for y in y_list]
+                
+        # Check data and get interpolation
         for y in y_list:
             if y <= 0:
                 return
@@ -62,6 +66,12 @@ class Model(__Model__):
         wd_model = damage.WorkDamage(elastic_model, wd_wc, wd_n, log=True, eps=1e-40, work_scale=1e5)
         evpwd_model = damage.NEMLScalarDamagedModel_sd(elastic_model, evp_model, wd_model, verbose=False)
         return evpwd_model
+
+# Evaluates a fourth degree polynomial
+def my_poly(y, wd_0, wd_1, wd_2, wd_x, wd_y):
+    y -= wd_y
+    x = wd_0*math.pow(y, 3) + wd_1*math.pow(y, 2) + wd_2*(y) + wd_x
+    return x
 
 # Gets the root of a polynomial (highest order first)
 def get_root(polynomial:list, value:float, eps:float=1e-5):
