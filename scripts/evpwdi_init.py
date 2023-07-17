@@ -10,7 +10,7 @@ api.init_param("evp_d",   7.028e0)
 api.init_param("evp_n",   4.242e0)
 api.init_param("evp_eta", 1.138e3)
 
-api.read_data("tensile/AirBase_900_D10.csv")
+api.read_data("tensile/inl/AirBase_900_D10.csv")
 api.add_error("y_area", "strain", "stress")
 api.add_error("damage")
 api.add_error("yield")
