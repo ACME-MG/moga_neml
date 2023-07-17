@@ -7,6 +7,7 @@
 
 # Libraries
 import time
+from moga_neml._interface.plotter import Plotter
 from moga_neml._interface.spreadsheet import Spreadsheet
 from moga_neml._maths.curve import  get_thinned_list
 from moga_neml._maths.experiment import DATA_DENSITY, DATA_FIELD_PLOT_MAP, DATA_UNITS
@@ -16,13 +17,14 @@ from moga_neml._optimise.controller import Controller
 class Recorder:
     
     # Constructor
-    def __init__(self, controller:Controller, interval:int, population:int, result_path:str):
+    def __init__(self, controller:Controller, interval:int, population:int, result_path:str, quick_view:bool=False):
         
         # Initialise inputs
         self.controller  = controller
         self.interval    = interval
         self.result_path = result_path
         self.population  = population
+        self.quick_view  = quick_view
         
         # Initialise internal variables
         self.curve_list          = controller.get_curve_list()
@@ -228,11 +230,15 @@ class Recorder:
 
         # Get plots
         for type in type_list:
+            
+            # Gets the data
             x_label = DATA_FIELD_PLOT_MAP[type]["x"] if in_x_label == None else in_x_label
             y_label = DATA_FIELD_PLOT_MAP[type]["y"] if in_y_label == None else in_y_label
             plot_dict = self.get_plot_dict(type, x_label, y_label)
             if plot_dict == None:
                 continue
+            
+            # Create a plot in the spreadsheet
             spreadsheet.write_plot(
                 data_dict_dict = plot_dict,
                 sheet_name     = f"plot_{type}",
@@ -240,6 +246,17 @@ class Recorder:
                 y_label        = f"{y_label} ({DATA_UNITS[y_label]})",
                 plot_type      = "scatter"
             )
+        
+            # Creates a quick-view plot, if desired
+            if self.quick_view:
+                plotter = Plotter(f"{self.result_path}_{type}.png")
+                for key in ["training", "validation", "prediction"]:
+                    if key in plot_dict.keys():
+                        plotter.scat_plot(plot_dict[key], plot_dict[key]["colour"], plot_dict[key]["size"])
+                plotter.save_plot()
+                plotter.clear()
+        
+        # Close the spreadsheet
         spreadsheet.close()
 
 # For thinning data

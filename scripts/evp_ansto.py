@@ -1,7 +1,7 @@
 import sys; sys.path += [".."]
 from moga_neml.api import API
 
-api = API("evp ansto youngs")
+api = API("evp ansto")
 api.define_model("evp")
 
 api.read_data("tensile/ansto/AirBase_A_1e-2.csv")
@@ -22,5 +22,5 @@ api.add_error("yield")
 api.reduce_errors("sum")
 api.reduce_objectives("sum")
 
-api.set_recorder(10, 10)
+api.set_recorder(10, 10, True)
 api.optimise(10000, 100, 50, 0.65, 0.35)

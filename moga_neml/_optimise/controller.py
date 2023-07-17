@@ -274,4 +274,3 @@ class Controller():
             plotter.line_plot(prd_data)
         plotter.save_plot()
         plotter.clear()
-    

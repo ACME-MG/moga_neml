@@ -294,7 +294,7 @@ class API:
         recorder.update_optimal_solution(param_value_dict, error_value_dict)
         recorder.create_record(self.__get_output__("results.xlsx"), type_list, x_label, y_label)
     
-    def set_recorder(self, interval:int=10, population:int=10) -> None:
+    def set_recorder(self, interval:int=10, population:int=10, quick_view:bool=False) -> None:
         """
         Sets the options for the results recorder
         
@@ -304,7 +304,7 @@ class API:
         * `population`: The number of solutions to be stored and shown in the results
         """
         self.__print__(f"Initialising the recorder with an interval of {interval} and population of {population}")
-        self.__recorder__ = Recorder(self.__controller__, interval, population, self.__get_output__("out"))
+        self.__recorder__ = Recorder(self.__controller__, interval, population, self.__get_output__("out"), quick_view)
 
     def group_errors(self, name:bool=True, type:bool=True, labels:bool=True):
         """

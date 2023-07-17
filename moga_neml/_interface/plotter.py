@@ -31,8 +31,8 @@ class Plotter:
         plt.title(title, fontsize=20)
     
     # Plots the experimental data using a scatter plot
-    def scat_plot(self, data_dict:dict, colour:str=EXP_DATA_COLOUR):
-        plt.scatter(data_dict[self.x_label], data_dict[self.y_label], marker="o", color=colour, linewidth=1)
+    def scat_plot(self, data_dict:dict, colour:str=EXP_DATA_COLOUR, size:int=5):
+        plt.scatter(data_dict[self.x_label], data_dict[self.y_label], s=size, marker="o", color=colour, linewidth=1)
         
     # Plots the predicted data using a line plot
     def line_plot(self, data_dict:dict, colour=PRD_DATA_COLOUR):
