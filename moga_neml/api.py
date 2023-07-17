@@ -304,7 +304,7 @@ class API:
         * `population`: The number of solutions to be stored and shown in the results
         """
         self.__print__(f"Initialising the recorder with an interval of {interval} and population of {population}")
-        self.__recorder__ = Recorder(self.__controller__, interval, population, self.__get_output__("out"), quick_view)
+        self.__recorder__ = Recorder(self.__controller__, interval, population, self.__get_output__("opt"), quick_view)
 
     def group_errors(self, name:bool=True, type:bool=True, labels:bool=True):
         """
