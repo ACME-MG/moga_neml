@@ -63,12 +63,6 @@ class Model(__Model__):
         evpwd_model = damage.NEMLScalarDamagedModel_sd(elastic_model, evp_model, wd_model, verbose=False)
         return evpwd_model
 
-# Evaluates a fourth degree polynomial
-def my_poly(y, wd_0, wd_1, wd_2, wd_x, wd_y):
-    y -= wd_y
-    x = wd_0*math.pow(y, 3) + wd_1*math.pow(y, 2) + wd_2*(y) + wd_x
-    return x
-
 # Gets the root of a polynomial (highest order first)
 def get_root(polynomial:list, value:float, eps:float=1e-5):
     offset_polynomial = deepcopy(polynomial)
