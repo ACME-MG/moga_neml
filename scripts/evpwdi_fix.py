@@ -48,7 +48,5 @@ api.add_error("damage")
 api.reduce_errors("square_average")
 api.reduce_objectives("square_average")
 
-# api.set_recorder(10, 10, True)
-# api.optimise(10000, 100, 50, 0.65, 0.35)
-
-api.plot_predicted(2.034e-7, -0.0001814, 0.0523, -6.04)
+api.set_recorder(10, 10, True)
+api.optimise(10000, 100, 50, 0.65, 0.35)
