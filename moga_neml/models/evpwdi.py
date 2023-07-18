@@ -28,7 +28,7 @@ class Model(__Model__):
         self.add_param("wd_0",    0.0e0, 1.0e0) # -6
         self.add_param("wd_1",   -1.0e0, 0.0e0) # -3
         self.add_param("wd_2",    0.0e0, 1.0e0) # -1
-        self.add_param("wd_3",   -1.0e1, 0.0e0) # 1
+        self.add_param("wd_3",   -1.0e2, 0.0e0) # 1
 
     # Gets the predicted curve
     def calibrate_model(self, evp_s0, evp_R, evp_d, evp_n, evp_eta, wd_n, wd_0, wd_1, wd_2, wd_3):
