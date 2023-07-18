@@ -39,9 +39,9 @@ def get_yield(data_dict:dict, youngs:float=None):
     x_list = data_dict["strain"]
     y_list = data_dict["stress"]
     
-    # Calculate elastic modulus
+    # Calculate elastic modulus only for predictions
     if youngs == None:
-        youngs = (y_list[2] - y_list[0]) / (x_list[2] - x_list[0])
+        youngs = (y_list[1] - y_list[0]) / (x_list[1] - x_list[0])
     
     # Interpolate
     iff = inter.interp1d(x_list, y_list, bounds_error=False, fill_value=0)
