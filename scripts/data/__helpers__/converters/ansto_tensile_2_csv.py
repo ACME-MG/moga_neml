@@ -98,13 +98,13 @@ for xlsx_file in xlsx_files:
     
     # Create CSV
     csv_dict = {}
-    csv_dict["time"] = time_list
-    csv_dict["strain"] = strain_list
-    csv_dict["stress"] = stress_list
+    csv_dict["time"]   = [float("{:0.5}".format(time / 3600)) for time in time_list]
+    csv_dict["strain"] = [float("{:0.5}".format(strain)) for strain in strain_list]
+    csv_dict["stress"] = [float("{:0.5}".format(stress)) for stress in stress_list]
     csv_dict["temperature"] = 25
     csv_dict["type"] = "tensile"
     csv_dict["medium"] = "air"
-    csv_dict["strain_rate"] = float(strain_rate)
+    csv_dict["strain_rate"] = float(strain_rate) * 3600
     csv_dict["youngs"] = 211000
     csv_dict["poisson"] = 0.30
     
