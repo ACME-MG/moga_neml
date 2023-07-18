@@ -71,11 +71,11 @@ avg_work_rate_list = []
 
 # File names
 file_path_list = [
-    "../creep/inl_1/AirBase_900_36_G22.csv",
-    "../creep/inl_1/AirBase_900_31_G50.csv",
-    "../creep/inl_1/AirBase_900_28_G45.csv",
-    "../creep/inl_1/AirBase_900_26_G59_unox.csv",
-    "../tensile/AirBase_900_D10.csv",
+    "../../creep/inl_1/AirBase_900_36_G22.csv",
+    "../../creep/inl_1/AirBase_900_31_G50.csv",
+    "../../creep/inl_1/AirBase_900_28_G45.csv",
+    "../../creep/inl_1/AirBase_900_26_G59_unox.csv",
+    "../../tensile/inl/AirBase_900_D10.csv",
 ]
 
 # Iterate through curves

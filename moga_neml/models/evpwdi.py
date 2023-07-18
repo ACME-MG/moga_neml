@@ -44,13 +44,13 @@ class Model(__Model__):
         
         # Define interpolator
         wd_params = [wd_0, wd_1, wd_2, wd_3]
-        l_bounds = get_root(wd_params, -8)
+        l_bounds = get_root(wd_params, -16)
         u_bounds = get_root(wd_params, 0)
         if len(l_bounds) == 0 or len(u_bounds) == 0:
             return
         
         # Get interpolation
-        y_list = list(np.linspace(min(l_bounds), max(u_bounds), 10))
+        y_list = list(np.linspace(min(l_bounds), max(u_bounds), 32))
         x_list = [polyval(y, np.flip(np.array(wd_params))) for y in y_list]
         for y in y_list:
             if y <= 0:
