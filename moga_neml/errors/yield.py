@@ -18,7 +18,8 @@ class Error(__Error__):
     # Runs at the start, once (optional)
     def initialise(self):
         self.enforce_data_type("tensile")
-        self.exp_yield = get_yield(self.get_exp_data())
+        exp_data = self.get_exp_data()
+        self.exp_yield = get_yield(exp_data, exp_data["youngs"])
         self.mag_yield = math.sqrt(math.pow(self.exp_yield[0], 2) + math.pow(self.exp_yield[1], 2))
 
     # Computes the error value
@@ -31,7 +32,7 @@ class Error(__Error__):
         return distance / self.mag_yield
 
 # Gets the yield point
-def get_yield(data_dict:dict):
+def get_yield(data_dict:dict, youngs:float=None):
     
     # Extract data
     x_offset = 0.2/100.0
@@ -39,7 +40,8 @@ def get_yield(data_dict:dict):
     y_list = data_dict["stress"]
     
     # Calculate elastic modulus
-    youngs = (y_list[2] - y_list[0]) / (x_list[2] - x_list[0])
+    if youngs == None:
+        youngs = (y_list[2] - y_list[0]) / (x_list[2] - x_list[0])
     
     # Interpolate
     iff = inter.interp1d(x_list, y_list, bounds_error=False, fill_value=0)
