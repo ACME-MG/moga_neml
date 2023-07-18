@@ -39,7 +39,7 @@ def get_yield(data_dict:dict):
     y_list = data_dict["stress"]
     
     # Calculate elastic modulus
-    youngs = (y_list[4] - y_list[0]) / (x_list[4] - x_list[0])
+    youngs = (y_list[2] - y_list[0]) / (x_list[2] - x_list[0])
     
     # Interpolate
     iff = inter.interp1d(x_list, y_list, bounds_error=False, fill_value=0)

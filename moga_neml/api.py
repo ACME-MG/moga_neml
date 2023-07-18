@@ -161,7 +161,7 @@ class API:
         
         Parameters:
         * `window`:     The window ratio to identify the stationary points of the derivative; the actual
-                        window size is the product of `window` and the number of data points (500)
+                        window size is the product of `window` and the number of data points (1000)
         * `acceptance`: The acceptance value for identifying the nature of stationary points; should
                         have a value between 0.5 and 1.0
         """
@@ -179,7 +179,7 @@ class API:
         
         Parameters:
         * `window`:     The window ratio to identify the stationary points of the derivative; the actual
-                        window size is the product of `window` and the number of data points (500)
+                        window size is the product of `window` and the number of data points (1000)
         * `acceptance`: The acceptance value for identifying the nature of stationary points; should
                         have a value between 0.5 and 1.0
         """

@@ -1,15 +1,10 @@
-"""
- Title:         Converter
- Description:   For converting data into different formats
- Author:        Janzen Choi
 
- """
- 
- # Libraries
-import math
+# Libraries
+import os, math
+import pandas as pd
 
 # Constants
-LIST_DENSITY = 500
+LIST_DENSITY = 1000
 
 # Tries to float cast a value
 def try_float_cast(value:str) -> float:
@@ -82,7 +77,41 @@ def dict_to_csv(data_dict:dict, csv_path:str) -> None:
         csv_fh.write(row_str + "\n")
     csv_fh.close()
 
-# Does the conversion
-csv_path = "inl2_1e-4.csv"
-data_dict = csv_to_dict(csv_path)
-dict_to_csv(data_dict, csv_path)
+# Initialise
+xlsx_files = [file for file in os.listdir() if file.endswith(".xlsx")]
+condition_list = []
+
+# Iterate through XLSX files
+for xlsx_file in xlsx_files:
+    print(xlsx_file)
+
+    # Extract data from file name
+    file_list   = xlsx_file.split("_")
+    specimen    = file_list[0]
+    strain_rate = file_list[1]
+    
+    # Read time/strain values
+    data = pd.read_excel(io=xlsx_file, sheet_name="Sheet1")
+    time_list = data.iloc[:, 0].values.tolist() # A1..
+    strain_list = data.iloc[:, 11].values.tolist() # A1..
+    stress_list = data.iloc[:, 12].values.tolist() # A1..
+    
+    # Create CSV
+    csv_dict = {}
+    csv_dict["time"] = time_list
+    csv_dict["strain"] = strain_list
+    csv_dict["stress"] = stress_list
+    csv_dict["temperature"] = 25
+    csv_dict["type"] = "tensile"
+    csv_dict["medium"] = "air"
+    csv_dict["strain_rate"] = float(strain_rate)
+    csv_dict["youngs"] = 211000
+    csv_dict["poisson"] = 0.30
+    
+    # Reduce lists
+    for header in ["time", "strain", "stress"]:
+        csv_dict[header] = get_thinned_list(csv_dict[header], LIST_DENSITY)
+    
+    # Convert to new CSV file
+    csv_path = f"AirBase_{strain_rate}.csv"
+    dict_to_csv(csv_dict, csv_path)

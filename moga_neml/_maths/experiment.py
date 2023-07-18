@@ -6,7 +6,7 @@
 """
 
 # Defines how much data points to store
-DATA_DENSITY = 500
+DATA_DENSITY = 1000
 
 # Stores required fields for experimental data
 DATA_FIELD_DICT = {
