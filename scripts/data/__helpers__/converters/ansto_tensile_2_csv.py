@@ -106,7 +106,7 @@ for xlsx_file in xlsx_files:
     csv_dict["medium"] = "air"
     csv_dict["strain_rate"] = float(strain_rate) * 3600
     csv_dict["youngs"] = 211000
-    csv_dict["poisson"] = 0.30
+    csv_dict["poissons"] = 0.30
     
     # Reduce lists
     for header in ["time", "strain", "stress"]:

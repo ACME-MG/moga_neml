@@ -1,4 +1,4 @@
-time,strain,stress,temperature,type,medium,strain_rate,youngs,poisson
+time,strain,stress,temperature,type,medium,strain_rate,youngs,poissons
 0.00047333,0.0,1.0409,25,tensile,air,3.6,211000,0.3
 0.00070444,0.00014563,40.939,,,,,,
 0.00095639,0.00028421,76.984,,,,,,
