@@ -55,7 +55,6 @@ class Model(__Model__):
         for y in y_list:
             if y <= 0:
                 return
-        x_list = [math.pow(10, x) for x in x_list]
         y_list = [math.log10(y) for y in y_list]
         wd_wc  = interpolate.PiecewiseLinearInterpolate(x_list, y_list)
         
