@@ -22,5 +22,9 @@ api.add_error("yield")
 api.reduce_errors("square_sum")
 api.reduce_objectives("square_sum")
 
-api.set_recorder(10, 10, True)
-api.optimise(10000, 100, 50, 0.65, 0.35)
+import matplotlib.pyplot as plt
+api.plot_experimental()
+plt.scatter([0.004085162408375337], [439.9692681103977])
+plt.scatter([0.00384235904308254], [388.737758090416])
+plt.scatter([0.0032312984627436304], [259.803975638906])
+plt.savefig("plot")

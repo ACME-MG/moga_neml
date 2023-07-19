@@ -83,7 +83,6 @@ condition_list = []
 
 # Iterate through XLSX files
 for xlsx_file in xlsx_files:
-    print(xlsx_file)
 
     # Extract data from file name
     file_list   = xlsx_file.split("_")
@@ -96,22 +95,31 @@ for xlsx_file in xlsx_files:
     strain_list = data.iloc[:, 11].values.tolist() # A1..
     stress_list = data.iloc[:, 12].values.tolist() # A1..
     
+    # Removes all 0 strain values
+    keep_indexes = []
+    for i in range(len(strain_list)):
+        if strain_list[i] != 0:
+            keep_indexes.append(i)
+    
     # Create CSV
     csv_dict = {}
-    csv_dict["time"]   = [float("{:0.5}".format(time / 3600)) for time in time_list]
-    csv_dict["strain"] = [float("{:0.5}".format(strain)) for strain in strain_list]
-    csv_dict["stress"] = [float("{:0.5}".format(stress)) for stress in stress_list]
+    csv_dict["time"]        = [time_list[i] / 3600 for i in range(len(time_list)) if i in keep_indexes]
+    csv_dict["strain"]      = [strain_list[i] for i in range(len(strain_list)) if i in keep_indexes]
+    csv_dict["stress"]      = [stress_list[i] for i in range(len(stress_list)) if i in keep_indexes]
     csv_dict["temperature"] = 25
-    csv_dict["type"] = "tensile"
-    csv_dict["medium"] = "air"
+    csv_dict["type"]        = "tensile"
+    csv_dict["medium"]      = "air"
     csv_dict["strain_rate"] = float(strain_rate) * 3600
-    csv_dict["youngs"] = 211000
-    csv_dict["poissons"] = 0.30
+    csv_dict["youngs"]      = 211000
+    csv_dict["poissons"]    = 0.30
     
     # Reduce lists
     for header in ["time", "strain", "stress"]:
         csv_dict[header] = get_thinned_list(csv_dict[header], LIST_DENSITY)
     
     # Convert to new CSV file
-    csv_path = f"AirBase_{strain_rate}.csv"
+    csv_path = "AirBase" + xlsx_file.split(".")[0] + ".csv"
     dict_to_csv(csv_dict, csv_path)
+
+    # Print progress
+    print(f"{xlsx_file} >> {csv_path}")
