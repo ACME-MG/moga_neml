@@ -43,13 +43,13 @@ class Model(__Model__):
         evp_model     = models.GeneralIntegrator(elastic_model, integrator, verbose=False)
         
         # Get interpolation
-        x_list = list(np.linspace(-16, 0, 20))
+        x_list = list(np.linspace(-16, 0, 32))
         try:
-            y_list = [get_damage(x, wd_x_f, wd_y_f, wd_x_t, wd_y_t, wd_g_1, wd_g_2) for x in x_list]
+            y_list = get_damage(x_list, wd_x_f, wd_y_f, wd_x_t, wd_y_t, wd_g_1, wd_g_2)
             y_list = [math.log10(y) for y in y_list]
         except:
             return
-        wd_wc  = interpolate.PiecewiseLinearInterpolate(x_list, y_list)
+        wd_wc = interpolate.PiecewiseLinearInterpolate(x_list, y_list)
         
         # Define work damage model and return
         wd_model = damage.WorkDamage(elastic_model, wd_wc, wd_n, log=True, eps=1e-40, work_scale=1e5)
@@ -60,17 +60,23 @@ class Model(__Model__):
 #   x_f and y_f for scaling
 #   x_t and y_t for translating
 #   g_1 and g_2 are left and right gradients (0, 1)
-def get_damage(x_0, x_f, y_f, x_t, y_t, g_1, g_2):
+def get_damage(x_list:list, x_f:float, y_f:float, x_t:float, y_t:float, g_1:float, g_2:float):
+    
+    # Check values
+    if x_f == 0 or y_f == 0 or g_1 > x_f*y_f or g_2 > x_f*y_f:
+        return -1
     
     # Get all possible values
     f_0 = lambda x : y_f*math.tanh(x_f*x - x_t) + y_t
     x_1 = (x_t - math.atanh(math.sqrt(1 - g_1/y_f/x_f))) / x_f
     x_2 = (x_t + math.atanh(math.sqrt(1 - g_2/y_f/x_f))) / x_f
     
-    # Determine which part of the curve the x_0 value lies
-    if x_0 < x_1:
-        return g_1 * (x_0 - x_1) + f_0(x_1)
-    elif x_0 > x_2:
-        return g_2 * (x_0 - x_2) + f_0(x_2)
-    else:
-        return f_0(x_0)
+    # Determine damage based on x values
+    def get_y(x):
+        if x < x_1:
+            return g_1 * (x-x_1) + f_0(x_1)
+        elif x > x_2:
+            return g_2 * (x-x_2) + f_0(x_2)
+        else:
+            return f_0(x)
+    return [get_y(x) for x in x_list]
