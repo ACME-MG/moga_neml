@@ -6,7 +6,7 @@
  """
 
 # Libraries
-import math, numpy as np
+import numpy as np
 from moga_neml.errors.__error__ import __Error__
 
 # The Error class
@@ -23,7 +23,7 @@ class Error(__Error__):
     # Computes the error value
     def get_value(self, prd_data:dict) -> float:
         prd_hardening = self.get_hardening(prd_data["strain"], prd_data["stress"])
-        return math.pow(self.exp_hardening - prd_hardening, 2)
+        return abs((self.exp_hardening - prd_hardening) / self.exp_hardening)
 
     # Gets the elastic modulus
     def get_hardening(self, strain_list:list, stress_list:list):
