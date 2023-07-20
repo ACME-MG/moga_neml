@@ -54,5 +54,4 @@ class Error(__Error__):
         tfn = lambda e: youngs * (e - self.offset)
         yield_strain = opt.brentq(lambda e: sfn(e) - tfn(e), 0.0, np.max(strain_list))
         yield_stress = float(tfn(yield_strain))
-        print("[{:0.4}], [{:0.4}]".format(yield_strain, yield_stress))
         return yield_strain, yield_stress
