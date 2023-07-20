@@ -12,13 +12,8 @@ import importlib, os, pathlib, sys
 class __Model__:
 
     # Constructor
-    def __init__(self, name:str, args:tuple):
-        
-        # Initialise input variables
+    def __init__(self, name:str):
         self.name = name
-        self.args = args
-        
-        # Initialise internal variables
         self.param_dict = {}
         self.exp_data = {}
 
@@ -49,10 +44,6 @@ class __Model__:
     # Returns the parameter info
     def get_param_dict(self) -> dict:
         return self.param_dict
-        
-    # Gets an argument
-    def get_arg(self, index) -> tuple:
-        return self.args[index]
 
     # Gets the calibrated model
     def get_calibrated_model(self, *params): # -> NEML Model
@@ -75,7 +66,7 @@ class __Model__:
         raise NotImplementedError
 
 # Creates and return a model
-def get_model(model_name:str, args:tuple=()) -> __Model__:
+def get_model(model_name:str, **kwargs) -> __Model__:
 
     # Get available models in current folder
     models_dir = pathlib.Path(__file__).parent.resolve()
@@ -96,6 +87,6 @@ def get_model(model_name:str, args:tuple=()) -> __Model__:
     
     # Initialise and return the model
     from model_file import Model
-    model = Model(model_name, args)
-    model.initialise()
+    model = Model(model_name)
+    model.initialise(**kwargs)
     return model

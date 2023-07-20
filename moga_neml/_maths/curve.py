@@ -6,8 +6,7 @@
 """
 
 # Libraries
-import numpy as np
-import math
+import math, numpy as np
 from copy import deepcopy
 
 # Returns the coordinates of non-outliers (good to use with derivatives)

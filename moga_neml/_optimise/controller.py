@@ -42,8 +42,8 @@ class Controller():
         self.objective_reduction_method = "average"
         
     # Defines the model
-    def define_model(self, model_name:str, *model_args:tuple) -> None:
-        self.model = get_model(model_name, *model_args)
+    def define_model(self, model_name:str, **kwargs) -> None:
+        self.model = get_model(model_name, **kwargs)
         
     # Adds experimental data
     def add_curve(self, type:str, exp_data:dict) -> None:
@@ -251,8 +251,8 @@ class Controller():
         # Plot the data, save, and clear for next plot
         for exp_data in exp_data_list:
             plotter.scat_plot(exp_data)
-        plotter.save_plot()
-        plotter.clear()
+        # plotter.save_plot()
+        # plotter.clear()
 
     # Plots the curves for a given type
     def plot_prd_curves(self, *params:tuple, type:str, file_path:str="", x_label:str=None, y_label:str=None):

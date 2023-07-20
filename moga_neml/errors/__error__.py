@@ -100,7 +100,7 @@ class __Error__:
         raise NotImplementedError
 
 # Creates and return a error
-def get_error(error_name:str, x_label:str, y_label:str, weight:str, exp_data:dict, model:__Model__) -> __Error__:
+def get_error(error_name:str, x_label:str, y_label:str, weight:str, exp_data:dict, model:__Model__, **kwargs) -> __Error__:
 
     # Get available errors in current folder
     errors_dir = pathlib.Path(__file__).parent.resolve()
@@ -122,5 +122,5 @@ def get_error(error_name:str, x_label:str, y_label:str, weight:str, exp_data:dic
     # Import, initialise, and return error
     from error_file import Error
     error = Error(error_name, x_label, y_label, weight, exp_data, model)
-    error.initialise()
+    error.initialise(**kwargs)
     return error

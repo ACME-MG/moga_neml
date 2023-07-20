@@ -15,7 +15,8 @@ from moga_neml.models.__model__ import __Model__
 class Model(__Model__):
 
     # Runs at the start, once
-    def initialise(self):
+    #   api.define_model("vshai", ori_path="data/ebsd/input_stats.csv", lattice=1.0, slip_dir=[1,1,0], slip_plane=[1,1,1], num_threads=16)
+    def initialise(self, ori_path, lattice, slip_dir, slip_plane, num_threads):
 
         # Define parameters
         self.add_param("vsh_ts", 0.0e0, 2.0e3) # 1e2
@@ -25,14 +26,10 @@ class Model(__Model__):
         self.add_param("ai_n",   0.0e0, 1.0e2)
     
         # Extract information from arguments
-        orientation_file = self.get_arg(0)
-        lattice_a        = self.get_arg(1)
-        slip_direction   = self.get_arg(2)
-        slip_plane       = self.get_arg(3)
-        self.num_threads = self.get_arg(4)
+        self.num_threads = num_threads
 
         # Define grain orientations
-        file = open(f"{orientation_file}", "r")
+        file = open(f"{ori_path}", "r")
         self.grain_orientations, self.weights = [], []
         for line in file.readlines():
             data = line.replace("\n","").split(",")
@@ -50,11 +47,10 @@ class Model(__Model__):
         self.grain_orientations = rotations.random_orientations(num_grains)
 
         # Define lattice structure
-        self.lattice = crystallography.CubicLattice(lattice_a)
-        self.lattice.add_slip_system(slip_direction, slip_plane)
+        self.lattice = crystallography.CubicLattice(lattice)
+        self.lattice.add_slip_system(slip_dir, slip_plane)
         
     # Gets the predicted curve
-    #   api.define_model("vshai", "ebsd/ebsd_statistics.csv", 1.0, [1,1,0], [1,1,1], 16)
     def calibrate_model(self, vsh_ts, vsh_b, vsh_t0, ai_g0, ai_n):
         elastic_model  = elasticity.IsotropicLinearElasticModel(self.get_data("youngs"), "youngs", self.get_data("poissons"), "poissons")
         strength_model = slipharden.VoceSlipHardening(vsh_ts, vsh_b, vsh_t0)

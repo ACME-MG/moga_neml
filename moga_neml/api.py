@@ -91,16 +91,16 @@ class API:
             print_index = f"{self.__print_index__}"
         print(f"   {print_index})\t{message}")
     
-    def define_model(self, model_name:str, *args) -> None:
+    def define_model(self, model_name:str, **kwargs) -> None:
         """
         Defines the model to be optimised
         
         Parameters:
         * `model_name`: The name of the model
-        * `args`:       Any additional parameters to pass to the model
+        * `kwargs`:     Any additional keyword arguments to pass to the model
         """
         self.__print__(f"Defining model '{model_name}'")
-        self.__controller__.define_model(model_name, args)
+        self.__controller__.define_model(model_name, **kwargs)
     
     def read_data(self, file_name:str) -> None:
         """
@@ -113,7 +113,7 @@ class API:
         exp_data = read_exp_data(self.__input_path__, file_name)
         self.__controller__.add_curve(exp_data["type"], exp_data)
     
-    def add_error(self, error_name:str, x_label:str="", y_label:str="", weight:float=1) -> None:
+    def add_error(self, error_name:str, x_label:str="", y_label:str="", weight:float=1, **kwargs) -> None:
         """
         Adds an error to optimise for the most recenrtly added experimental data
         
@@ -122,13 +122,14 @@ class API:
         * `x_label`:    The measurement on the x-axis (e.g., time, strain)
         * `y_label`:    The measurement on the y-axis (e.g., strain, stress)
         * `weight`:     The factor multipled with the error when the errors are reduced
+        * `kwargs`:     Any additional keyword arguments to pass to the model
         """
         labels = f"{x_label}-{y_label}" if x_label != "" and y_label != "" else f"{x_label}" if x_label != "" else ""
         label_str = f"for {labels} " if labels != "" else ""
         weight_str = f"with a weight of {weight}" if weight != 1 else ""
         self.__print__(f"Adding '{error_name}' error {label_str}{weight_str}", sub_index=True)
         curve = self.__controller__.get_last_curve()
-        curve.add_error(error_name, x_label, y_label, weight)
+        curve.add_error(error_name, x_label, y_label, weight, **kwargs)
 
     def fix_param(self, param_name:str, param_value:float) -> None:
         """

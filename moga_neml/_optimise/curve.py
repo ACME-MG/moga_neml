@@ -48,7 +48,7 @@ class Curve:
         return self.error_list
     
     # Adds an error to the list
-    def add_error(self, error_name:str, x_label:str, y_label:str, weight:float) -> None:
+    def add_error(self, error_name:str, x_label:str, y_label:str, weight:float, **kwargs) -> None:
         
         # Check labels
         for label in [x_label, y_label]:
@@ -56,6 +56,6 @@ class Curve:
                 raise ValueError(f"Error {error_name} cannot be added because '{label}' is not a field in the data!")
         
         # Add error
-        error = get_error(error_name, x_label, y_label, weight, self.exp_data, self.model)
+        error = get_error(error_name, x_label, y_label, weight, self.exp_data, self.model, **kwargs)
         self.error_list.append(error)
     
