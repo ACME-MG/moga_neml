@@ -251,8 +251,8 @@ class Controller():
         # Plot the data, save, and clear for next plot
         for exp_data in exp_data_list:
             plotter.scat_plot(exp_data)
-        # plotter.save_plot()
-        # plotter.clear()
+        plotter.save_plot()
+        plotter.clear()
 
     # Plots the curves for a given type
     def plot_prd_curves(self, *params:tuple, type:str, file_path:str="", x_label:str=None, y_label:str=None):
