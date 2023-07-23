@@ -42,20 +42,16 @@ class API:
         # Print starting message
         time_str = time.strftime("%A, %D, %H:%M:%S", time.localtime())
         self.__print__(f"\n  Starting on {time_str}\n", add_index=False)
-                
-        # Prepare progressor
-        title = "" if title == "" else f"_{title}"
-        title = re.sub(r"[^a-zA-Z0-9_]", "", title.replace(" ", "_"))
         
         # Get start time
         self.__start_time__ = time.time()
         time_stamp = time.strftime("%y%m%d%H%M%S", time.localtime(self.__start_time__))
         
-        # Define input
+        # Define input and output
         self.__input_path__ = input_path
         self.__get_input__  = lambda x : f"{self.__input_path__}/{x}"
-        
-        # Define output
+        title = "" if title == "" else f"_{title}"
+        title = re.sub(r"[^a-zA-Z0-9_]", "", title.replace(" ", "_"))
         self.__output_dir__ = "." if output_here else time_stamp
         self.__output_path__ = "." if output_here else f"{output_path}/{self.__output_dir__}{title}"
         self.__get_output__ = lambda x : f"{self.__output_path__}/{x}"
