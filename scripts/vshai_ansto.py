@@ -2,7 +2,8 @@ import sys; sys.path += [".."]
 from moga_neml.api import API
 
 api = API("vshai ansto y_area")
-api.define_model("vshai", ori_path="data/ebsd/input_stats.csv", lattice=1.0, slip_dir=[1,1,0], slip_plane=[1,1,1], num_threads=16)
+api.define_model("vshaig", ori_path="data/ebsd/input_stats.csv", lattice=1.0, slip_dir=[1,1,0], slip_plane=[1,1,1], num_threads=16)
+api.fix_param("ai_n", 4.4517)
 
 api.read_data("tensile/ansto/AirBase_1e-2_A.csv")
 api.remove_manual("strain", 0.4)
