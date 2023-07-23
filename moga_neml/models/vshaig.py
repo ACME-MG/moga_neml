@@ -51,7 +51,7 @@ class Model(__Model__):
         
     # Gets the predicted curve
     def calibrate_model(self, vsh_ts, vsh_b, vsh_t0, ai_n):
-        ai_g0          = self.get_data["strain_rate"]/3
+        ai_g0          = self.get_data(["strain_rate"])/3
         elastic_model  = elasticity.IsotropicLinearElasticModel(self.get_data("youngs"), "youngs", self.get_data("poissons"), "poissons")
         strength_model = slipharden.VoceSlipHardening(vsh_ts, vsh_b, vsh_t0)
         slip_model     = sliprules.PowerLawSlipRule(strength_model, ai_g0, ai_n)
