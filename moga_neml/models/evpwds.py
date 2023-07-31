@@ -27,8 +27,8 @@ class Model(__Model__):
         self.add_param("wd_y_f",  0.0e0, 1.0e3)
         self.add_param("wd_x_t", -1.0e2, 0.0e0)
         self.add_param("wd_y_t",  0.0e0, 1.0e3)
-        self.add_param("wd_g_1",  0.0e0, 1.0e2)
-        self.add_param("wd_g_2",  0.0e0, 1.0e2)
+        self.add_param("wd_g_1",  0.0e0, 1.0e3)
+        self.add_param("wd_g_2",  0.0e0, 1.0e3)
 
     # Gets the predicted curve
     def calibrate_model(self, evp_s0, evp_R, evp_d, evp_n, evp_eta, wd_n, wd_x_f, wd_y_f, wd_x_t, wd_y_t, wd_g_1, wd_g_2):
@@ -73,9 +73,10 @@ def get_damage(x_f:float, y_f:float, x_t:float, y_t:float, g_1:float, g_2:float)
     f_0 = lambda x : y_f*math.tanh(x_f*x - x_t) + y_t
     x_1 = (x_t - math.atanh(math.sqrt(1 - g_1/y_f/x_f))) / x_f
     x_2 = (x_t + math.atanh(math.sqrt(1 - g_2/y_f/x_f))) / x_f
+    x_0 = x_1 - f_0(x_1) / g_1
     
     # Determine x coordinates based on sigmoid shifts
-    x_list = list(np.linspace(-16, x_1, 8)) + list(np.linspace(x_1, x_2, 16)) + [0]
+    x_list = list(np.linspace(x_0, x_1, 8)) + list(np.linspace(x_1, x_2, 16)) + [0]
     
     # Determine damage based on x coordinates
     def get_y(x):
