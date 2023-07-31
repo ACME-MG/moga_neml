@@ -76,7 +76,7 @@ def get_damage(x_f:float, y_f:float, x_t:float, y_t:float, g_1:float, g_2:float)
     x_0 = x_1 - f_0(x_1) / g_1
     
     # Determine x coordinates based on sigmoid shifts
-    x_list = list(np.linspace(x_0, x_1, 8)) + list(np.linspace(x_1, x_2, 16)) + [0]
+    x_list = [x_0] + list(np.linspace(x_1, x_2, 16)) + [0]
     
     # Determine damage based on x coordinates
     def get_y(x):
