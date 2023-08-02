@@ -1,5 +1,5 @@
 """
- Title:         The y_area objective function
+ Title:         The area objective function
  Description:   The objective function for calculating the vertical areas between two curves
  Author:        Janzen Choi
 
@@ -14,7 +14,7 @@ from moga_neml._maths.interpolator import Interpolator
 # Constants
 NUM_POINTS = 50
 
-# The YArea class
+# The Area class
 class Error(__Error__):
     
     # Runs at the start, once

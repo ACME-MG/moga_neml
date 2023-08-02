@@ -1,7 +1,7 @@
 import sys; sys.path += [".."]
 from moga_neml.api import API
 
-api = API("evpwdi all init x_end")
+api = API("evpwdi all init end_value")
 api.define_model("evpwdi")
 
 api.init_param("evp_s0",  4.871e0)
@@ -11,34 +11,34 @@ api.init_param("evp_n",   4.242e0)
 api.init_param("evp_eta", 1.138e3)
 
 api.read_data("tensile/inl/AirBase_900_D10.csv")
-api.add_error("y_area", "strain", "stress")
+api.add_error("area", "strain", "stress")
 api.add_error("damage")
 api.add_error("yield")
-api.add_error("x_end", "stress")
+api.add_error("end_value", "stress")
 
 api.read_data("creep/inl_1/AirBase_900_36_G22.csv")
-api.add_error("y_area", "time", "strain")
-api.add_error("x_end", "time")
-api.add_error("x_end", "strain")
+api.add_error("area", "time", "strain")
+api.add_error("end_value", "time")
+api.add_error("end_value", "strain")
 api.add_error("damage")
 
 api.read_data("creep/inl_1/AirBase_900_31_G50.csv")
-api.add_error("y_area", "time", "strain")
-api.add_error("x_end", "time")
-api.add_error("x_end", "strain")
+api.add_error("area", "time", "strain")
+api.add_error("end_value", "time")
+api.add_error("end_value", "strain")
 api.add_error("damage")
 
 api.read_data("creep/inl_1/AirBase_900_28_G45.csv")
-api.add_error("y_area", "time", "strain")
-api.add_error("x_end", "time")
-api.add_error("x_end", "strain")
+api.add_error("area", "time", "strain")
+api.add_error("end_value", "time")
+api.add_error("end_value", "strain")
 api.add_error("damage")
 
 api.read_data("creep/inl_1/AirBase_900_26_G59.csv")
 api.remove_oxidation()
-api.add_error("y_area", "time", "strain")
-api.add_error("x_end", "time")
-api.add_error("x_end", "strain")
+api.add_error("area", "time", "strain")
+api.add_error("end_value", "time")
+api.add_error("end_value", "strain")
 api.add_error("damage")
 
 api.reduce_errors("square_average")

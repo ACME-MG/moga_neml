@@ -309,7 +309,7 @@ class API:
         are set to false, then the errors will be grouped into a single objective function
         
         Parameters:
-        * `name`:   If true, the errors will be grouped by their names (e.g., x_end, y_area)
+        * `name`:   If true, the errors will be grouped by their names (e.g., end_value, area)
         * `type`:   If true, the errors will be grouped by the data types (e.g., creep, tensile)
         * `labels`: If true, the errors will be grouped by their measurements (e.g., strain, stress)
         """

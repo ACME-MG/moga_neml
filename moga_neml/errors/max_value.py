@@ -8,7 +8,7 @@
 # Libraries
 from moga_neml.errors.__error__ import __Error__
 
-# The YArea class
+# The maximum value class
 class Error(__Error__):
     
     # Runs at the start, once

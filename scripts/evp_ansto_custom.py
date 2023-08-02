@@ -6,17 +6,17 @@ api.define_model("evp")
 
 api.read_data("tensile/ansto/AirBase_1E-2_A.csv")
 api.remove_manual("strain", 0.4)
-api.add_error("area", "strain", "stress")
+api.add_error("custom_area", "strain", "stress", values=[0.1, 0.2, 0.3, 0.4])
 api.add_error("yield", yield_stress=490)
 
 api.read_data("tensile/ansto/AirBase_1E-3_C.csv")
 api.remove_manual("strain", 0.4)
-api.add_error("area", "strain", "stress")
+api.add_error("custom_area", "strain", "stress", values=[0.1, 0.2, 0.3, 0.4])
 api.add_error("yield", yield_stress=390)
 
 api.read_data("tensile/ansto/AirBase_1E-4_C.csv") # B
 api.remove_manual("strain", 0.4)
-api.add_error("area", "strain", "stress")
+api.add_error("custom_area", "strain", "stress", values=[0.1, 0.2, 0.3, 0.4])
 api.add_error("yield", yield_stress=310)
 
 api.reduce_errors("square_sum")
