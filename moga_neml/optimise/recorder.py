@@ -7,11 +7,11 @@
 
 # Libraries
 import time
-from moga_neml._interface.plotter import Plotter
-from moga_neml._interface.spreadsheet import Spreadsheet
-from moga_neml._maths.curve import  get_thinned_list
-from moga_neml._maths.experiment import DATA_DENSITY, DATA_FIELD_PLOT_MAP, DATA_UNITS
-from moga_neml._optimise.controller import Controller
+from moga_neml.interface.plotter import Plotter
+from moga_neml.interface.spreadsheet import Spreadsheet
+from moga_neml.maths.curve import  get_thinned_list
+from moga_neml.maths.experiment import DATA_DENSITY, DATA_FIELD_PLOT_MAP, DATA_UNITS
+from moga_neml.optimise.controller import Controller
 
 # The Recorder class
 class Recorder:

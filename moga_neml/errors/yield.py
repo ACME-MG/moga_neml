@@ -10,8 +10,8 @@ import math, numpy as np
 import scipy.interpolate as inter
 import scipy.optimize as opt
 from moga_neml.errors.__error__ import __Error__
-from moga_neml._optimise.controller import BIG_VALUE
-from moga_neml._maths.interpolator import Interpolator
+from moga_neml.optimise.controller import BIG_VALUE
+from moga_neml.maths.interpolator import Interpolator
 
 # The Error class
 class Error(__Error__):

@@ -12,7 +12,7 @@ from pymoo.algorithms.moo.nsga2 import NSGA2
 from pymoo.operators.crossover.sbx import SBX
 from pymoo.operators.mutation.pm import PolynomialMutation
 from pymoo.optimize import minimize
-from moga_neml._optimise.problem import Problem
+from moga_neml.optimise.problem import Problem
 
 # The Multi-Curve Genetic Algorithm (MOGA) class
 class MOGA:

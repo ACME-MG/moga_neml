@@ -7,7 +7,7 @@
 
 # Libraries
 from copy import deepcopy
-from moga_neml._maths.interpolator import Interpolator
+from moga_neml.maths.interpolator import Interpolator
 
 # Returns the derivative via backward finite difference
 def get_bfd(x_list:list, y_list:list) -> tuple:

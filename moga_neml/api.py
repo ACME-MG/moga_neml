@@ -7,15 +7,15 @@
 
 # Libraries
 import re, time
-from moga_neml._interface.reader import read_exp_data
-from moga_neml._maths.curve import remove_data_after
-from moga_neml._maths.general import safe_mkdir
-from moga_neml._optimise.recorder import Recorder
-from moga_neml._optimise.controller import Controller
-from moga_neml._optimise.problem import Problem
-from moga_neml._optimise.moga import MOGA
-from moga_neml._maths.derivative import remove_after_sp
-from moga_neml._maths.experiment import DATA_UNITS
+from moga_neml.interface.reader import read_exp_data
+from moga_neml.maths.curve import remove_data_after
+from moga_neml.maths.general import safe_mkdir
+from moga_neml.optimise.recorder import Recorder
+from moga_neml.optimise.controller import Controller
+from moga_neml.optimise.problem import Problem
+from moga_neml.optimise.moga import MOGA
+from moga_neml.maths.derivative import remove_after_sp
+from moga_neml.maths.experiment import DATA_UNITS
 
 # API Class
 class API:
@@ -251,7 +251,7 @@ class API:
         # Get parameters and check input
         param_name_list = list(self.__controller__.get_unfix_param_dict().keys())
         if len(params) != len(param_name_list):
-            raise ValueError("Could not plot because the number of inputs do not match the number of parameters!")
+            raise ValueError(f"Could not plot because the number of inputs ({len(params)}) do not match the number of parameters ({len(param_name_list)})!")
         
         # Get type and plot prediction
         type = self.__controller__.get_last_curve().get_type() if type == None else type

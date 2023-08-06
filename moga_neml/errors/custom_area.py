@@ -8,7 +8,7 @@
 # Libraries
 import math, numpy as np
 from moga_neml.errors.__error__ import __Error__
-from moga_neml._maths.interpolator import Interpolator
+from moga_neml.maths.interpolator import Interpolator
 
 # The Custom Area class
 class Error(__Error__):

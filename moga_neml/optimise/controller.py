@@ -9,12 +9,12 @@
 from copy import deepcopy
 from moga_neml.models.__model__ import __Model__, get_model
 from moga_neml.errors.__error__ import __Error__
-from moga_neml._interface.plotter import Plotter
-from moga_neml._optimise.driver import Driver
-from moga_neml._optimise.curve import Curve
-from moga_neml._maths.derivative import differentiate_curve
-from moga_neml._maths.experiment import DATA_FIELD_PLOT_MAP
-from moga_neml._maths.general import reduce_list
+from moga_neml.interface.plotter import Plotter
+from moga_neml.optimise.driver import Driver
+from moga_neml.optimise.curve import Curve
+from moga_neml.maths.derivative import differentiate_curve
+from moga_neml.maths.experiment import DATA_FIELD_PLOT_MAP
+from moga_neml.maths.general import reduce_list
 
 # Constants
 MIN_DATA  = 5

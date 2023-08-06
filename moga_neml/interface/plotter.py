@@ -7,7 +7,7 @@
 
 # Libraries
 import matplotlib.pyplot as plt
-from moga_neml._maths.experiment import DATA_UNITS
+from moga_neml.maths.experiment import DATA_UNITS
 
 # Constants
 DEFAULT_PATH    = "./plot"

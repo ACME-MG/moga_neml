@@ -8,8 +8,8 @@
 # Libraries
 from neml import drivers
 from neml.nlsolvers import MaximumIterations, MaximumSubdivisions
-from moga_neml._maths.experiment import NEML_FIELD_CONVERSION
-from moga_neml._maths.general import BlockPrint
+from moga_neml.maths.experiment import NEML_FIELD_CONVERSION
+from moga_neml.maths.general import BlockPrint
 
 # General Driver Constants
 TIME_HOLD    = 11500.0 * 3600.0

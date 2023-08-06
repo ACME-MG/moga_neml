@@ -9,8 +9,8 @@
 import warnings
 import numpy as np
 from pymoo.core.problem import ElementwiseProblem
-from moga_neml._optimise.controller import Controller
-from moga_neml._optimise.recorder import Recorder
+from moga_neml.optimise.controller import Controller
+from moga_neml.optimise.recorder import Recorder
 
 # The Problem class
 class Problem(ElementwiseProblem):
