@@ -1,4 +1,4 @@
-import sys; sys.path += ["../.."]
+import sys; sys.path += [".."]
 from moga_neml.api import API
 
 api = API("evpwd 900 tensile")
