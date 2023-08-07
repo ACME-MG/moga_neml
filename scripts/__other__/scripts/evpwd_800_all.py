@@ -1,15 +1,15 @@
-import sys; sys.path += ["../.."]
+import sys; sys.path += ["../../.."]
 from moga_neml.api import API
 
-api = API("evpcd 800 all", input_path="../data", output_path="../results")
+api = API("evpcd 800 all fixed", input_path="../../data", output_path="../../results")
 
 api.define_model("evpwd")
 
-api.init_param("evp_s0",  3.14e1)
-api.init_param("evp_R",   1.40e1)
-api.init_param("evp_d",   1.00e1)
-api.init_param("evp_n",   2.87e0)
-api.init_param("evp_eta", 9.93e3)
+api.fix_param("evp_s0",  3.14e1)
+api.fix_param("evp_R",   1.40e1)
+api.fix_param("evp_d",   1.00e1)
+api.fix_param("evp_n",   2.87e0)
+api.fix_param("evp_eta", 9.93e3)
 
 api.read_data("creep/inl_1/AirBase_800_80_G25.csv")
 api.add_error("area", "time", "strain")
