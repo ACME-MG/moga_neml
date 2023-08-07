@@ -19,9 +19,9 @@ class Model(__Model__):
     def initialise(self, ori_path, lattice, slip_dir, slip_plane, num_threads):
 
         # Define parameters
-        self.add_param("vsh_ts", 0.0e0, 2.0e3) # 1e2
-        self.add_param("vsh_b",  0.0e0, 1.0e3) # 1e2
-        self.add_param("vsh_t0", 0.0e0, 1.0e3) # 1e2
+        self.add_param("vsh_ts", 0.0e0, 2.0e3)
+        self.add_param("vsh_b",  0.0e0, 1.0e1)
+        self.add_param("vsh_t0", 0.0e0, 1.0e3)
         self.add_param("ai_g0",  0.0e0, 1.0e0)
         self.add_param("ai_n",   0.0e0, 1.0e2)
     
@@ -41,10 +41,6 @@ class Model(__Model__):
             self.grain_orientations.append(rotations.CrystalOrientation(phi_1, Phi, phi_2, angle_type="degrees", convention="bunge"))
             self.weights.append(int(data[3]))
         file.close()
-
-        # Random rotation
-        num_grains = len(self.grain_orientations)
-        self.grain_orientations = rotations.random_orientations(num_grains)
 
         # Define lattice structure
         self.lattice = crystallography.CubicLattice(lattice)
