@@ -12,6 +12,7 @@ import numpy as np
 # NEML Libraries
 from neml import drivers
 from neml import models, elasticity, surfaces, hardening, visco_flow, general_flow
+from neml.nlsolvers import MaximumIterations, MaximumSubdivisions
 
 # Model Constants
 TEMPERATURE = 20
@@ -119,7 +120,7 @@ for params in combinations:
     # Get prediction
     try:
         result = model.get_prediction(*params)
-    except:
+    except (MaximumIterations, MaximumSubdivisions):
         fail_count += 1
         continue
     

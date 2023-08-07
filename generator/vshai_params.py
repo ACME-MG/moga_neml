@@ -13,6 +13,7 @@ import numpy as np
 from neml import elasticity, drivers
 from neml.cp import crystallography, slipharden, sliprules, inelasticity, kinematics, singlecrystal, polycrystal
 from neml.math import rotations
+from neml.nlsolvers import MaximumIterations, MaximumSubdivisions
 
 # Model Constants
 TEMPERATURE = 20
@@ -41,7 +42,7 @@ def transpose(list_of_lists:float) -> list:
 class Model:
 
     # Runs at the start, once
-    def initialise(self, ori_path, lattice, slip_dir, slip_plane, num_threads):
+    def __init__(self, ori_path, lattice, slip_dir, slip_plane, num_threads):
     
         # Extract information from arguments
         self.num_threads = num_threads
@@ -126,7 +127,7 @@ combinations = [list(c) for c in combinations]
 print(f"Generated {len(combinations)} combinations")
 
 # Initialise model
-model = Model()
+model = Model(ori_path="input_stats.csv", lattice=1.0, slip_dir=[1,1,0], slip_plane=[1,1,1], num_threads=16)
 
 # Prepare parameter dictionary
 transposed_combinations = transpose(combinations)
@@ -144,7 +145,7 @@ for params in combinations:
     # Get prediction
     try:
         result = model.get_prediction(*params)
-    except:
+    except (MaximumIterations, MaximumSubdivisions):
         fail_count += 1
         continue
     
