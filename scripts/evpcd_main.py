@@ -27,5 +27,5 @@ api.add_error("end_value", "strain")
 api.read_data("creep/inl_1/AirBase_800_65_G33.csv")
 api.read_data("creep/inl_1/AirBase_800_60_G32.csv")
 
-api.set_recorder(10, 10)
+api.set_recorder(10, 10, True)
 api.optimise(10000, 100, 50, 0.65, 0.35)

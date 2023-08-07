@@ -32,5 +32,5 @@ api.read_data("creep/inl_1/AirBase_800_60_G32.csv")
 api.reduce_errors("square_average")
 api.reduce_objectives("square_average")
 
-api.set_recorder(10, 10)
+api.set_recorder(10, 10, True)
 api.optimise(10000, 100, 50, 0.65, 0.35)
