@@ -15,7 +15,7 @@ api.add_error("area", "strain", "stress")
 api.add_error("yield")
 api.add_error("end_value", "strain")
 api.add_error("end_value", "stress")
-api.add_error("damage")
+api.add_error("damage", weight=0.2)
 
 api.reduce_errors("square_average")
 api.reduce_objectives("square_average")
