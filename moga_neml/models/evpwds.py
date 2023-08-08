@@ -22,7 +22,7 @@ class Model(__Model__):
         self.add_param("evp_d",   0.0e1, 1.0e3) # 2
         self.add_param("evp_n",   1.0e0, 1.0e2) # 2
         self.add_param("evp_eta", 0.0e1, 1.0e6)
-        self.add_param("wd_n",    1.0e0, 1.0e2)
+        self.add_param("wd_n",    1.0e0, 2.0e1)
         self.add_param("wd_x_f",  0.0e0, 1.0e2)
         self.add_param("wd_y_f",  0.0e0, 1.0e3)
         self.add_param("wd_x_t", -1.0e2, 0.0e0)
