@@ -3,10 +3,9 @@
  Description:   The objective function for optimising damage to be closer to 1
  Author:        Janzen Choi
 
- """
+"""
 
 # Libraries
-import math
 from moga_neml.errors.__error__ import __Error__
 
 # The Error class
@@ -20,7 +19,4 @@ class Error(__Error__):
     def get_value(self, prd_data:dict) -> float:
         damage_history = prd_data["history"][-1]
         damage = self.model.get_last_calibrated_model().get_damage(damage_history)
-        try:
-            return math.pow(1 - damage, 4)
-        except OverflowError:
-            return # math domain error
+        return abs(1 - damage)

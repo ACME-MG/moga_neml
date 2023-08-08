@@ -242,6 +242,7 @@ class Controller():
         x_label = DATA_FIELD_PLOT_MAP[type]["x"] if x_label == None else x_label
         y_label = DATA_FIELD_PLOT_MAP[type]["y"] if y_label == None else y_label
         plotter = Plotter(file_path, x_label, y_label)
+        plotter.prep_plot("Experimental")
         
         # Converts the list into a derivative if desired
         for _ in range(derivative):
@@ -261,6 +262,7 @@ class Controller():
         x_label = DATA_FIELD_PLOT_MAP[type]["x"] if x_label == None else x_label
         y_label = DATA_FIELD_PLOT_MAP[type]["y"] if y_label == None else y_label
         plotter = Plotter(file_path, x_label, y_label)
+        plotter.prep_plot("Predicted")
         
         # Plot experimental and predicted data
         for curve in self.curve_list:

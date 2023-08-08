@@ -24,11 +24,11 @@ class Plotter:
         self.y_label = y_label
 
     # Prepares the plot
-    def prep_plot(self, title:str=""):
-        plt.figure(figsize=(8,8))
-        plt.xlabel(f"{self.x_label} ({DATA_UNITS[self.x_label]})", fontsize=20)
-        plt.ylabel(f"{self.y_label} ({DATA_UNITS[self.y_label]})", fontsize=20)
-        plt.title(title, fontsize=20)
+    def prep_plot(self, title:str="", size:int=15):
+        # plt.figure(figsize=(8,8))
+        plt.xlabel(f"{self.x_label} ({DATA_UNITS[self.x_label]})", fontsize=size)
+        plt.ylabel(f"{self.y_label} ({DATA_UNITS[self.y_label]})", fontsize=size)
+        plt.title(title, fontsize=size)
     
     # Plots the experimental data using a scatter plot
     def scat_plot(self, data_dict:dict, colour:str=EXP_DATA_COLOUR, size:int=5):

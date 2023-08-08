@@ -7,16 +7,17 @@
 
 # Libraries
 from neml import drivers
-from neml.nlsolvers import MaximumIterations, MaximumSubdivisions
 from moga_neml.maths.experiment import NEML_FIELD_CONVERSION
 from moga_neml.maths.general import BlockPrint
 
 # General Driver Constants
+MAX_STRAIN   = 1.0
 TIME_HOLD    = 11500.0 * 3600.0
 NUM_STEPS_UP = 50
 NUM_STEPS    = 1001
 REL_TOL      = 1.0E-6 # -6
 ABS_TOL      = 1.0E-10 # -10
+DAMAGE_TOL   = 0.95
 VERBOSE      = False
 
 # Specific Driver Constants
@@ -38,9 +39,9 @@ class Driver:
         
         # Get the results
         try:
-            with BlockPrint():
-                results = self.run_selected()
-        except (MaximumIterations, MaximumSubdivisions):
+            # with BlockPrint():
+            results = self.run_selected()
+        except: # (MaximumIterations, MaximumSubdivisions):
             return
         
         # Convert results and return
@@ -64,16 +65,15 @@ class Driver:
     def run_creep(self) -> dict:
         stress = self.exp_data["stress"]
         results = drivers.creep(self.model, stress, STRESS_RATE, TIME_HOLD, T=self.exp_data["temperature"], verbose=VERBOSE,
-                                check_dmg=False, dtol=0.95, nsteps_up=NUM_STEPS_UP, nsteps=NUM_STEPS, logspace=False)
+                                check_dmg=False, dtol=DAMAGE_TOL, nsteps_up=NUM_STEPS_UP, nsteps=NUM_STEPS, logspace=False)
         results["rtime"] /= 3600
         return results
 
     # Runs the tensile driver
     def run_tensile(self) -> dict:
         strain_rate = self.exp_data["strain_rate"] / 3600
-        strain_max = max(self.exp_data["strain"])
-        results = drivers.uniaxial_test(self.model, erate=strain_rate, T=self.exp_data["temperature"], emax=strain_max,
-                                        nsteps=NUM_STEPS, verbose=VERBOSE, rtol=REL_TOL, atol=ABS_TOL)
+        results = drivers.uniaxial_test(self.model, erate=strain_rate, T=self.exp_data["temperature"], emax=MAX_STRAIN,
+                                        check_dmg=False, dtol=DAMAGE_TOL, nsteps=NUM_STEPS, verbose=VERBOSE, rtol=REL_TOL, atol=ABS_TOL)
         return results
     
     # Runs the cyclic driver
