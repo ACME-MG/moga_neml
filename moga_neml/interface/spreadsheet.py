@@ -7,6 +7,7 @@
 
 # Libraries
 import pandas as pd
+from moga_neml.maths.experiment import DATA_UNITS
 
 # Spreadsheet class
 class Spreadsheet:
@@ -40,9 +41,9 @@ class Spreadsheet:
         data_list_list = []
         for data_name in data_dict_dict.keys():
             data_dict = data_dict_dict[data_name]
-            if len(data_dict["x"]) == 0 or len(data_dict["y"]) == 0:
+            if len(data_dict[x_label]) == 0 or len(data_dict[y_label]) == 0:
                 continue
-            data_list_list += [data_dict["x"], data_dict["y"]]
+            data_list_list += [data_dict[x_label], data_dict[y_label]]
         
         # Convert data into pandas' desired 
         data_list_list = zip_longest(data_list_list)
@@ -64,16 +65,16 @@ class Spreadsheet:
             }
             chart.add_series({
                 "name":       list(data_dict_dict.keys())[i],
-                "categories": [sheet_name, 1, i*2, len(data_dict["x"]), i*2],
-                "values":     [sheet_name, 1, i*2+1, len(data_dict["x"]), i*2+1],
+                "categories": [sheet_name, 1, i*2, len(data_dict[x_label]), i*2],
+                "values":     [sheet_name, 1, i*2+1, len(data_dict[x_label]), i*2+1],
                 "marker":     marker_style
             })
         
         # Add axes and add the chart to the sheet
         if len(data_dict_dict.keys()) == 1:
             chart.set_legend({"none": True})
-        chart.set_x_axis({"name": x_label, "major_gridlines": {"visible": True}})
-        chart.set_y_axis({"name": y_label, "major_gridlines": {"visible": True}})
+        chart.set_x_axis({"name": f"{x_label} ({DATA_UNITS[x_label]})", "major_gridlines": {"visible": True}})
+        chart.set_y_axis({"name": f"{y_label} ({DATA_UNITS[y_label]})", "major_gridlines": {"visible": True}})
         sheet.insert_chart("A1", chart)
 
     # Closes the writer

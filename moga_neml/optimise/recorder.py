@@ -10,7 +10,7 @@ import time
 from moga_neml.interface.plotter import Plotter
 from moga_neml.interface.spreadsheet import Spreadsheet
 from moga_neml.maths.curve import  get_thinned_list
-from moga_neml.maths.experiment import DATA_DENSITY, DATA_FIELD_PLOT_MAP, DATA_UNITS
+from moga_neml.maths.experiment import DATA_DENSITY, DATA_FIELD_PLOT_MAP
 from moga_neml.optimise.controller import Controller
 
 # The Recorder class
@@ -208,12 +208,12 @@ class Recorder:
         # Prepare dict for plotting data
         plot_dict = {}
         if train_dict["exp_x"] != []:
-            plot_dict["training"] = {"x": train_dict["exp_x"], "y": train_dict["exp_y"], "size": 5, "colour": "silver"}
+            plot_dict["training"] = {x_label: train_dict["exp_x"], y_label: train_dict["exp_y"], "size": 5, "colour": "silver"}
         if valid_dict["exp_x"] != []:
-            plot_dict["validation"] = {"x": valid_dict["exp_x"], "y": valid_dict["exp_y"], "size": 5, "colour": "gray"}
+            plot_dict["validation"] = {x_label: valid_dict["exp_x"], y_label: valid_dict["exp_y"], "size": 5, "colour": "gray"}
         all_x = train_dict["prd_x"] + valid_dict["prd_x"]
         all_y = train_dict["prd_y"] + valid_dict["prd_y"]
-        plot_dict["prediction"] = {"x": all_x , "y": all_y, "size": 2, "colour": "red"}
+        plot_dict["prediction"] = {x_label: all_x , y_label: all_y, "size": 2, "colour": "red"}
         return plot_dict
 
     # Returns a writer object
@@ -242,14 +242,15 @@ class Recorder:
             spreadsheet.write_plot(
                 data_dict_dict = plot_dict,
                 sheet_name     = f"plot_{type}",
-                x_label        = f"{x_label} ({DATA_UNITS[x_label]})",
-                y_label        = f"{y_label} ({DATA_UNITS[y_label]})",
+                x_label        = x_label,
+                y_label        = y_label,
                 plot_type      = "scatter"
             )
         
             # Creates a quick-view plot, if desired
             if self.quick_view:
-                plotter = Plotter(f"{self.result_path}_{type}.png")
+                plotter = Plotter(f"{self.result_path}_{type}.png", x_label, y_label)
+                plotter.prep_plot("Best Prediction")
                 for key in ["training", "validation", "prediction"]:
                     if key in plot_dict.keys():
                         plotter.scat_plot(plot_dict[key], plot_dict[key]["colour"], plot_dict[key]["size"])
