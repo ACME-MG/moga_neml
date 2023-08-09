@@ -39,8 +39,8 @@ class Driver:
         
         # Get the results
         try:
-            # with BlockPrint():
-            results = self.run_selected()
+            with BlockPrint():
+                results = self.run_selected()
         except: # (MaximumIterations, MaximumSubdivisions):
             return
         

@@ -8,12 +8,12 @@
 # Libraries
 import itertools
 import numpy as np
+import os, sys
 
 # NEML Libraries
 from neml import elasticity, drivers
 from neml.cp import crystallography, slipharden, sliprules, inelasticity, kinematics, singlecrystal, polycrystal
 from neml.math import rotations
-from neml.nlsolvers import MaximumIterations, MaximumSubdivisions
 
 # Model Constants
 TEMPERATURE = 20
@@ -111,6 +111,17 @@ def find_nearest(array, value):
     index = (np.abs(array - value)).argmin()
     return index
 
+# Blocks print messages
+#   https://stackoverflow.com/questions/8391411/how-to-block-calls-to-print
+class BlockPrint:
+    def __enter__(self):
+        self._original_stdout = sys.stdout
+        sys.stdout = open(os.devnull, 'w')
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        sys.stdout.close()
+        sys.stdout = self._original_stdout
+
 # Initialise parameter values
 value_dict = {
     "vsh_t0": [0, 100, 200, 300, 400, 500],
@@ -144,7 +155,8 @@ for params in combinations:
     
     # Get prediction
     try:
-        result = model.get_prediction(*params)
+        with BlockPrint():
+            result = model.get_prediction(*params)
     except:
         fail_count += 1
         continue
