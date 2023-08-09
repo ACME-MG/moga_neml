@@ -113,16 +113,11 @@ def find_nearest(array, value):
 
 # Initialise parameter values
 value_dict = {
-    "vsh_t0": [0],
-    "vsh_ts": [1],
-    "vsh_b":  [0.1],
-    "ai_n":   [1],
+    "vsh_t0": [0, 100, 200, 300, 400, 500],
+    "vsh_ts": [1, 500, 1000, 1500, 2000],
+    "vsh_b":  [0.1, 1, 10],
+    "ai_n":   [1, 5, 10, 15, 20],
     "ai_g0":  [round_sf(1e-4/3, 5)]
-    # "vsh_t0": [0, 100, 200, 300, 400, 500],
-    # "vsh_ts": [1, 500, 1000, 1500, 2000],
-    # "vsh_b":  [0.1, 1, 10],
-    # "ai_n":   [1, 5, 10, 15, 20],
-    # "ai_g0":  [round_sf(1e-4/3, 5)]
 }
 
 # Get all combinations
@@ -150,7 +145,7 @@ for params in combinations:
     # Get prediction
     try:
         result = model.get_prediction(*params)
-    except (MaximumIterations, MaximumSubdivisions):
+    except:
         fail_count += 1
         continue
     
