@@ -6,25 +6,12 @@
 """
 
 # Libraries
-import itertools
-import numpy as np
-
-# NEML Libraries
-from neml import drivers
-from neml import models, elasticity, surfaces, hardening, visco_flow, general_flow
-from neml.nlsolvers import MaximumIterations, MaximumSubdivisions
-
-# Model Constants
-TEMPERATURE = 20
-STRAIN_RATE = 1.0e-4
-MAX_STRAIN  = 0.2
-NUM_STEPS   = 251
-REL_TOL     = 1.0E-6 # -6
-ABS_TOL     = 1.0E-10 # -10
-VERBOSE     = False
+import itertools, numpy as np
+from _evp import Model
+# from _vshai import Model
 
 # Surrogate Modelling Constants
-NUM_STRAINS = 20
+NUM_STRAINS = 25
 
 # Rounds a float to a number of significant figures
 def round_sf(value:float, sf:int) -> float:
@@ -36,28 +23,6 @@ def round_sf(value:float, sf:int) -> float:
 def transpose(list_of_lists:float) -> list:
     transposed = np.array(list_of_lists).T.tolist()
     return transposed
-
-# The VSHAI Model
-class Model:
-
-    # Gets the calibrated VSHAI model
-    def get_model(self, evp_s0, evp_R, evp_d, evp_n, evp_eta):
-        elastic_model  = elasticity.IsotropicLinearElasticModel(211000, "youngs", 0.3, "poissons")
-        yield_surface = surfaces.IsoJ2()
-        iso_hardening = hardening.VoceIsotropicHardeningRule(evp_s0, evp_R, evp_d)
-        g_power       = visco_flow.GPowerLaw(evp_n, evp_eta)
-        visco_model   = visco_flow.PerzynaFlowRule(yield_surface, iso_hardening, g_power)
-        integrator    = general_flow.TVPFlowRule(elastic_model, visco_model)
-        evp_model     = models.GeneralIntegrator(elastic_model, integrator, verbose=False)
-        return evp_model
-
-    # Gets the results from the driver and return
-    def get_prediction(self, *params:tuple):
-        calibrated_model = self.get_model(*params)
-        results = drivers.uniaxial_test(calibrated_model, erate=STRAIN_RATE,
-            T=TEMPERATURE, emax=MAX_STRAIN, nsteps=NUM_STEPS,
-            verbose=VERBOSE, rtol=REL_TOL, atol=ABS_TOL)
-        return results # "strain", "stress"
 
 # Converts a dictionary into a CSV file
 def dict_to_csv(data_dict:dict, csv_path:str) -> None:
@@ -86,23 +51,17 @@ def find_nearest(array, value):
     index = (np.abs(array - value)).argmin()
     return index
 
+# Initialise model
+model = Model()
+
 # Initialise parameter values
-value_dict = {
-    "evp_s0":  [1, 100, 200, 300, 400, 500],
-    "evp_R":   [1, 500, 1000, 1500, 2000],
-    "evp_d":   [0.1, 1, 10, 100],
-    "evp_n":   [1, 5, 10],
-    "evp_eta": [1e1, 1e2, 1e3, 1e4]
-}
+value_dict = model.get_value_dict()
 
 # Get all combinations
 value_grid   = list(value_dict.values())
 combinations = list(itertools.product(*value_grid))
 combinations = [list(c) for c in combinations]
 print(f"Generated {len(combinations)} combinations")
-
-# Initialise model
-model = Model()
 
 # Prepare parameter dictionary
 transposed_combinations = transpose(combinations)
@@ -120,7 +79,7 @@ for params in combinations:
     # Get prediction
     try:
         result = model.get_prediction(*params)
-    except (MaximumIterations, MaximumSubdivisions):
+    except:
         fail_count += 1
         continue
     
@@ -132,12 +91,19 @@ for params in combinations:
     # Add end point
     x_end = result["strain"][-1]
     combined_dict["x_end"].append(x_end)
-
+    
+    # Define x values
+    # start_num_strains = 5
+    # end_num_strains = NUM_STRAINS - start_num_strains
+    # x_list  = [x_end/10/start_num_strains*(i+1) for i in range(start_num_strains)]
+    # x_list += [x_end/end_num_strains*(i+1) for i in range(start_num_strains, NUM_STRAINS)]
+    x_list = [x_end/NUM_STRAINS*(i+1) for i in range(NUM_STRAINS)]
+    
     # Add strain values
-    for i in range(1,NUM_STRAINS+1):
-        y_index = find_nearest(result["strain"], x_end/NUM_STRAINS*i)
+    for i in range(NUM_STRAINS):
+        y_index = find_nearest(result["strain"], x_list[i])
         y_value = round_sf(result["stress"][y_index], 5)
-        combined_dict[f"y_{i}"].append(y_value)
+        combined_dict[f"y_{i+1}"].append(y_value)
 
 # Write results
 print(f"Results failed = {fail_count}")

@@ -41,7 +41,7 @@ class Driver:
         try:
             with BlockPrint():
                 results = self.run_selected()
-        except: # (MaximumIterations, MaximumSubdivisions):
+        except:
             return
         
         # Convert results and return

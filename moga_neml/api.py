@@ -7,7 +7,7 @@
 
 # Libraries
 import re, time
-from moga_neml.interface.reader import read_exp_data
+from moga_neml.interface.reader import read_exp_data, check_exp_data
 from moga_neml.maths.curve import remove_data_after
 from moga_neml.maths.general import safe_mkdir
 from moga_neml.optimise.recorder import Recorder
@@ -85,7 +85,7 @@ class API:
             self.__print_index__ += 1
             self.__print_subindex__ = 0
             print_index = f"{self.__print_index__}"
-        print(f"   {print_index})\t{message}")
+        print(f"   {print_index})\t{message} ...")
     
     def define_model(self, model_name:str, **kwargs) -> None:
         """
@@ -108,6 +108,20 @@ class API:
         self.__print__(f"Reading data from '{file_name}'")
         exp_data = read_exp_data(self.__input_path__, file_name)
         self.__controller__.add_curve(exp_data["type"], exp_data)
+    
+    def add_custom_data(self, type:str, exp_data:dict) -> None:
+        """
+        Adds custom data; useful for defining specific test conditions
+        
+        Parameters:
+        * `type`:      The data type (e.g., creep, tensile)
+        * `exp_data`:  Information about the data
+        """
+        self.__print__(f"Adding custom {type} data!")
+        exp_data["file_name"] = "custom"
+        exp_data["type"] = type
+        check_exp_data(exp_data)
+        self.__controller__.add_curve(type, exp_data)
     
     def add_error(self, error_name:str, x_label:str="", y_label:str="", weight:float=1, **kwargs) -> None:
         """
