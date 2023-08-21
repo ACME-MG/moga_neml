@@ -233,7 +233,8 @@ class Controller():
         return objective_dict
 
     # Plots the curves for a given type
-    def plot_exp_curves(self, type:str, file_path:str="", x_label:str=None, y_label:str=None, derivative:int=0):
+    def plot_exp_curves(self, type:str, file_path:str="", x_label:str=None, y_label:str=None,
+                        derivative:int=0, x_log:bool=False, y_log:bool=False) -> None:
         
         # Gets the data of defined type
         exp_data_list = [curve.get_exp_data() for curve in self.curve_list if curve.get_type() == type]
@@ -252,11 +253,13 @@ class Controller():
         # Plot the data, save, and clear for next plot
         for exp_data in exp_data_list:
             plotter.scat_plot(exp_data)
+        plotter.log_scale(x_log, y_log)
         plotter.save_plot()
         plotter.clear()
 
     # Plots the curves for a given type
-    def plot_prd_curves(self, *params:tuple, type:str, file_path:str="", x_label:str=None, y_label:str=None):
+    def plot_prd_curves(self, *params:tuple, type:str, file_path:str="", x_label:str=None,
+                        y_label:str=None, x_log:bool=False, y_log:bool=False) -> None:
         
         # Initialise plotter
         x_label = DATA_FIELD_PLOT_MAP[type]["x"] if x_label == None else x_label
@@ -274,5 +277,8 @@ class Controller():
                 raise ValueError("The model is unable to run with the parameters!")
             plotter.scat_plot(exp_data)
             plotter.line_plot(prd_data)
+        
+        # Format and save
+        plotter.log_scale(x_log, y_log)
         plotter.save_plot()
         plotter.clear()

@@ -30,6 +30,13 @@ class Plotter:
         plt.ylabel(f"{self.y_label} ({DATA_UNITS[self.y_label]})", fontsize=size)
         plt.title(title, fontsize=size)
     
+    # Changes the scale of the plot
+    def log_scale(self, x_log:bool=False, y_log:bool=False):
+        if x_log:
+            plt.xscale("log")
+        if y_log:
+            plt.yscale("log")
+    
     # Plots the experimental data using a scatter plot
     def scat_plot(self, data_dict:dict, colour:str=EXP_DATA_COLOUR, size:int=5):
         plt.scatter(data_dict[self.x_label], data_dict[self.y_label], s=size**2, marker="o", color=colour, linewidth=1)

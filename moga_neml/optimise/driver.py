@@ -14,10 +14,10 @@ from moga_neml.maths.general import BlockPrint
 MAX_STRAIN   = 1.0
 TIME_HOLD    = 11500.0 * 3600.0
 NUM_STEPS_UP = 50
-NUM_STEPS    = 1001
-REL_TOL      = 1.0E-6 # -6
+NUM_STEPS    = 500
+REL_TOL      = 1.0E-6  # -6
 ABS_TOL      = 1.0E-10 # -10
-DAMAGE_TOL   = 0.95
+DAMAGE_TOL   = 0.90    # 0.95
 VERBOSE      = False
 
 # Specific Driver Constants

@@ -7,8 +7,8 @@
 
 # Libraries
 import itertools, numpy as np
-from _evp import Model
-# from _vshai import Model
+# from _evp import Model
+from _vshai import Model
 
 # Surrogate Modelling Constants
 NUM_STRAINS = 25

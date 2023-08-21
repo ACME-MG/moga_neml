@@ -217,7 +217,8 @@ class API:
         exp_data = remove_data_after(exp_data, value, label)
         curve.set_exp_data(exp_data)
     
-    def plot_experimental(self, type:str=None, x_label:str=None, y_label:str=None, derivative:int=0) -> None:
+    def plot_experimental(self, type:str=None, x_label:str=None, y_label:str=None,
+                          derivative:int=0, x_log:bool=False, y_log:bool=False) -> None:
         """
         Visualises the experimental data
         
@@ -228,6 +229,8 @@ class API:
         * `y_label`:    The measurement to be visualised on the y-axis
         * `derivative`: The derivative order of the data; the default is 0, meaning that the
                         visualised data is not differentiated
+        * `x_log`:      Whether to log the x-axis
+        * `y_log`:      Whether to log the y-axis
         """
         
         # Determine type (use type of last curve if undefined)
@@ -242,9 +245,11 @@ class API:
         self.__print__(f"Visualising the{derivative_str} {type} data at '{file_name}'")
         
         # Actually plot the curves
-        self.__controller__.plot_exp_curves(type, self.__get_output__(file_name), x_label, y_label, derivative)
+        self.__controller__.plot_exp_curves(type, self.__get_output__(file_name), x_label,
+                                            y_label, derivative, x_log, y_log)
 
-    def plot_predicted(self, *params:tuple, type:str=None, x_label:str=None, y_label:str=None) -> None:
+    def plot_predicted(self, *params:tuple, type:str=None, x_label:str=None,
+                       y_label:str=None, x_log:bool=False, y_log:bool=False) -> None:
         """
         Visualises the predicted curves from a set of parameters
         
@@ -256,6 +261,8 @@ class API:
                        specified, then all the possible data types will be plotted
         * `x_label`:   The measurement to be visualised on the x-axis
         * `y_label`:   The measurement to be visualised on the y-axis
+        * `x_log`:     Whether to log the x-axis
+        * `y_log`:     Whether to log the y-axis
         """
         
         # Convert parameters into a string and display
@@ -270,7 +277,8 @@ class API:
         # Get type and plot prediction
         type = self.__controller__.get_last_curve().get_type() if type == None else type
         file_path = self.__get_output__(f"prd_{type}.png")
-        self.__controller__.plot_prd_curves(*params, type=type, file_path=file_path, x_label=x_label, y_label=y_label)
+        self.__controller__.plot_prd_curves(*params, type=type, file_path=file_path, x_label=x_label,
+                                            y_label=y_label, x_log=x_log, y_log=y_log)
 
     def get_results(self, *params:tuple, type_list:list=None, x_label:str=None, y_label:str=None) -> None:
         """
