@@ -39,7 +39,7 @@ def get_damage(x_f:float, y_f:float, x_t:float, y_t:float, g_1:float, g_2:float)
     y_list = [math.log10(y) if y > 0 else 0 for y in y_list]
     return x_list, y_list
 
-wd_x_f, wd_y_f, wd_x_t, wd_y_t, wd_g_1, wd_g_2 = 38.629, 428.51, -63.746, 518.53, 18.704, 98.137
+wd_x_f, wd_y_f, wd_x_t, wd_y_t, wd_g_1, wd_g_2 = 79.673, 177.8, -16.505, 358.65, 17.6, 78.943
 x_list, y_list = get_damage(wd_x_f, wd_y_f, wd_x_t, wd_y_t, wd_g_1, wd_g_2)
 
 import matplotlib.pyplot as plt

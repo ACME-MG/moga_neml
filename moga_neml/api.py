@@ -313,6 +313,19 @@ class API:
         recorder.update_optimal_solution(param_value_dict, error_value_dict)
         recorder.create_record(self.__get_output__("results.xlsx"), type_list, x_label, y_label)
     
+    def set_driver(self, num_steps:int=1000, rel_tol:float=1e-6, abs_tol:float=1e-10, verbose:bool=False) -> None:
+        """
+        Sets some general options for the NEML driver
+        
+        Parameters:
+        * `num_steps`: Number of steps to run
+        * `rel_tol`:   Relative error tolerance
+        * `abs_tol`:   Absolute error tolerance
+        * `verbose`:   Whether to print updates during the driving
+        """
+        self.__print__(f"Initialising the driver")
+        self.__controller__.set_driver(num_steps, rel_tol, abs_tol, verbose)
+    
     def set_recorder(self, interval:int=10, population:int=10, quick_view:bool=False) -> None:
         """
         Sets the options for the results recorder

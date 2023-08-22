@@ -14,25 +14,34 @@ from moga_neml.maths.general import BlockPrint
 MAX_STRAIN   = 1.0
 TIME_HOLD    = 11500.0 * 3600.0
 NUM_STEPS_UP = 50
-NUM_STEPS    = 500
-REL_TOL      = 1.0E-6  # -6
-ABS_TOL      = 1.0E-10 # -10
-DAMAGE_TOL   = 0.90    # 0.95
-VERBOSE      = False
-
-# Specific Driver Constants
+DAMAGE_TOL   = 0.95 # 0.95
 STRESS_RATE  = 0.0001
 CYCLIC_RATIO = -1
 
 # Driver class
 class Driver:
     
-    # Constructor
-    def __init__(self, exp_data:dict, model):
-        self.exp_data        = exp_data
-        self.type            = self.exp_data["type"]
-        self.model           = model
-        self.conversion_dict = NEML_FIELD_CONVERSION[self.type]
+    def __init__(self, exp_data:dict, model,
+                 num_steps:int=500, rel_tol:float=1e-6, abs_tol:float=1e-10, verbose:bool=False) -> None:
+        """
+        Initialises the driver class
+        
+        Parameters:
+        * `exp_data`:  Dictionary of experimental data
+        * `model`:     The model to be run
+        * `num_steps`: Number of steps to run
+        * `rel_tol`:   Relative error tolerance
+        * `abs_tol`:   Absolute error tolerance
+        * `verbose`:   Whether to run the driver in verbose mode
+        """
+        self.exp_data  = exp_data
+        self.type      = self.exp_data["type"]
+        self.model     = model
+        self.num_steps = num_steps
+        self.rel_tol   = rel_tol
+        self.abs_tol   = abs_tol
+        self.verbose   = verbose
+        self.conv_dict = NEML_FIELD_CONVERSION[self.type]
     
     # Runs the driver based on the experimental curve type
     def run(self) -> dict:
@@ -46,9 +55,9 @@ class Driver:
         
         # Convert results and return
         converted_results = {}
-        for field in list(self.conversion_dict.keys()):
+        for field in list(self.conv_dict.keys()):
             if field in results.keys():
-                converted_results[self.conversion_dict[field]] = results[field]
+                converted_results[self.conv_dict[field]] = results[field]
         return converted_results
     
     # Gets the results based on the type
@@ -64,8 +73,8 @@ class Driver:
     # Runs the creep driver
     def run_creep(self) -> dict:
         stress = self.exp_data["stress"]
-        results = drivers.creep(self.model, stress, STRESS_RATE, TIME_HOLD, T=self.exp_data["temperature"], verbose=VERBOSE,
-                                check_dmg=False, dtol=DAMAGE_TOL, nsteps_up=NUM_STEPS_UP, nsteps=NUM_STEPS, logspace=False)
+        results = drivers.creep(self.model, stress, STRESS_RATE, TIME_HOLD, T=self.exp_data["temperature"], verbose=self.verbose,
+                                check_dmg=False, dtol=DAMAGE_TOL, nsteps_up=NUM_STEPS_UP, nsteps=self.num_steps, logspace=False)
         results["rtime"] /= 3600
         return results
 
@@ -73,7 +82,7 @@ class Driver:
     def run_tensile(self) -> dict:
         strain_rate = self.exp_data["strain_rate"] / 3600
         results = drivers.uniaxial_test(self.model, erate=strain_rate, T=self.exp_data["temperature"], emax=MAX_STRAIN,
-                                        check_dmg=False, dtol=DAMAGE_TOL, nsteps=NUM_STEPS, verbose=VERBOSE, rtol=REL_TOL, atol=ABS_TOL)
+                                        check_dmg=False, dtol=DAMAGE_TOL, nsteps=self.num_steps, verbose=self.verbose, rtol=self.rel_tol, atol=self.abs_tol)
         return results
     
     # Runs the cyclic driver
@@ -82,7 +91,7 @@ class Driver:
         strain_rate = self.exp_data["strain_rate"] / 3600
         num_cycles = int(self.exp_data["num_cycles"])
         results = drivers.strain_cyclic(self.model, T=self.exp_data["temperature"], emax=max_strain, erate=strain_rate,
-                                        verbose=VERBOSE, R=CYCLIC_RATIO, ncycles=num_cycles, nsteps=NUM_STEPS,
-                                        rtol=REL_TOL, atol=ABS_TOL)
+                                        verbose=self.verbose, R=CYCLIC_RATIO, ncycles=num_cycles, nsteps=self.num_steps,
+                                        rtol=self.rel_tol, atol=self.abs_tol)
         results["time"] /= 3600
         return results

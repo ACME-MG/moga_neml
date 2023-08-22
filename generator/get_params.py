@@ -77,11 +77,12 @@ fail_count = 0
 for params in combinations:
     
     # Get prediction
-    try:
-        result = model.get_prediction(*params)
-    except:
-        fail_count += 1
-        continue
+    result = model.get_prediction(*params)
+    # try:
+    #     result = model.get_prediction(*params)
+    # except:
+    #     fail_count += 1
+    #     continue
     
     # Add parameters
     for i in range(len(params)):

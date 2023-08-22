@@ -42,6 +42,7 @@ api.add_error("end_value", "time")
 api.add_error("end_value", "strain")
 api.add_error("damage", weight=0.1)
 
+api.set_driver(num_steps=500)
 api.reduce_errors("square_average")
 api.reduce_objectives("square_average")
 
