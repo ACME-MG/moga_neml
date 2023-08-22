@@ -68,19 +68,12 @@ class Model:
     # Gets the value dictionary
     def get_value_dict(self):
         return {
-            "vsh_t0": [100],
-            "vsh_ts": [1, 1000],
-            "vsh_b":  [1],
-            "ai_n":   [5],
+            "vsh_t0": [100, 200, 300, 400, 500],
+            "vsh_ts": [1, 500, 1000, 1500, 2000],
+            "vsh_b":  [0.1, 1, 10],
+            "ai_n":   [1, 5, 10, 15, 20],
             "ai_g0":  [round_sf(1e-4/3, 5)]
         }
-        # return {
-        #     "vsh_t0": [100, 200, 300, 400, 500],
-        #     "vsh_ts": [1, 500, 1000, 1500, 2000],
-        #     "vsh_b":  [0.1, 1, 10],
-        #     "ai_n":   [1, 5, 10, 15, 20],
-        #     "ai_g0":  [round_sf(1e-4/3, 5)]
-        # }
 
 # Rounds a float to a number of significant figures
 def round_sf(value:float, sf:int) -> float:
