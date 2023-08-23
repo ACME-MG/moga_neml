@@ -14,7 +14,7 @@ from moga_neml.maths.general import BlockPrint
 MAX_STRAIN   = 1.0
 TIME_HOLD    = 11500.0 * 3600.0
 NUM_STEPS_UP = 50
-DAMAGE_TOL   = 0.95 # 0.95
+DAMAGE_TOL   = 0.95
 STRESS_RATE  = 0.0001
 CYCLIC_RATIO = -1
 
