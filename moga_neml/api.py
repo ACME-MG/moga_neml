@@ -57,8 +57,9 @@ class API:
         self.__get_output__ = lambda x : f"{self.__output_path__}/{x}"
         
         # Create directories
-        safe_mkdir(output_path)
-        safe_mkdir(self.__output_path__)
+        if not output_here:
+            safe_mkdir(output_path)
+            safe_mkdir(self.__output_path__)
     
     def __print__(self, message:str, add_index:bool=True, sub_index:bool=False) -> None:
         """

@@ -29,7 +29,6 @@ def get_damage(a_0:float, a_1:float, b_0:float, b_1:float):
     num_points = 16
     x_list = list(np.linspace(x_0, x_1, num_points)) + list(np.linspace(x_1, x_2, num_points))
     y_list = list(np.linspace(y_0, y_1, num_points)) + list(np.linspace(y_1, y_2, num_points))
-    y_list = [math.log10(y) if y > 0 else 0 for y in y_list]
     return x_list, y_list
 
 x_list, y_list = get_damage(0.3684, 3.2014, 0.9971, 3.8264)
