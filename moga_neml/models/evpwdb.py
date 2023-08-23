@@ -72,12 +72,12 @@ def get_damage(a_0:float, a_1:float, b_0:float, b_1:float):
     # Get x values
     x_0 = -a_1 / a_0                # x intercept of left line and x axis
     x_1 = (b_1 - a_1) / (a_0 - b_0) # x intercept of two lines
-    x_2 = 2                         # x intercept of right line and x=2
+    x_2 = 3                         # x intercept of right line and x=3
     
     # Get y values
     y_0 = 0                         # y intercept of left line and x axis
     y_1 = a_0 * x_1 + a_1           # y intercept of two lines
-    y_2 = b_0 * x_2 + b_1           # y intercept of right line and x=2
+    y_2 = b_0 * x_2 + b_1           # y intercept of right line and x=3
     
     # Combine, log, and return
     num_points = 16
