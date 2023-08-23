@@ -1,5 +1,5 @@
 """
- Title:         The Elastic Viscoplastic Work Damage Model with an inverse polynomial for work damage
+ Title:         The Elastic Viscoplastic Work Damage Model with a sigmoid for work damage
  Description:   Incorporates elasto-viscoplasticity and work damage
  Author:        Janzen Choi
 
