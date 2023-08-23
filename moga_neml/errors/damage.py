@@ -19,5 +19,4 @@ class Error(__Error__):
     def get_value(self, prd_data:dict) -> float:
         damage_history = prd_data["history"][-1]
         damage = self.model.get_last_calibrated_model().get_damage(damage_history)
-        print(damage)
         return abs(1 - damage)
