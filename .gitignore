@@ -1,5 +1,6 @@
 .vscode
 
+generator/__pycache__
 moga_neml/__pycache__
 moga_neml/interface/__pycache__
 moga_neml/maths/__pycache__
