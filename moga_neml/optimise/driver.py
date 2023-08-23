@@ -14,7 +14,7 @@ from moga_neml.maths.general import BlockPrint
 MAX_STRAIN   = 1.0
 TIME_HOLD    = 11500.0 * 3600.0
 NUM_STEPS_UP = 50
-DAMAGE_TOL   = 0.95
+DAMAGE_TOL   = 0.95 # 0.95
 STRESS_RATE  = 0.0001
 CYCLIC_RATIO = -1
 
@@ -74,7 +74,7 @@ class Driver:
     def run_creep(self) -> dict:
         stress = self.exp_data["stress"]
         results = drivers.creep(self.model, stress, STRESS_RATE, TIME_HOLD, T=self.exp_data["temperature"], verbose=self.verbose,
-                                check_dmg=False, dtol=DAMAGE_TOL, nsteps_up=NUM_STEPS_UP, nsteps=self.num_steps, logspace=False)
+                                check_dmg=True, dtol=DAMAGE_TOL, nsteps_up=NUM_STEPS_UP, nsteps=self.num_steps, logspace=False)
         results["rtime"] /= 3600
         return results
 
@@ -82,7 +82,7 @@ class Driver:
     def run_tensile(self) -> dict:
         strain_rate = self.exp_data["strain_rate"] / 3600
         results = drivers.uniaxial_test(self.model, erate=strain_rate, T=self.exp_data["temperature"], emax=MAX_STRAIN,
-                                        check_dmg=False, dtol=DAMAGE_TOL, nsteps=self.num_steps, verbose=self.verbose, rtol=self.rel_tol, atol=self.abs_tol)
+                                        check_dmg=True, dtol=DAMAGE_TOL, nsteps=self.num_steps, verbose=self.verbose, rtol=self.rel_tol, atol=self.abs_tol)
         return results
     
     # Runs the cyclic driver
