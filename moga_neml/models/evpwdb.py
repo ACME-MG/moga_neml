@@ -22,15 +22,15 @@ class Model(__Model__):
         self.add_param("evp_d",   0.0e1, 1.0e3) # 2
         self.add_param("evp_n",   1.0e0, 1.0e2) # 2
         self.add_param("evp_eta", 0.0e1, 1.0e6)
-        self.add_param("wd_a_n",  1.0e0, 2.0e1)
-        self.add_param("wd_a_0",  0.0e0, 1.0e0)
-        self.add_param("wd_a_1",  0.0e0, 1.0e1)
-        self.add_param("wd_b_n",  1.0e0, 2.0e1)
-        self.add_param("wd_b_0",  0.0e0, 1.0e0)
-        self.add_param("wd_b_1",  0.0e0, 1.0e1)
+        self.add_param("c_n",     1.0e0, 2.0e1)
+        self.add_param("c_0",     0.0e0, 1.0e0)
+        self.add_param("c_1",     0.0e0, 1.0e1)
+        self.add_param("t_n",     1.0e0, 2.0e1)
+        self.add_param("t_0",     0.0e0, 1.0e0)
+        self.add_param("t_1",     0.0e0, 1.0e1)
 
     # Gets the predicted curve
-    def calibrate_model(self, evp_s0, evp_R, evp_d, evp_n, evp_eta, wd_a_n, wd_a_0, wd_a_1, wd_b_n, wd_b_0, wd_b_1):
+    def calibrate_model(self, evp_s0, evp_R, evp_d, evp_n, evp_eta, c_n, c_0, c_1, t_n, t_0, t_1):
         
         # Define EVP model
         elastic_model = elasticity.IsotropicLinearElasticModel(self.get_data("youngs"), "youngs", self.get_data("poissons"), "poissons")
@@ -43,13 +43,13 @@ class Model(__Model__):
         
         # Get work - work-rate interpolation
         try:
-            x_list, y_list = get_damage(wd_a_0, wd_a_1, wd_b_0, wd_b_1)
+            x_list, y_list = get_damage(c_0, c_1, t_0, t_1)
         except:
             return
         wd_wc = interpolate.PiecewiseLinearInterpolate(x_list, y_list)
         
         # TODO temporary relation (should be interpolator too)
-        wd_n = wd_a_n if self.get_data("type") == "creep" else wd_b_n # tensile
+        wd_n = c_n if self.get_data("type") == "creep" else t_n # tensile
         
         # Define work damage model and return
         wd_model = damage.WorkDamage(elastic_model, wd_wc, wd_n, log=True, eps=1e-40, work_scale=1e5)
