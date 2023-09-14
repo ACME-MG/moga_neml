@@ -24,8 +24,10 @@ def reduce_list(value_list:list, method:str) -> float:
 
 # For safely making a directory
 def safe_mkdir(dir_path:str) -> None:
-    if not os.path.exists(dir_path):
+    try:
         os.mkdir(dir_path)
+    except:
+        pass
 
 # For quickly writing to a file
 def quick_write(file_name:str, content:list) -> None:
