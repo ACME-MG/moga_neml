@@ -19,6 +19,9 @@ api.remove_damage(0.2, 0.8)
 api.read_data("creep/inl_1/AirBase_1000_11_G39.csv")
 api.remove_damage(0.2, 0.8)
 
+api.reduce_errors("square_average")
+api.reduce_objectives("square_average")
+
 api.plot_experimental()
 api.set_recorder(50, 10, True)
 api.optimise(10000, 100, 50, 0.65, 0.35)
