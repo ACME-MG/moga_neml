@@ -26,7 +26,7 @@ def reduce_list(value_list:list, method:str) -> float:
 def safe_mkdir(dir_path:str) -> None:
     try:
         os.mkdir(dir_path)
-    except:
+    except FileExistsError:
         pass
 
 # For quickly writing to a file

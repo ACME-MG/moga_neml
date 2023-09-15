@@ -16,11 +16,11 @@ class Model(__Model__):
     def initialise(self):
         
         # Define parameters
-        self.add_param("evp_s0",  0.0e0, 1.0e3) # 2
-        self.add_param("evp_R",   0.0e0, 1.0e4) # 2
-        self.add_param("evp_d",   0.0e1, 1.0e2) # 2
-        self.add_param("evp_n",   1.0e0, 1.0e2) # 2
-        self.add_param("evp_eta", 0.0e1, 1.0e5) # 5
+        self.add_param("evp_s0",  0.0e0, 1.0e4) # 3
+        self.add_param("evp_R",   0.0e0, 1.0e5) # 4
+        self.add_param("evp_d",   0.0e1, 1.0e3) # 2
+        self.add_param("evp_n",   1.0e0, 1.0e3) # 2
+        self.add_param("evp_eta", 0.0e1, 1.0e6) # 5
         
     # Gets the model
     def calibrate_model(self, evp_s0, evp_R, evp_d, evp_n, evp_eta):
