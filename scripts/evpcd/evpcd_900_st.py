@@ -13,13 +13,13 @@ api.fix_param("evp_eta", 9880.2)
 
 api.read_data("creep/inl_1/AirBase_900_36_G22.csv")
 api.add_error("area", "time", "strain")
-api.add_error("end_value", "time")
-api.add_error("end_value", "strain")
+api.add_error("end_cons", "time")
+api.add_error("end_cons", "strain")
 
 api.read_data("creep/inl_1/AirBase_900_31_G50.csv")
 api.add_error("area", "time", "strain")
-api.add_error("end_value", "time")
-api.add_error("end_value", "strain")
+api.add_error("end_cons", "time")
+api.add_error("end_cons", "strain")
 
 api.read_data("creep/inl_1/AirBase_900_28_G45.csv")
 
