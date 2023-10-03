@@ -12,8 +12,10 @@ from neml import models, elasticity, surfaces, hardening, visco_flow, general_fl
 # The Elastic Visco Plastic Class
 class Model(__Model__):
 
-    # Runs at the start, once
     def initialise(self):
+        """
+        Runs at the start, once
+        """
         
         # Define parameters
         self.add_param("evp_s0",  0.0e0, 1.0e4) # 3
@@ -22,8 +24,15 @@ class Model(__Model__):
         self.add_param("evp_n",   1.0e0, 1.0e3) # 2
         self.add_param("evp_eta", 0.0e1, 1.0e6) # 5
         
-    # Gets the model
     def calibrate_model(self, evp_s0, evp_R, evp_d, evp_n, evp_eta):
+        """
+        Gets the predicted curves
+
+        Parameters:
+        * `...`: ...
+
+        Returns the calibrated model
+        """
         elastic_model = elasticity.IsotropicLinearElasticModel(self.get_data("youngs"), "youngs", self.get_data("poissons"), "poissons")
         yield_surface = surfaces.IsoJ2()
         iso_hardening = hardening.VoceIsotropicHardeningRule(evp_s0, evp_R, evp_d)

@@ -16,8 +16,14 @@ from moga_neml.maths.interpolator import Interpolator
 # The Error class
 class Error(__Error__):
     
-    # Runs at the start, once (optional)
     def initialise(self, yield_stress:float=None, offset:float=0.002):
+        """
+        Runs at the start, once
+
+        Parameters:
+        * `yield_stress`: The yield stress
+        * `offset`:       The strain offset to calculate the yield stress
+        """
 
         # Initialisation
         self.enforce_data_type("tensile")
@@ -35,6 +41,14 @@ class Error(__Error__):
 
     # Computes the error value
     def get_value(self, prd_data:dict) -> float:
+        """
+        Computing the NRMSE
+
+        Parameters:
+        * `prd_data`: The predicted data
+
+        Returns the error
+        """
         try:
             prd_yield = self.get_yield(prd_data["strain"], prd_data["stress"])
         except ValueError:
@@ -42,8 +56,16 @@ class Error(__Error__):
         distance = math.sqrt(math.pow(self.exp_yield[0] - prd_yield[0], 2) + math.pow(self.exp_yield[1] - prd_yield[1], 2))
         return distance / self.mag_yield
 
-    # Gets the yield point
     def get_yield(self, strain_list:list, stress_list:list) -> tuple:
+        """
+        Calculates the yield strain and stress
+
+        Parameters:
+        * `strain_list`: The list of strain values
+        * `stress_list`: The list of stress values
+
+        Returns the yield strain and stress
+        """
         youngs = stress_list[1] / strain_list[1] # NEML produces noiseless curves
         sfn = inter.interp1d(strain_list, stress_list, bounds_error=False, fill_value=0)
         tfn = lambda e: youngs * (e - self.offset)

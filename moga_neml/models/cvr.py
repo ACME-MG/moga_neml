@@ -13,9 +13,11 @@ from neml import models, elasticity, surfaces, hardening, visco_flow, general_fl
 # The Elastic Visco Plastic Class
 class Model(__Model__):
 
-    # Runs at the start, once
     def initialise(self):
-        
+        """
+        Runs at the start, once
+        """
+
         # Define parameters
         self.add_param("evp_eta",   0.0e0,  1.0e5)
         self.add_param("evp_n",     0.0e0,  1.0e2)
@@ -32,8 +34,15 @@ class Model(__Model__):
         self.a_s = [0, 0]
         self.n_s = [1, 1]
 
-    # Gets the predicted curve
     def calibrate_model(self, evp_eta, evp_n, cvr_s0, cvr_t0, cvr_R_min, cvr_R_max, cvr_r1, cvr_r2):
+        """
+        Gets the predicted curves
+
+        Parameters:
+        * `...`: ...
+
+        Returns the calibrated model
+        """
         cvr_r1 = math.pow(10, cvr_r1)
         if cvr_R_min >= cvr_R_max:
             return None

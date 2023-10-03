@@ -12,10 +12,10 @@ from moga_neml.models.__model__ import __Model__
 # The Chaboche Isotropic Hardening Class
 class Model(__Model__):
 
-    # Runs at the start, once
     def initialise(self):
-        
-        # Define parameters
+        """
+        Runs at the start, once
+        """
         self.add_param("ih_s0", 0.0e0, 1.0e3)
         self.add_param("ih_Q",  0.0e0, 1.0e3)
         self.add_param("ih_b",  0.0e0, 1.0e2)
@@ -24,8 +24,15 @@ class Model(__Model__):
         self.add_param("c_cs1", 0.0e0, 1.0e6)
         self.add_param("c_cs2", 0.0e0, 1.0e6)
     
-    # Gets the predicted curves
     def calibrate_model(self, ih_s0, ih_Q, ih_b, c_gs1, c_gs2, c_cs1, c_cs2):
+        """
+        Gets the predicted curves
+
+        Parameters:
+        * `...`: ...
+
+        Returns the calibrated model
+        """
         elastic_model      = elasticity.IsotropicLinearElasticModel(self.get_data("youngs"), "youngs", self.get_data("poissons"), "poissons")
         yield_surface      = surfaces.IsoKinJ2()
         iso_hardening      = hardening.VoceIsotropicHardeningRule(ih_s0, ih_Q, ih_b)

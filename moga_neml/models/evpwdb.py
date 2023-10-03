@@ -13,10 +13,10 @@ from neml import models, elasticity, surfaces, hardening, visco_flow, general_fl
 # The Elastic Visco Plastic Work Damage Class
 class Model(__Model__):
 
-    # Runs at the start, once
     def initialise(self):
-        
-        # Define parameters
+        """
+        Runs at the start, once
+        """
         self.add_param("evp_s0",  0.0e0, 1.0e3) # 2
         self.add_param("evp_R",   0.0e0, 1.0e4) # 2
         self.add_param("evp_d",   0.0e1, 1.0e3) # 2
@@ -29,8 +29,15 @@ class Model(__Model__):
         self.add_param("t_0",     0.0e0, 1.0e0)
         self.add_param("t_1",     0.0e0, 1.0e1)
 
-    # Gets the predicted curve
     def calibrate_model(self, evp_s0, evp_R, evp_d, evp_n, evp_eta, c_n, c_0, c_1, t_n, t_0, t_1):
+        """
+        Gets the predicted curves
+
+        Parameters:
+        * `...`: ...
+
+        Returns the calibrated model
+        """
         
         # Define EVP model
         elastic_model = elasticity.IsotropicLinearElasticModel(self.get_data("youngs"), "youngs", self.get_data("poissons"), "poissons")

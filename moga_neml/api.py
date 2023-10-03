@@ -166,6 +166,15 @@ class API:
         self.__print__(message.format(param_name, float(param_value), float(param_std)))
         self.__controller__.init_param(param_name, param_value, param_std)
 
+    def add_constraint(self, constraint_name:str) -> None:
+        """
+        Adds a constraint to all the curves that prevent a solution from being accepted
+
+        Parameters:
+        * `constraint_name`: The name of the constraint
+        """
+        self.__print__(f"Adding the {constraint_name} constraint to the optimisation")
+
     def remove_damage(self, window:int=0.1, acceptance:float=0.9) -> None:
         """
         Removes the tertiary creep from the most recently added creep curve, by removing the data
@@ -376,7 +385,7 @@ class API:
         * `method`: The reduction method ("sum", "average", "square_sum", "square_average")
         """
         self.__print__(f"Reducing the objective functions based on {method}")
-        self.__controller__.set_objective_reduction_mtehod(method)
+        self.__controller__.set_objective_reduction_method(method)
     
     def optimise(self, num_gens:int=10000, init_pop:int=100, offspring:int=50, crossover:float=0.65, mutation:float=0.35) -> None:
         """

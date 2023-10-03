@@ -11,62 +11,103 @@ import importlib, os, pathlib, sys
 # The Model Template Class
 class __Model__:
 
-    # Constructor
     def __init__(self, name:str):
+        """
+        Class for defining a model
+        """
         self.name = name
         self.param_dict = {}
         self.exp_data = {}
 
-    # Adds a parameter and bounds
     def add_param(self, name:str, l_bound:float=0.0e0, u_bound:float=1.0e0) -> None:
+        """
+        Adds a parameter and bounds
+
+        Parameters:
+        * `name`:    The name of the parameter
+        * `l_bound`: The lower bound of the optimisation
+        * `u_bound`: The upper bound of the optimisation
+        """
         if name in self.param_dict.keys():
             raise ValueError("The parameter has already been defined!")
         self.param_dict[name] = {"l_bound": l_bound, "u_bound": u_bound}
 
-    # Sets the experimental data
     def set_exp_data(self, exp_data:dict) -> None:
+        """
+        Sets the experimental data
+
+        Parameter:
+        * `exp_data`: The experimental data
+        """
         self.exp_data = exp_data
 
-    # Gets the name
     def get_name(self) -> str:
+        """
+        Gets the name of the mmodel
+        """
         return self.name
 
-    # Returns the experimental data
     def get_exp_data(self) -> list:
+        """
+        Returns the experimental data
+        """
         return self.exp_data
 
-    # Returns a field of the experimental data
     def get_data(self, field:str):
+        """
+        Returns a field of the experimental data
+        
+        Parameters:
+        * `field`: The name of the field
+        """
         if not field in self.exp_data.keys():
             raise ValueError(f"The experimental data does not contain the {field} field")
         return self.exp_data[field]
 
-    # Returns the parameter info
     def get_param_dict(self) -> dict:
+        """
+        Returns the parameter info
+        """
         return self.param_dict
 
-    # Gets the calibrated model
     def get_calibrated_model(self, *params): # -> NEML Model
+        """
+        Gets the calibrated model
+
+        Parameters:
+        * `params`: The parameter values
+        """
+
         self.calibrated_model = self.calibrate_model(*params)
         return self.calibrated_model
 
-    # Gets the last calibrated model
     def get_last_calibrated_model(self):
+        """
+        Gets the last calibrated model
+        """
         if self.calibrated_model == None:
             raise ValueError("Could not get the calibrated model because it has not been calibrated yet!")
         return self.calibrated_model
 
-    # Runs at the start, once (must be overridden)
     def initialise(self) -> None:
+        """
+        Runs at the start, once (must be overridden)
+        """
         raise NotImplementedError
         
-    # Gets the model (must be overridden)
-    #   Returns None if the parameter set / model is invalid
     def calibrate_model(self, *params): # -> NEML Model
+        """
+        Gets the model (must be overridden); returns none if the parameters / model is invalid
+        """
         raise NotImplementedError
 
-# Creates and return a model
 def get_model(model_name:str, **kwargs) -> __Model__:
+    """
+    Creates and return a model
+
+    Parameters:
+    * `model_name`: The name of the model
+    """
 
     # Get available models in current folder
     models_dir = pathlib.Path(__file__).parent.resolve()

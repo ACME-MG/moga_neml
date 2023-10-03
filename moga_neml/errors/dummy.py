@@ -11,10 +11,19 @@ from moga_neml.errors.__error__ import __Error__
 # The Dummy class
 class Error(__Error__):
     
-    # Runs at the start, once
     def initialise(self):
+        """
+        Runs at the start, once; doesn't do anything though
+        """
         pass
 
-    # Computes the NRMSE value
     def get_value(self, prd_data:dict) -> float:
+        """
+        Computing the NRMSE
+
+        Parameters:
+        * `prd_data`: The predicted data
+
+        Returns 0, always
+        """
         return 0

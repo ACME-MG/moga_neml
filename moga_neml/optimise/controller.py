@@ -23,8 +23,10 @@ BIG_VALUE = 10000
 # The Controller class
 class Controller():
 
-    # Constructor
     def __init__(self):
+        """
+        Class to control all the components of the optimisation
+        """
         
         # Initialise internal variables
         self.model = None
@@ -44,27 +46,48 @@ class Controller():
         # Other initialisation
         self.set_driver()
         
-    # Defines the model
     def define_model(self, model_name:str, **kwargs) -> None:
+        """
+        Defines the model
+
+        Parameters:
+        * `model_name`: The name of the model
+        """
         self.model = get_model(model_name, **kwargs)
         
-    # Adds experimental data
     def add_curve(self, type:str, exp_data:dict) -> None:
+        """
+        Adds an experimental curve to the controller
+        
+        Parameters:
+        * `type`:     The type of the curve
+        * `exp_data`: The corresponding experimental data
+        """
         curve = Curve(type, exp_data, self.model)
         self.curve_list.append(curve)
     
-    # Gets the list of curves
     def get_curve_list(self) -> list:
+        """
+        Gets the list of curves
+        """
         return self.curve_list
     
-    # Returns the most recently added curve
     def get_last_curve(self) -> Curve:
+        """
+        Returns the most recently added curve
+        """
         if self.curve_list == []:
             raise ValueError("No curves have been added yet!")
         return self.curve_list[-1]
     
-    # Fixes a parameter to a value
     def fix_param(self, param_name:str, param_value:float) -> None:
+        """
+        Fixes a parameter to a value
+
+        Parameters:
+        * `param_name`:  The name of the parameter
+        * `param_value`: The value to fix the parameter to 
+        """
         param_dict = self.model.get_param_dict()
         pretext = f"The '{param_name}' parameter cannot be fixed because"
         if not param_name in param_dict.keys():
@@ -73,8 +96,15 @@ class Controller():
             raise ValueError(f"{pretext} it has already been set!")
         self.fix_param_dict[param_name] = param_value
 
-    # Sets the initial value of a parameter
     def init_param(self, param_name:str, param_value:float, param_std:float) -> None:
+        """
+        Sets the initial value of a parameter
+
+        Parameters:
+        * `param_name`:  The name of the parameter
+        * `param_value`: The value to initialise the parameter to
+        * `param_std`:   The initial standard deviation of the parameter
+        """
         param_dict = self.model.get_param_dict()
         pretext = f"The '{param_name}' parameter cannot be set because"
         if not param_name in param_dict.keys():
@@ -87,22 +117,33 @@ class Controller():
             raise ValueError(f"{pretext} has been set an initial 'value + deviation' larger than its upper bound!")
         self.init_param_dict[param_name] = {"value": param_value, "std": param_std}
 
-    # Returns the model
     def get_model(self) -> __Model__:
+        """
+        Returns the model
+        """
         if self.model == None:
             raise ValueError("The model cannot be retrieved because it has not been defined yet!")
         return self.model
 
-    # Gets information about the fixed parameters
     def get_fix_param_dict(self) -> dict:
+        """
+        Gets information about the fixed parameters
+        """
         return self.fix_param_dict
 
-    # Gets information about the initialised parameters
     def get_init_param_dict(self) -> dict:
+        """
+        Gets information about the initialised parameters
+        """
         return self.init_param_dict
 
-    # Incorporates the fixed parameters
     def incorporate_fix_param_dict(self, *params) -> list:
+        """
+        Incorporates the fixed parameters
+
+        Parameters:
+        * `params`: The parameters
+        """
         param_names = list(self.model.get_param_dict().keys())
         fix_indexes = [i for i in range(len(param_names)) if param_names[i] in self.fix_param_dict.keys()]
         params = list(params)
@@ -111,8 +152,10 @@ class Controller():
             params.insert(fix_index, fix_value)
         return tuple(params)
 
-    # Returns the information of unfixed parameters
     def get_unfix_param_dict(self) -> dict:
+        """
+        Returns the information of unfixed parameters
+        """
         unfix_param_dict = {}
         param_dict = self.model.get_param_dict()
         for param_name in param_dict.keys():
@@ -120,24 +163,45 @@ class Controller():
                 unfix_param_dict[param_name] = param_dict[param_name]
         return unfix_param_dict
 
-    # Changes the reduction method for errors
     def set_error_reduction_method(self, method:str):
+        """
+        Changes the reduction method for errors
+
+        Parameters:
+        * `method`: The reduction method for the errors to change to
+        """
         self.error_reduction_method = method
 
-    # Gets the reduction method for errors
     def get_error_reduction_method(self) -> str:
+        """
+        Gets the reduction method for errors
+        """
         return self.error_reduction_method
-        
-    # Changes the reduction method for objective functions
-    def set_objective_reduction_mtehod(self, method:str):
+      
+    def set_objective_reduction_method(self, method:str):
+        """
+        Changes the reduction method for objective functions
+
+        Parameters:
+        * `method`: The reduction method for the objective functions to change to
+        """
         self.objective_reduction_method = method
 
-    # Gets the reduction method for objective functions
     def get_objective_reduction_method(self) -> str:
+        """
+        Gets the reduction method for objective functions
+        """
         return self.objective_reduction_method
 
-    # Changes the variables for grouping the errors together
-    def set_error_grouping(self, group_name:bool=True, group_type:bool=True, group_labels:bool=True):
+    def set_error_grouping(self, group_name:bool=True, group_type:bool=True, group_labels:bool=True) -> None:
+        """
+        Changes the variables for grouping the errors together
+
+        Parameters:
+        * `group_name`:   Whether to group the errors by name
+        * `group_type:    Whether to group the errors by curve type
+        * `group_labels`: Whether to group the errors by the curve labels
+        """
         self.group_name = group_name
         self.group_type = group_type
         self.group_labels = group_labels
@@ -157,8 +221,10 @@ class Controller():
         self.abs_tol   = abs_tol
         self.verbose   = verbose
 
-    # Gets the error grouping approach as a string
     def get_error_grouping(self) -> str:
+        """
+        Gets the error grouping approach as a string
+        """
         group_str_list = [
             "name" if self.group_name else "",
             "type" if self.group_type else "",
@@ -167,8 +233,10 @@ class Controller():
         group_str_list = [group_str for group_str in group_str_list if group_str != ""]
         return ', '.join(group_str_list)
 
-    # Returns information about the errors
     def get_objective_info_list(self) -> list:
+        """
+        Returns information about the errors
+        """
         objective_info_list = []
         for curve in self.curve_list:
             error_list = curve.get_error_list()
@@ -177,9 +245,16 @@ class Controller():
                 objective_info_list.append(error_group_key)
         return list(set(objective_info_list))
 
-    # Gets the predicted curve
-    #   Returns none if the data is invalid
-    def get_prd_data(self, curve:Curve, *params):
+    def get_prd_data(self, curve:Curve, *params) -> dict:
+        """
+        Gets the predicted curve; returns none if the data is invalid
+
+        Parameters:
+        * `curve`:  The curve to predict
+        * `params`: The parameters for the prediction
+
+        Returns the predicted data
+        """
         
         # Fix parameters and calibrate the model
         params = self.incorporate_fix_param_dict(*params)
@@ -199,10 +274,20 @@ class Controller():
         for field in prd_data.keys():
             if len(prd_data[field]) < MIN_DATA:
                 return
+        
+        # Add the latest prediction to the curve and return the data
+        curve.set_prd_data(prd_data)
         return prd_data
     
-    # Defines how the errors are reduced
     def reduce_errors(self, error_list_dict:dict) -> dict:
+        """
+        Defines how the errors are reduced
+
+        Parameters:
+        * `error_list_dict`: A dictionary of error values
+
+        Returns the reduced error values
+        """
         objective_info_list = self.get_objective_info_list()
         error_value_dict = {}
         for error_info in objective_info_list:
@@ -212,16 +297,30 @@ class Controller():
                 error_value_dict[error_info] = BIG_VALUE
         return error_value_dict
     
-    # Defines how the objectives are reduced
     def reduce_objectives(self, objective_list:list) -> float:
+        """
+        Defines how the objectives are reduced
+
+        Parameters:
+        * `objective_list`: The list of objective functions
+        
+        Returns the reduced objective value
+        """
         try:
             return reduce_list(objective_list, self.objective_reduction_method)
         except OverflowError:
             return BIG_VALUE
     
-    # Calculates the error values for a set of parameters
     def calculate_objectives(self, *params) -> dict:
-        
+        """
+        Calculates the error values for a set of parameters
+
+        Parameters:
+        * `params`: The parameters for the prediction
+
+        Returns a dictionary of the objectives
+        """
+
         # Create a dictionary of errors
         objective_info_list = self.get_objective_info_list()
         empty_list_list = [[] for _ in range(len(objective_info_list))]
@@ -251,10 +350,21 @@ class Controller():
         objective_dict = self.reduce_errors(error_list_dict)
         return objective_dict
 
-    # Plots the curves for a given type
     def plot_exp_curves(self, type:str, file_path:str="", x_label:str=None, y_label:str=None,
                         derivative:int=0, x_log:bool=False, y_log:bool=False) -> None:
-        
+        """
+        Plots the experimental curves for a given type
+
+        Parameters:
+        * `type:`       The type of the experimental data
+        * `file_path`:  The path to plot the experimental curves
+        * `x_label`:    The x label for the plot
+        * `y_label`:    The y label for the plot
+        * `derivative`: How many derivatives to take the curves to
+        * `x_log`:      Whether to log the x axis
+        * `y_log`:      Whether to log the y axis
+        """
+
         # Gets the data of defined type
         exp_data_list = [curve.get_exp_data() for curve in self.curve_list if curve.get_type() == type]
         
@@ -276,9 +386,20 @@ class Controller():
         plotter.save_plot()
         plotter.clear()
 
-    # Plots the curves for a given type
     def plot_prd_curves(self, *params:tuple, type:str, file_path:str="", x_label:str=None,
                         y_label:str=None, x_log:bool=False, y_log:bool=False) -> None:
+        """
+        Plots the predicted curves for a given type
+
+        Parameters:
+        * `params`:     The parameters to perform the prediction
+        * `type:`       The type of the experimental data
+        * `file_path`:  The path to plot the experimental curves
+        * `x_label`:    The x label for the plot
+        * `y_label`:    The y label for the plot
+        * `x_log`:      Whether to log the x axis
+        * `y_log`:      Whether to log the y axis
+        """
         
         # Initialise plotter
         x_label = DATA_FIELD_PLOT_MAP[type]["x"] if x_label == None else x_label

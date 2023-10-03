@@ -14,8 +14,15 @@ MIN_DATA = 50
 # The MinData class
 class Error(__Error__):
 
-    # Computing the error
     def get_value(self, prd_data:dict) -> float:
+        """
+        Computing the NRMSE
+
+        Parameters:
+        * `prd_data`: The predicted data
+
+        Returns the error
+        """
         x_label = self.get_x_label()
         if len(prd_data[x_label]) < MIN_DATA:
             return

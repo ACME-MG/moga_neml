@@ -13,15 +13,27 @@ from moga_neml.maths.interpolator import Interpolator
 # The Custom Area class
 class Error(__Error__):
     
-    # Runs at the start, once
     def initialise(self, values:list):
+        """
+        Runs at the start, once
+
+        Parameters:
+        * `values`: The x values to query to calculate the area error
+        """
         interpolator = Interpolator(self.get_x_data(), self.get_y_data())
         self.exp_x_list = values
         self.exp_y_list = interpolator.evaluate(values)
         self.avg_y = abs(np.average(self.exp_y_list))
 
-    # Computing the NRMSE
     def get_value(self, prd_data:dict) -> float:
+        """
+        Computing the NRMSE
+
+        Parameters:
+        * `prd_data`: The predicted data
+
+        Returns the error
+        """
         x_label = self.get_x_label()
         y_label = self.get_y_label()
         interpolator = Interpolator(prd_data[x_label], prd_data[y_label])

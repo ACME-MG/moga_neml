@@ -14,11 +14,13 @@ from moga_neml.models.__model__ import __Model__
 # The Voce Slip Hardening Asaro Inelasticity Class
 class Model(__Model__):
 
-    # Runs at the start, once
-    #   api.define_model("vshai", ori_path="data/ebsd/input_stats.csv", lattice=1.0, slip_dir=[1,1,0], slip_plane=[1,1,1], num_threads=16)
+    # api.define_model("vshai", ori_path="data/ebsd/input_stats.csv", lattice=1.0, slip_dir=[1,1,0], slip_plane=[1,1,1], num_threads=16)
     def initialise(self, ori_path, lattice, slip_dir, slip_plane, num_threads):
+        """
+        Runs at the start, once
+        """
 
-        # Define parameters
+        # Defines the parameters
         self.add_param("vsh_ts", 0.0e0, 2.0e3)
         self.add_param("vsh_b",  0.0e0, 1.0e1)
         self.add_param("vsh_t0", 0.0e0, 1.0e3)
@@ -46,8 +48,15 @@ class Model(__Model__):
         self.lattice = crystallography.CubicLattice(lattice)
         self.lattice.add_slip_system(slip_dir, slip_plane)
         
-    # Gets the predicted curve
     def calibrate_model(self, vsh_ts, vsh_b, vsh_t0, ai_g0, ai_n):
+        """
+        Gets the predicted curves
+
+        Parameters:
+        * `...`: ...
+
+        Returns the calibrated model
+        """
         elastic_model  = elasticity.IsotropicLinearElasticModel(self.get_data("youngs"), "youngs", self.get_data("poissons"), "poissons")
         strength_model = slipharden.VoceSlipHardening(vsh_ts, vsh_b, vsh_t0)
         slip_model     = sliprules.PowerLawSlipRule(strength_model, ai_g0, ai_n)
