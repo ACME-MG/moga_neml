@@ -69,7 +69,7 @@ def read_exp_data(file_dir:str, file_name:str) -> dict:
     # Return curves
     return exp_data
 
-def check_header(exp_data:dict, header:str, type:type):
+def check_header(exp_data:dict, header:str, type:type) -> None:
     """
     Checks that a header exists and is of a correct type
 
@@ -83,7 +83,7 @@ def check_header(exp_data:dict, header:str, type:type):
     if not isinstance(exp_data[header], type):
         raise ValueError(f"The data at '{exp_data['file_name']}' does not have the correct '{header}' data type!")
 
-def check_lists(exp_data:dict, header_list:list):
+def check_lists(exp_data:dict, header_list:list) -> None:
     """
     Checks that two lists in a curve are of correct formats
 
