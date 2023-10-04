@@ -43,7 +43,8 @@ def get_thinned_list(unthinned_list:list, density:int) -> list:
     step_size = src_data_size / density
     thin_indexes = [math.floor(step_size*i) for i in range(1, density - 1)]
     thin_indexes = [0] + thin_indexes + [src_data_size - 1]
-    return [unthinned_list[i] for i in thin_indexes]
+    thinned_list = [unthinned_list[i] for i in thin_indexes]
+    return thinned_list
 
 def get_custom_thin_indexes(src_data_size:int, dst_data_size:int, distribution) -> list:
     """
@@ -62,31 +63,31 @@ def get_custom_thin_indexes(src_data_size:int, dst_data_size:int, distribution) 
     thin_indexes = [0] + thin_indexes + [src_data_size-1]
     return thin_indexes
 
-def remove_data_after(curve:dict, x_value:float, x_label:str) -> dict:
+def remove_data_after(exp_data:dict, x_value:float, x_label:str) -> dict:
     """
     Removes data after a specific value of a curve
 
     Parameters:
-    * `curve`:   The curve to remove the data from
-    * `x_value`: The value to start removing the data
-    * `x_label`: The label corresponding to the value
+    * `exp_data`: The curve to remove the data from
+    * `x_value`:  The value to start removing the data
+    * `x_label`:  The label corresponding to the value
 
     Returns the curve after data removal
     """
 
     # Initialise new curve
-    new_curve = deepcopy(curve)
-    for header in new_curve.keys():
-        if isinstance(new_curve[header], list):
-            new_curve[header] = []
+    new_exp_data = deepcopy(exp_data)
+    for header in new_exp_data.keys():
+        if isinstance(new_exp_data[header], list):
+            new_exp_data[header] = []
             
     # Remove data after specific value
-    for i in range(len(curve[x_label])):
-        if curve[x_label][i] > x_value:
+    for i in range(len(exp_data[x_label])):
+        if exp_data[x_label][i] > x_value:
             break
-        for header in new_curve.keys():
-            if isinstance(new_curve[header], list):
-                new_curve[header].append(curve[header][i])
+        for header in new_exp_data.keys():
+            if isinstance(new_exp_data[header], list):
+                new_exp_data[header].append(exp_data[header][i])
     
     # Return new data
-    return new_curve
+    return new_exp_data

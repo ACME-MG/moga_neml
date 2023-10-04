@@ -7,7 +7,7 @@
 
 # Libraries
 from scipy.interpolate import splev, splrep, splder
-from moga_neml.maths.curve import get_thinned_list
+from moga_neml.maths.data import get_thinned_list
 
 # The Interpolator Class
 class Interpolator:

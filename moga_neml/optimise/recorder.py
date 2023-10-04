@@ -9,7 +9,7 @@
 import time
 from moga_neml.interface.plotter import Plotter
 from moga_neml.interface.spreadsheet import Spreadsheet
-from moga_neml.maths.curve import  get_thinned_list
+from moga_neml.maths.data import  get_thinned_list
 from moga_neml.maths.experiment import DATA_DENSITY, DATA_FIELD_PLOT_MAP
 from moga_neml.optimise.controller import Controller
 
@@ -81,6 +81,7 @@ class Recorder:
         ]
         
         # Initialise optimal solution
+        self.optimal_prd_data = None
         self.optimal_solution_list = []
     
     def define_hyperparameters(self, num_gens:int, init_pop:int, offspring:int,
@@ -239,8 +240,7 @@ class Recorder:
             exp_x_list, exp_y_list = process_data_dict(exp_data, x_label, y_label)
             
             # Get predicted data and thin
-            opt_params = optimal_solution["params"].values()
-            prd_data = self.controller.get_prd_data(curve, *opt_params)
+            prd_data = curve.get_prd_data()
             if prd_data == None:
                 return None
             prd_x_list, prd_y_list = process_data_dict(prd_data, x_label, y_label)

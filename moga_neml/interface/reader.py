@@ -7,7 +7,7 @@
 
 # Libraries
 from numbers import Number
-from moga_neml.maths.curve import get_thinned_list
+from moga_neml.maths.data import get_thinned_list
 from moga_neml.maths.experiment import DATA_FIELD_DICT, DATA_DENSITY
 
 def try_float_cast(value:str) -> float:
