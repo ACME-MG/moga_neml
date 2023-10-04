@@ -21,8 +21,8 @@ CYCLIC_RATIO = -1
 # Driver class
 class Driver:
     
-    def __init__(self, exp_data:dict, model,
-                 num_steps:int=500, rel_tol:float=1e-6, abs_tol:float=1e-10, verbose:bool=False) -> None:
+    def __init__(self, exp_data:dict, model, num_steps:int=500, rel_tol:float=1e-6,
+                 abs_tol:float=1e-10, verbose:bool=False) -> None:
         """
         Initialises the driver class
         
@@ -43,9 +43,12 @@ class Driver:
         self.verbose   = verbose
         self.conv_dict = NEML_FIELD_CONVERSION[self.type]
     
-    # Runs the driver based on the experimental curve type
     def run(self) -> dict:
-        
+        """
+        Runs the driver based on the experimental curve type;
+        returns the results
+        """
+
         # Get the results
         try:
             with BlockPrint():
@@ -60,8 +63,11 @@ class Driver:
                 converted_results[self.conv_dict[field]] = results[field]
         return converted_results
     
-    # Gets the results based on the type
-    def run_selected(self):
+    def run_selected(self) -> dict:
+        """
+        Runs the driver depending on the data type;
+        returns the results
+        """
         if self.type == "creep":
             return self.run_creep()
         elif self.type == "tensile":
@@ -70,23 +76,32 @@ class Driver:
             return self.run_cyclic()
         raise ValueError(f"The data type '{self.type}' is not supported")
 
-    # Runs the creep driver
     def run_creep(self) -> dict:
+        """
+        Runs the creep driver;
+        returns the results
+        """
         stress = self.exp_data["stress"]
         results = drivers.creep(self.model, stress, STRESS_RATE, TIME_HOLD, T=self.exp_data["temperature"], verbose=self.verbose,
                                 check_dmg=True, dtol=DAMAGE_TOL, nsteps_up=NUM_STEPS_UP, nsteps=self.num_steps, logspace=False)
         results["rtime"] /= 3600
         return results
 
-    # Runs the tensile driver
     def run_tensile(self) -> dict:
+        """
+        Runs the tensile driver;
+        returns the results
+        """
         strain_rate = self.exp_data["strain_rate"] / 3600
         results = drivers.uniaxial_test(self.model, erate=strain_rate, T=self.exp_data["temperature"], emax=MAX_STRAIN,
                                         check_dmg=True, dtol=DAMAGE_TOL, nsteps=self.num_steps, verbose=self.verbose, rtol=self.rel_tol, atol=self.abs_tol)
         return results
     
-    # Runs the cyclic driver
     def run_cyclic(self) -> dict:
+        """
+        Runs the cyclic driver;
+        returns the results
+        """
         max_strain = self.exp_data["max_strain"]
         strain_rate = self.exp_data["strain_rate"] / 3600
         num_cycles = int(self.exp_data["num_cycles"])

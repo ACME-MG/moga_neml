@@ -12,13 +12,24 @@ from moga_neml.maths.experiment import DATA_UNITS
 # Spreadsheet class
 class Spreadsheet:
     
-    # Constructor
     def __init__(self, results_path:str):
+        """
+        Class for interacting with spreadsheets
+
+        Parameters:
+        * `results_path`: The path to the spreadsheet
+        """
         self.writer = pd.ExcelWriter(results_path, engine="xlsxwriter")
     
-    # Writes a dictionary of lists to a sheet with nice formatting
     def write_data(self, data_dict:dict, sheet_name:str) -> None:
-        
+        """
+        Writes a dictionary of lists to a sheet with nice formatting
+
+        Parameters:
+        * `data_dict`:  The dictionary of data to be written
+        * `sheet_name`: The name of the sheet to be written to
+        """
+
         # Convert dictionary to dataframe
         columns = list(data_dict.keys())
         data = zip_longest([data_dict[column] for column in columns])
@@ -33,10 +44,20 @@ class Spreadsheet:
             column_index = dataframe.columns.get_loc(column)
             sheet.set_column(column_index, column_index, column_length)
     
-    # Writes data and the associated plot given a dictionary of dictionaries
-    #   Dictionary requires 'x', 'y', 'size', and 'colour' keys
-    def write_plot(self, data_dict_dict:dict, sheet_name:str, x_label:str, y_label:str, plot_type:str) -> None:
+    def write_plot(self, data_dict_dict:dict, sheet_name:str, x_label:str,
+                   y_label:str, plot_type:str) -> None:
+        """
+        Writes data and the associated plot given a dictionary of dictionaries;
+        dictionary requires 'x', 'y', 'size', and 'colour' keys
         
+        Parameters:
+        * `data_dict_dict`: A dictionary of data dictionaries
+        * `sheet_name`:     The name of the sheet to be written to
+        * `x_label`:        The label for the x axis
+        * `y_label`:        The label for the y axis
+        * `plot_type`:      The type of the data to be plotted
+        """
+
         # Convert dictionary of dictionary into list of lists
         data_list_list = []
         for data_name in data_dict_dict.keys():
@@ -73,20 +94,36 @@ class Spreadsheet:
         # Add axes and add the chart to the sheet
         if len(data_dict_dict.keys()) == 1:
             chart.set_legend({"none": True})
-        chart.set_x_axis({"name": f"{x_label} ({DATA_UNITS[x_label]})", "major_gridlines": {"visible": True}})
-        chart.set_y_axis({"name": f"{y_label} ({DATA_UNITS[y_label]})", "major_gridlines": {"visible": True}})
+        chart.set_x_axis({"name": f"{x_label} ({DATA_UNITS[x_label]})",
+                          "major_gridlines": {"visible": True}})
+        chart.set_y_axis({"name": f"{y_label} ({DATA_UNITS[y_label]})",
+                          "major_gridlines": {"visible": True}})
         sheet.insert_chart("A1", chart)
 
     # Closes the writer
     def close(self):
         self.writer.close()
 
-# For centre aligning the cells
 def centre_align(x:int) -> list:
+    """
+    Centre aligns the cells
+    
+    Parameters:
+    * `x`: The elements to apply the alignment to
+
+    Returns a list of the centre alignment text
+    """
     return ["text-align: center" for _ in x]
 
-# Imitates zip longest but for a list of lists
 def zip_longest(list_list:list) -> list:
+    """
+    Imitates zip longest but for a list of lists
+
+    Parameters:
+    * `list_list`: A list of lists
+
+    Returns the zipped list of lists
+    """
     max_values = max([len(list) for list in list_list])
     new_list_list = []
     for list in list_list:

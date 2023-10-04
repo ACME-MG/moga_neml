@@ -9,8 +9,16 @@
 import csv, inspect, os, subprocess, sys
 import math, numpy as np
 
-# Reduces a list of values based on a method
 def reduce_list(value_list:list, method:str) -> float:
+    """
+    Reduces a list of values based on a method
+
+    Parameters:
+    * `value_list`: A list of values
+    * `method`:     The method to reduce the list
+
+    Returns the reduced list
+    """
     if value_list == []:
         return 0
     if method == "sum":
@@ -22,37 +30,76 @@ def reduce_list(value_list:list, method:str) -> float:
     elif method == "square_average":
         return sum([math.pow(value, 2) for value in value_list])
 
-# For safely making a directory
 def safe_mkdir(dir_path:str) -> None:
+    """
+    For safely making a directory
+
+    Parameters:
+    * `dir_path`: The path to the directory
+    """
     try:
         os.mkdir(dir_path)
     except FileExistsError:
         pass
 
-# For quickly writing to a file
-def quick_write(file_name:str, content:list) -> None:
+def quick_write(file_name:str, content:str) -> None:
+    """
+    For quickly writing to a file
+
+    Parameters:
+    * `file_name`: The name of the file
+    * `content`:   The content to write to the file
+    """
     with open(file_name, "w+") as file:
         file.write(content)
-        
-# Converts a list of dictionaries to a CSV format
+  
 def dict_list_to_csv(dictionary_list:list) -> tuple:
+    """
+    Converts a list of dictionaries to a CSV format
+
+    Parameters:
+    * `dictionary_list`: The list of dictionaries
+
+    Returns the headers and data
+    """
     headers = list(dictionary_list[0].keys())
     data = [[d[1] for d in dictionary.items()] for dictionary in dictionary_list]
     return headers, data
 
-# For writing to CSV files
 def write_to_csv(path:str, data:list) -> None:
+    """
+    For writing to CSV files
+
+    Parameters:
+    * `path`: The path to the CSV file
+    * `data`: The data to be written to the CSV file
+    """
     with open(path, "w+") as file:
         writer = csv.writer(file)
         for row in data:
             writer.writerow(row)
 
-# Runs a command using a single thread
-def run(command, shell:bool=True, check:bool=True) -> None:
-    subprocess.run(["OMP_NUM_THREADS=1 " + command], shell = shell, check = check)
+def run(command:str, shell:bool=True, check:bool=True) -> None:
+    """
+    Runs a command using a single thread
 
-# Performs a 3x3 matrix multiplication
+    Parameters:
+    * `command`: The command to be run
+    * `shell`:   Whether to display the output to the shell
+    * `check`:   Whether to check the success of the command
+    """
+    subprocess.run(["OMP_NUM_THREADS=1 " + command], shell=shell, check=check)
+
 def get_matrix_product(matrix_1:list, matrix_2:list) -> list:
+    """
+    Performs a 3x3 matrix multiplication
+
+    Parameters:
+    * `matrix_1`: The first matrix to be multiplied
+    * `matrix_2`: The second matrix to be multiplied
+
+    Returns the product of the two matrices
+    """
     result = [[0,0,0], [0,0,0], [0,0,0]]
     for i in range(3):
         for j in range(3):
@@ -60,14 +107,29 @@ def get_matrix_product(matrix_1:list, matrix_2:list) -> list:
                 result[i][j] += matrix_1[i][k] * matrix_2[k][j]
     return result
 
-# Inverts a matrix
 def get_inverted(matrix:list) -> list:
+    """
+    Inverts a matrix
+
+    Parameters:
+    * `matrix`: The matrix to be inverted
+
+    Returns the inverted matrix
+    """
     matrix = np.array(matrix)
     inverted = [list(i) for i in np.linalg.inv(matrix)]
     return inverted
 
-# Inserts a commas and a conjunction into a list of strings
 def conjunct(str_list:list, conjunction:list) -> str:
+    """
+    Inserts a commas and a conjunction into a list of strings
+
+    Parameters:
+    * `str_list`:    The list of strings
+    * `conjunction`: The conjunction to use to combine the strings
+
+    Returns the conjuncted list of strings as a single string
+    """
     if len(str_list) == 1:
         return str_list[0]
     elif len(str_list) == 2:
@@ -76,29 +138,44 @@ def conjunct(str_list:list, conjunction:list) -> str:
     conjuncted += ", {} {}".format(conjunction, str_list[-1])
     return conjuncted
 
-# Silently raises an exception
-def silent_raise(exception:Exception, caller:str="") -> None:
-    caller = inspect.stack()[1][3] if caller == "" else caller
-    print("\n  Error in '{}':\n".format(caller))
-    print("  {}\n".format(exception))
-    exit()
-
-# Checks whether a variable is a number
 def is_number(variable) -> bool:
+    """
+    Checks whether a variable is a number
+
+    Parameters:
+    * `variable`: The variable
+
+    Returns whether the variable is a number or not
+    """
     return isinstance(variable, float) or isinstance(variable, int)
 
-# Transposes a 2D list of lists
-def transpose(list_of_lists) -> list:
+def transpose(list_of_lists:list) -> list:
+    """
+    Transposes a 2D list of lists
+
+    * `list_of_lists`: The list of lists
+
+    Returns the transposed list of lists
+    """
     transposed = np.array(list_of_lists).T.tolist()
     return transposed
 
-# Blocks print messages
-#   https://stackoverflow.com/questions/8391411/how-to-block-calls-to-print
 class BlockPrint:
-    def __enter__(self):
+    """
+    Blocks print messages;
+    https://stackoverflow.com/questions/8391411/how-to-block-calls-to-print
+    """
+
+    def __enter__(self) -> None:
+        """
+        Auxiliary function
+        """
         self._original_stdout = sys.stdout
         sys.stdout = open(os.devnull, 'w')
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        """
+        Auxiliary function
+        """
         sys.stdout.close()
         sys.stdout = self._original_stdout

@@ -10,16 +10,27 @@ from numbers import Number
 from moga_neml.maths.curve import get_thinned_list
 from moga_neml.maths.experiment import DATA_FIELD_DICT, DATA_DENSITY
 
-# Tries to float cast a value
 def try_float_cast(value:str) -> float:
+    """
+    Tries to float cast a value
+
+    Parameters:
+    * `value`: A string to be float casted, if possible
+    """
     try:
         return float(value)
     except:
         return value
 
-# Converts CSV data into a curve dict
 def get_curve_dict(headers:list, data:list) -> dict:
-    
+    """
+    Converts CSV data into a curve dict
+
+    Parameters:
+    * `headers`: A list of strings representing the keys
+    * `data`:    A list of lists containing the data
+    """
+
     # Get indexes of data
     list_indexes = [i for i in range(len(data[2])) if data[2][i] != ""]
     info_indexes = [i for i in range(len(data[2])) if data[2][i] == ""]
@@ -36,8 +47,14 @@ def get_curve_dict(headers:list, data:list) -> dict:
     # Return curve
     return curve
 
-# For reading experimental data
 def read_exp_data(file_dir:str, file_name:str) -> dict:
+    """
+    Reads the experimental data
+
+    Parameters:
+    * `file_dir`:  The path to the folder containing the experimental data files
+    * `file_name`: The name of the file containing the experimental data
+    """
 
     # Read data
     with open(f"{file_dir}/{file_name}", "r") as file:
@@ -52,15 +69,28 @@ def read_exp_data(file_dir:str, file_name:str) -> dict:
     # Return curves
     return exp_data
 
-# Checks that a header exists and is of a correct type
 def check_header(exp_data:dict, header:str, type:type):
+    """
+    Checks that a header exists and is of a correct type
+
+    Parameters:
+    * `exp_data`: The dictionary of experimental data
+    * `header`:   A header in the experimental data dictionary
+    * `type`:     The type of experimental data
+    """
     if not header in exp_data.keys():
         raise ValueError(f"The data at '{exp_data['file_name']}' is missing a '{header}' header!")
     if not isinstance(exp_data[header], type):
         raise ValueError(f"The data at '{exp_data['file_name']}' does not have the correct '{header}' data type!")
 
-# Checks that two lists in a curve are of correct formats
 def check_lists(exp_data:dict, header_list:list):
+    """
+    Checks that two lists in a curve are of correct formats
+
+    Parameters:
+    * `exp_data`:    The dictionary of experimental data
+    * `header_list`: The list of headers in the dictionary
+    """
     if header_list == []:
         return
     list_length = len(exp_data[header_list[0]])
@@ -68,9 +98,14 @@ def check_lists(exp_data:dict, header_list:list):
         if len(exp_data[header]) != list_length:
             raise ValueError(f"The data at '{exp_data['file_name']}' unequally sized data!")
 
-# Checks whether the CSV files have sufficient headers and correct values
-#   Does not check that the 'lists' are all numbers
 def check_exp_data(exp_data:dict) -> None:
+    """
+    Checks whether the CSV files have sufficient headers and correct values;
+    does not check that the 'lists' are all numbers
+
+    Parameters:
+    * `exp_data`:    The dictionary of experimental data
+    """
     check_header(exp_data, "type", str)
     for data_type in ["common", exp_data["type"]]:
         data_field = DATA_FIELD_DICT[data_type]

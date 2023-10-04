@@ -12,17 +12,34 @@ from moga_neml.maths.curve import get_thinned_list
 # The Interpolator Class
 class Interpolator:
 
-    # Constructor
     def __init__(self, x_list:list, y_list:list, resolution:int=50, smooth:bool=False):
+        """
+        Class for interpolating two lists of values
+
+        Parameters:
+        * `x_list`:     List of x values
+        * `y_list`:     List of y values
+        * `resolution`: The resolution used for the interpolation
+        * `smooth`:     Whether to smooth the interpolation
+        """
         self.thin_x_list = get_thinned_list(x_list, resolution)
         self.thin_y_list = get_thinned_list(y_list, resolution)
         smooth_amount = resolution if smooth else 0
         self.spl = splrep(self.thin_x_list, self.thin_y_list, s=smooth_amount)
     
-    # Convert to derivative
     def differentiate(self) -> None:
+        """
+        Differentiate the interpolator
+        """
         self.spl = splder(self.spl)
 
-    # Evaluate
     def evaluate(self, x_list:list) -> list:
+        """
+        Run the interpolator for specific values
+
+        Parameters
+        * `x_list`: The list of x values
+
+        Returns the evaluated values
+        """
         return list(splev(x_list, self.spl))

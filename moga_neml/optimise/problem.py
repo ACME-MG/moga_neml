@@ -15,9 +15,15 @@ from moga_neml.optimise.recorder import Recorder
 # The Problem class
 class Problem(ElementwiseProblem):
 
-    # Constructor
     def __init__(self, controller:Controller, recorder:Recorder):
-        
+        """
+        Class for defining the problem
+
+        Parameters:
+        * `controller`: The controller used to control the optimisation
+        * `recorder`:   The recorder used to record the results during the optimisation
+        """
+
         # Initialise
         self.controller  = controller
         self.recorder    = recorder
@@ -36,16 +42,27 @@ class Problem(ElementwiseProblem):
             xu    = np.array(u_bound_list),
         )
     
-    # Gets the controller
     def get_controller(self) -> Controller:
+        """
+        Gets the controller
+        """
         return self.controller
     
-    # Gets the recorder
     def get_recorder(self) -> Recorder:
+        """
+        Gets the recorder
+        """
         return self.recorder
     
-    # Creates the parameter dictionary
-    def get_param_value_dict(self, params:tuple):
+    def get_param_value_dict(self, params:tuple) -> dict:
+        """
+        Creates the parameter dictionary
+
+        Parameters:
+        * `params`: A list of the parameter values
+
+        Returns the dictionary of parameters
+        """
         param_dict = self.controller.get_model().get_param_dict()
         param_value_dict = {}
         for i in range(len(params)):
@@ -53,9 +70,15 @@ class Problem(ElementwiseProblem):
             param_value_dict[param_name] = params[i]
         return param_value_dict
     
-    # Minimises expression "F" such that the expression "G <= 0" is satisfied
-    def _evaluate(self, params:tuple, out:dict, *args, **kwargs):
-        
+    def _evaluate(self, params:tuple, out:dict, *args, **kwargs) -> None:
+        """
+        Minimises expression "F" such that the expression "G <= 0" is satisfied
+
+        Parameters:
+        * `params`: A list of the parameter values
+        * `out`:    The dictionary to attach the error values
+        """
+
         # Ignore warnings
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")

@@ -16,8 +16,18 @@ from moga_neml.optimise.controller import Controller
 # The Recorder class
 class Recorder:
     
-    # Constructor
-    def __init__(self, controller:Controller, interval:int, population:int, result_path:str, quick_view:bool=False):
+    def __init__(self, controller:Controller, interval:int, population:int,
+                 result_path:str, quick_view:bool=False):
+        """
+        Class for recording the results
+
+        Parameters:
+        * `controller`:  The controller for controlling the optimisation results
+        * `interval`:    The number of generations to record the results
+        * `population`:  The size of the population to maintain in the record
+        * `result_path`: The path to store the results
+        * `quick_view`:  Whether to generate a quick plot of the newest results
+        """
         
         # Initialise inputs
         self.controller  = controller
@@ -73,8 +83,18 @@ class Recorder:
         # Initialise optimal solution
         self.optimal_solution_list = []
     
-    # Define MOGA hyperparameters
-    def define_hyperparameters(self, num_gens:int, init_pop:int, offspring:int, crossover:float, mutation:float) -> None:
+    def define_hyperparameters(self, num_gens:int, init_pop:int, offspring:int,
+                               crossover:float, mutation:float) -> None:
+        """
+        Define MOGA hyperparameters
+
+        Parameters:
+        * `num_gens`:  The number of generations to run the optimiser
+        * `init_pop`:  The size of the initial population
+        * `offspring`: The size of the offspring
+        * `crossover`: The crossover probability
+        * `mutation`:  The mutation probability
+        """
         self.num_gens  = num_gens
         self.init_pop  = init_pop
         self.offspring = offspring
@@ -82,9 +102,15 @@ class Recorder:
         hp_values = [num_gens, init_pop, offspring, crossover, mutation]
         self.moga_summary = [f"{hp_names[i]} ({hp_values[i]})" for i in range(len(hp_names))]
     
-    # Updates the population
-    def update_optimal_solution(self, param_dict:dict, objective_dict:dict):
-        
+    def update_optimal_solution(self, param_dict:dict, objective_dict:dict) -> None:
+        """
+        Updates the population
+
+        Parameters:
+        * `param_dict`:     The dictionary of parameters
+        * `objective_dict`: The dictionary of objective functions
+        """
+
         # Get the solution
         reduction_method = self.controller.get_objective_reduction_method()
         objective_values = list(objective_dict.values())
@@ -104,9 +130,15 @@ class Recorder:
                 return
         self.optimal_solution_list.append(solution)
     
-    # Updates the results after a MOGA iteration
-    def update_iteration(self, param_dict:dict, objective_dict:dict):
+    def update_iteration(self, param_dict:dict, objective_dict:dict) -> None:
+        """
+        Updates the results after a MOGA iteration
         
+        Parameters:
+        * `param_dict`:     The dictionary of parameters
+        * `objective_dict`: The dictionary of objective functions
+        """
+
         # Update optimisation progress
         print() if self.num_evals_completed == 0 else None
         self.num_evals_completed += 1
@@ -131,8 +163,12 @@ class Recorder:
             index = round(self.num_gens_completed//self.interval)
             print(f"      {index}]\tRecorded ({progress} in {update_duration}s)")
         
-    # Gets the optimisation summary
-    def get_summary_dict(self):
+    
+    def get_summary_dict(self) -> dict:
+        """
+        Gets the optimisation summary;
+        returns the dictionary
+        """
         return {
             "Progress":     [f"{round(self.num_gens_completed)}/{self.num_gens}"],
             "Start / End":  [self.start_time_str, time.strftime("%A, %D, %H:%M:%S", time.localtime())],
@@ -145,9 +181,12 @@ class Recorder:
             "Reduction":    self.reduction_method_list,
         }
     
-    # Gets a dictionary of the optimisation results
     def get_result_dict(self) -> dict:
-        
+        """
+        Gets a dictionary of the optimisation results;
+        returns the dictionary of results
+        """
+
         # Initialise
         results = {}
         sf_format = lambda x : float("{:0.5}".format(float(x)))
@@ -167,9 +206,17 @@ class Recorder:
         results[reduction_method] = [sf_format(o_sol[reduction_method]) for o_sol in self.optimal_solution_list]
         return results
     
-    # Gets the curves for a curve type
-    #   Returns None if predicted data is invalid
     def get_plot_dict(self, type:str, x_label:str, y_label:str) -> dict:
+        """
+        Gets the curves for a curve type
+
+        Parameters:
+        * `type`:    The curve type
+        * `x_label`: The label of the x axis
+        * `y_label`: The label of the y axis
+
+        Returns the dictionary of plot information, and none if the predicted data is invalid
+        """
 
         # If there are no optimal parameters, leave
         if len(self.optimal_solution_list) == 0:
@@ -216,9 +263,18 @@ class Recorder:
         plot_dict["prediction"] = {x_label: all_x , y_label: all_y, "size": 2, "colour": "red"}
         return plot_dict
 
-    # Returns a writer object
-    def create_record(self, file_path:str, type_list:list=None, in_x_label:str=None, in_y_label:str=None) -> None:
-        
+    def create_record(self, file_path:str, type_list:list=None, in_x_label:str=None,
+                      in_y_label:str=None) -> None:
+        """
+        Returns a writer object
+
+        Parameters:
+        * `file_path`:  The path to the record
+        * `type_list`:  The list of types
+        * `in_x_label`: The label for the x axis
+        * `in_y_label`: The label for the y axis
+        """
+
         # Get summary and results
         spreadsheet = Spreadsheet(file_path)
         spreadsheet.write_data(self.get_summary_dict(), "summary")
@@ -260,8 +316,17 @@ class Recorder:
         # Close the spreadsheet
         spreadsheet.close()
 
-# For thinning data
 def process_data_dict(data_dict:dict, x_label:str, y_label:str) -> tuple:
+    """
+    For thinning data
+
+    Parameters:
+    * `data_dict`: The dictionary of data
+    * `x_label`:   The label of the x axis
+    * `y_label`:   The label of the y axis
+
+    Returns the thinned x and y lists
+    """
     data_dict[x_label] = get_thinned_list(data_dict[x_label], DATA_DENSITY)
     data_dict[y_label] = get_thinned_list(data_dict[y_label], DATA_DENSITY)
     return data_dict[x_label], data_dict[y_label]

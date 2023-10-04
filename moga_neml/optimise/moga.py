@@ -17,9 +17,20 @@ from moga_neml.optimise.problem import Problem
 # The Multi-Curve Genetic Algorithm (MOGA) class
 class MOGA:
     
-    # Constructor
-    def __init__(self, problem:Problem, num_gens:int, init_pop:int, offspring:int, crossover:float, mutation:float):
-        
+    def __init__(self, problem:Problem, num_gens:int, init_pop:int, offspring:int,
+                 crossover:float, mutation:float):
+        """
+        Class for the multi-objective genetic algorithm
+
+        Parameters:
+        * `problem`:   The problem to optimise
+        * `num_gens`:  The number of generations to run the optimiser
+        * `init_pop`:  The size of the initial population
+        * `offspring`: The size of the offspring
+        * `crossover`: The crossover probability
+        * `mutation`:  The mutation probability
+        """
+
         # Initialise
         self.problem    = problem
         self.controller = problem.get_controller()
@@ -44,9 +55,16 @@ class MOGA:
             eliminate_duplicates = True
         )
 
-    # Given a set of parameters, returns a population with some deviation
     def get_population(self, init_param_dict:dict) -> tuple:
-        
+        """
+        Given a set of parameters, returns a population with some deviation
+
+        Parameters:
+        * `init_param_dict`: The dictionary of initial parameter values
+
+        Returns a population with the initial parameter values applied
+        """
+
         # Initialise
         mean_list  = []
         stdev_list = []
@@ -84,8 +102,10 @@ class MOGA:
         # Return the population
         return param_population
 
-    # Runs the genetic optimisation
     def optimise(self) -> None:
+        """
+        Runs the genetic optimisation
+        """
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             minimize(self.problem, self.algo, ("n_gen", self.num_gens), verbose=False, seed=None)

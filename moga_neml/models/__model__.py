@@ -55,10 +55,12 @@ class __Model__:
 
     def get_data(self, field:str):
         """
-        Returns a field of the experimental data
+        Gets the data corresponding to a field
         
         Parameters:
         * `field`: The name of the field
+
+        Returns the data
         """
         if not field in self.exp_data.keys():
             raise ValueError(f"The experimental data does not contain the {field} field")
@@ -72,10 +74,12 @@ class __Model__:
 
     def get_calibrated_model(self, *params): # -> NEML Model
         """
-        Gets the calibrated model
+        Calibrates a model and returns it
 
         Parameters:
-        * `params`: The parameter values
+        * `params`: The parameter values to calibrate the model
+
+        Returns the calibrated model
         """
 
         self.calibrated_model = self.calibrate_model(*params)
@@ -107,6 +111,8 @@ def get_model(model_name:str, **kwargs) -> __Model__:
 
     Parameters:
     * `model_name`: The name of the model
+
+    Returns the model
     """
 
     # Get available models in current folder

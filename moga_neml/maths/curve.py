@@ -23,7 +23,8 @@ def exclude_outliers(x_list:list, y_list:list):
     q_3 = np.percentile(y_list, 75)
     u_bound = q_3 + 1.5*(q_3-q_1)
     l_bound = q_1 - 1.5*(q_3-q_1)
-    index_list = [i for i in range(len(y_list)) if y_list[i] >= l_bound and y_list[i] <= u_bound]
+    index_list = [i for i in range(len(y_list))
+                  if y_list[i] >= l_bound and y_list[i] <= u_bound]
     x_list = [x_list[i] for i in index_list]
     y_list = [y_list[i] for i in index_list]
     return x_list, y_list
@@ -46,12 +47,15 @@ def get_thinned_list(unthinned_list:list, density:int) -> list:
 
 def get_custom_thin_indexes(src_data_size:int, dst_data_size:int, distribution) -> list:
     """
-    Returns a list of indexes corresponding to thinned data based on a defined cumulative distribution function
+    Returns a list of indexes corresponding to thinned data based on
+    a defined cumulative distribution function
     
     Parameters:
     * `src_data_size`: The initial data size
     * `dst_data_size`: The goal data size
     * `distribution`:  The distribution function to thin the data
+
+    Returns the custom thinned indexes
     """
     unmapped_indexes = [distribution(i/dst_data_size) for i in range(1,dst_data_size-1)]
     thin_indexes = [math.floor(i*src_data_size) for i in unmapped_indexes]
@@ -66,6 +70,8 @@ def remove_data_after(curve:dict, x_value:float, x_label:str) -> dict:
     * `curve`:   The curve to remove the data from
     * `x_value`: The value to start removing the data
     * `x_label`: The label corresponding to the value
+
+    Returns the curve after data removal
     """
 
     # Initialise new curve

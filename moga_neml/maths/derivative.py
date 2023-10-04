@@ -9,8 +9,16 @@
 from copy import deepcopy
 from moga_neml.maths.interpolator import Interpolator
 
-# Returns the derivative via backward finite difference
 def get_bfd(x_list:list, y_list:list) -> tuple:
+    """
+    Gets the derivative via backward finite difference
+
+    Parameters:
+    * `x_list`: The list of x values
+    * `y_list`: The list of y values
+    
+    Returns the dertivative of the lists
+    """
     new_x_list, dy_list = [], []
     for i in range(1,len(x_list)):
         if x_list[i] > x_list[i-1]:
@@ -18,50 +26,87 @@ def get_bfd(x_list:list, y_list:list) -> tuple:
             dy_list.append((y_list[i]-y_list[i-1])/(x_list[i]-x_list[i-1]))
     return new_x_list, dy_list
 
-# Removes data after the Xth local minima/maxima
-def remove_after_sp(curve:dict, nature:str, x_label:str, y_label:str, window:int, acceptance:int, nominal:int=0) -> dict:
+def remove_after_sp(exp_data:dict, nature:str, x_label:str, y_label:str, window:int,
+                    acceptance:int, nominal:int=0) -> dict:
+    """
+    Removes data after the Xth local minima/maxima
+
+    Parameters:
+    * `exp_data`:   The dictionary of experimental data
+    * `nature`:     The nature of the stationary point
+    * `x_label`:    The label of the x axis
+    * `y_label`:    The label of the y axis
+    * `window`:     The window size to determine the stationary point
+    * `acceptance`: The acceptance rate (0..1)
+    * `nominal`:    The nominal of the staionary point to be selected
+
+    Returns the data after the removal
+    """
 
     # Get all stationary points
-    curve = deepcopy(curve)
-    d_curve = differentiate_curve(curve, x_label, y_label)
-    sp_list = get_stationary_points(d_curve, x_label, y_label, window, acceptance)
-    # print([sp for sp in sp_list if sp["nature"] == nature])
+    exp_data = deepcopy(exp_data)
+    d_exp_data = differentiate_curve(exp_data, x_label, y_label)
+    sp_list = get_stationary_points(d_exp_data, x_label, y_label, window, acceptance)
     
     # Get all stationary points
     sp_list = [sp for sp in sp_list if sp["nature"] == nature]
     if len(sp_list) <= nominal:
-        return curve
+        return exp_data
     sp = sp_list[nominal]
 
     # Remove data after local stationary point
-    curve[x_label] = [curve[x_label][i] for i in range(len(curve[x_label])) if i < sp["index"]]
-    curve[y_label] = [curve[y_label][i] for i in range(len(curve[y_label])) if i < sp["index"]]
-    return curve
+    exp_data[x_label] = [exp_data[x_label][i] for i in range(len(exp_data[x_label]))
+                         if i < sp["index"]]
+    exp_data[y_label] = [exp_data[y_label][i] for i in range(len(exp_data[y_label]))
+                         if i < sp["index"]]
+    return exp_data
 
-# Returns a list of the stationary points and their nature (of a noisy curve)
-def get_stationary_points(curve:dict, x_label:str, y_label:str, window:int, acceptance:int) -> list:
+def get_stationary_points(exp_data:dict, x_label:str, y_label:str,
+                          window:int, acceptance:int) -> list:
+    """
+    Gets a list of the stationary points and their nature (of a noisy curve)
+
+    Parameters:
+    * `exp_data`:   The dictionary of experimental data
+    * `x_label`:    The label of the x axis
+    * `y_label`:    The label of the y axis
+    * `window`:     The window size to determine the stationary point
+    * `acceptance`: The acceptance rate (0..1)
+
+    Returns a list of dictionaries of stationary points
+    """
 
     # Initialise
-    d_curve = differentiate_curve(curve, x_label, y_label)
+    d_exp_data = differentiate_curve(exp_data, x_label, y_label)
     dy_label = f"d_{y_label}"
     sp_list = []
 
     # Gets the locations where the derivative passes through the x axis
-    for i in range(len(d_curve[x_label])-1):
-        if ((d_curve[y_label][i] <= 0 and d_curve[y_label][i+1] >= 0) or (d_curve[y_label][i] >= 0 and d_curve[y_label][i+1] <= 0)):
+    for i in range(len(d_exp_data[x_label])-1):
+        if ((d_exp_data[y_label][i] <= 0 and d_exp_data[y_label][i+1] >= 0) or (d_exp_data[y_label][i] >= 0 and d_exp_data[y_label][i+1] <= 0)):
             sp_list.append({
-                x_label:  curve[x_label][i],
-                y_label:  curve[y_label][i],
-                dy_label: d_curve[y_label][i],
+                x_label:  exp_data[x_label][i],
+                y_label:  exp_data[y_label][i],
+                dy_label: d_exp_data[y_label][i],
                 "index":  i,
-                "nature": get_sp_nature(d_curve[y_label], i, window, acceptance)
+                "nature": get_sp_nature(d_exp_data[y_label], i, window, acceptance)
             })
     
     # Return list of dictionaries
     return sp_list
 
-# Checks the left and right of a list of values to determine if a point is stationary
 def get_sp_nature(dy_list:list, index:int, window=0.1, acceptance=0.9) -> str:
+    """
+    Checks the left and right of a list of values to determine if a point is stationary
+
+    Parameters:
+    * `dy_list`:    The list of derivative values
+    * `index`:      The index of the staionary points
+    * `window`:     The window size to determine the stationary point
+    * `acceptance`: The acceptance rate (0..1)
+
+    Returns the nature of the stationary point
+    """
     
     # Redefine window as a fraction of the data size
     window_abs = round(len(dy_list) * window)
@@ -85,11 +130,20 @@ def get_sp_nature(dy_list:list, index:int, window=0.1, acceptance=0.9) -> str:
         return "min"
     else:
         return "uncertain"
-    
-# For differentiating a curve
-def differentiate_curve(curve:dict, x_label:str, y_label:str) -> dict:
-    curve = deepcopy(curve)
-    interpolator = Interpolator(curve[x_label], curve[y_label])
+  
+def differentiate_curve(exp_data:dict, x_label:str, y_label:str) -> dict:
+    """
+    For differentiating a curve
+
+    Parameters:
+    * `exp_data`:   The dictionary of experimental data
+    * `x_label`:    The label of the x axis
+    * `y_label`:    The label of the y axis
+
+    Returns the differentiated data
+    """
+    exp_data = deepcopy(exp_data)
+    interpolator = Interpolator(exp_data[x_label], exp_data[y_label])
     interpolator.differentiate()
-    curve[y_label] = interpolator.evaluate(curve[x_label])
-    return curve
+    exp_data[y_label] = interpolator.evaluate(exp_data[x_label])
+    return exp_data
