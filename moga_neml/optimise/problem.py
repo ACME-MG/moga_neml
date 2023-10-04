@@ -25,8 +25,8 @@ class Problem(ElementwiseProblem):
         """
 
         # Initialise
-        self.controller  = controller
-        self.recorder    = recorder
+        self.controller = controller
+        self.recorder   = recorder
         
         # Get parameter information
         unfix_param_dict = self.controller.get_unfix_param_dict()

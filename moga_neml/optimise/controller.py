@@ -31,6 +31,7 @@ class Controller():
         # Initialise internal variables
         self.model = None
         self.curve_list = []
+        self.constraint_list = []
         self.fix_param_dict = {}
         self.init_param_dict = {}
         
@@ -80,6 +81,15 @@ class Controller():
             raise ValueError("No curves have been added yet!")
         return self.curve_list[-1]
     
+    def add_constraint(self, constraint_name:str) -> None:
+        """
+        Adds a constraint to the optimisation
+
+        Parameters:
+        * `constraint_name`: The name of the constraint to be added
+        """
+        pass
+
     def fix_param(self, param_name:str, param_value:float) -> None:
         """
         Fixes a parameter to a value
@@ -339,6 +349,11 @@ class Controller():
             if prd_data == None:
                 return {key: value for key, value in zip(objective_info_list, [BIG_VALUE] * len(objective_info_list))}
         
+            # Ensure that all the constraints are adhered to
+            #   TODO
+            for constraint in self.constraint_list:
+                pass
+
             # Gets all the errors and add to dictionary
             for error in error_list:
                 error_value = error.get_value(prd_data)

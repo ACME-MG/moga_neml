@@ -12,22 +12,16 @@ from moga_neml.models.__model__ import __Model__
 # The Constraint Template Class
 class __Constraint__:
 
-    def __init__(self, name:str, x_label:str, y_label:str, weight:str, curve_list:list) -> None:
+    def __init__(self, name:str, curve_list:list) -> None:
         """
         Class for defining a constraint
 
         Parameters:
         * `name`:       The name of the constraint
-        * `x_label`:    The label for the x axis
-        * `y_label`:    The label for the y axis
-        * `weight`:     The weight applied to the constraint
         * `curve_list`: The list of curves
         * `model`:      The model
         """
         self.name       = name
-        self.x_label    = x_label
-        self.y_label    = y_label
-        self.weight     = weight
         self.curve_list = curve_list
 
     def get_name(self) -> str:
@@ -35,22 +29,6 @@ class __Constraint__:
         Returns the name of the Constraint
         """
         return self.name
-
-    def get_x_label(self) -> str:
-        """
-        Returns the x label of the Constraint
-        """
-        if self.x_label == "":
-            raise ValueError("The x label has not been defined!")
-        return self.x_label
-
-    def get_y_label(self) -> str:
-        """
-        Returns the y label of the Constraint
-        """
-        if self.y_label == "":
-            raise ValueError("The y label has not been defined!")
-        return self.y_label
 
     def get_curve_list(self) -> list:
         """
@@ -70,34 +48,35 @@ class __Constraint__:
         """
         raise NotImplementedError
 
-# Creates and return a Constraint
-def get_Constraint(Constraint_name:str, x_label:str, y_label:str, weight:str, exp_data:dict, model:__Model__, **kwargs) -> __Constraint__:
+# Creates and return a constraint
+def get_constraint(constraint_name:str, x_label:str, y_label:str, weight:str,
+                   exp_data:dict, model:__Model__, **kwargs) -> __Constraint__:
     """
     Gets an Constraint
 
     Parameters:
-    * `Constraint_name`: The name of the Constraint
-    * `x_label`:    The label for the x axis
-    * `y_label`:    The label for the y axis
-    * `weight`:     The weight applied to the Constraint
-    * `exp_data`:   The experimental data
-    * `model`:      The model
+    * `constraint_name`: The name of the Constraint
+    * `x_label`:         The label for the x axis
+    * `y_label`:         The label for the y axis
+    * `weight`:          The weight applied to the Constraint
+    * `exp_data`:        The experimental data
+    * `model`:           The model
 
     Returns the Constraint object
     """
 
     # Get available Constraints in current folder
-    Constraints_dir = pathlib.Path(__file__).parent.resolve()
-    files = os.listdir(Constraints_dir)
+    constraints_dir = pathlib.Path(__file__).parent.resolve()
+    files = os.listdir(constraints_dir)
     files = [file.replace(".py", "") for file in files]
     files = [file for file in files if not file in ["__Constraint__", "__pycache__"]]
     
     # Raise Constraint if Constraint name not in available Constraints
-    if not Constraint_name in files:
-        raise NotImplementedError(f"The Constraint '{Constraint_name}' has not been implemented")
+    if not constraint_name in files:
+        raise NotImplementedError(f"The constraint '{constraint_name}' has not been implemented")
 
     # Prepare dynamic import
-    module_path = f"{Constraints_dir}/{Constraint_name}.py"
+    module_path = f"{constraints_dir}/{constraint_name}.py"
     spec = importlib.util.spec_from_file_location("Constraint_file", module_path)
     module = importlib.util.module_from_spec(spec)
     sys.modules[spec.name] = module
@@ -105,6 +84,6 @@ def get_Constraint(Constraint_name:str, x_label:str, y_label:str, weight:str, ex
     
     # Import, initialise, and return Constraint
     from constraint_file import Constraint
-    Constraint = Constraint(Constraint_name, x_label, y_label, weight, exp_data, model)
-    Constraint.initialise(**kwargs)
-    return Constraint
+    constraint = Constraint(constraint_name, x_label, y_label, weight, exp_data, model)
+    constraint.initialise(**kwargs)
+    return constraint

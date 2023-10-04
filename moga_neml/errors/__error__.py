@@ -12,7 +12,8 @@ from moga_neml.models.__model__ import __Model__
 # The Error Template Class
 class __Error__:
 
-    def __init__(self, name:str, x_label:str, y_label:str, weight:str, exp_data:dict, model:__Model__) -> None:
+    def __init__(self, name:str, x_label:str, y_label:str, weight:str,
+                 exp_data:dict, model:__Model__) -> None:
         """
         Class for defining an error
 
@@ -53,7 +54,8 @@ class __Error__:
             raise ValueError("The y label has not been defined!")
         return self.y_label
 
-    def get_group_key(self, group_name:bool=True, group_type:bool=True, group_labels:bool=True) -> str:
+    def get_group_key(self, group_name:bool=True, group_type:bool=True,
+                      group_labels:bool=True) -> str:
         """
         Gets error name, type, and both labels, if they exist;
         controls how the errors are grouped together when optimising

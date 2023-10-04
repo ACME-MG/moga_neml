@@ -8,19 +8,20 @@
 # Libraries
 import re, time
 from moga_neml.interface.reader import read_exp_data, check_exp_data
-from moga_neml.maths.data import remove_data_after
-from moga_neml.maths.general import safe_mkdir
 from moga_neml.optimise.recorder import Recorder
 from moga_neml.optimise.controller import Controller
 from moga_neml.optimise.problem import Problem
 from moga_neml.optimise.moga import MOGA
+from moga_neml.maths.data import remove_data_after
 from moga_neml.maths.derivative import remove_after_sp
 from moga_neml.maths.experiment import DATA_UNITS
+from moga_neml.maths.general import safe_mkdir
 
 # API Class
 class API:
 
-    def __init__(self, title:str="", input_path:str="./data", output_path:str="./results", verbose:bool=True, output_here:bool=False):
+    def __init__(self, title:str="", input_path:str="./data", output_path:str="./results",
+                 verbose:bool=True, output_here:bool=False):
         """
         Class to interact with the optimisation code
         
