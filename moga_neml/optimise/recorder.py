@@ -17,7 +17,7 @@ from moga_neml.optimise.controller import Controller
 class Recorder:
     
     def __init__(self, controller:Controller, interval:int, population:int,
-                 result_path:str, quick_view:bool=False):
+                 results_dir:str, quick_view:bool=False):
         """
         Class for recording the results
 
@@ -25,14 +25,14 @@ class Recorder:
         * `controller`:  The controller for controlling the optimisation results
         * `interval`:    The number of generations to record the results
         * `population`:  The size of the population to maintain in the record
-        * `result_path`: The path to store the results
+        * `results_dir`: The directory to store the results
         * `quick_view`:  Whether to generate a quick plot of the newest results
         """
         
         # Initialise inputs
         self.controller  = controller
         self.interval    = interval
-        self.result_path = result_path
+        self.results_dir = results_dir
         self.population  = population
         self.quick_view  = quick_view
         
@@ -156,7 +156,7 @@ class Recorder:
 
             # Display output
             num_gens_completed_padded = str(round(self.num_gens_completed)).zfill(len(str(self.num_gens)))
-            file_path = f"{self.result_path}_{num_gens_completed_padded} ({update_duration}s).xlsx"
+            file_path = f"{self.results_dir}/results_{num_gens_completed_padded} ({update_duration}s).xlsx"
             self.create_record(file_path)
 
             # Display progress in console
@@ -305,7 +305,7 @@ class Recorder:
         
             # Creates a quick-view plot, if desired
             if self.quick_view:
-                plotter = Plotter(f"{self.result_path}_{type}.png", x_label, y_label)
+                plotter = Plotter(f"{self.results_dir}/opt_{type}.png", x_label, y_label)
                 plotter.prep_plot("Best Prediction")
                 for key in ["training", "validation", "prediction"]:
                     if key in plot_dict.keys():

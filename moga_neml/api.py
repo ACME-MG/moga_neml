@@ -167,15 +167,6 @@ class API:
         self.__print__(message.format(param_name, float(param_value), float(param_std)))
         self.__controller__.init_param(param_name, param_value, param_std)
 
-    def add_constraint(self, constraint_name:str) -> None:
-        """
-        Adds a constraint to all the curves that prevent a solution from being accepted
-
-        Parameters:
-        * `constraint_name`: The name of the constraint
-        """
-        self.__print__(f"Adding the {constraint_name} constraint to the optimisation")
-
     def remove_damage(self, window:int=0.1, acceptance:float=0.9) -> None:
         """
         Removes the tertiary creep from the most recently added creep curve, by removing the data
@@ -244,10 +235,8 @@ class API:
         * `y_log`:      Whether to log the y-axis
         """
         
-        # Determine type (use type of last curve if undefined)
+        # Determine type (use type of last curve if undefined) and file name
         type = self.__controller__.get_last_curve().get_type() if type == None else type
-        
-        # Determine file name
         file_name = f"exp_{type}_d{derivative}.png" if derivative > 0 else f"exp_{type}.png"
         
         # Display informative message
@@ -255,7 +244,8 @@ class API:
         derivative_str = f" {ordinal(derivative)} derivative of the" if derivative > 0 else ""
         self.__print__(f"Visualising the{derivative_str} {type} data at '{file_name}'")
         
-        # Actually plot the curves
+        # Check then plot the curves
+        self.__check_curves__("There are no experimental curves to plot!")
         self.__controller__.plot_exp_curves(type, self.__get_output__(file_name), x_label,
                                             y_label, derivative, x_log, y_log)
 
@@ -276,9 +266,10 @@ class API:
         * `y_log`:     Whether to log the y-axis
         """
         
-        # Convert parameters into a string and display
+        # Convert parameters into a string, display, and check
         param_str = ["{:0.4}".format(float(param)) for param in params]
         self.__print__("Plotting the curves for {}".format(str(param_str).replace("'", "")))
+        self.__check_curves__("There are no experimental curves to plot!")
 
         # Get parameters and check input
         param_name_list = list(self.__controller__.get_unfix_param_dict().keys())
@@ -305,9 +296,10 @@ class API:
         * `y_label`:   The measurement to be visualised on the y-axis
         """
         
-        # Convert parameters into a string and display
+        # Display and check
         param_str = ["{:0.4}".format(float(param)) for param in params]
         self.__print__("Getting the results for {}".format(str(param_str).replace("'", "")))
+        self.__check_curves__("Results cannot obtained without experimental curves!")
 
         # Get parameters and check input
         param_name_list = list(self.__controller__.get_unfix_param_dict().keys())
@@ -347,7 +339,7 @@ class API:
         * `population`: The number of solutions to be stored and shown in the results
         """
         self.__print__(f"Initialising the recorder with an interval of {interval} and population of {population}")
-        self.__recorder__ = Recorder(self.__controller__, interval, population, self.__get_output__("opt"), quick_view)
+        self.__recorder__ = Recorder(self.__controller__, interval, population, self.__output_path__, quick_view)
 
     def group_errors(self, name:bool=True, type:bool=True, labels:bool=True):
         """
@@ -399,12 +391,53 @@ class API:
         * `crossover`: The crossover probability; should be between 0.0 and 1.0
         * `mutation`:  The mutation probability; should be between 0.0 and 1.0
         """
+        
+        # Display and conduct checks
         self.__print__(f"Conducting the optimisation ({num_gens}, {init_pop}, {offspring}, {crossover}, {mutation})")
-        self.__recorder__.define_hyperparameters(num_gens, init_pop, offspring, crossover, mutation)
+        self.__check_curves__("Optimisation cannot run without experimental curves!")
+        self.__check_errors__("Optimisation cannot run without any objective functions!")
+        self.__check_variable__(self.__recorder__, "Optimisation cannot run without initialising a recorder!")
+        
+        # Initialise and run the optimisation
         problem = Problem(self.__controller__, self.__recorder__)
+        self.__recorder__.define_hyperparameters(num_gens, init_pop, offspring, crossover, mutation)
         moga = MOGA(problem, num_gens, init_pop, offspring, crossover, mutation)
         moga.optimise()
         
+    def __check_curves__(self, message:str):
+        """
+        Checks the experimental data
+        
+        Parameters:
+        * `message`: The message to display if error is raised
+        """
+        curve_list = self.__controller__.get_curve_list()
+        if len(curve_list) == 0:
+            raise ValueError(message)
+        
+    def __check_errors__(self, message:str):
+        """
+        Checks the errors
+        
+        Parameters:
+        * `message`: The message to display if error is raised
+        """
+        curve_list = self.__controller__.get_curve_list()
+        num_errors = [len(curve.get_error_list()) for curve in curve_list]
+        if sum(num_errors) == 0:
+            raise ValueError(message)
+    
+    def __check_variable__(self, variable, message:str):
+        """
+        Checks that a variable has been initialised
+        
+        Parameters:
+        * `variable`: The variable to check
+        * `message`:  The message to display if error is raised
+        """
+        if variable == None:
+            raise ValueError(message)
+    
     def __del__(self):
         """
         Prints out the final message (for internal use only)
