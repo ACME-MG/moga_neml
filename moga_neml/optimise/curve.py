@@ -6,7 +6,7 @@
 """
 
 # Libraries
-from moga_neml.errors.__error__ import get_error
+from moga_neml.errors.__error__ import create_error
 from moga_neml.models.__model__ import __Model__
 
 # The Curve class
@@ -84,10 +84,10 @@ class Curve:
         Adds an error to the list
 
         Parameters:
-        * `error_name`: The name of the error
-        * `x_label`:    The x label
-        * `y_label`:    The y label
-        * `weight`:     The weight applied to the error
+        * `error_name`:  The name of the error
+        * `x_label`:     The label of the x axis
+        * `y_label`:     The label of the y axis
+        * `weight`:      The weight applied to the error
         """
 
         # Check labels
@@ -96,6 +96,6 @@ class Curve:
                 raise ValueError(f"Error {error_name} cannot be added because '{label}' is not a field in the data!")
         
         # Add error
-        error = get_error(error_name, x_label, y_label, weight, self.exp_data, self.model, **kwargs)
+        error = create_error(error_name, x_label, y_label, weight, self.exp_data, self.model, **kwargs)
         self.error_list.append(error)
     

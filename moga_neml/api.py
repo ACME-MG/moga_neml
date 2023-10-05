@@ -136,10 +136,14 @@ class API:
         * `weight`:     The factor multipled with the error when the errors are reduced
         * `kwargs`:     Any additional keyword arguments to pass to the model
         """
+        
+        # Display error information
         labels = f"{x_label}-{y_label}" if x_label != "" and y_label != "" else f"{x_label}" if x_label != "" else ""
         label_str = f"for {labels} " if labels != "" else ""
         weight_str = f"with a weight of {weight}" if weight != 1 else ""
         self.__print__(f"Adding '{error_name}' error {label_str}{weight_str}", sub_index=True)
+        
+        # Add error to curve
         curve = self.__controller__.get_last_curve()
         curve.add_error(error_name, x_label, y_label, weight, **kwargs)
 
@@ -166,6 +170,19 @@ class API:
         message = "Setting the '{}' parameter to an initial value of {:0.4} and deviation of {:0.4}"
         self.__print__(message.format(param_name, float(param_value), float(param_std)))
         self.__controller__.init_param(param_name, param_value, param_std)
+
+    def add_constraint(self, constraint_name:str, x_label:str="", y_label:str="", **kwargs) -> None:
+        """
+        Adds a constraint to all the curves that prevent a solution from being accepted
+
+        Parameters:
+        * `constraint_name`: The name of the constraint
+        * `x_label`:    The measurement on the x-axis (e.g., time, strain)
+        * `y_label`:    The measurement on the y-axis (e.g., strain, stress)
+        * `kwargs`:     Any additional keyword arguments to pass to the model
+        """
+        self.__print__(f"Adding the {constraint_name} constraint to the optimisation")
+        self.__controller__.add_constraint(constraint_name, x_label, y_label, **kwargs)
 
     def remove_damage(self, window:int=0.1, acceptance:float=0.9) -> None:
         """

@@ -7,7 +7,8 @@
 
 # Libraries
 from copy import deepcopy
-from moga_neml.models.__model__ import __Model__, get_model
+from moga_neml.constraints.__constraint__ import __Constraint__, create_constraint
+from moga_neml.models.__model__ import __Model__, create_model
 from moga_neml.errors.__error__ import __Error__
 from moga_neml.interface.plotter import Plotter
 from moga_neml.optimise.driver import Driver
@@ -29,18 +30,19 @@ class Controller():
         """
         
         # Initialise internal variables
-        self.model = None
-        self.curve_list = []
-        self.fix_param_dict = {}
+        self.model           = None
+        self.curve_list      = []
+        self.constraint_list = []
+        self.fix_param_dict  = {}
         self.init_param_dict = {}
         
         # Initialise variables for grouping errors
-        self.group_name = True
-        self.group_type = True
+        self.group_name   = True
+        self.group_type   = True
         self.group_labels = True
         
         # Initialise variables for reducing errors
-        self.error_reduction_method = "average"
+        self.error_reduction_method     = "average"
         self.objective_reduction_method = "average"
         
         # Other initialisation
@@ -53,7 +55,7 @@ class Controller():
         Parameters:
         * `model_name`: The name of the model
         """
-        self.model = get_model(model_name, **kwargs)
+        self.model = create_model(model_name, **kwargs)
         
     def add_curve(self, type:str, exp_data:dict) -> None:
         """
@@ -116,6 +118,39 @@ class Controller():
         if param_value + param_std > param_dict[param_name]["u_bound"]:
             raise ValueError(f"{pretext} has been set an initial 'value + deviation' larger than its upper bound!")
         self.init_param_dict[param_name] = {"value": param_value, "std": param_std}
+
+    def add_constraint(self, constraint_name:str, x_label:str="", y_label:str="", **kwargs) -> None:
+        """
+        Adds a constraint to the optimisation
+
+        Parameters:
+        * `constraint_name`: The name of the constraint to be added
+        * `x_label`:         The label of the x axis
+        * `y_label`:         The label of the y axis
+        """
+        
+        # If constraint does not exist, create it
+        constraint = self.get_constraint(constraint_name)
+        if constraint == None:
+            constraint = create_constraint(constraint_name, x_label, y_label, self.model, **kwargs)
+            self.constraint_list.append(constraint)
+        
+        # Add the experimental data to it
+        last_curve = self.get_last_curve()
+        constraint.add_curve(last_curve)
+    
+    def get_constraint(self, constraint_name:str) -> __Constraint__:
+        """
+        Gets the constraint given a constraint name
+        
+        Parameters:
+        * `constraint_name`: The name of the constraint to be added
+        
+        Returns the constraint if found, and nothing otherwise
+        """
+        for constraint in self.constraint_list:
+            if constraint_name == constraint.get_name():
+                return constraint
 
     def get_model(self) -> __Model__:
         """
@@ -243,7 +278,8 @@ class Controller():
             for error in error_list:
                 error_group_key = error.get_group_key(self.group_name, self.group_type, self.group_labels)
                 objective_info_list.append(error_group_key)
-        return list(set(objective_info_list))
+        objective_info_list = list(set(objective_info_list))
+        return objective_info_list
 
     def get_prd_data(self, curve:Curve, *params) -> dict:
         """
@@ -326,6 +362,10 @@ class Controller():
         empty_list_list = [[] for _ in range(len(objective_info_list))]
         error_list_dict = {key: value for key, value in zip(objective_info_list, empty_list_list)}
         
+        # Initialise
+        prd_data_list = []
+        failed_dict = {key: value for key, value in zip(objective_info_list, [BIG_VALUE] * len(objective_info_list))}
+        
         # Iterate through experimental data
         for curve in self.curve_list:
             
@@ -337,7 +377,7 @@ class Controller():
             # Get prediction for training data
             prd_data = self.get_prd_data(curve, *params)
             if prd_data == None:
-                return {key: value for key, value in zip(objective_info_list, [BIG_VALUE] * len(objective_info_list))}
+                return failed_dict
 
             # Gets all the errors and add to dictionary
             for error in error_list:
@@ -345,6 +385,13 @@ class Controller():
                 error_value = error_value * error.get_weight() if error_value != None else BIG_VALUE
                 error_group_key = error.get_group_key(self.group_name, self.group_type, self.group_labels)
                 error_list_dict[error_group_key].append(error_value)
+
+        # Checks all the constraints
+        for constraint in self.constraint_list:
+            curve_list = constraint.get_curve_list()
+            prd_data_list = [curve.get_prd_data() for curve in curve_list]
+            if not constraint.check(prd_data_list):
+                return failed_dict
         
         # Reduce and return errors
         objective_dict = self.reduce_errors(error_list_dict)

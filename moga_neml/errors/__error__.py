@@ -13,7 +13,7 @@ from moga_neml.models.__model__ import __Model__
 class __Error__:
 
     def __init__(self, name:str, x_label:str, y_label:str, weight:str,
-                 exp_data:dict, model:__Model__) -> None:
+                 exp_data:dict, model:__Model__):
         """
         Class for defining an error
 
@@ -152,17 +152,18 @@ class __Error__:
         raise NotImplementedError
 
 # Creates and return a error
-def get_error(error_name:str, x_label:str, y_label:str, weight:str, exp_data:dict, model:__Model__, **kwargs) -> __Error__:
+def create_error(error_name:str, x_label:str, y_label:str, weight:str,
+              exp_data:dict, model:__Model__, **kwargs) -> __Error__:
     """
     Gets an error
 
     Parameters:
-    * `error_name`: The name of the error
-    * `x_label`:    The label for the x axis
-    * `y_label`:    The label for the y axis
-    * `weight`:     The weight applied to the error
-    * `exp_data`:   The experimental data
-    * `model`:      The model
+    * `error_name`:  The name of the error
+    * `x_label`:     The label for the x axis
+    * `y_label`:     The label for the y axis
+    * `weight`:      The weight applied to the error
+    * `exp_data`:    The experimental data
+    * `model`:       The model
 
     Returns the error object
     """

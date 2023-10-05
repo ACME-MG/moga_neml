@@ -105,7 +105,7 @@ class __Model__:
         """
         raise NotImplementedError
 
-def get_model(model_name:str, **kwargs) -> __Model__:
+def create_model(model_name:str, **kwargs) -> __Model__:
     """
     Creates and return a model
 
