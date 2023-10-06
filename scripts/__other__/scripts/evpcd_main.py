@@ -16,13 +16,13 @@ api.init_param("wd_b",    6.832)
 
 api.read_data("creep/inl_1/AirBase_800_80_G25.csv")
 api.add_error("area", "time", "strain")
-api.add_error("end_cons", "time")
-api.add_error("end_cons", "strain")
+api.add_error("end", "time")
+api.add_error("end", "strain")
 
 api.read_data("creep/inl_1/AirBase_800_70_G44.csv")
 api.add_error("area", "time", "strain")
-api.add_error("end_cons", "time")
-api.add_error("end_cons", "strain")
+api.add_error("end", "time")
+api.add_error("end", "strain")
 
 api.read_data("creep/inl_1/AirBase_800_65_G33.csv")
 api.read_data("creep/inl_1/AirBase_800_60_G32.csv")

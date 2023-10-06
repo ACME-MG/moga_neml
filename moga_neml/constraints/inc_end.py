@@ -1,6 +1,6 @@
 """
- Title:         The decreasing end constraint
- Description:   The constraint for ensuring that as stress increases, the end points of a field decreases 
+ Title:         The increasing end constraint
+ Description:   The constraint for ensuring that as stress increases, the end points of a field increases 
  Author:        Janzen Choi
 
 """
@@ -8,7 +8,7 @@
 # Libraries
 from moga_neml.constraints.__constraint__ import __Constraint__
 
-# The decreasing end constraint class
+# The increasing end constraint class
 class Constraint(__Constraint__):
     
     def check(self, prd_data_list:list) -> bool:
@@ -35,10 +35,10 @@ class Constraint(__Constraint__):
         sorted_items = sorted(prd_dict.items(), key=lambda x: x[0])
         prd_dict = dict(sorted_items)
 
-        # Enforce that end points decrease as stress increases
-        min_value = 1.0e50
+        # Enforce that end points increase as stress increases
+        max_value = -1.0e50
         for key in prd_dict.keys():
-            if prd_dict[key] > min_value:
+            if prd_dict[key] < max_value:
                 return False
-            min_value = prd_dict[key]
+            max_value = prd_dict[key]
         return True

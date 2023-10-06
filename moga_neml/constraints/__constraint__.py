@@ -75,8 +75,8 @@ class __Constraint__:
     def initialise(self) -> None:
         """
         Runs at the start, once (optional placeholder);
-        note that changes to the script are required for the initialising
-        can use information about all the curves added
+        note that changes to the script are required so that the
+        initialisation can use information about all the curves added
         """
         pass
 
