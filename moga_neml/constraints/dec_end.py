@@ -36,9 +36,13 @@ class Constraint(__Constraint__):
         prd_dict = dict(sorted_items)
 
         # Enforce that end points decrease as stress increases
+        check_passed = True
         min_value = 1.0e50
         for key in prd_dict.keys():
             if prd_dict[key] > min_value:
-                return False
+                check_passed = False
             min_value = prd_dict[key]
-        return True
+        
+        # Return outcome
+        # print("dec", prd_dict, check_passed)
+        return check_passed

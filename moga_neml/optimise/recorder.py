@@ -140,8 +140,11 @@ class Recorder:
         * `objective_dict`: The dictionary of objective functions
         """
 
+        # Print separating line if initial update
+        if self.num_evals_completed == 0:
+            print()
+
         # Update optimisation progress
-        print() if self.num_evals_completed == 0 else None
         self.num_evals_completed += 1
         self.num_gens_completed = (self.num_evals_completed - self.init_pop) / self.offspring + 1
         self.update_optimal_solution(param_dict, objective_dict)
@@ -222,7 +225,8 @@ class Recorder:
         # If there are no optimal parameters, leave
         if len(self.optimal_solution_list) == 0:
             return
-        optimal_solution = self.optimal_solution_list[0]
+        opt_solution = self.optimal_solution_list[0]["params"]
+        opt_params = opt_solution.values()
         
         # Initialise data structure
         train_dict = {"exp_x": [], "exp_y": [], "prd_x": [], "prd_y": []}
@@ -239,8 +243,14 @@ class Recorder:
             exp_data = curve.get_exp_data()
             exp_x_list, exp_y_list = process_data_dict(exp_data, x_label, y_label)
             
-            # Get predicted data and thin
-            prd_data = curve.get_prd_data()
+            # Get predicted data
+            is_training = len(curve.get_error_list()) > 0
+            if is_training:
+                prd_data = curve.get_prd_data()
+            else:
+                prd_data = self.controller.get_prd_data(curve, *opt_params)
+
+            # Test validity
             if prd_data == None:
                 return None
             prd_x_list, prd_y_list = process_data_dict(prd_data, x_label, y_label)

@@ -329,7 +329,7 @@ class API:
         recorder.define_hyperparameters("n/a","n/a","n/a","n/a","n/a")
         
         # Add parameters and create record
-        error_value_dict = self.__controller__.calculate_objectives(*params)
+        error_value_dict = self.__controller__.calculate_objectives(*params, include_validation=True)
         recorder.update_optimal_solution(param_value_dict, error_value_dict)
         recorder.create_record(self.__get_output__("results.xlsx"), type_list, x_label, y_label)
     

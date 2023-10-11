@@ -303,7 +303,7 @@ class Controller():
         model_driver = Driver(curve.get_exp_data(), calibrated_model, self.num_steps,
                               self.rel_tol, self.abs_tol, self.verbose)
         prd_data = model_driver.run()
-        
+
         # Check data has some data points
         if prd_data == None:
             return
@@ -347,12 +347,13 @@ class Controller():
         except OverflowError:
             return BIG_VALUE
     
-    def calculate_objectives(self, *params) -> dict:
+    def calculate_objectives(self, *params, include_validation=False) -> dict:
         """
         Calculates the error values for a set of parameters
 
         Parameters:
-        * `params`: The parameters for the prediction
+        * `params`:             The parameters for the prediction
+        * `include_validation`: Whether to include the validation data
 
         Returns a dictionary of the objectives
         """
@@ -371,9 +372,9 @@ class Controller():
             
             # Ignore validation data
             error_list = curve.get_error_list()
-            if len(error_list) == 0:
+            if len(error_list) == 0 and not include_validation:
                 continue
-            
+
             # Get prediction for training data
             prd_data = self.get_prd_data(curve, *params)
             if prd_data == None:

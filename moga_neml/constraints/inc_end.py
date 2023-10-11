@@ -35,10 +35,14 @@ class Constraint(__Constraint__):
         sorted_items = sorted(prd_dict.items(), key=lambda x: x[0])
         prd_dict = dict(sorted_items)
 
-        # Enforce that end points increase as stress increases
+        # Enforce that end points decrease as stress increases
+        check_passed = True
         max_value = -1.0e50
         for key in prd_dict.keys():
             if prd_dict[key] < max_value:
-                return False
+                check_passed = False
             max_value = prd_dict[key]
-        return True
+        
+        # Return outcome
+        # print("inc", prd_dict, check_passed)
+        return check_passed
