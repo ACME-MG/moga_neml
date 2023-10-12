@@ -33,8 +33,7 @@ api.remove_oxidation()
 api.reduce_errors("square_average")
 api.reduce_objectives("square_average")
 
-# api.get_results(1795.6, 4.659, 13.57)
+api.get_results(1819.3, 4.6555, 14.283)
 
-api.plot_experimental()
-api.set_recorder(1, 10, True)
-api.optimise(10000, 10, 5, 0.65, 0.35)
+# api.set_recorder(1, 10, True)
+# api.optimise(10000, 10, 5, 0.65, 0.35)

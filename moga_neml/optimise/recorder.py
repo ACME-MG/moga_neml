@@ -243,14 +243,8 @@ class Recorder:
             exp_data = curve.get_exp_data()
             exp_x_list, exp_y_list = process_data_dict(exp_data, x_label, y_label)
             
-            # Get predicted data
-            is_training = len(curve.get_error_list()) > 0
-            if is_training:
-                prd_data = curve.get_prd_data()
-            else:
-                prd_data = self.controller.get_prd_data(curve, *opt_params)
-
-            # Test validity
+            # Get predicted data and test validity
+            prd_data = self.controller.get_prd_data(curve, *opt_params)
             if prd_data == None:
                 return None
             prd_x_list, prd_y_list = process_data_dict(prd_data, x_label, y_label)

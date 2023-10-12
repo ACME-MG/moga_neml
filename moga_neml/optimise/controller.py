@@ -312,7 +312,7 @@ class Controller():
                 return
         
         # Add the latest prediction to the curve and return the data
-        curve.set_prd_data(prd_data)
+        # curve.set_prd_data(prd_data)
         return prd_data
     
     def reduce_errors(self, error_list_dict:dict) -> dict:
