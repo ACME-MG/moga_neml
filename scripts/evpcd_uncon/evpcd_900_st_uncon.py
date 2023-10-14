@@ -1,7 +1,7 @@
-import sys; sys.path += [".."]
+import sys; sys.path += ["../.."]
 from moga_neml.api import API
 
-api = API("temp")
+api = API("evpcd 900 st uncon", input_path="../data", output_path="../results")
 
 api.define_model("evpcd")
 
@@ -33,7 +33,6 @@ api.remove_oxidation()
 api.reduce_errors("square_average")
 api.reduce_objectives("square_average")
 
-# api.get_results(1819.3, 4.6555, 14.283)
-
-api.set_recorder(1, 10, True)
-api.optimise(10000, 10, 5, 0.65, 0.35)
+api.plot_experimental()
+api.set_recorder(10, 10, True, True)
+api.optimise(10000, 100, 50, 0.65, 0.35)
