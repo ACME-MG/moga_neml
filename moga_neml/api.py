@@ -346,7 +346,7 @@ class API:
         self.__print__(f"Initialising the driver")
         self.__controller__.set_driver(num_steps, rel_tol, abs_tol, verbose)
     
-    def set_recorder(self, interval:int=10, population:int=10, quick_view:bool=False) -> None:
+    def set_recorder(self, interval:int=10, population:int=10, quick_view:bool=True, overwrite:bool=True) -> None:
         """
         Sets the options for the results recorder
         
@@ -356,7 +356,7 @@ class API:
         * `population`: The number of solutions to be stored and shown in the results
         """
         self.__print__(f"Initialising the recorder with an interval of {interval} and population of {population}")
-        self.__recorder__ = Recorder(self.__controller__, interval, population, self.__output_path__, quick_view)
+        self.__recorder__ = Recorder(self.__controller__, interval, population, self.__output_path__, quick_view, overwrite)
 
     def group_errors(self, name:bool=True, type:bool=True, labels:bool=True):
         """

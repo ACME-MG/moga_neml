@@ -17,7 +17,7 @@ from moga_neml.optimise.controller import Controller
 class Recorder:
     
     def __init__(self, controller:Controller, interval:int, population:int,
-                 results_dir:str, quick_view:bool=False):
+                 results_dir:str, quick_view:bool=True, overwrite:bool=True):
         """
         Class for recording the results
 
@@ -27,6 +27,7 @@ class Recorder:
         * `population`:  The size of the population to maintain in the record
         * `results_dir`: The directory to store the results
         * `quick_view`:  Whether to generate a quick plot of the newest results
+        * `overwrite`:   Whether to overwrite the results or not
         """
         
         # Initialise inputs
@@ -35,6 +36,7 @@ class Recorder:
         self.results_dir = results_dir
         self.population  = population
         self.quick_view  = quick_view
+        self.overwrite   = overwrite
         
         # Initialise internal variables
         self.curve_list          = controller.get_curve_list()
@@ -99,8 +101,8 @@ class Recorder:
         self.num_gens  = num_gens
         self.init_pop  = init_pop
         self.offspring = offspring
-        hp_names = ["num_gens", "init_pop", "offspring", "crossover", "mutation"]
-        hp_values = [num_gens, init_pop, offspring, crossover, mutation]
+        hp_names       = ["num_gens", "init_pop", "offspring", "crossover", "mutation"]
+        hp_values      = [num_gens, init_pop, offspring, crossover, mutation]
         self.moga_summary = [f"{hp_names[i]} ({hp_values[i]})" for i in range(len(hp_names))]
     
     def update_optimal_solution(self, param_dict:dict, objective_dict:dict) -> None:
@@ -159,7 +161,10 @@ class Recorder:
 
             # Display output
             num_gens_completed_padded = str(round(self.num_gens_completed)).zfill(len(str(self.num_gens)))
-            file_path = f"{self.results_dir}/results_{num_gens_completed_padded} ({update_duration}s).xlsx"
+            if self.overwrite:
+                file_path = f"{self.results_dir}/results.xlsx"
+            else:
+                file_path = f"{self.results_dir}/results_{num_gens_completed_padded} ({update_duration}s).xlsx"
             self.create_record(file_path)
 
             # Display progress in console
