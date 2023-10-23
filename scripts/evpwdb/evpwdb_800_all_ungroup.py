@@ -1,9 +1,9 @@
 import sys; sys.path += ["../.."]
 from moga_neml.api import API
 
-api = API("evpwd 800 all", input_path="../data", output_path="../results")
+api = API("evpwdb 800 all ungroup", input_path="../data", output_path="../results")
 
-api.define_model("evpwd")
+api.define_model("evpwdb")
 
 api.fix_param("evp_s0",  4.7070)
 api.fix_param("evp_R",   29.900)
@@ -43,8 +43,14 @@ api.add_error("end", "strain")
 api.add_constraint("inc_end", "strain")
 api.add_constraint("dec_end", "time")
 
+api.read_data("tensile/inl/AirBase_800_D7.csv")
+api.add_error("area", "strain", "stress")
+api.add_error("end", "strain")
+api.add_error("end", "stress")
+
 api.reduce_errors("square_average")
 api.reduce_objectives("square_average")
+api.group_errors(name=True, type=False, labels=True)
 
 api.plot_experimental()
 api.set_recorder(10, 10, True, True)

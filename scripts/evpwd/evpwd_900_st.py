@@ -1,15 +1,15 @@
 import sys; sys.path += ["../.."]
 from moga_neml.api import API
 
-api = API("evpwd 900 all", input_path="../data", output_path="../results")
+api = API("evpwd 900 st", input_path="../data", output_path="../results")
 
 api.define_model("evpwd")
 
-api.fix_param("evp_s0",  17.420)
-api.fix_param("evp_R",   217.36)
-api.fix_param("evp_d",   0.33131)
-api.fix_param("evp_n",   2.0340)
-api.fix_param("evp_eta", 42591.0)
+api.fix_param("evp_s0",  17.937)
+api.fix_param("evp_R",   7.4195)
+api.fix_param("evp_d",   15.251)
+api.fix_param("evp_n",   2.4442)
+api.fix_param("evp_eta", 9880.2)
 
 api.read_data("creep/inl_1/AirBase_900_36_G22.csv")
 api.add_error("area", "time", "strain")
@@ -28,21 +28,9 @@ api.add_constraint("inc_end", "strain")
 api.add_constraint("dec_end", "time")
 
 api.read_data("creep/inl_1/AirBase_900_28_G45.csv")
-api.add_error("area", "time", "strain")
-api.add_error("end", "time")
-api.add_error("end", "strain")
-# api.add_error("damage")
-api.add_constraint("inc_end", "strain")
-api.add_constraint("dec_end", "time")
 
 api.read_data("creep/inl_1/AirBase_900_26_G59.csv")
 api.remove_oxidation()
-api.add_error("area", "time", "strain")
-api.add_error("end", "time")
-api.add_error("end", "strain")
-# api.add_error("damage")
-api.add_constraint("inc_end", "strain")
-api.add_constraint("dec_end", "time")
 
 api.reduce_errors("square_average")
 api.reduce_objectives("square_average")
