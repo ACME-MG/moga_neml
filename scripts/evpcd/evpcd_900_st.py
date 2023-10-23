@@ -26,9 +26,13 @@ api.add_constraint("inc_end", "strain")
 api.add_constraint("dec_end", "time")
 
 api.read_data("creep/inl_1/AirBase_900_28_G45.csv")
+api.add_constraint("inc_end", "strain")
+api.add_constraint("dec_end", "time")
 
 api.read_data("creep/inl_1/AirBase_900_26_G59.csv")
 api.remove_oxidation()
+api.add_constraint("inc_end", "strain")
+api.add_constraint("dec_end", "time")
 
 api.reduce_errors("square_average")
 api.reduce_objectives("square_average")
