@@ -6,7 +6,7 @@
 """
 
 # Libraries
-import math, numpy as np
+import numpy as np
 from moga_neml.models.__model__ import __Model__
 from neml import models, elasticity, surfaces, hardening, visco_flow, general_flow, damage, interpolate
 
@@ -54,31 +54,31 @@ class Model(__Model__):
         integrator    = general_flow.TVPFlowRule(elastic_model, visco_model)
         evp_model     = models.GeneralIntegrator(elastic_model, integrator, verbose=False)
         
+        # Prepare the critical points of the bilinear curve
+        x_0, x_1, x_2, y_0, y_1, y_2 = get_bilinear(c_0, c_1, t_0, t_1)
+        
         # Get work-work_rate interpolation
         try:
-            x_list, y_list = get_wc(c_0, c_1, t_0, t_1)
+            x_list, y_list = get_wc(x_0, x_1, x_2, y_0, y_1, y_2)
         except:
             return
         wd_wc = interpolate.PiecewiseLinearInterpolate(x_list, y_list)
         
         # Get n-work_rate interpolation
         try:
-            x_list, y_list = get_damage(c_0, c_1, t_0, t_1)
+            x_list, y_list = get_n(x_0, x_1, x_2, c_n, t_n)
         except:
             return
-        
-
-        # TODO temporary relation (should be interpolator too)
-        wd_n = c_n if self.get_data("type") == "creep" else t_n # tensile
+        wd_n = interpolate.PiecewiseLinearInterpolate(x_list, y_list)
         
         # Define work damage model and return
         wd_model = damage.WorkDamage(elastic_model, wd_wc, wd_n, log=True, eps=1e-40, work_scale=1e5)
         evpwd_model = damage.NEMLScalarDamagedModel_sd(elastic_model, evp_model, wd_model, verbose=False)
         return evpwd_model
 
-def get_wc(a_0:float, a_1:float, b_0:float, b_1:float):
+def get_bilinear(a_0:float, a_1:float, b_0:float, b_1:float):
     """
-    Gets the damage interpolation bilinear curve
+    Gets the interpolation bilinear points
     
     Parameters:
     * `a_0`: Gradient for left side of bilinear function
@@ -86,7 +86,7 @@ def get_wc(a_0:float, a_1:float, b_0:float, b_1:float):
     * `b_0`: Gradient for right side of bilinear function
     * `b_1`: Vertical intercept for right side of bilinear function
     
-    Returns the x and y coordinates (on the log10-log10 scale)
+    Returns the x and y coordinates of the critical points of the bilinear function
     """
     
     # Get x values
@@ -98,9 +98,44 @@ def get_wc(a_0:float, a_1:float, b_0:float, b_1:float):
     y_0 = 0                         # y intercept of left line and x axis
     y_1 = a_0 * x_1 + a_1           # y intercept of two lines
     y_2 = b_0 * x_2 + b_1           # y intercept of right line and x=3
+
+    # Return the x and y values
+    return x_0, x_1, x_2, y_0, y_1, y_2
+
+def get_wc(x_0:float, x_1:float, x_2:float, y_0:float, y_1:float, y_2:float):
+    """
+    Gets the critical work interpolation bilinear curve
     
-    # Combine, log, and return
+    Parameters:
+    * `x_0`: The x coordinate corresponding to the start of the bilinear function
+    * `x_1`: The x coordinate corresponding to the corner of the bilinear function
+    * `x_2`: The x coordinate corresponding to the end of the bilinear function
+    * `y_0`: The y coordinate corresponding to the start of the bilinear function
+    * `y_1`: The y coordinate corresponding to the corner of the bilinear function
+    * `y_2`: The y coordinate corresponding to the end of the bilinear function
+    
+    Returns the x (w_rate) and y (w_crit) values (on the log10-log10 scale)
+    """
     num_points = 16
     x_list = list(np.linspace(x_0, x_1, num_points)) + list(np.linspace(x_1, x_2, num_points))
     y_list = list(np.linspace(y_0, y_1, num_points)) + list(np.linspace(y_1, y_2, num_points))
     return x_list, y_list
+
+def get_n(x_0:float, x_1:float, x_2:float, a_n:float, b_n:float):
+    """
+    Gets the n interpolation bilinear curve
+    
+    Parameters:
+    * `x_0`: The x coordinate corresponding to the start of the bilinear function
+    * `x_1`: The x coordinate corresponding to the corner of the bilinear function
+    * `x_2`: The x coordinate corresponding to the end of the bilinear function
+    * `a_n`: The n value before the corner
+    * `b_n`: The n value after the corner
+    
+    Returns the x (w_rate) and y (n) values (on the log10-log10 scale)
+    """
+    num_points = 16
+    x_list = list(np.linspace(x_0, x_1, num_points)) + list(np.linspace(x_1, x_2, num_points))
+    y_list = [a_n] * num_points + [b_n] * num_points
+    return x_list, y_list
+    
