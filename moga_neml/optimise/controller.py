@@ -390,7 +390,7 @@ class Controller():
         # Checks all the constraints
         for constraint in self.constraint_list:
             curve_list = constraint.get_curve_list()
-            prd_data_list = [curve.get_prd_data() for curve in curve_list]
+            prd_data_list = [curve.get_prd_data() for curve in curve_list if len(curve.get_error_list()) > 0]
             if not constraint.check(prd_data_list):
                 return failed_dict
         
