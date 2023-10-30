@@ -1,7 +1,7 @@
 import sys; sys.path += ["../.."]
 from moga_neml.api import API
 
-api = API("evpcd 1000 st", input_path="../data", output_path="../results")
+api = API("evpcd f 1000 st", input_path="../data", output_path="../results")
 
 api.define_model("evpcd")
 
