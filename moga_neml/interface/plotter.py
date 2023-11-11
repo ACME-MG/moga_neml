@@ -39,8 +39,10 @@ class Plotter:
         * `size`:  The size of the font
         """
         plt.figure(figsize=(8,8))
-        plt.xlabel(f"{self.x_label} ({DATA_UNITS[self.x_label]})", fontsize=size)
-        plt.ylabel(f"{self.y_label} ({DATA_UNITS[self.y_label]})", fontsize=size)
+        x_units = f" ({DATA_UNITS[self.x_label]})" if self.x_label in DATA_UNITS.keys() else ""
+        y_units = f" ({DATA_UNITS[self.y_label]})" if self.y_label in DATA_UNITS.keys() else ""
+        plt.xlabel(f"{self.x_label}{x_units}", fontsize=size)
+        plt.ylabel(f"{self.y_label}{y_units}", fontsize=size)
         plt.title(title, fontsize=size)
     
     def log_scale(self, x_log:bool=False, y_log:bool=False):

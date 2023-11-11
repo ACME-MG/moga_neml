@@ -6,7 +6,7 @@
 """
 
 # Libraries
-import csv, inspect, os, subprocess, sys
+import csv, os, subprocess, sys
 import math, numpy as np
 
 def reduce_list(value_list:list, method:str) -> float:

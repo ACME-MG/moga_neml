@@ -6,7 +6,7 @@
 """
 
 # Libraries
-import time
+import time, numpy as np
 from moga_neml.interface.plotter import Plotter
 from moga_neml.interface.spreadsheet import Spreadsheet
 from moga_neml.maths.data import  get_thinned_list
@@ -16,27 +16,27 @@ from moga_neml.optimise.controller import Controller
 # The Recorder class
 class Recorder:
     
-    def __init__(self, controller:Controller, interval:int, population:int,
-                 results_dir:str, quick_view:bool=True, overwrite:bool=True):
+    def __init__(self, controller:Controller, interval:int, results_dir:str,
+                 overwrite:bool=False, plot_opt:bool=False, plot_loss:bool=False):
         """
         Class for recording the results
 
         Parameters:
         * `controller`:  The controller for controlling the optimisation results
         * `interval`:    The number of generations to record the results
-        * `population`:  The size of the population to maintain in the record
         * `results_dir`: The directory to store the results
-        * `quick_view`:  Whether to generate a quick plot of the newest results
-        * `overwrite`:   Whether to overwrite the results or not
+        * `overwrite`:   Whether to overwrite the results instead of creating a new file
+        * `plot_opt`:    Whether to plot the best plot after every update
+        * `plot_loss`:   Whether to plot the loss history after every update
         """
         
         # Initialise inputs
         self.controller  = controller
         self.interval    = interval
         self.results_dir = results_dir
-        self.population  = population
-        self.quick_view  = quick_view
         self.overwrite   = overwrite
+        self.plot_opt    = plot_opt
+        self.plot_loss   = plot_loss
         
         # Initialise internal variables
         self.curve_list          = controller.get_curve_list()
@@ -85,24 +85,25 @@ class Recorder:
         # Initialise optimal solution
         self.optimal_prd_data = None
         self.optimal_solution_list = []
+        self.loss_history = {"generations": [], "loss": []}
     
-    def define_hyperparameters(self, num_gens:int, init_pop:int, offspring:int,
+    def define_hyperparameters(self, num_gens:int, population:int, offspring:int,
                                crossover:float, mutation:float) -> None:
         """
         Define MOGA hyperparameters
 
         Parameters:
-        * `num_gens`:  The number of generations to run the optimiser
-        * `init_pop`:  The size of the initial population
-        * `offspring`: The size of the offspring
-        * `crossover`: The crossover probability
-        * `mutation`:  The mutation probability
+        * `num_gens`:   The number of generations to run the optimiser
+        * `population`: The size of the initial population
+        * `offspring`:  The size of the offspring
+        * `crossover`:  The crossover probability
+        * `mutation`:   The mutation probability
         """
-        self.num_gens  = num_gens
-        self.init_pop  = init_pop
-        self.offspring = offspring
-        hp_names       = ["num_gens", "init_pop", "offspring", "crossover", "mutation"]
-        hp_values      = [num_gens, init_pop, offspring, crossover, mutation]
+        self.num_gens   = num_gens
+        self.population = population
+        self.offspring  = offspring
+        hp_names        = ["num_gens", "population", "offspring", "crossover", "mutation"]
+        hp_values       = [num_gens, population, offspring, crossover, mutation]
         self.moga_summary = [f"{hp_names[i]} ({hp_values[i]})" for i in range(len(hp_names))]
     
     def update_optimal_solution(self, param_dict:dict, objective_dict:dict) -> None:
@@ -148,7 +149,7 @@ class Recorder:
 
         # Update optimisation progress
         self.num_evals_completed += 1
-        self.num_gens_completed = (self.num_evals_completed - self.init_pop) / self.offspring + 1
+        self.num_gens_completed = (self.num_evals_completed - self.population) / self.offspring + 1
         self.update_optimal_solution(param_dict, objective_dict)
         
         # Record results after X generations
@@ -162,9 +163,9 @@ class Recorder:
             # Display output
             num_gens_completed_padded = str(round(self.num_gens_completed)).zfill(len(str(self.num_gens)))
             if self.overwrite:
-                file_path = f"{self.results_dir}/results.xlsx"
+                file_path = f"{self.results_dir}/results"
             else:
-                file_path = f"{self.results_dir}/results_{num_gens_completed_padded} ({update_duration}s).xlsx"
+                file_path = f"{self.results_dir}/results_{num_gens_completed_padded} ({update_duration}s)"
             self.create_record(file_path)
 
             # Display progress in console
@@ -278,14 +279,22 @@ class Recorder:
         Returns a writer object
 
         Parameters:
-        * `file_path`:  The path to the record
+        * `file_path`:  The path to the record without the extension
         * `type_list`:  The list of types
         * `in_x_label`: The label for the x axis
         * `in_y_label`: The label for the y axis
         """
 
-        # Get summary and results
-        spreadsheet = Spreadsheet(file_path)
+        # If the results file is open, redirect to another path
+        curr_file_path = f"{file_path}.xlsx"
+        for i in range(1, 10000):
+            try:
+                spreadsheet = Spreadsheet(curr_file_path)
+                break
+            except PermissionError:
+                curr_file_path = f"{file_path} ({i}).xlsx"
+
+        # Write the data to the spreadsheet
         spreadsheet.write_data(self.get_summary_dict(), "summary")
         spreadsheet.write_data(self.get_result_dict(), "results")
 
@@ -313,7 +322,7 @@ class Recorder:
             )
         
             # Creates a quick-view plot, if desired
-            if self.quick_view:
+            if self.plot_opt:
                 plotter = Plotter(f"{self.results_dir}/opt_{type}.png", x_label, y_label)
                 plotter.prep_plot("Best Prediction")
                 for key in ["training", "validation", "prediction"]:
@@ -322,6 +331,23 @@ class Recorder:
                 plotter.save_plot()
                 plotter.clear()
         
+        # Plots the loss, if desired
+        if self.plot_loss:
+
+            # Get loss data
+            reduction_method = self.controller.get_objective_reduction_method()
+            loss = self.optimal_solution_list[-1][reduction_method]
+            self.loss_history["loss"].append(loss)
+            self.loss_history["generations"].append(self.num_gens_completed)
+
+            # Plot loss
+            plotter = Plotter(f"{self.results_dir}/opt_loss.png", "generations", "loss")
+            plotter.prep_plot("Loss history")
+            plotter.log_scale(False, True)
+            plotter.scat_plot(self.loss_history, "red", 3)
+            plotter.save_plot()
+            plotter.clear()
+
         # Close the spreadsheet
         spreadsheet.close()
 

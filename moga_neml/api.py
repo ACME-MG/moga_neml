@@ -326,7 +326,7 @@ class API:
         
         # Initialise recorder
         recorder = Recorder(self.__controller__, 0, 1, "")
-        recorder.define_hyperparameters("n/a","n/a","n/a","n/a","n/a")
+        recorder.define_hyperparameters(0, 1, 0, 0, 0)
         
         # Add parameters and create record
         error_value_dict = self.__controller__.calculate_objectives(*params, include_validation=True)
@@ -346,17 +346,21 @@ class API:
         self.__print__(f"Initialising the driver")
         self.__controller__.set_driver(num_steps, rel_tol, abs_tol, verbose)
     
-    def set_recorder(self, interval:int=10, population:int=10, quick_view:bool=True, overwrite:bool=True) -> None:
+    def set_recorder(self, interval:int=10, overwrite:bool=False, plot_opt:bool=False,
+                     plot_loss:bool=False) -> None:
         """
         Sets the options for the results recorder
         
         Parameters:
         * `interval`:   The number of generations for which the most updated results will
                         be generated
-        * `population`: The number of solutions to be stored and shown in the results
+        * `overwrite`:  Whether to overwrite the results instead of creating a new file
+        * `plot_opt`:   Whether to plot the best plot after every update
+        * `plot_loss`:  Whether to plot the loss history after every update
         """
-        self.__print__(f"Initialising the recorder with an interval of {interval} and population of {population}")
-        self.__recorder__ = Recorder(self.__controller__, interval, population, self.__output_path__, quick_view, overwrite)
+        self.__print__(f"Initialising the recorder with an interval of {interval}")
+        self.__recorder__ = Recorder(self.__controller__, interval, self.__output_path__,
+                                     overwrite, plot_opt, plot_loss)
 
     def group_errors(self, name:bool=True, type:bool=True, labels:bool=True):
         """
@@ -397,28 +401,29 @@ class API:
         self.__print__(f"Reducing the objective functions based on {method}")
         self.__controller__.set_objective_reduction_method(method)
     
-    def optimise(self, num_gens:int=10000, init_pop:int=100, offspring:int=50, crossover:float=0.65, mutation:float=0.35) -> None:
+    def optimise(self, num_gens:int=10000, population:int=100, offspring:int=50,
+                 crossover:float=0.65, mutation:float=0.35) -> None:
         """
         Prepares and conducts the optimisation
         
         Parameters:
-        * `num_gens`:  The number of generations to optimise
-        * `init_pop`:  The number of solutions in the initial population
-        * `offspring`: The number of solutions introduced after each generation
-        * `crossover`: The crossover probability; should be between 0.0 and 1.0
-        * `mutation`:  The mutation probability; should be between 0.0 and 1.0
+        * `num_gens`:   The number of generations to optimise
+        * `population`: The number of solutions in the initial population
+        * `offspring`:  The number of solutions introduced after each generation
+        * `crossover`:  The crossover probability; should be between 0.0 and 1.0
+        * `mutation`:   The mutation probability; should be between 0.0 and 1.0
         """
         
         # Display and conduct checks
-        self.__print__(f"Conducting the optimisation ({num_gens}, {init_pop}, {offspring}, {crossover}, {mutation})")
+        self.__print__(f"Conducting the optimisation ({num_gens}, {population}, {offspring}, {crossover}, {mutation})")
         self.__check_curves__("Optimisation cannot run without experimental curves!")
         self.__check_errors__("Optimisation cannot run without any objective functions!")
         self.__check_variable__(self.__recorder__, "Optimisation cannot run without initialising a recorder!")
         
         # Initialise and run the optimisation
         problem = Problem(self.__controller__, self.__recorder__)
-        self.__recorder__.define_hyperparameters(num_gens, init_pop, offspring, crossover, mutation)
-        moga = MOGA(problem, num_gens, init_pop, offspring, crossover, mutation)
+        self.__recorder__.define_hyperparameters(num_gens, population, offspring, crossover, mutation)
+        moga = MOGA(problem, num_gens, population, offspring, crossover, mutation)
         moga.optimise()
         
     def __check_curves__(self, message:str):
