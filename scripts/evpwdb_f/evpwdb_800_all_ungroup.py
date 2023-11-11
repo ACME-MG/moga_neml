@@ -54,4 +54,4 @@ api.group_errors(name=True, type=False, labels=True)
 
 api.plot_experimental()
 api.set_recorder(10, True, True, True)
-api.optimise(10000, 100, 50, 0.65, 0.35)
+api.optimise(10000, 100, 50, 0.8, 0.01)

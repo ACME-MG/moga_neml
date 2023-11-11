@@ -27,4 +27,4 @@ api.reduce_errors("square_sum")
 api.reduce_objectives("square_sum")
 
 api.set_recorder(10, 10, True)
-api.optimise(10000, 100, 50, 0.65, 0.35)
+api.optimise(10000, 100, 50, 0.8, 0.01)
