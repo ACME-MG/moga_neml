@@ -346,7 +346,7 @@ class API:
         self.__print__(f"Initialising the driver")
         self.__controller__.set_driver(num_steps, rel_tol, abs_tol, verbose)
     
-    def set_recorder(self, interval:int=10, overwrite:bool=False, plot_opt:bool=False,
+    def set_recorder(self, interval:int=10, overwrite:bool=True, plot_opt:bool=False,
                      plot_loss:bool=False) -> None:
         """
         Sets the options for the results recorder

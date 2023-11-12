@@ -17,7 +17,7 @@ from moga_neml.optimise.controller import Controller
 class Recorder:
     
     def __init__(self, controller:Controller, interval:int, results_dir:str,
-                 overwrite:bool=False, plot_opt:bool=False, plot_loss:bool=False):
+                 overwrite:bool=True, plot_opt:bool=False, plot_loss:bool=False):
         """
         Class for recording the results
 
@@ -324,7 +324,7 @@ class Recorder:
             # Creates a quick-view plot, if desired
             if self.plot_opt:
                 plotter = Plotter(f"{self.results_dir}/opt_{type}.png", x_label, y_label)
-                plotter.prep_plot("Best Prediction")
+                plotter.prep_plot("Best Prediction", size=25)
                 for key in ["training", "validation", "prediction"]:
                     if key in plot_dict.keys():
                         plotter.scat_plot(plot_dict[key], plot_dict[key]["colour"], plot_dict[key]["size"])
