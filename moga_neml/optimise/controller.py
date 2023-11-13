@@ -82,6 +82,14 @@ class Controller():
             raise ValueError("No curves have been added yet!")
         return self.curve_list[-1]
 
+    def get_all_types(self) -> list:
+        """
+        Returns a list of all the types
+        """
+        type_list = [curve.get_type() for curve in self.curve_list]
+        type_list = list(set(type_list))
+        return type_list
+
     def fix_param(self, param_name:str, param_value:float) -> None:
         """
         Fixes a parameter to a value

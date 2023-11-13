@@ -236,14 +236,12 @@ class API:
         exp_data = remove_data_after(exp_data, value, label)
         curve.set_exp_data(exp_data)
     
-    def plot_experimental(self, type:str=None, x_label:str=None, y_label:str=None,
+    def plot_experimental(self, x_label:str=None, y_label:str=None,
                           derivative:int=0, x_log:bool=False, y_log:bool=False) -> None:
         """
         Visualises the experimental data
         
         Parameters:
-        * `type`:       The type of data to be visualised (e.g., creep, tensile); if none is specified,
-                        then the type of the most recently added curve is visualised
         * `x_label`:    The measurement to be visualised on the x-axis
         * `y_label`:    The measurement to be visualised on the y-axis
         * `derivative`: The derivative order of the data; the default is 0, meaning that the
@@ -252,22 +250,21 @@ class API:
         * `y_log`:      Whether to log the y-axis
         """
         
-        # Determine type (use type of last curve if undefined) and file name
-        type = self.__controller__.get_last_curve().get_type() if type == None else type
-        file_name = f"exp_{type}_d{derivative}.png" if derivative > 0 else f"exp_{type}.png"
-        
         # Display informative message
         ordinal = lambda n: "%d%s" % (n,"tsnrhtdd"[(n//10%10!=1)*(n%10<4)*n%10::4])
         derivative_str = f" {ordinal(derivative)} derivative of the" if derivative > 0 else ""
-        self.__print__(f"Visualising the{derivative_str} {type} data at '{file_name}'")
+        self.__print__(f"Visualising the{derivative_str} experimental data")
         
-        # Check then plot the curves
-        self.__check_curves__("There are no experimental curves to plot!")
-        self.__controller__.plot_exp_curves(type, self.__get_output__(file_name), x_label,
-                                            y_label, derivative, x_log, y_log)
+        # Iterate through the curves and plot them
+        type_list = self.__controller__.get_all_types()
+        for type in type_list:
+            file_name = f"exp_{type}_d{derivative}.png" if derivative > 0 else f"exp_{type}.png"
+            file_path = self.__get_output__(file_name)
+            self.__check_curves__("There are no experimental curves to plot!")
+            self.__controller__.plot_exp_curves(type, file_path, x_label, y_label, derivative, x_log, y_log)
 
-    def plot_predicted(self, *params:tuple, type:str=None, x_label:str=None,
-                       y_label:str=None, x_log:bool=False, y_log:bool=False) -> None:
+    def plot_predicted(self, *params:tuple, x_label:str=None, y_label:str=None,
+                       x_log:bool=False, y_log:bool=False) -> None:
         """
         Visualises the predicted curves from a set of parameters
         
@@ -275,8 +272,6 @@ class API:
         * `params`:    The parameter values of the model; note that defining the parameters as
                        arguments to this function is similar to fixing the parameters via `fix_params`,
                        meaning that there will be clashes if the parameter values are defined twice.
-        * `type_list`: The types of data (e.g., creep, tensile) to be visualised; if none are
-                       specified, then all the possible data types will be plotted
         * `x_label`:   The measurement to be visualised on the x-axis
         * `y_label`:   The measurement to be visualised on the y-axis
         * `x_log`:     Whether to log the x-axis
@@ -293,13 +288,14 @@ class API:
         if len(params) != len(param_name_list):
             raise ValueError(f"Could not plot because the number of inputs ({len(params)}) do not match the number of parameters ({len(param_name_list)})!")
         
-        # Get type and plot prediction
-        type = self.__controller__.get_last_curve().get_type() if type == None else type
-        file_path = self.__get_output__(f"prd_{type}.png")
-        self.__controller__.plot_prd_curves(*params, type=type, file_path=file_path, x_label=x_label,
-                                            y_label=y_label, x_log=x_log, y_log=y_log)
+        # Iterate through types and plot predictions
+        type_list = self.__controller__.get_all_types()
+        for type in type_list:
+            file_path = self.__get_output__(f"prd_{type}.png")
+            self.__controller__.plot_prd_curves(*params, type=type, file_path=file_path, x_label=x_label,
+                                                y_label=y_label, x_log=x_log, y_log=y_log)
 
-    def get_results(self, *params:tuple, type_list:list=None, x_label:str=None, y_label:str=None) -> None:
+    def get_results(self, *params:tuple, x_label:str=None, y_label:str=None) -> None:
         """
         Gets the optimisation, parameter, and error summary from a set of parameters
         
@@ -307,8 +303,6 @@ class API:
         * `params`:    The parameter values of the model; note that defining the parameters as
                        arguments to this function is similar to fixing the parameters via `fix_params`,
                        meaning that there will be clashes if the parameter values are defined twice.
-        * `type_list`: The types of data (e.g., creep, tensile) to be visualised; if none are
-                       specified, then all the possible data types will be plotted
         * `x_label`:   The measurement to be visualised on the x-axis
         * `y_label`:   The measurement to be visualised on the y-axis
         """
@@ -331,7 +325,7 @@ class API:
         # Add parameters and create record
         error_value_dict = self.__controller__.calculate_objectives(*params, include_validation=True)
         recorder.update_optimal_solution(param_value_dict, error_value_dict)
-        recorder.create_record(self.__get_output__("results.xlsx"), type_list, x_label, y_label)
+        recorder.create_record(self.__get_output__("results"), x_label, y_label)
     
     def set_driver(self, num_steps:int=1000, rel_tol:float=1e-6, abs_tol:float=1e-10, verbose:bool=False) -> None:
         """

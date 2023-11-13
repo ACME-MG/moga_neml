@@ -273,14 +273,12 @@ class Recorder:
         plot_dict["prediction"] = {x_label: all_x , y_label: all_y, "size": 2, "colour": "red"}
         return plot_dict
 
-    def create_record(self, file_path:str, type_list:list=None, in_x_label:str=None,
-                      in_y_label:str=None) -> None:
+    def create_record(self, file_path:str, in_x_label:str=None, in_y_label:str=None) -> None:
         """
         Returns a writer object
 
         Parameters:
         * `file_path`:  The path to the record without the extension
-        * `type_list`:  The list of types
         * `in_x_label`: The label for the x axis
         * `in_y_label`: The label for the y axis
         """
@@ -298,11 +296,8 @@ class Recorder:
         spreadsheet.write_data(self.get_summary_dict(), "summary")
         spreadsheet.write_data(self.get_result_dict(), "results")
 
-        # Gets all the types if necessary
-        all_types = list(set([curve.get_type() for curve in self.curve_list]))
-        type_list = all_types if type_list == None else type_list
-
         # Get plots
+        type_list = self.controller.get_all_types()
         for type in type_list:
             
             # Gets the data
