@@ -1,7 +1,7 @@
 import sys; sys.path += ["../.."]
 from moga_neml.api import API
 
-api = API("evpwdb f 900 all ungrouped", input_path="../data", output_path="../results")
+api = API("evpwdb f 900 all damage", input_path="../data", output_path="../results")
 
 api.define_model("evpwdb")
 
@@ -52,7 +52,7 @@ api.add_error("damage", weight=0.1)
 
 api.reduce_errors("square_average")
 api.reduce_objectives("square_average")
-api.group_errors(name=True, type=False, labels=False)
+# api.group_errors(name=True, type=False, labels=False)
 
 api.plot_experimental()
 api.set_recorder(10, True, True, True)
