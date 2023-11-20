@@ -22,6 +22,7 @@ api.remove_damage(0.1, 0.7)
 api.read_data("tensile/inl/AirBase_900_D10.csv")
 api.remove_manual("strain", 0.3)
 api.add_error("area", "strain", "stress", weight=0.5)
+api.add_error("yield")
 
 api.reduce_errors("square_average")
 api.reduce_objectives("square_average")

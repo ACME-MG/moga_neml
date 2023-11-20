@@ -1,12 +1,5 @@
 .vscode
 
-generator/__pycache__
-moga_neml/__pycache__
-moga_neml/interface/__pycache__
-moga_neml/maths/__pycache__
-moga_neml/optimise/__pycache__
-moga_neml/constraints/__pycache__
-moga_neml/errors/__pycache__
-moga_neml/models/__pycache__
-scripts/results
-scripts/nohup.out
+**/nohup.out
+**/__pycache__/
+**/results/
