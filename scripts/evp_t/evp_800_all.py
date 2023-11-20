@@ -23,7 +23,7 @@ api.add_error("area", "time", "strain")
 
 api.read_data("tensile/inl/AirBase_800_D7.csv")
 api.remove_manual("strain", 0.3)
-api.add_error("yield")
+api.add_error("yield", yield_stress=291)
 api.add_error("area", "strain", "stress")
 
 api.reduce_errors("square_average")

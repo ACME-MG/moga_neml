@@ -11,7 +11,6 @@ import scipy.interpolate as inter
 import scipy.optimize as opt
 from moga_neml.errors.__error__ import __Error__
 from moga_neml.optimise.controller import BIG_VALUE
-from moga_neml.maths.interpolator import Interpolator
 
 # The Error class
 class Error(__Error__):
@@ -32,8 +31,11 @@ class Error(__Error__):
         
         # Get yield point manually or automatically, based on user input
         if yield_stress != None:
-            interpolator = Interpolator(exp_data["stress"], exp_data["strain"])
-            yield_strain = interpolator.evaluate([yield_stress])[0]
+            idx = np.searchsorted(exp_data["stress"], yield_stress)
+            idx = np.clip(idx, 1, len(exp_data["stress"])-1)
+            x1, x2 = exp_data["strain"][idx - 1], exp_data["strain"][idx]
+            y1, y2 = exp_data["stress"][idx - 1], exp_data["stress"][idx]
+            yield_strain = x1 + (x2 - x1) * (yield_stress - y1) / (y2 - y1)
             self.exp_yield = (yield_strain, yield_stress)
         else:
             self.exp_yield = self.get_yield(exp_data["strain"], exp_data["stress"])

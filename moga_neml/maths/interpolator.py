@@ -22,10 +22,10 @@ class Interpolator:
         * `resolution`: The resolution used for the interpolation
         * `smooth`:     Whether to smooth the interpolation
         """
-        self.thin_x_list = get_thinned_list(x_list, resolution)
-        self.thin_y_list = get_thinned_list(y_list, resolution)
+        thin_x_list = get_thinned_list(x_list, resolution)
+        thin_y_list = get_thinned_list(y_list, resolution)
         smooth_amount = resolution if smooth else 0
-        self.spl = splrep(self.thin_x_list, self.thin_y_list, s=smooth_amount)
+        self.spl = splrep(thin_x_list, thin_y_list, s=smooth_amount)
     
     def differentiate(self) -> None:
         """
