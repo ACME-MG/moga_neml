@@ -16,6 +16,7 @@ from moga_neml.maths.data import remove_data_after
 from moga_neml.maths.derivative import remove_after_sp
 from moga_neml.maths.experiment import DATA_UNITS
 from moga_neml.maths.general import safe_mkdir
+from moga_neml.interface.plotter import ALL_COLOURS
 
 # API Class
 class API:
@@ -263,13 +264,13 @@ class API:
             self.__check_curves__("There are no experimental curves to plot!")
             self.__controller__.plot_exp_curves(type, file_path, x_label, y_label, derivative, x_log, y_log)
 
-    def plot_predicted(self, *params:tuple, x_label:str=None, y_label:str=None,
+    def plot_prediction(self, *params:tuple, x_label:str=None, y_label:str=None,
                        x_log:bool=False, y_log:bool=False) -> None:
         """
         Visualises the predicted curves from a set of parameters
         
         Parameters:
-        * `params`:    The parameter values of the model; note that defining the parameters as
+        * `params`:    The parameter values for the model; note that defining the parameters as
                        arguments to this function is similar to fixing the parameters via `fix_params`,
                        meaning that there will be clashes if the parameter values are defined twice.
         * `x_label`:   The measurement to be visualised on the x-axis
@@ -283,10 +284,11 @@ class API:
         self.__print__("Plotting the curves for {}".format(str(param_str).replace("'", "")))
         self.__check_curves__("There are no experimental curves to plot!")
 
-        # Get parameters and check input
+        # Check parameters
         param_name_list = list(self.__controller__.get_unfix_param_dict().keys())
         if len(params) != len(param_name_list):
-            raise ValueError(f"Could not plot because the number of inputs ({len(params)}) do not match the number of parameters ({len(param_name_list)})!")
+            raise ValueError(f"Could not plot because the number of inputs ({len(params)}) do not match\
+                             the number of parameters ({len(param_name_list)})!")
         
         # Iterate through types and plot predictions
         type_list = self.__controller__.get_all_types()
@@ -294,6 +296,60 @@ class API:
             file_path = self.__get_output__(f"prd_{type}.png")
             self.__controller__.plot_prd_curves(*params, type=type, file_path=file_path, x_label=x_label,
                                                 y_label=y_label, x_log=x_log, y_log=y_log)
+        
+    def plot_predictions(self, params_list:list, colour_list:list=None, clip:bool=False,
+                         x_label:str=None, y_label:str=None, limits_list:list=None) -> None:
+        """
+        Visualises the predicted curves from a set of parameters
+        
+        Parameters:
+        * `params_list`:   A list of parameter values of the model; note that defining the parameters as
+                           arguments to this function is similar to fixing the parameters via `fix_params`,
+                           meaning that there will be clashes if the parameter values are defined twice.
+        * `colour_list`:   A list of colours to attach to each set of parameter values 
+        * `clip`:          Whether to clip the predictions so they end at the same x position as the
+        * `x_label`:       The measurement to be visualised on the x-axis
+        * `y_label`:       The measurement to be visualised on the y-axis
+                           experimental data
+        * `limits_list`:   The lower and upper bound of the plot for the scales; list of tuples
+        """
+
+        # Print out message
+        self.__print__(f"Plotting the predictions for {len(params_list)} set of parameters")
+        self.__check_curves__("There are no experimental curves to plot!")
+
+        # Check parameters
+        if len(params_list) == 0:
+            raise ValueError("Could not plot because no parameters have been defined!")
+        param_name_list = list(self.__controller__.get_unfix_param_dict().keys())
+        for params in params_list:
+            if len(params) != len(param_name_list):
+                raise ValueError(f"Could not plot because the number of inputs ({len(params)}) do not match\
+                                the number of parameters ({len(param_name_list)})!")
+
+        # Check colours
+        if colour_list != None:
+            if len(colour_list) != len(params_list):
+                raise ValueError("Could not plot because the number of colours do not match the number of parameters!")
+            for colour in colour_list:
+                if not colour in ALL_COLOURS:
+                    raise ValueError(f"The colour, '{colour}', is not available")
+
+        # Check upper limits for scales
+        if limits_list != None:
+            for limits in limits_list:
+                if len(limits) != 2 or limits[0] > limits[1]:
+                    raise ValueError("Could not plot because the upper limit is incorrectly defined!")
+
+        # Iterate through types and plot predictions
+        type_list = self.__controller__.get_all_types()
+        for i in range(len(type_list)):
+            file_path = self.__get_output__(f"prd_{type_list[i]}.png")
+            x_limits, y_limits = limits_list[i] if limits_list else None, None
+            self.__controller__.plot_multiple_prd_curves(params_list, colour_list=colour_list, clip=clip,
+                                                         type=type_list[i], file_path=file_path,
+                                                         x_label=x_label, y_label=y_label,
+                                                         x_limits=x_limits, y_limits=y_limits)
 
     def get_results(self, *params:tuple, x_label:str=None, y_label:str=None) -> None:
         """
@@ -419,7 +475,7 @@ class API:
         self.__recorder__.define_hyperparameters(num_gens, population, offspring, crossover, mutation)
         moga = MOGA(problem, num_gens, population, offspring, crossover, mutation)
         moga.optimise()
-        
+
     def __check_curves__(self, message:str):
         """
         Checks the experimental data

@@ -438,7 +438,7 @@ class Controller():
         # Plot the data, save, and clear for next plot
         for exp_data in exp_data_list:
             plotter.scat_plot(exp_data)
-        plotter.log_scale(x_log, y_log)
+        plotter.set_log_scale(x_log, y_log)
         plotter.save_plot()
         plotter.clear()
 
@@ -475,6 +475,72 @@ class Controller():
             plotter.line_plot(prd_data)
         
         # Format and save
-        plotter.log_scale(x_log, y_log)
+        plotter.set_log_scale(x_log, y_log)
+        plotter.save_plot()
+        plotter.clear()
+
+    def plot_multiple_prd_curves(self, params_list:list, colour_list:list, clip:bool, type:str,
+                                 file_path:str="",  x_label:str=None, y_label:str=None,
+                                 x_limits:float=None, y_limits:float=None) -> None:
+        """
+        Visualises the predicted curves from a set of parameters
+        
+        Parameters:
+        * `params_list`: A list of parameter values of the model; note that defining the parameters as
+                         arguments to this function is similar to fixing the parameters via `fix_params`,
+                         meaning that there will be clashes if the parameter values are defined twice.
+        * `colour_list`: A list of colours to attach to each set of parameter values
+        * `clip`:        Whether to clip the predictions so they end at the same x position as the
+        * `type:`        The type of the experimental data
+        * `file_path`:   The path to plot the experimental curves
+        * `x_label`:     The measurement to be visualised on the x-axis
+        * `y_label`:     The measurement to be visualised on the y-axis
+                         experimental data
+        * `x_limits`:    The upper and lower bounds of the plot for the x scale
+        * `y_limits`:    The upper and lower bounds bound of the plot for the y scale
+        """
+
+        # Initialise plotter
+        x_label = DATA_FIELD_PLOT_MAP[type]["x"] if x_label == None else x_label
+        y_label = DATA_FIELD_PLOT_MAP[type]["y"] if y_label == None else y_label
+        plotter = Plotter(file_path, x_label, y_label)
+        plotter.prep_plot("Predicted")
+        plotter.set_limits(x_limits, y_limits)
+
+        # Plot experimental data
+        for curve in self.curve_list:
+            if curve.get_type() != type:
+                continue
+            exp_data = curve.get_exp_data()
+            plotter.scat_plot(exp_data)
+
+        # Iterate through the parameters
+        for i in range(len(params_list)):
+
+            # Iterate through the curves            
+            for curve in self.curve_list:
+                if curve.get_type() != type:
+                    continue
+
+                # Get prediction
+                prd_data = self.get_prd_data(curve, *params_list[i])
+                if prd_data == None:
+                    raise ValueError("The model is unable to run with the parameters!")
+                
+                # Clip the prediction if necessary
+                if clip:
+                    max_x = max(curve.get_exp_data()[x_label])
+                    x_list = [x_value for x_value in prd_data[x_label] if x_value <= max_x]
+                    prd_data[y_label] = [prd_data[y_label][i] for i in range(len(prd_data[x_label]))
+                                         if prd_data[x_label][i] <= max_x]
+                    prd_data[x_label] = x_list
+
+                # Determine whether to colour it and plot
+                if colour_list != None:
+                    plotter.line_plot(prd_data, colour_list[i])
+                else:
+                    plotter.line_plot(prd_data)
+
+        # Save the plot
         plotter.save_plot()
         plotter.clear()

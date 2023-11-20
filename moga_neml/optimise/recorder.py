@@ -338,7 +338,7 @@ class Recorder:
             # Plot loss
             plotter = Plotter(f"{self.results_dir}/opt_loss.png", "generations", "loss")
             plotter.prep_plot("Loss history")
-            plotter.log_scale(False, True)
+            plotter.set_log_scale(False, True)
             plotter.scat_plot(self.loss_history, "red", 3)
             plotter.save_plot()
             plotter.clear()

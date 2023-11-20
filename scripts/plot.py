@@ -25,5 +25,11 @@ api.remove_manual("strain", 0.3)
 # api.remove_damage(0.1, 0.7)
 # api.read_data("tensile/inl/AirBase_900_D10.csv")
 
-api.plot_predicted(9.8172, 101.47, 1.4057, 4.6857, 1595.7)
-# api.plot_predicted(11.695, 101.28, 1.1411, 4.6827, 1595.5)
+api.plot_predictions(
+    [[9.8172, 101.47, 1.4057, 4.6857, 1595.7],
+    [11.695, 101.28, 1.1411, 4.6827, 1595.5]],
+    colour_list=["red", "blue"],
+    clip=True,
+    limits_list=[(0, 5000), (0, 0.7)]
+)
+# api.plot_prediction(11.695, 101.28, 1.1411, 4.6827, 1595.5)
