@@ -10,7 +10,7 @@ from copy import deepcopy
 from moga_neml.constraints.__constraint__ import __Constraint__, create_constraint
 from moga_neml.models.__model__ import __Model__, create_model
 from moga_neml.errors.__error__ import __Error__
-from moga_neml.interface.plotter import Plotter
+from moga_neml.interface.plotter import Plotter, EXP_DATA_COLOUR
 from moga_neml.optimise.driver import Driver
 from moga_neml.optimise.curve import Curve
 from moga_neml.maths.derivative import differentiate_curve
@@ -506,13 +506,13 @@ class Controller():
         plotter = Plotter(file_path, x_label, y_label)
         plotter.prep_plot("Predicted")
         plotter.set_limits(x_limits, y_limits)
-
+        
         # Plot experimental data
         for curve in self.curve_list:
             if curve.get_type() != type:
                 continue
             exp_data = curve.get_exp_data()
-            plotter.scat_plot(exp_data)
+            plotter.scat_plot(exp_data, size=7)
 
         # Iterate through the parameters
         for i in range(len(params_list)):
@@ -525,7 +525,7 @@ class Controller():
                 # Get prediction
                 prd_data = self.get_prd_data(curve, *params_list[i])
                 if prd_data == None:
-                    raise ValueError("The model is unable to run with the parameters!")
+                    raise ValueError(f"The model is unable to run with the parameters, {params_list[i]}!")
                 
                 # Clip the prediction if necessary
                 if clip:
@@ -539,8 +539,14 @@ class Controller():
                 if colour_list != None:
                     plotter.line_plot(prd_data, colour_list[i])
                 else:
-                    plotter.line_plot(prd_data)
+                    plotter.line_plot(prd_data, priority=i+1)
 
-        # Save the plot
+        # Format and save the plot
+        plotter.define_legend(
+            colour_list = [EXP_DATA_COLOUR] + colour_list,
+            label_list  = ["Exp. data"] + [f"Opt. {i+1}" for i in range(len(params_list))],
+            width_list  = [7] + [1 for _ in range(len(params_list))],
+            type_list   = ["scatter"] + ["line" for _ in range(len(params_list))],
+        )
         plotter.save_plot()
         plotter.clear()

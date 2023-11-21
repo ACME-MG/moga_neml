@@ -311,7 +311,8 @@ class API:
         * `x_label`:       The measurement to be visualised on the x-axis
         * `y_label`:       The measurement to be visualised on the y-axis
                            experimental data
-        * `limits_list`:   The lower and upper bound of the plot for the scales; list of tuples
+        * `limits_list`:   The lower and upper bound of the plot for the scales; list of tuples of tuples; 
+                           e.g., [((0,1), (0,2)), ((-1,3), (-2,4))]
         """
 
         # Print out message
@@ -336,16 +337,20 @@ class API:
                     raise ValueError(f"The colour, '{colour}', is not available")
 
         # Check upper limits for scales
+        type_list = self.__controller__.get_all_types()
         if limits_list != None:
+            if len(limits_list) != len(type_list):
+                raise ValueError("Could not plot because the number of limits do not match the number of types!")
             for limits in limits_list:
-                if len(limits) != 2 or limits[0] > limits[1]:
-                    raise ValueError("Could not plot because the upper limit is incorrectly defined!")
+                if len(limits) != 2 or limits[0][0] > limits[0][1] or limits[1][0] > limits[1][1]:
+                    raise ValueError("Could not plot because the limits are incorrectly defined!")
 
         # Iterate through types and plot predictions
-        type_list = self.__controller__.get_all_types()
         for i in range(len(type_list)):
             file_path = self.__get_output__(f"prd_{type_list[i]}.png")
-            x_limits, y_limits = limits_list[i] if limits_list else None, None
+            x_limits, y_limits = None, None
+            if limits_list != None:
+                x_limits, y_limits = limits_list[i][0], limits_list[i][1]
             self.__controller__.plot_multiple_prd_curves(params_list, colour_list=colour_list, clip=clip,
                                                          type=type_list[i], file_path=file_path,
                                                          x_label=x_label, y_label=y_label,
