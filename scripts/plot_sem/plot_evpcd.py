@@ -8,28 +8,29 @@ api.read_data("creep/inl_1/AirBase_800_80_G25.csv")
 api.read_data("creep/inl_1/AirBase_800_70_G44.csv")
 api.read_data("creep/inl_1/AirBase_800_65_G33.csv")
 api.read_data("creep/inl_1/AirBase_800_60_G32.csv")
-# api.read_data("tensile/inl/AirBase_800_D7.csv")
-# api.remove_manual("strain", 0.3)
+api.read_data("tensile/inl/AirBase_800_D7.csv")
 
 # api.read_data("creep/inl_1/AirBase_900_36_G22.csv")
-# api.remove_damage(0.1, 0.7)
 # api.read_data("creep/inl_1/AirBase_900_31_G50.csv")
-# api.remove_damage(0.1, 0.7)
 # api.read_data("creep/inl_1/AirBase_900_28_G45.csv")
-# api.remove_damage(0.1, 0.7)
 # api.read_data("creep/inl_1/AirBase_900_26_G59.csv")
-# api.remove_damage(0.1, 0.7)
+# api.remove_oxidation()
 # api.read_data("tensile/inl/AirBase_900_D10.csv")
 
-params_list = [
-    [4.707, 29.9, 47.707, 3.6626, 3159.4, 2169, 5.6903, 26.372],
-    [14.535, 347.93, 0.33581, 3.8755, 3156.8, 2603.4, 4.9169, 4.2123],
-    [16.044, 34.763, 20.428, 3.4181, 3359, 1810.4, 5.6613, 8.1353],
-    [12.929, 37.18, 29.643, 2.9072, 7297.7, 1732, 5.777, 9.6077],
-    [18.531, 28.649, 24.827, 3.3282, 3890.9, 1867, 5.661, 10.398],
-]
+params_str = """
+14.535	347.93	0.33581	3.8755	3156.8	2603.4	4.9169	4.2123
+"""
+# 17.42	217.36	0.33131	2.034	42591	2632.8	4.0648	5.8117
+params_list = [list(map(float, line.split())) for line in params_str.strip().split("\n")]
 
 api.plot_predictions(
     params_list = params_list,
-    limits_list=[((0, 8000), (0, 0.7))],
+    limits_dict = {"creep": ((0, 6000), (0, 0.8)), "tensile": ((0, 0.7), (0, 400))},  # 800
+    # limits_dict = {"creep": ((0, 7000), (0, 0.35)), "tensile": ((0, 0.8), (0, 250))}, # 900
+)
+
+api.plot_distribution(
+    params_list = params_list,
+    # limits_dict = [(-5, 50), (10, 50), (-10)],
+    log=True,
 )

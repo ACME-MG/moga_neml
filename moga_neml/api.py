@@ -293,7 +293,7 @@ class API:
                                                 y_label=y_label, x_log=x_log, y_log=y_log)
 
     def plot_predictions(self, params_list:list, clip:bool=False, x_label:str=None, y_label:str=None,
-                         limits_list:list=None) -> None:
+                         limits_dict:dict=None) -> None:
         """
         Visualises the predicted curves from a set of parameters
         
@@ -306,8 +306,8 @@ class API:
         * `x_label`:       The measurement to be visualised on the x-axis
         * `y_label`:       The measurement to be visualised on the y-axis
                            experimental data
-        * `limits_list`:   The lower and upper bound of the plot for the scales; list of tuples of tuples; 
-                           e.g., [((0,1), (0,2)), ((-1,3), (-2,4))]
+        * `limits_dict`:   The lower and upper bound of the plot for the scales; dictionary of tuples of
+                           tuples; e.g., {"tensile": ((0, 1), (2, 3)), "creep": ((3, 2), (0,3))}
         """
 
         # Print out message and check
@@ -317,10 +317,10 @@ class API:
 
         # Check lower and upper limits for scales
         type_list = self.__controller__.get_all_types()
-        if limits_list != None:
-            if len(limits_list) != len(type_list):
+        if limits_dict != None:
+            if len(limits_dict.keys()) != len(type_list):
                 raise ValueError("Could not plot because the number of limits do not match the number of types!")
-            for limits in limits_list:
+            for limits in limits_dict.values():
                 if len(limits) != 2 or limits[0][0] > limits[0][1] or limits[1][0] > limits[1][1]:
                     raise ValueError("Could not plot because the limits are incorrectly defined!")
 
@@ -328,13 +328,14 @@ class API:
         for i in range(len(type_list)):
             file_path = self.__get_output__(f"prds_{type_list[i]}.png")
             x_limits, y_limits = None, None
-            if limits_list != None:
-                x_limits, y_limits = limits_list[i][0], limits_list[i][1]
+            if limits_dict != None:
+                x_limits = limits_dict[type_list[i]][0]
+                y_limits = limits_dict[type_list[i]][1]
             self.__controller__.plot_multiple_prd_curves(params_list, clip=clip, type=type_list[i],
                                                          file_path=file_path, x_label=x_label, y_label=y_label,
                                                          x_limits=x_limits, y_limits=y_limits)
 
-    def plot_distribution(self, params_list:list, limits_list:list=None, log:bool=False) -> None:
+    def plot_distribution(self, params_list:list, limits_dict:dict=None, log:bool=False) -> None:
         """
         Visualises the distribution of parameters
         
@@ -342,7 +343,7 @@ class API:
         * `params_list`:   A list of parameter sets for the model; note that defining the parameters as
                            arguments to this function is similar to fixing the parameters via `fix_params`,
                            meaning that there will be clashes if the parameter values are defined twice.
-        * `limits_list`:   A list of tuples (i.e., (lower, upper)) defining the scale for each parameter
+        * `limits_dict`:   A dictionary of tuples (i.e., (lower, upper)) defining the scale for each parameter
         * `log`:           Whether to apply log scale or not
         """
 
@@ -352,16 +353,18 @@ class API:
         self.__check_params_list__(params_list)
         
         # Check lower and upper limits for scales
-        if limits_list != None:
-            if len(limits_list) != len(params_list[0]):
-                raise ValueError("Could not plot because the number of limits do not match the number of parameters!")
-            for limits in limits_list:
+        if limits_dict != None:
+            input_params = list(limits_dict.keys())
+            model_params = list(self.__controller__.get_unfix_param_dict().keys())
+            if not all(x in input_params for x in model_params) or not all(x in model_params for x in input_params):
+                raise ValueError("Could not plot because the defined parameters do not match the model's parameters!")
+            for limits in limits_dict.values():
                 if len(limits) != 2 or limits[0] > limits[1]:
                     raise ValueError("Could not plot because the limits are incorrectly defined!")
         
         # Plot the boxplots
         file_path = self.__get_output__(f"box_plot.png")
-        self.__controller__.plot_distribution(params_list, file_path, limits_list, log)
+        self.__controller__.plot_distribution(params_list, file_path, limits_dict, log)
 
     def get_results(self, *params:tuple, x_label:str=None, y_label:str=None) -> None:
         """

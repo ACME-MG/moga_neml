@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 def plot_boxplots(data_list_list:list, file_path:str, title:str, colour_list:list=None,
-                  limits_list:list=None, log:bool=False) -> None:
+                  limits_dict:list=None, log:bool=False) -> None:
     """
     Creates multiple boxplots
 
@@ -19,7 +19,7 @@ def plot_boxplots(data_list_list:list, file_path:str, title:str, colour_list:lis
     * `file_path`:      The path to save the boxplots
     * `title`:          The title on top of the boxplots
     * `colour_list`:    A list of colours
-    * `limits_list`:    A list of tuples (i.e., (lower, upper)) defining the scale of the boxplots
+    * `limits_dict`:    A dictionary of tuples (i.e., (lower, upper)) defining the scale of the boxplots
     * `log`:            Whether to apply log scale or not
     """
 
@@ -40,8 +40,9 @@ def plot_boxplots(data_list_list:list, file_path:str, title:str, colour_list:lis
         sns.stripplot(x=x_list, y=data_list, ax=axis, color="black", alpha=0.5)
 
         # Apply limits and log if desired
-        if limits_list != None:
-            axis.set_ylim(limits_list[i])
+        if limits_dict != None:
+            limits = list(limits_dict.values())[i]
+            axis.set_ylim(limits)
         if log:
             axis.set_yscale("log")
 

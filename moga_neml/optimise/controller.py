@@ -463,7 +463,7 @@ class Controller():
         x_label = DATA_FIELD_PLOT_MAP[type]["x"] if x_label == None else x_label
         y_label = DATA_FIELD_PLOT_MAP[type]["y"] if y_label == None else y_label
         plotter = Plotter(file_path, x_label, y_label)
-        plotter.prep_plot("Experimental vs Prediction")
+        plotter.prep_plot(f"Experimental vs Prediction ({type.capitalize()})")
         
         # Plot experimental and predicted data
         for curve in self.curve_list:
@@ -504,7 +504,7 @@ class Controller():
         x_label = DATA_FIELD_PLOT_MAP[type]["x"] if x_label == None else x_label
         y_label = DATA_FIELD_PLOT_MAP[type]["y"] if y_label == None else y_label
         plotter = Plotter(file_path, x_label, y_label)
-        plotter.prep_plot("Experimental vs Prediction")
+        plotter.prep_plot(f"Experimental vs Prediction ({type.capitalize()})")
         plotter.set_limits(x_limits, y_limits)
         
         # Plot experimental data
@@ -548,7 +548,7 @@ class Controller():
         plotter.save_plot()
         plotter.clear()
 
-    def plot_distribution(self, params_list:list, file_path:str, limit_list:list=None, log:bool=False) -> None:
+    def plot_distribution(self, params_list:list, file_path:str, limits_dict:dict=None, log:bool=False) -> None:
         """
         Visualises the distribution of parameters
         
@@ -557,8 +557,8 @@ class Controller():
                            arguments to this function is similar to fixing the parameters via `fix_params`,
                            meaning that there will be clashes if the parameter values are defined twice.
         * `file_path`:     The path to save the boxplots
-        * `limit_list`:    A list of tuples (i.e., (lower, upper)) defining the scale of the boxplots
+        * `limits_dict`:   A dictionary of tuples (i.e., (lower, upper)) defining the scale for each parameter
         * `log`:           Whether to apply log scale or not
         """
         params_list = transpose(params_list)
-        plot_boxplots(params_list, file_path, "Distribution of parameters", ALL_COLOURS, limit_list, log)
+        plot_boxplots(params_list, file_path, "Distribution of parameters", ALL_COLOURS, limits_dict, log)
