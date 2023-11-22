@@ -283,27 +283,22 @@ class API:
         param_str = ["{:0.4}".format(float(param)) for param in params]
         self.__print__("Plotting the curves for {}".format(str(param_str).replace("'", "")))
         self.__check_curves__("There are no experimental curves to plot!")
+        self.__check_params__(params)
 
-        # Check parameters
-        param_name_list = list(self.__controller__.get_unfix_param_dict().keys())
-        if len(params) != len(param_name_list):
-            raise ValueError(f"Could not plot because the number of inputs ({len(params)}) do not match\
-                             the number of parameters ({len(param_name_list)})!")
-        
         # Iterate through types and plot predictions
         type_list = self.__controller__.get_all_types()
         for type in type_list:
             file_path = self.__get_output__(f"prd_{type}.png")
             self.__controller__.plot_prd_curves(*params, type=type, file_path=file_path, x_label=x_label,
                                                 y_label=y_label, x_log=x_log, y_log=y_log)
-        
-    def plot_predictions(self, params_list:list, colour_list:list=None, clip:bool=False,
-                         x_label:str=None, y_label:str=None, limits_list:list=None) -> None:
+
+    def plot_predictions(self, params_list:list, clip:bool=False, x_label:str=None, y_label:str=None,
+                         limits_list:list=None) -> None:
         """
         Visualises the predicted curves from a set of parameters
         
         Parameters:
-        * `params_list`:   A list of parameter values of the model; note that defining the parameters as
+        * `params_list`:   A list of parameter sets for the model; note that defining the parameters as
                            arguments to this function is similar to fixing the parameters via `fix_params`,
                            meaning that there will be clashes if the parameter values are defined twice.
         * `colour_list`:   A list of colours to attach to each set of parameter values 
@@ -315,28 +310,12 @@ class API:
                            e.g., [((0,1), (0,2)), ((-1,3), (-2,4))]
         """
 
-        # Print out message
-        self.__print__(f"Plotting the predictions for {len(params_list)} set of parameters")
+        # Print out message and check
+        self.__print__(f"Plotting the predictions for {len(params_list)} sets of parameters")
         self.__check_curves__("There are no experimental curves to plot!")
+        self.__check_params_list__(params_list)
 
-        # Check parameters
-        if len(params_list) == 0:
-            raise ValueError("Could not plot because no parameters have been defined!")
-        param_name_list = list(self.__controller__.get_unfix_param_dict().keys())
-        for params in params_list:
-            if len(params) != len(param_name_list):
-                raise ValueError(f"Could not plot because the number of inputs ({len(params)}) do not match\
-                                the number of parameters ({len(param_name_list)})!")
-
-        # Check colours
-        if colour_list != None:
-            if len(colour_list) != len(params_list):
-                raise ValueError("Could not plot because the number of colours do not match the number of parameters!")
-            for colour in colour_list:
-                if not colour in ALL_COLOURS:
-                    raise ValueError(f"The colour, '{colour}', is not available")
-
-        # Check upper limits for scales
+        # Check lower and upper limits for scales
         type_list = self.__controller__.get_all_types()
         if limits_list != None:
             if len(limits_list) != len(type_list):
@@ -347,14 +326,42 @@ class API:
 
         # Iterate through types and plot predictions
         for i in range(len(type_list)):
-            file_path = self.__get_output__(f"prd_{type_list[i]}.png")
+            file_path = self.__get_output__(f"prds_{type_list[i]}.png")
             x_limits, y_limits = None, None
             if limits_list != None:
                 x_limits, y_limits = limits_list[i][0], limits_list[i][1]
-            self.__controller__.plot_multiple_prd_curves(params_list, colour_list=colour_list, clip=clip,
-                                                         type=type_list[i], file_path=file_path,
-                                                         x_label=x_label, y_label=y_label,
+            self.__controller__.plot_multiple_prd_curves(params_list, clip=clip, type=type_list[i],
+                                                         file_path=file_path, x_label=x_label, y_label=y_label,
                                                          x_limits=x_limits, y_limits=y_limits)
+
+    def plot_distribution(self, params_list:list, limits_list:list=None, log:bool=False) -> None:
+        """
+        Visualises the distribution of parameters
+        
+        Parameters:
+        * `params_list`:   A list of parameter sets for the model; note that defining the parameters as
+                           arguments to this function is similar to fixing the parameters via `fix_params`,
+                           meaning that there will be clashes if the parameter values are defined twice.
+        * `limits_list`:   A list of tuples (i.e., (lower, upper)) defining the scale for each parameter
+        * `log`:           Whether to apply log scale or not
+        """
+
+        # Print out message and check
+        self.__print__(f"Plotting the distributions for {len(params_list)} sets of parameters")
+        self.__check_curves__("There are no experimental curves to plot!")
+        self.__check_params_list__(params_list)
+        
+        # Check lower and upper limits for scales
+        if limits_list != None:
+            if len(limits_list) != len(params_list[0]):
+                raise ValueError("Could not plot because the number of limits do not match the number of parameters!")
+            for limits in limits_list:
+                if len(limits) != 2 or limits[0] > limits[1]:
+                    raise ValueError("Could not plot because the limits are incorrectly defined!")
+        
+        # Plot the boxplots
+        file_path = self.__get_output__(f"box_plot.png")
+        self.__controller__.plot_distribution(params_list, file_path, limits_list, log)
 
     def get_results(self, *params:tuple, x_label:str=None, y_label:str=None) -> None:
         """
@@ -372,18 +379,15 @@ class API:
         param_str = ["{:0.4}".format(float(param)) for param in params]
         self.__print__("Getting the results for {}".format(str(param_str).replace("'", "")))
         self.__check_curves__("Results cannot obtained without experimental curves!")
+        self.__check_params__(params)
 
-        # Get parameters and check input
-        param_name_list = list(self.__controller__.get_unfix_param_dict().keys())
-        param_value_dict = {key: value for key, value in zip(param_name_list, params)}
-        if len(params) != len(param_name_list):
-            raise ValueError("Could not plot because the number of inputs do not match the number of parameters!")
-        
         # Initialise recorder
         recorder = Recorder(self.__controller__, 0, 1, "")
         recorder.define_hyperparameters(0, 1, 0, 0, 0)
         
         # Add parameters and create record
+        param_name_list = list(self.__controller__.get_unfix_param_dict().keys())
+        param_value_dict = {key: value for key, value in zip(param_name_list, params)}
         error_value_dict = self.__controller__.calculate_objectives(*params, include_validation=True)
         recorder.update_optimal_solution(param_value_dict, error_value_dict)
         recorder.create_record(self.__get_output__("results"), x_label, y_label)
@@ -515,6 +519,31 @@ class API:
         if variable == None:
             raise ValueError(message)
     
+    def __check_params__(self, params:list) -> None:
+        """
+        Checks whether a set of parameters is valid
+        
+        Parameters:
+        * `params`: The parameter values for the model
+        """
+        param_name_list = list(self.__controller__.get_unfix_param_dict().keys())
+        if len(params) != len(param_name_list):
+            message = f"The number of input parameters ({len(params)}) do not match the "
+            message += f"number of parameters in the model ({len(param_name_list)})!"
+            raise ValueError(message)
+
+    def __check_params_list__(self, params_list:list) -> None:
+        """
+        Checks whether a list of parameter sets is valid
+        
+        Parameters:
+        * `params_list`: A list of parameter sets for the model
+        """
+        if len(params_list) == 0:
+            raise ValueError("No parameters have been defined!")
+        for params in params_list:
+            self.__check_params__(params)
+
     def __del__(self):
         """
         Prints out the final message (for internal use only)

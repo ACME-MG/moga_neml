@@ -16,11 +16,11 @@ class Model(__Model__):
         """
         Runs at the start, once
         """
-        self.add_param("evp_s0",  0.0e0, 1.0e3) # 3
-        self.add_param("evp_R",   0.0e0, 1.0e4) # 4
-        self.add_param("evp_d",   0.0e1, 1.0e2) # 2
-        self.add_param("evp_n",   1.0e0, 1.0e2) # 2
-        self.add_param("evp_eta", 0.0e1, 1.0e5) # 5
+        self.add_param("evp_s0",  0.0e0, 1.0e1) # 3
+        self.add_param("evp_R",   0.0e0, 1.0e2) # 4
+        self.add_param("evp_d",   0.0e0, 1.0e1) # 2
+        self.add_param("evp_n",   1.0e0, 1.0e1) # 2
+        self.add_param("evp_eta", 0.0e0, 1.0e4) # 5
         self.add_param("cd_A",    0.0e1, 1.0e4)
         self.add_param("cd_xi",   0.0e1, 1.0e2)
         self.add_param("cd_phi",  0.0e1, 1.0e2)

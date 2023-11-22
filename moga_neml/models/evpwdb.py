@@ -19,11 +19,11 @@ class Model(__Model__):
         """
 
         # Elastic parameters
-        self.add_param("evp_s0",  0.0e0, 1.0e3) # 2
-        self.add_param("evp_R",   0.0e0, 1.0e4) # 2
-        self.add_param("evp_d",   0.0e1, 1.0e3) # 2
-        self.add_param("evp_n",   1.0e0, 1.0e2) # 2
-        self.add_param("evp_eta", 0.0e1, 1.0e6)
+        self.add_param("evp_s0",  0.0e0, 1.0e1) # 3
+        self.add_param("evp_R",   0.0e0, 1.0e2) # 4
+        self.add_param("evp_d",   0.0e0, 1.0e1) # 2
+        self.add_param("evp_n",   1.0e0, 1.0e1) # 2
+        self.add_param("evp_eta", 0.0e0, 1.0e4) # 5
         
         # Creep damage parameters
         self.add_param("c_n", 1.0e0, 2.0e1)

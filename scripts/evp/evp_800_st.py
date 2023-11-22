@@ -1,7 +1,7 @@
 import sys; sys.path += ["../.."]
 from moga_neml.api import API
 
-api = API("evp 800 st", input_path="../data", output_path="../results")
+api = API("evp 800 st t", input_path="../data", output_path="../results")
 
 api.define_model("evp")
 
@@ -18,6 +18,11 @@ api.remove_damage(0.1, 0.7)
 
 api.read_data("creep/inl_1/AirBase_800_60_G32.csv")
 api.remove_damage(0.1, 0.7)
+
+api.read_data("tensile/inl/AirBase_800_D7.csv")
+api.remove_manual("strain", 0.3)
+api.add_error("area", "strain", "stress")
+api.add_error("yield", yield_stress=291)
 
 api.reduce_errors("square_average")
 api.reduce_objectives("square_average")

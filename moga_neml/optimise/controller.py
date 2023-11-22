@@ -11,15 +11,17 @@ from moga_neml.constraints.__constraint__ import __Constraint__, create_constrai
 from moga_neml.models.__model__ import __Model__, create_model
 from moga_neml.errors.__error__ import __Error__
 from moga_neml.interface.plotter import Plotter, EXP_DATA_COLOUR
+from moga_neml.interface.boxplotter import plot_boxplots
 from moga_neml.optimise.driver import Driver
 from moga_neml.optimise.curve import Curve
 from moga_neml.maths.derivative import differentiate_curve
 from moga_neml.maths.experiment import DATA_FIELD_PLOT_MAP
-from moga_neml.maths.general import reduce_list
+from moga_neml.maths.general import reduce_list, transpose
 
 # Constants
-MIN_DATA  = 5
-BIG_VALUE = 10000
+MIN_DATA    = 5
+BIG_VALUE   = 10000
+ALL_COLOURS = ["red", "purple", "green", "orange", "blue", "magenta", "cyan", "olive", "pink", "brown"] * 10
 
 # The Controller class
 class Controller():
@@ -461,7 +463,7 @@ class Controller():
         x_label = DATA_FIELD_PLOT_MAP[type]["x"] if x_label == None else x_label
         y_label = DATA_FIELD_PLOT_MAP[type]["y"] if y_label == None else y_label
         plotter = Plotter(file_path, x_label, y_label)
-        plotter.prep_plot("Predicted")
+        plotter.prep_plot("Experimental vs Prediction")
         
         # Plot experimental and predicted data
         for curve in self.curve_list:
@@ -479,9 +481,8 @@ class Controller():
         plotter.save_plot()
         plotter.clear()
 
-    def plot_multiple_prd_curves(self, params_list:list, colour_list:list, clip:bool, type:str,
-                                 file_path:str="",  x_label:str=None, y_label:str=None,
-                                 x_limits:float=None, y_limits:float=None) -> None:
+    def plot_multiple_prd_curves(self, params_list:list, clip:bool, type:str, file_path:str="", x_label:str=None,
+                                 y_label:str=None, x_limits:float=None, y_limits:float=None) -> None:
         """
         Visualises the predicted curves from a set of parameters
         
@@ -489,7 +490,6 @@ class Controller():
         * `params_list`: A list of parameter values of the model; note that defining the parameters as
                          arguments to this function is similar to fixing the parameters via `fix_params`,
                          meaning that there will be clashes if the parameter values are defined twice.
-        * `colour_list`: A list of colours to attach to each set of parameter values
         * `clip`:        Whether to clip the predictions so they end at the same x position as the
         * `type:`        The type of the experimental data
         * `file_path`:   The path to plot the experimental curves
@@ -504,7 +504,7 @@ class Controller():
         x_label = DATA_FIELD_PLOT_MAP[type]["x"] if x_label == None else x_label
         y_label = DATA_FIELD_PLOT_MAP[type]["y"] if y_label == None else y_label
         plotter = Plotter(file_path, x_label, y_label)
-        plotter.prep_plot("Predicted")
+        plotter.prep_plot("Experimental vs Prediction")
         plotter.set_limits(x_limits, y_limits)
         
         # Plot experimental data
@@ -534,19 +534,31 @@ class Controller():
                     prd_data[y_label] = [prd_data[y_label][i] for i in range(len(prd_data[x_label]))
                                          if prd_data[x_label][i] <= max_x]
                     prd_data[x_label] = x_list
-
-                # Determine whether to colour it and plot
-                if colour_list != None:
-                    plotter.line_plot(prd_data, colour_list[i])
-                else:
-                    plotter.line_plot(prd_data, priority=i+1)
+                
+                # Plot
+                plotter.line_plot(prd_data, ALL_COLOURS[i])
 
         # Format and save the plot
         plotter.define_legend(
-            colour_list = [EXP_DATA_COLOUR] + colour_list,
-            label_list  = ["Exp. data"] + [f"Opt. {i+1}" for i in range(len(params_list))],
+            colour_list = [EXP_DATA_COLOUR] + ALL_COLOURS[:len(params_list)],
+            label_list  = ["Exp. data"] + [f"Pred. {i+1}" for i in range(len(params_list))],
             width_list  = [7] + [1 for _ in range(len(params_list))],
             type_list   = ["scatter"] + ["line" for _ in range(len(params_list))],
         )
         plotter.save_plot()
         plotter.clear()
+
+    def plot_distribution(self, params_list:list, file_path:str, limit_list:list=None, log:bool=False) -> None:
+        """
+        Visualises the distribution of parameters
+        
+        Parameters:
+        * `params_list`:   A list of parameter sets for the model; note that defining the parameters as
+                           arguments to this function is similar to fixing the parameters via `fix_params`,
+                           meaning that there will be clashes if the parameter values are defined twice.
+        * `file_path`:     The path to save the boxplots
+        * `limit_list`:    A list of tuples (i.e., (lower, upper)) defining the scale of the boxplots
+        * `log`:           Whether to apply log scale or not
+        """
+        params_list = transpose(params_list)
+        plot_boxplots(params_list, file_path, "Distribution of parameters", ALL_COLOURS, limit_list, log)

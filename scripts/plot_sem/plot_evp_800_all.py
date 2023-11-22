@@ -25,17 +25,24 @@ api.remove_damage(0.1, 0.7)
 # api.remove_damage(0.1, 0.7)
 # api.read_data("tensile/inl/AirBase_900_D10.csv")
 
+params_str = """
+10.077	32.911	21.906	3.5992	3063
+11.695	101.28	1.1411	4.6827	1595.5
+9.8172	101.47	1.4057	4.6857	1595.7
+31.816	59.655	1.0424	3.6473	2944
+20.016	69.863	1.1781	4.3255	1881.4
+4.4611	35.628	31.021	3.6186	3016.2
+"""
+params_list = [list(map(float, line.split())) for line in params_str.strip().split("\n")]
+
 api.plot_predictions(
-    [
-        [4.707, 29.9, 47.707, 3.6626, 3159.4],
-        [0.67197, 25.75, 43.169, 4.4879, 1669.9],
-        [29.487, 16.2498, 54.943, 2.3381, 29598],
-        [41.512, 26.942, 0.38245, 2.5429, 18405],
-        [6.5485, 44.046, 50.935, 2.0542, 68466],
-    ],
-    colour_list=["blue", "orange", "green", "red", "purple"],
-    clip=True,
-    # limits_list=[((0, 5000), (0, 0.25))],
-    limits_list=[((0, 8000), (0, 0.7))],
+    params_list = params_list,
+    clip        = True,
+    limits_list = [((0, 8000), (0, 0.7))],
 )
-# api.plot_prediction(11.695, 101.28, 1.1411, 4.6827, 1595.5)
+
+api.plot_distribution(
+    params_list = params_list,
+    # limits_list = [(-5, 50), (10, 50), (-10)],
+    log=True,
+)

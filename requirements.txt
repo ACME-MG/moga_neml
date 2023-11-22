@@ -3,3 +3,4 @@ pandas
 pymoo
 scipy
 xlsxwriter
+seaborn

@@ -43,8 +43,9 @@ class Plotter:
 
         # Set figure size and title
         plt.figure(figsize=(5,5))
-        plt.title(title, fontsize=size+3)
+        plt.title(title, fontsize=size+3, fontweight="bold", y=1.05)
         plt.gca().set_position([0.17, 0.12, 0.75, 0.75])
+        plt.gca().grid(which="major", axis="both", color="SlateGray", linewidth=1, linestyle=":")
 
         # Set x and y labels
         x_units = f" ({DATA_UNITS[self.x_label]})" if self.x_label in DATA_UNITS.keys() else ""
