@@ -79,6 +79,12 @@ class Curve:
         """
         return self.error_list
     
+    def is_validation(self) -> bool:
+        """
+        Returns whether the curve is used for validation or not
+        """
+        return self.error_list == []
+
     def add_error(self, error_name:str, x_label:str, y_label:str, weight:float, **kwargs) -> None:
         """
         Adds an error to the list

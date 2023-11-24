@@ -5,11 +5,8 @@ api = API("evpwdb f 900 st", input_path="../data", output_path="../results")
 
 api.define_model("evpwdb")
 
-api.fix_param("evp_s0",  4.8238)
-api.fix_param("evp_R",   378.86)
-api.fix_param("evp_d",   0.1423)
-api.fix_param("evp_n",   4.4021)
-api.fix_param("evp_eta", 1006.9)
+fixed_params = "7.1037	48.235	4.2972	3.4084	1829.9"
+api.fix_params([float(x) for x in fixed_params.split()])
 
 api.read_data("creep/inl_1/AirBase_900_36_G22.csv")
 api.add_error("area", "time", "strain")

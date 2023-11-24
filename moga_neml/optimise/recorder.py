@@ -6,8 +6,8 @@
 """
 
 # Libraries
-import time, numpy as np
-from moga_neml.interface.plotter import Plotter
+import time
+from moga_neml.interface.plotter import Plotter, EXP_TRAIN_COLOUR, EXP_VALID_COLOUR
 from moga_neml.interface.spreadsheet import Spreadsheet
 from moga_neml.maths.data import  get_thinned_list
 from moga_neml.maths.experiment import DATA_DENSITY, DATA_FIELD_PLOT_MAP
@@ -265,9 +265,9 @@ class Recorder:
         # Prepare dict for plotting data
         plot_dict = {}
         if train_dict["exp_x"] != []:
-            plot_dict["training"] = {x_label: train_dict["exp_x"], y_label: train_dict["exp_y"], "size": 5, "colour": "silver"}
+            plot_dict["training"] = {x_label: train_dict["exp_x"], y_label: train_dict["exp_y"], "size": 5, "colour": EXP_TRAIN_COLOUR}
         if valid_dict["exp_x"] != []:
-            plot_dict["validation"] = {x_label: valid_dict["exp_x"], y_label: valid_dict["exp_y"], "size": 5, "colour": "gray"}
+            plot_dict["validation"] = {x_label: valid_dict["exp_x"], y_label: valid_dict["exp_y"], "size": 5, "colour": EXP_VALID_COLOUR}
         all_x = train_dict["prd_x"] + valid_dict["prd_x"]
         all_y = train_dict["prd_y"] + valid_dict["prd_y"]
         plot_dict["prediction"] = {x_label: all_x , y_label: all_y, "size": 2, "colour": "red"}
@@ -319,7 +319,7 @@ class Recorder:
             # Creates a quick-view plot, if desired
             if self.plot_opt:
                 plotter = Plotter(f"{self.results_dir}/opt_{type}.png", x_label, y_label)
-                plotter.prep_plot("Best Prediction", size=25)
+                plotter.prep_plot("Best Prediction")
                 for key in ["training", "validation", "prediction"]:
                     if key in plot_dict.keys():
                         plotter.scat_plot(plot_dict[key], plot_dict[key]["colour"], plot_dict[key]["size"])

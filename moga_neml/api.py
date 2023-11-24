@@ -159,6 +159,20 @@ class API:
         self.__print__("Fixing the '{}' parameter to fixed value of {:0.4}".format(param_name, float(param_value)))
         self.__controller__.fix_param(param_name, param_value)
 
+    def fix_params(self, param_values:list) -> None:
+        """
+        Fixes multiple parameters to a list of values to stop them from changing during
+        the optimisation; note that the script assumes that the first len(param_values)
+        are being fixed
+
+        Parameters:
+        * `param_values`: A list of parameter values to be fixed
+        """
+        self.__print__(f"Fixing the first {len(param_values)} of the model")
+        unfix_param_names = self.__controller__.get_unfix_param_names()
+        for i in range(len(param_values)):
+            self.__controller__.fix_param(unfix_param_names[i], param_values[i])
+
     def init_param(self, param_name:str, param_value:float, param_std:float=0) -> None:
         """
         Gives a parameter an initial value in the initial population of the optimisation
@@ -171,6 +185,21 @@ class API:
         message = "Setting the '{}' parameter to an initial value of {:0.4} and deviation of {:0.4}"
         self.__print__(message.format(param_name, float(param_value), float(param_std)))
         self.__controller__.init_param(param_name, param_value, param_std)
+
+    def init_params(self, param_values:list, param_stds:list) -> None:
+        """
+        Initialises multiple parameters to a list of values for the initial population of
+        the optimisation; note that the script assumes that the first len(param_values)
+        are being initialised
+
+        Parameters:
+        * `param_values`: A list of parameter values to be initialised
+        * `param_stds`:   A list of deviation values
+        """
+        self.__print__(f"Initialising the first {len(param_values)} of the model")
+        unfix_param_names = self.__controller__.get_unfix_param_names()
+        for i in range(len(param_values)):
+            self.__controller__.init_param(unfix_param_names[i], param_values[i], param_stds[i])
 
     def add_constraint(self, constraint_name:str, x_label:str="", y_label:str="", **kwargs) -> None:
         """
@@ -355,7 +384,7 @@ class API:
         # Check lower and upper limits for scales
         if limits_dict != None:
             input_params = list(limits_dict.keys())
-            model_params = list(self.__controller__.get_unfix_param_dict().keys())
+            model_params = self.__controller__.get_unfix_param_names()
             if not all(x in input_params for x in model_params) or not all(x in model_params for x in input_params):
                 raise ValueError("Could not plot because the defined parameters do not match the model's parameters!")
             for limits in limits_dict.values():
@@ -389,7 +418,7 @@ class API:
         recorder.define_hyperparameters(0, 1, 0, 0, 0)
         
         # Add parameters and create record
-        param_name_list = list(self.__controller__.get_unfix_param_dict().keys())
+        param_name_list = self.__controller__.get_unfix_param_names()
         param_value_dict = {key: value for key, value in zip(param_name_list, params)}
         error_value_dict = self.__controller__.calculate_objectives(*params, include_validation=True)
         recorder.update_optimal_solution(param_value_dict, error_value_dict)
@@ -529,7 +558,7 @@ class API:
         Parameters:
         * `params`: The parameter values for the model
         """
-        param_name_list = list(self.__controller__.get_unfix_param_dict().keys())
+        param_name_list = self.__controller__.get_unfix_param_names()
         if len(params) != len(param_name_list):
             message = f"The number of input parameters ({len(params)}) do not match the "
             message += f"number of parameters in the model ({len(param_name_list)})!"

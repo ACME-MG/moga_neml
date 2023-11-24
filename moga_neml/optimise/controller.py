@@ -10,7 +10,7 @@ from copy import deepcopy
 from moga_neml.constraints.__constraint__ import __Constraint__, create_constraint
 from moga_neml.models.__model__ import __Model__, create_model
 from moga_neml.errors.__error__ import __Error__
-from moga_neml.interface.plotter import Plotter, EXP_DATA_COLOUR
+from moga_neml.interface.plotter import Plotter, EXP_TRAIN_COLOUR, EXP_VALID_COLOUR
 from moga_neml.interface.boxplotter import plot_boxplots
 from moga_neml.optimise.driver import Driver
 from moga_neml.optimise.curve import Curve
@@ -207,6 +207,14 @@ class Controller():
             if not param_name in self.fix_param_dict.keys():
                 unfix_param_dict[param_name] = param_dict[param_name]
         return unfix_param_dict
+
+    def get_unfix_param_names(self) -> list:
+        """
+        Returns a list of the unfixed parameters' named
+        """
+        unfix_param_dict = self.get_unfix_param_dict()
+        unfix_param_names = list(unfix_param_dict.keys())
+        return unfix_param_names
 
     def set_error_reduction_method(self, method:str):
         """
@@ -512,7 +520,8 @@ class Controller():
             if curve.get_type() != type:
                 continue
             exp_data = curve.get_exp_data()
-            plotter.scat_plot(exp_data, size=7)
+            colour = EXP_VALID_COLOUR if curve.is_validation() else EXP_TRAIN_COLOUR
+            plotter.scat_plot(exp_data, size=7, colour=colour)
 
         # Iterate through the parameters
         for i in range(len(params_list)):
@@ -538,13 +547,21 @@ class Controller():
                 # Plot
                 plotter.line_plot(prd_data, ALL_COLOURS[i])
 
+        # Define legend information
+        colour_list = [EXP_TRAIN_COLOUR] + ALL_COLOURS[:len(params_list)]
+        label_list  = ["Training"] + [f"Prediction {i+1}" for i in range(len(params_list))]
+        size_list   = [7] + [1 for _ in range(len(params_list))]
+        type_list   = ["scatter"] + ["line" for _ in range(len(params_list))]
+
+        # Add to legend information if validation
+        if True in [curve.is_validation() for curve in self.curve_list]:
+            colour_list.insert(1, EXP_VALID_COLOUR)
+            label_list.insert(1, "Validation")
+            size_list.insert(1, 7)
+            type_list.insert(1, "scatter")
+
         # Format and save the plot
-        plotter.define_legend(
-            colour_list = [EXP_DATA_COLOUR] + ALL_COLOURS[:len(params_list)],
-            label_list  = ["Exp. data"] + [f"Pred. {i+1}" for i in range(len(params_list))],
-            width_list  = [7] + [1 for _ in range(len(params_list))],
-            type_list   = ["scatter"] + ["line" for _ in range(len(params_list))],
-        )
+        plotter.define_legend(colour_list, label_list, size_list, type_list)
         plotter.save_plot()
         plotter.clear()
 

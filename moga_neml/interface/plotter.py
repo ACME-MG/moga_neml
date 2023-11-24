@@ -11,10 +11,11 @@ import matplotlib.colors as mcolours
 from moga_neml.maths.experiment import DATA_UNITS
 
 # Constants
-DEFAULT_PATH    = "./plot"
-EXP_DATA_COLOUR = "darkgray"
-PRD_DATA_COLOUR = "r"
-ALL_COLOURS     = list(mcolours.TABLEAU_COLORS) + list(mcolours.BASE_COLORS) + list(mcolours.CSS4_COLORS)
+DEFAULT_PATH     = "./plot"
+EXP_TRAIN_COLOUR = "silver"
+EXP_VALID_COLOUR = "gray"
+PRD_DATA_COLOUR  = "r"
+ALL_COLOURS      = list(mcolours.TABLEAU_COLORS) + list(mcolours.BASE_COLORS) + list(mcolours.CSS4_COLORS)
 
 # Plotter class
 class Plotter:
@@ -79,7 +80,7 @@ class Plotter:
         if y_log:
             plt.yscale("log")
     
-    def scat_plot(self, data_dict:dict, colour:str=EXP_DATA_COLOUR, size:int=5, priority:int=1) -> None:
+    def scat_plot(self, data_dict:dict, colour:str=EXP_TRAIN_COLOUR, size:int=5, priority:int=1) -> None:
         """
         Plots the experimental data using a scatter plot
 
@@ -103,21 +104,21 @@ class Plotter:
         """
         plt.plot(data_dict[self.x_label], data_dict[self.y_label], colour, zorder=priority)
 
-    def define_legend(self, colour_list:list, label_list:list, width_list:list, type_list:list) -> None:
+    def define_legend(self, colour_list:list, label_list:list, size_list:list, type_list:list) -> None:
         """
         Defines the plot legend
         
         Parameters:
         * `colour_list`: The colours in the legend
         * `label_list`:  The keys to add to the legend
-        * `width_list`:  The width of the icons in the legend
+        * `size_list`:   The size of the icons in the legend
         * `type_list`:   The type of the icons in the legend
         """
         for i in range(len(colour_list)):
             if type_list[i] == "scatter":
-                plt.scatter([0], [0], color=colour_list[i], label=label_list[i], s=width_list[i]**2)
+                plt.scatter([0], [0], color=colour_list[i], label=label_list[i], s=size_list[i]**2)
             elif type_list[i] == "line":
-                plt.plot([0], [0], color=colour_list[i], label=label_list[i], linewidth=width_list[i])
+                plt.plot([0], [0], color=colour_list[i], label=label_list[i], linewidth=size_list[i])
         plt.legend()
 
     def save_plot(self) -> None:
