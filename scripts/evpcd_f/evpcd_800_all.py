@@ -47,8 +47,8 @@ api.add_constraint("dec_end", "time")
 
 api.read_data("tensile/inl/AirBase_800_D7.csv")
 api.add_error("area", "strain", "stress")
-api.add_error("end", "strain")
-api.add_error("end", "stress")
+# api.add_error("end", "strain")
+# api.add_error("end", "stress")
 
 api.reduce_errors("square_average")
 api.reduce_objectives("square_average")
