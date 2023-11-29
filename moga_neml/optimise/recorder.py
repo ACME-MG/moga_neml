@@ -335,6 +335,19 @@ class Recorder:
             self.loss_history["loss"].append(loss)
             self.loss_history["generations"].append(self.num_gens_completed)
 
+            # Write loss data
+            curr_loss_file = f"{self.results_dir}/opt_loss"
+            curr_loss_path = curr_loss_file
+            loss_history_str = "\n".join([f"{self.loss_history['generations'][i]}, {self.loss_history['loss'][i]}"
+                                         for i in range(len(self.loss_history["loss"]))])
+            for i in range(1, 10000):
+                try:
+                    with open(f"{curr_loss_path}.csv", "w+") as fh:
+                        fh.write(loss_history_str)
+                    break
+                except PermissionError:
+                    curr_loss_path = f"{curr_loss_file} ({i})"
+
             # Plot loss
             plotter = Plotter(f"{self.results_dir}/opt_loss.png", "generations", "loss")
             plotter.prep_plot("Loss history")
