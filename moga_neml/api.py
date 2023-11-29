@@ -186,7 +186,7 @@ class API:
         self.__print__(message.format(param_name, float(param_value), float(param_std)))
         self.__controller__.init_param(param_name, param_value, param_std)
 
-    def init_params(self, param_values:list, param_stds:list) -> None:
+    def init_params(self, param_values:list, param_stds:list=None) -> None:
         """
         Initialises multiple parameters to a list of values for the initial population of
         the optimisation; note that the script assumes that the first len(param_values)
@@ -199,7 +199,8 @@ class API:
         self.__print__(f"Initialising the first {len(param_values)} of the model")
         unfix_param_names = self.__controller__.get_unfix_param_names()
         for i in range(len(param_values)):
-            self.__controller__.init_param(unfix_param_names[i], param_values[i], param_stds[i])
+            param_std = 0 if param_stds == None else param_stds[i]
+            self.__controller__.init_param(unfix_param_names[i], param_values[i], param_std)
 
     def add_constraint(self, constraint_name:str, x_label:str="", y_label:str="", **kwargs) -> None:
         """
