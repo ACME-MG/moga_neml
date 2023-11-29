@@ -5,8 +5,8 @@ api = API("evpcd f 800 st", input_path="../data", output_path="../results")
 
 api.define_model("evpcd")
 
-fixed_params = "31.327	104.92	0.8548	3.7508	2575.8"
-# fixed_params = "22.393	462.57	0.13573	4.314	1828.1"
+# fixed_params = "31.327	104.92	0.8548	3.7508	2575.8"
+fixed_params = "22.393	462.57	0.13573	4.314	1828.1"
 # fixed_params = "11.45	53.151	7.1666	3.9502	2221.6"
 # fixed_params = "37.742	49.123	2.4996	3.4102	3172"
 # fixed_params = "18.768	89.18	0.88069	4.5055	1677.4"
@@ -37,8 +37,8 @@ api.read_data("creep/inl_1/AirBase_800_60_G32.csv")
 
 api.read_data("tensile/inl/AirBase_800_D7.csv")
 api.add_error("area", "strain", "stress")
-# api.add_error("end", "strain")
-# api.add_error("end", "stress")
+api.add_error("end", "strain")
+api.add_error("end", "stress")
 
 api.reduce_errors("square_average")
 api.reduce_objectives("square_average")

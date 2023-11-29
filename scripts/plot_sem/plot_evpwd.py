@@ -2,7 +2,7 @@ import sys; sys.path += ["../.."]
 from moga_neml.api import API
 
 api = API("plot", output_here=True, input_path="../data", output_path="../results")
-api.define_model("evpcd")
+api.define_model("evpwdb")
 
 # api.read_data("creep/inl_1/AirBase_800_80_G25.csv")
 # api.read_data("creep/inl_1/AirBase_800_70_G44.csv")
@@ -18,7 +18,7 @@ api.remove_oxidation()
 api.read_data("tensile/inl/AirBase_900_D10.csv")
 
 params_str = """
-4.871	11.518	7.0281	4.2421	1138.3	5825.6	3.4992	7.5202
+4.8238	378.86	0.1423	4.4021	1006.9	1.3282	0.54573	4.6946	3.1679	0.25372	2.5292
 """
 # 17.42	217.36	0.33131	2.034	42591	2632.8	4.0648	5.8117
 params_list = [list(map(float, line.split())) for line in params_str.strip().split("\n")]
