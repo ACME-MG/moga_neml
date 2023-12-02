@@ -5,8 +5,8 @@ api = API("evpwdb f 900 all", input_path="../data", output_path="../results")
 
 api.define_model("evpwdb")
 
-fixed_params = "4.871	11.518	7.0281	4.2421	1138.3"
-# fixed_params = "10.692	29.068	2.9831	3.7278	1433.5"
+# fixed_params = "4.871	11.518	7.0281	4.2421	1138.3"
+fixed_params = "10.692	29.068	2.9831	3.7278	1433.5"
 # fixed_params = "11.2	24.262	2.2615	3.9651	1163"
 # fixed_params = "11.208	16.738	5.9587	3.6377	1530.1"
 # fixed_params = "10.45	14.769	7.8792	3.54	1787.3"
