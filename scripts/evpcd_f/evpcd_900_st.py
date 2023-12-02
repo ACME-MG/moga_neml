@@ -5,9 +5,9 @@ api = API("evpcd f 900 st", input_path="../data", output_path="../results")
 
 api.define_model("evpcd")
 
-# fixed_params = "4.8238	378.86	0.1423	4.4021	1006.9"
+fixed_params = "4.8238	378.86	0.1423	4.4021	1006.9"
 # fixed_params = "7.1037	48.235	4.2972	3.4084	1829.9"
-fixed_params = "3.0461	19.608	32.421	3.2736	2022.3"
+# fixed_params = "3.0461	19.608	32.421	3.2736	2022.3"
 # fixed_params = "4.634	18.607	24.896	3.3436	1999.7"
 # fixed_params = "16.287	181.45	0.52517	3.0161	2606.2"
 # fixed_params = "9.5313	148.61	0.37484	3.9621	1253.9"
