@@ -13,7 +13,7 @@ fixed_params = "22.393	462.57	0.13573	4.314	1828.1"
 # fixed_params = "23.304	306.58	0.32123	4.2592	1822.6"
 # fixed_params = "31.137	31.413	4.6003	3.6958	2583"
 # fixed_params = "29.726	45.991	2.3174	3.9613	2101.3"
-# fixed_params = "4.2227	26.503	4.0461	5.25	1261.4"
+# fixed_params = "0.85682	42.524	9.6283	4.5033	1707"
 # fixed_params = "4.4611	35.628	31.021	3.6186	3016.2"
 api.fix_params([float(x) for x in fixed_params.split()])
 
@@ -38,6 +38,8 @@ api.read_data("creep/inl_1/AirBase_800_60_G32.csv")
 api.read_data("tensile/inl/AirBase_800_D7.csv")
 api.add_error("area", "strain", "stress")
 api.add_error("end", "strain")
+api.add_error("max", "stress")
+api.add_error("yield", yield_stress=291)
 # api.add_error("end", "stress")
 
 api.reduce_errors("square_average")
