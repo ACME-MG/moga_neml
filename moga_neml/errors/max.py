@@ -1,5 +1,5 @@
 """
- Title:         The x_max objective function
+ Title:         The max objective function
  Description:   The objective function for calculating the maximum x magnitude of two curves
  Author:        Janzen Choi
 
@@ -18,7 +18,7 @@ class Error(__Error__):
         x_list = self.get_x_data()
         self.x_max = abs(max(x_list))
         
-    def get_value(self, prd_data:list) -> float:
+    def get_value(self, prd_data:dict) -> float:
         """
         Computing the NRMSE
 
