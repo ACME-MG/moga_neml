@@ -31,8 +31,8 @@ class Error(__Error__):
         """
         x_label = self.get_x_label()
         y_label = self.get_y_label()
-        x_list = prd_data[x_label]
-        y_list = prd_data[y_label]
+        x_list = list(prd_data[x_label])
+        y_list = list(prd_data[y_label])
         prd_arg_max = find_arg_max(x_list, y_list)
         return abs(self.exp_arg_max - prd_arg_max) / self.exp_arg_max
 
