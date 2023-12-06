@@ -11,8 +11,8 @@ api.define_model("evpcd")
 # fixed_params = "5.8951	36.245	5.3757	4.7311	1598.4"
 # fixed_params = "4.1862	84.548	2.1123	4.7752	1574.3"
 # fixed_params = "25.038	90.693	0.61002	4.1982	1944.6"
-fixed_params = "27.547	78.081	0.84273	3.8992	2454.8"
-# fixed_params = "27.885	124.89	0.65636	3.8874	2390.5"
+# fixed_params = "27.547	78.081	0.84273	3.8992	2454.8"
+fixed_params = "27.885	124.89	0.65636	3.8874	2390.5"
 # fixed_params = "19.2	52.204	1.7579	4.5105	1614.6"
 # fixed_params = "8.5923	38.904	5.4829	4.4795	1841"
 api.fix_params([float(x) for x in fixed_params.split()])
