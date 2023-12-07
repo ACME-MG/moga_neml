@@ -13,8 +13,8 @@ api.define_model("evpcd")
 # fixed_params = "9.5313	148.61	0.37484	3.9621	1253.9"
 # fixed_params = "6.3647	149.54	0.43913	4.1839	1127.6"
 # fixed_params = "12.622	15.441	4.5386	3.7305	1371.6"
-fixed_params = "12.256	273.68	0.20866	3.8422	1242.3"
-# fixed_params = "7.044	16.175	6.7949	4.1207	1090"
+# fixed_params = "12.256	273.68	0.20866	3.8422	1242.3"
+fixed_params = "7.044	16.175	6.7949	4.1207	1090"
 api.fix_params([float(x) for x in fixed_params.split()])
 
 api.read_data("creep/inl_1/AirBase_900_36_G22.csv")
