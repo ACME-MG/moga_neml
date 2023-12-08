@@ -548,10 +548,10 @@ class Controller():
                 plotter.line_plot(prd_data, ALL_COLOURS[i])
 
         # Define legend information
-        colour_list = [EXP_TRAIN_COLOUR] + ALL_COLOURS[:len(params_list)]
-        label_list  = ["Training"] + [f"Prediction {i+1}" for i in range(len(params_list))]
-        size_list   = [7] + [1 for _ in range(len(params_list))]
-        type_list   = ["scatter"] + ["line" for _ in range(len(params_list))]
+        colour_list = [EXP_TRAIN_COLOUR, "black"]
+        label_list  = ["Training", "Prediction"]
+        size_list   = [7, 1]
+        type_list   = ["scatter", "line"]
 
         # Add to legend information if validation
         if True in [curve.is_validation() for curve in self.curve_list]:

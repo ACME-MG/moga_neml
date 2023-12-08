@@ -1,24 +1,24 @@
 import sys; sys.path += ["../.."]
 from moga_neml.api import API
 
-api = API("evpcd f 800 all", input_path="../data", output_path="../results")
+api = API("evpcd f 800 st", input_path="../data", output_path="../results")
 
 api.define_model("evpcd")
 
 params_str = """
-17.217	179.74	0.61754	4.4166	1783.5
-5.6908	66.627	1.9851	4.7723	1621.6
-9.3076	32.596	5.8114	4.5263	1775.9
-5.8951	36.245	5.3757	4.7311	1598.4
-4.1862	84.548	2.1123	4.7752	1574.3
-25.038	90.693	0.61002	4.1982	1944.6
-27.547	78.081	0.84273	3.8992	2454.8
-27.885	124.89	0.65636	3.8874	2390.5
-19.2	52.204	1.7579	4.5105	1614.6
-8.5923	38.904	5.4829	4.4795	1841
+31.327	104.92	0.8548	3.7508	2575.8	2126.4	5.3209	6.5504
+22.393	462.57	0.13573	4.314	1828.1	1912.9	5.5169	6.9639
+11.45	53.151	7.1666	3.9502	2221.6	4328.7	4.3679	5.3108
+37.742	49.123	2.4996	3.4102	3172	2704.5	5.1187	9.9024
+18.768	89.18	0.88069	4.5055	1677.4	2589.7	5.1066	8.5635
+23.304	306.58	0.32123	4.2592	1822.6	2169.1	5.3202	6.8598
+31.137	31.413	4.6003	3.6958	2583	2511.7	5.1559	8.7353
+29.726	45.991	2.3174	3.9613	2101.3	2259.2	5.3187	8.5096
+0.85682	42.524	9.6283	4.5033	1707	1896.9	5.547	6.8471
+4.4611	35.628	31.021	3.6186	3016.2	3411.1	4.8323	12.863
 """
 params_list = [list(map(float, line.split())) for line in params_str.strip().split("\n")]
-api.fix_params(params_list[0])
+api.init_params(params_list[0])
 
 api.read_data("creep/inl_1/AirBase_800_80_G25.csv")
 api.add_error("area", "time", "strain")
@@ -35,18 +35,8 @@ api.add_constraint("inc_end", "strain")
 api.add_constraint("dec_end", "time")
 
 api.read_data("creep/inl_1/AirBase_800_65_G33.csv")
-api.add_error("area", "time", "strain")
-api.add_error("end", "time")
-api.add_error("end", "strain")
-api.add_constraint("inc_end", "strain")
-api.add_constraint("dec_end", "time")
 
 api.read_data("creep/inl_1/AirBase_800_60_G32.csv")
-api.add_error("area", "time", "strain")
-api.add_error("end", "time")
-api.add_error("end", "strain")
-api.add_constraint("inc_end", "strain")
-api.add_constraint("dec_end", "time")
 
 api.read_data("tensile/inl/AirBase_800_D7.csv")
 api.add_error("area", "strain", "stress")
