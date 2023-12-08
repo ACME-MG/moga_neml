@@ -12,16 +12,25 @@ api.remove_damage(0.1, 0.7)
 api.add_error("dummy")
 api.read_data("creep/inl_1/AirBase_900_28_G45.csv")
 api.remove_damage(0.1, 0.7)
-api.add_error("dummy")
+# api.add_error("dummy")
 api.read_data("creep/inl_1/AirBase_900_26_G59.csv")
 api.remove_damage(0.1, 0.7)
-api.add_error("dummy")
+# api.add_error("dummy")
 api.read_data("tensile/inl/AirBase_900_D10.csv")
 api.remove_manual("strain", 0.3)
 api.add_error("dummy")
 
 params_str = """
-11.2	24.262	2.2615	3.9651	1163
+4.8238	378.86	0.1423	4.4021	1006.9
+7.1037	48.235	4.2972	3.4084	1829.9
+3.0461	19.608	32.421	3.2736	2022.3
+4.634	18.607	24.896	3.3436	1999.7
+16.287	181.45	0.52517	3.0161	2606.2
+9.5313	148.61	0.37484	3.9621	1253.9
+6.3647	149.54	0.43913	4.1839	1127.6
+12.622	15.441	4.5386	3.7305	1371.6
+12.256	273.68	0.20866	3.8422	1242.3
+7.044	16.175	6.7949	4.1207	1090
 """
 params_list = [list(map(float, line.split())) for line in params_str.strip().split("\n")]
 
@@ -34,5 +43,4 @@ api.plot_predictions(
 api.plot_distribution(
     params_list = params_list,
     limits_dict = {"evp_s0": (0, 40), "evp_R": (0, 500), "evp_d": (0, 50), "evp_n": (0, 10), "evp_eta": (0, 4000)},
-    # log=True,
 )

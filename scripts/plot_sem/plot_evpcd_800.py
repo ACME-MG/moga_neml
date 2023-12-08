@@ -31,12 +31,11 @@ params_list = [list(map(float, line.split())) for line in params_str.strip().spl
 
 api.plot_predictions(
     params_list = params_list,
-    limits_dict = {"creep": ((0, 8000), (0, 0.8)), "tensile": ((0, 1.0), (0, 500))},
+    limits_dict = {"creep": ((0, 8000), (0, 0.7)), "tensile": ((0, 1.0), (0, 500))},
 )
 
 api.plot_distribution(
     params_list = params_list,
     limits_dict = {"evp_s0": (0, 40), "evp_R": (0, 500), "evp_d": (0, 50), "evp_n": (0, 10), "evp_eta": (0, 4000),
                    "cd_A": (0, 5000), "cd_xi": (0, 10), "cd_phi": (0, 30)},
-    # log=True,
 )

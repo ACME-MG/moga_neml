@@ -39,5 +39,4 @@ api.plot_distribution(
     params_list = params_list,
     limits_dict = {"evp_s0": (0, 40), "evp_R": (0, 500), "evp_d": (0, 50), "evp_n": (0, 10), "evp_eta": (0, 4000),
                    "cd_A": (0, 5000), "cd_xi": (0, 10), "cd_phi": (0, 30)},
-    # log=True,
 )
