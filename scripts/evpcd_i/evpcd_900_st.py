@@ -1,7 +1,7 @@
 import sys; sys.path += ["../.."]
 from moga_neml.api import API
 
-api = API("evpcd f 900 st", input_path="../data", output_path="../results")
+api = API("evpcd i 900 st", input_path="../data", output_path="../results")
 
 api.define_model("evpcd")
 
@@ -18,7 +18,7 @@ params_str = """
 7.044	16.175	6.7949	4.1207	1090	1699.1	4.5578	8.0541
 """
 params_list = [list(map(float, line.split())) for line in params_str.strip().split("\n")]
-api.init_params(params_list[1])
+api.init_params(params_list[2])
 
 api.read_data("creep/inl_1/AirBase_900_36_G22.csv")
 api.add_error("area", "time", "strain")
@@ -41,7 +41,7 @@ api.remove_oxidation()
 
 api.read_data("tensile/inl/AirBase_900_D10.csv")
 api.add_error("area", "strain", "stress")
-api.add_error("end", "strain")
+api.add_error("end", "strain", weight=0.5)
 api.add_error("arg_max", "strain", "stress", weight=0.5)
 api.add_error("yield", yield_stress=164)
 # api.add_error("end", "stress")

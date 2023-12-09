@@ -326,6 +326,14 @@ class Recorder:
                 plotter.save_plot()
                 plotter.clear()
         
+        # Creates a text file with the reduced error
+        if self.plot_opt:
+            reduction_method = self.controller.get_objective_reduction_method()
+            reduced_error = self.optimal_solution_list[0][reduction_method]
+            reduced_error_path = f"{self.results_dir}/opt_err.txt"
+            with open(reduced_error_path, "w+") as fh:
+                fh.write(str(reduced_error))
+
         # Plots the loss, if desired
         if self.plot_loss:
 
