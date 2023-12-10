@@ -18,7 +18,7 @@ params_str = """
 4.4611	35.628	31.021	3.6186	3016.2	3411.1	4.8323	12.863
 """
 params_list = [list(map(float, line.split())) for line in params_str.strip().split("\n")]
-api.init_params(params_list[4])
+api.init_params(params_list[5])
 
 api.read_data("creep/inl_1/AirBase_800_80_G25.csv")
 api.add_error("area", "time", "strain")
