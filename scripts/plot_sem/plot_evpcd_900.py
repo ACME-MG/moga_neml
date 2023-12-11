@@ -17,7 +17,7 @@ api.read_data("tensile/inl/AirBase_900_D10.csv")
 api.add_error("dummy")
 
 params_str = """
-9.344	45.972	2.5375	3.4094	1902	2101.5	4.3022	6.1081
+4.634	18.607	24.896	3.3436	1999.7	2639.7	4.377	21.834
 """
 params_list = [list(map(float, line.split())) for line in params_str.strip().split("\n")]
 

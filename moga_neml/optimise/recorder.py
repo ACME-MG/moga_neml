@@ -340,7 +340,7 @@ class Recorder:
             # Get loss data
             reduction_method = self.controller.get_objective_reduction_method()
             loss = self.optimal_solution_list[-1][reduction_method]
-            self.loss_history["loss"].append(loss)
+            self.loss_history["loss"].append(round(loss, 6))
             self.loss_history["generations"].append(self.num_gens_completed)
 
             # Write loss data
