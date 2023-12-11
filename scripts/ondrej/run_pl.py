@@ -11,4 +11,4 @@ api.add_error("end", "strain")
 
 api.set_driver(max_strain=0.014)
 api.set_recorder(1, True, True, True, True)
-api.optimise(10000, 50, 25, 0.8, 0.01)
+api.optimise(20, 50, 25, 0.8, 0.01)

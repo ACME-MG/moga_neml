@@ -322,7 +322,7 @@ class Controller():
         
         # Get the driver and prediction
         model_driver = Driver(curve.get_exp_data(), calibrated_model, self.num_steps,
-                              self.rel_tol, self.abs_tol, self.verbose)
+                              self.rel_tol, self.abs_tol, self.max_strain, self.verbose)
         prd_data = model_driver.run()
 
         # Check data has some data points
