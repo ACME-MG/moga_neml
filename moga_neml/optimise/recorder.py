@@ -121,8 +121,8 @@ class Recorder:
         # Get the solution
         reduction_method = self.controller.get_objective_reduction_method()
         objective_values = list(objective_dict.values())
-        reduced_value = self.controller.reduce_objectives(objective_values)
-        solution = {"params": param_dict, "objectives": objective_dict, reduction_method: reduced_value}
+        reduced_value    = self.controller.reduce_objectives(objective_values)
+        solution         = {"params": param_dict, "objectives": objective_dict, reduction_method: reduced_value}
         
         # If the stored parameters exceed the limit, remove the worst
         if len(self.optimal_solution_list) == self.population:
@@ -175,7 +175,6 @@ class Recorder:
             progress = f"{num_gens_completed_padded}/{self.num_gens}"
             index = round(self.num_gens_completed//self.interval)
             print(f"      {index}]\tRecorded ({progress} in {update_duration}s)")
-        
     
     def get_summary_dict(self) -> dict:
         """
@@ -358,11 +357,13 @@ class Recorder:
         self.loss_history["loss"].append(round(loss, 6))
         self.loss_history["generations"].append(self.num_gens_completed)
 
-        # Write loss data
+        # Format loss data
         curr_loss_file = f"{self.results_dir}/opt_loss"
         curr_loss_path = curr_loss_file
         loss_history_str = "\n".join([f"{self.loss_history['generations'][i]}, {self.loss_history['loss'][i]}"
                                         for i in range(len(self.loss_history["loss"]))])
+        
+        # Write loss data
         for i in range(1, 10000):
             try:
                 with open(f"{curr_loss_path}.csv", "w+") as fh:
@@ -379,15 +380,19 @@ class Recorder:
         plotter.save_plot()
         plotter.clear()
 
-    def save_calibrated_model(self):
+    def save_calibrated_model(self, param_list:list=None):
         """
         Saves the calibrated model
+
+        Parameters:
+        * `param_list`: Parameters as a list; if undefined, uses the most optimal
+                        parameters from the optimisation
         """
-        opt_solution     = self.optimal_solution_list[0]["params"]
-        opt_params       = opt_solution.values()
-        calibrated_model = self.controller.model.get_calibrated_model(*opt_params)
-        model_path       = f"{self.results_dir}/opt_model.xml"
-        model_name       = self.controller.model.get_name()
+        if param_list == None:
+            param_list = self.optimal_solution_list[0]["params"].values()
+        calibrated_model = self.controller.model.get_calibrated_model(*param_list)
+        model_path = f"{self.results_dir}/opt_model.xml"
+        model_name = self.controller.model.get_name()
         calibrated_model.save(model_path, model_name)
 
 def process_data_dict(data_dict:dict, x_label:str, y_label:str) -> tuple:

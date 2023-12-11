@@ -259,8 +259,8 @@ class Controller():
         self.group_type = group_type
         self.group_labels = group_labels
 
-    def set_driver(self, num_steps:int=1000, rel_tol:float=1e-6, abs_tol:float=1e-10, max_strain:float=1.0,
-                   verbose:bool=False) -> None:
+    def set_driver(self, num_steps:int=1000, rel_tol:float=1e-6, abs_tol:float=1e-10,
+                   max_strain:float=1.0, verbose:bool=False) -> None:
         """
         Sets some general options for the NEML driver
         

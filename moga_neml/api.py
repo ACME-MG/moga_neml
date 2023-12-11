@@ -415,7 +415,7 @@ class API:
         self.__check_params__(params)
 
         # Initialise recorder
-        recorder = Recorder(self.__controller__, 0, 1, "")
+        recorder = Recorder(self.__controller__, 0, "")
         recorder.define_hyperparameters(0, 1, 0, 0, 0)
         
         # Add parameters and create record
@@ -425,8 +425,29 @@ class API:
         recorder.update_optimal_solution(param_value_dict, error_value_dict)
         recorder.create_record(self.__get_output__("results"), x_label, y_label)
     
-    def set_driver(self, num_steps:int=1000, rel_tol:float=1e-6, abs_tol:float=1e-10, max_strain:float=1.0,
-                   verbose:bool=False) -> None:
+    def save_model(self, *params:tuple) -> None:
+        """
+        Calibrates the model with parameters and saves the model as an XML file
+        
+        Parameters:
+        * `params`: The parameter values of the model; note that defining the parameters as
+                    arguments to this function is similar to fixing the parameters via `fix_params`,
+                    meaning that there will be clashes if the parameter values are defined twice.
+        """
+
+        # Display and check
+        param_str = ["{:0.4}".format(float(param)) for param in params]
+        self.__print__("Saving the calibrated model for {}".format(str(param_str).replace("'", "")))
+        self.__check_curves__("Results cannot obtained without experimental curves!")
+        self.__check_params__(params)
+
+        # Actually save the model
+        recorder = Recorder(self.__controller__, 0, self.__output_path__, "")
+        recorder.define_hyperparameters(0, 1, 0, 0, 0)
+        recorder.save_calibrated_model(list(params))
+
+    def set_driver(self, num_steps:int=1000, rel_tol:float=1e-6, abs_tol:float=1e-10,
+                   max_strain:float=1.0, verbose:bool=False) -> None:
         """
         Sets some general options for the NEML driver
         

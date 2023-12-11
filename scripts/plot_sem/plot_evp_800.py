@@ -21,7 +21,7 @@ api.remove_manual("strain", 0.3)
 api.add_error("dummy")
 
 params_str = """
-17.217	179.74	0.61754	4.4166	1783.5	3109.8	4.8245	6.6364
+17.217	179.74	0.61754	4.4166	1783.5
 """
 params_list = [list(map(float, line.split())) for line in params_str.strip().split("\n")]
 
