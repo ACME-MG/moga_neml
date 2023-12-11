@@ -34,7 +34,8 @@ class Model(__Model__):
 
         Returns the calibrated model
         """
-        elastic_model = elasticity.IsotropicLinearElasticModel(self.get_data("youngs"), "youngs", self.get_data("poissons"), "poissons")
+        elastic_model = elasticity.IsotropicLinearElasticModel(self.get_data("youngs"), "youngs",
+                                                               self.get_data("poissons"), "poissons")
         yield_surface = surfaces.IsoJ2()
         iso_hardening = hardening.VoceIsotropicHardeningRule(evp_s0, evp_R, evp_d)
         g_power       = visco_flow.GPowerLaw(evp_n, evp_eta)

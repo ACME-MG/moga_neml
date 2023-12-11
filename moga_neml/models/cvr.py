@@ -46,9 +46,11 @@ class Model(__Model__):
         cvr_r1 = math.pow(10, cvr_r1)
         if cvr_R_min >= cvr_R_max:
             return None
-        elastic_model = elasticity.IsotropicLinearElasticModel(self.get_data("youngs"), "youngs", self.get_data("poissons"), "poissons")
+        elastic_model = elasticity.IsotropicLinearElasticModel(self.get_data("youngs"), "youngs",
+                                                               self.get_data("poissons"), "poissons")
         yield_surface = surfaces.IsoKinJ2()
-        cvr_model     = hardening.ChabocheVoceRecovery(cvr_s0, cvr_t0, cvr_R_max, cvr_R_min, cvr_r1, cvr_r2, self.c_s, self.g_s, self.a_s, self.n_s)
+        cvr_model     = hardening.ChabocheVoceRecovery(cvr_s0, cvr_t0, cvr_R_max, cvr_R_min, cvr_r1, cvr_r2,
+                                                       self.c_s, self.g_s, self.a_s, self.n_s)
         fluidity      = visco_flow.ConstantFluidity(evp_eta)
         visco_model   = visco_flow.ChabocheFlowRule(yield_surface, cvr_model, fluidity, evp_n)
         tvp_flow      = general_flow.TVPFlowRule(elastic_model, visco_model)

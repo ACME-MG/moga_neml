@@ -33,7 +33,8 @@ class Model(__Model__):
 
         Returns the calibrated model
         """
-        elastic_model      = elasticity.IsotropicLinearElasticModel(self.get_data("youngs"), "youngs", self.get_data("poissons"), "poissons")
+        elastic_model      = elasticity.IsotropicLinearElasticModel(self.get_data("youngs"), "youngs",
+                                                                    self.get_data("poissons"), "poissons")
         yield_surface      = surfaces.IsoKinJ2()
         iso_hardening      = hardening.VoceIsotropicHardeningRule(ih_s0, ih_Q, ih_b)
         gamma_hardening    = [hardening.ConstantGamma(g) for g in [c_gs1, c_gs2]]

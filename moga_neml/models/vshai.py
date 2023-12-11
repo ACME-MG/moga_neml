@@ -40,7 +40,8 @@ class Model(__Model__):
             phi_2 = float(data[2])
             if phi_1 == 0 and Phi == 0 and phi_2 == 0:
                 continue
-            self.grain_orientations.append(rotations.CrystalOrientation(phi_1, Phi, phi_2, angle_type="degrees", convention="bunge"))
+            self.grain_orientations.append(rotations.CrystalOrientation(phi_1, Phi, phi_2,
+                                           angle_type="degrees", convention="bunge"))
             self.weights.append(int(data[3]))
         file.close()
 
@@ -57,7 +58,8 @@ class Model(__Model__):
 
         Returns the calibrated model
         """
-        elastic_model  = elasticity.IsotropicLinearElasticModel(self.get_data("youngs"), "youngs", self.get_data("poissons"), "poissons")
+        elastic_model  = elasticity.IsotropicLinearElasticModel(self.get_data("youngs"), "youngs",
+                                                                self.get_data("poissons"), "poissons")
         strength_model = slipharden.VoceSlipHardening(vsh_ts, vsh_b, vsh_t0)
         slip_model     = sliprules.PowerLawSlipRule(strength_model, ai_g0, ai_n)
         ai_model       = inelasticity.AsaroInelasticity(slip_model)
