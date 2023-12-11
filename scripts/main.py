@@ -54,7 +54,6 @@ api.reduce_objectives("square_average")
 
 api.plot_experimental()
 # api.set_recorder(1, True, True, True)
-# api.optimise(10000, 100, 50, 0.65, 0.35)
-# api.optimise(10000, 10, 5, 0.8, 0.01)
+# api.optimise(10000, 100, 50, 0.8, 0.01)
 api.plot_prediction(4.871, 11.518, 7.0281, 4.2421, 1138.3,
                     1.2072, 0.4455, 3.8687, 3.6877, 0.25385, 2.53081)

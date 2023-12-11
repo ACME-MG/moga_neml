@@ -106,7 +106,6 @@ class Driver:
         strain_rate = self.exp_data["strain_rate"] / 3600
         num_cycles = int(self.exp_data["num_cycles"])
         results = drivers.strain_cyclic(self.model, T=self.exp_data["temperature"], emax=max_strain, erate=strain_rate,
-                                        verbose=self.verbose, R=CYCLIC_RATIO, ncycles=num_cycles, nsteps=self.num_steps,
-                                        rtol=self.rel_tol, atol=self.abs_tol)
+                                        verbose=self.verbose, R=CYCLIC_RATIO, ncycles=num_cycles, nsteps=self.num_steps)
         results["time"] /= 3600
         return results
