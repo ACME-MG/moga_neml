@@ -11,7 +11,6 @@ from moga_neml.maths.experiment import NEML_FIELD_CONVERSION
 from moga_neml.maths.general import BlockPrint
 
 # General Driver Constants
-MAX_STRAIN   = 1.0
 TIME_HOLD    = 11500.0 * 3600.0
 NUM_STEPS_UP = 50
 DAMAGE_TOL   = 0.95 # 0.95
@@ -22,26 +21,28 @@ CYCLIC_RATIO = -1
 class Driver:
     
     def __init__(self, exp_data:dict, model, num_steps:int=500, rel_tol:float=1e-6,
-                 abs_tol:float=1e-10, verbose:bool=False) -> None:
+                 abs_tol:float=1e-10, max_strain:float=1.0, verbose:bool=False) -> None:
         """
         Initialises the driver class
         
         Parameters:
-        * `exp_data`:  Dictionary of experimental data
-        * `model`:     The model to be run
-        * `num_steps`: Number of steps to run
-        * `rel_tol`:   Relative error tolerance
-        * `abs_tol`:   Absolute error tolerance
-        * `verbose`:   Whether to run the driver in verbose mode
+        * `exp_data`:   Dictionary of experimental data
+        * `model`:      The model to be run
+        * `num_steps`:  Number of steps to run
+        * `rel_tol`:    Relative error tolerance
+        * `abs_tol`:    Absolute error tolerance
+        * `max_strain`: The maximum strain to run the tensile driver
+        * `verbose`:    Whether to run the driver in verbose mode
         """
-        self.exp_data  = exp_data
-        self.type      = self.exp_data["type"]
-        self.model     = model
-        self.num_steps = num_steps
-        self.rel_tol   = rel_tol
-        self.abs_tol   = abs_tol
-        self.verbose   = verbose
-        self.conv_dict = NEML_FIELD_CONVERSION[self.type]
+        self.exp_data   = exp_data
+        self.type       = self.exp_data["type"]
+        self.model      = model
+        self.num_steps  = num_steps
+        self.rel_tol    = rel_tol
+        self.abs_tol    = abs_tol
+        self.max_strain = max_strain
+        self.verbose    = verbose
+        self.conv_dict  = NEML_FIELD_CONVERSION[self.type]
     
     def run(self) -> dict:
         """
@@ -93,7 +94,7 @@ class Driver:
         returns the results
         """
         strain_rate = self.exp_data["strain_rate"] / 3600
-        results = drivers.uniaxial_test(self.model, erate=strain_rate, T=self.exp_data["temperature"], emax=MAX_STRAIN,
+        results = drivers.uniaxial_test(self.model, erate=strain_rate, T=self.exp_data["temperature"], emax=self.max_strain,
                                         check_dmg=True, dtol=DAMAGE_TOL, nsteps=self.num_steps, verbose=self.verbose, rtol=self.rel_tol, atol=self.abs_tol)
         return results
     

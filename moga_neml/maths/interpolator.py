@@ -22,8 +22,9 @@ class Interpolator:
         * `resolution`: The resolution used for the interpolation
         * `smooth`:     Whether to smooth the interpolation
         """
-        thin_x_list = get_thinned_list(x_list, resolution)
-        thin_y_list = get_thinned_list(y_list, resolution)
+        is_thick = len(x_list) > resolution
+        thin_x_list = get_thinned_list(x_list, resolution) if is_thick else x_list
+        thin_y_list = get_thinned_list(y_list, resolution) if is_thick else y_list
         smooth_amount = resolution if smooth else 0
         self.spl = splrep(thin_x_list, thin_y_list, s=smooth_amount)
     

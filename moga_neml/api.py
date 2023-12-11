@@ -425,21 +425,23 @@ class API:
         recorder.update_optimal_solution(param_value_dict, error_value_dict)
         recorder.create_record(self.__get_output__("results"), x_label, y_label)
     
-    def set_driver(self, num_steps:int=1000, rel_tol:float=1e-6, abs_tol:float=1e-10, verbose:bool=False) -> None:
+    def set_driver(self, num_steps:int=1000, rel_tol:float=1e-6, abs_tol:float=1e-10, max_strain:float=1.0,
+                   verbose:bool=False) -> None:
         """
         Sets some general options for the NEML driver
         
         Parameters:
-        * `num_steps`: Number of steps to run
-        * `rel_tol`:   Relative error tolerance
-        * `abs_tol`:   Absolute error tolerance
-        * `verbose`:   Whether to print updates during the driving
+        * `num_steps`:  Number of steps to run
+        * `rel_tol`:    Relative error tolerance
+        * `abs_tol`:    Absolute error tolerance
+        * `max_strain`: The maximum strain to run the tensile driver
+        * `verbose`:    Whether to print updates during the driving
         """
         self.__print__(f"Initialising the driver")
-        self.__controller__.set_driver(num_steps, rel_tol, abs_tol, verbose)
+        self.__controller__.set_driver(num_steps, rel_tol, abs_tol, max_strain, verbose)
     
     def set_recorder(self, interval:int=10, overwrite:bool=True, plot_opt:bool=False,
-                     plot_loss:bool=False) -> None:
+                     plot_loss:bool=False, save_model:bool=False) -> None:
         """
         Sets the options for the results recorder
         
@@ -449,10 +451,11 @@ class API:
         * `overwrite`:  Whether to overwrite the results instead of creating a new file
         * `plot_opt`:   Whether to plot the best plot after every update
         * `plot_loss`:  Whether to plot the loss history after every update
+        * `save_model`: Whether to save the best calibrated model
         """
         self.__print__(f"Initialising the recorder with an interval of {interval}")
         self.__recorder__ = Recorder(self.__controller__, interval, self.__output_path__,
-                                     overwrite, plot_opt, plot_loss)
+                                     overwrite, plot_opt, plot_loss, save_model)
 
     def group_errors(self, name:bool=True, type:bool=True, labels:bool=True):
         """

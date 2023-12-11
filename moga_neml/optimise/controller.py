@@ -259,20 +259,23 @@ class Controller():
         self.group_type = group_type
         self.group_labels = group_labels
 
-    def set_driver(self, num_steps:int=1000, rel_tol:float=1e-6, abs_tol:float=1e-10, verbose:bool=False) -> None:
+    def set_driver(self, num_steps:int=1000, rel_tol:float=1e-6, abs_tol:float=1e-10, max_strain:float=1.0,
+                   verbose:bool=False) -> None:
         """
         Sets some general options for the NEML driver
         
         Parameters:
-        * `num_steps`: Number of steps to run
-        * `rel_tol`:   Relative error tolerance
-        * `abs_tol`:   Absolute error tolerance
-        * `verbose`:   Whether to print updates during the driving
+        * `num_steps`:  Number of steps to run
+        * `rel_tol`:    Relative error tolerance
+        * `abs_tol`:    Absolute error tolerance
+        * `max_strain`: The maximum strain to run the tensile driver
+        * `verbose`:    Whether to print updates during the driving
         """
-        self.num_steps = num_steps
-        self.rel_tol   = rel_tol
-        self.abs_tol   = abs_tol
-        self.verbose   = verbose
+        self.num_steps  = num_steps
+        self.rel_tol    = rel_tol
+        self.abs_tol    = abs_tol
+        self.max_strain = max_strain
+        self.verbose    = verbose
 
     def get_error_grouping(self) -> str:
         """
@@ -471,7 +474,7 @@ class Controller():
         x_label = DATA_FIELD_PLOT_MAP[type]["x"] if x_label == None else x_label
         y_label = DATA_FIELD_PLOT_MAP[type]["y"] if y_label == None else y_label
         plotter = Plotter(file_path, x_label, y_label)
-        plotter.prep_plot(f"Experimental vs Prediction ({type.capitalize()})")
+        plotter.prep_plot(f"Experimental vs Simulation ({type.capitalize()})")
         
         # Plot experimental and predicted data
         for curve in self.curve_list:
@@ -512,7 +515,7 @@ class Controller():
         x_label = DATA_FIELD_PLOT_MAP[type]["x"] if x_label == None else x_label
         y_label = DATA_FIELD_PLOT_MAP[type]["y"] if y_label == None else y_label
         plotter = Plotter(file_path, x_label, y_label)
-        plotter.prep_plot(f"Experimental vs Prediction ({type.capitalize()})")
+        plotter.prep_plot(f"Experimental vs Simulation ({type.capitalize()})")
         plotter.set_limits(x_limits, y_limits)
         
         # Plot experimental data
@@ -549,7 +552,7 @@ class Controller():
 
         # Define legend information
         colour_list = [EXP_TRAIN_COLOUR, "black"]
-        label_list  = ["Training", "Prediction"]
+        label_list  = ["Calibration", "Simulation"]
         size_list   = [7, 1]
         type_list   = ["scatter", "line"]
 

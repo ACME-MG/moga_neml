@@ -17,7 +17,8 @@ from moga_neml.optimise.controller import Controller
 class Recorder:
     
     def __init__(self, controller:Controller, interval:int, results_dir:str,
-                 overwrite:bool=True, plot_opt:bool=False, plot_loss:bool=False):
+                 overwrite:bool=True, plot_opt:bool=False, plot_loss:bool=False,
+                 save_model:bool=False):
         """
         Class for recording the results
 
@@ -28,6 +29,7 @@ class Recorder:
         * `overwrite`:   Whether to overwrite the results instead of creating a new file
         * `plot_opt`:    Whether to plot the best plot after every update
         * `plot_loss`:   Whether to plot the loss history after every update
+        * `save_model`:  Whether to save the best calibrated model
         """
         
         # Initialise inputs
@@ -37,6 +39,7 @@ class Recorder:
         self.overwrite   = overwrite
         self.plot_opt    = plot_opt
         self.plot_loss   = plot_loss
+        self.save_model  = save_model
         
         # Initialise internal variables
         self.curve_list          = controller.get_curve_list()
@@ -71,7 +74,7 @@ class Recorder:
         # Summarise data information
         self.data_info_list = []
         for curve in self.curve_list:
-            status = "training" if curve.get_train() else "validation"
+            status = "calibration" if curve.get_train() else "validation"
             data_info = "{} ({})".format(curve.get_exp_data()["file_name"], status)
             self.data_info_list.append(data_info)
         
@@ -265,12 +268,12 @@ class Recorder:
         # Prepare dict for plotting data
         plot_dict = {}
         if train_dict["exp_x"] != []:
-            plot_dict["training"] = {x_label: train_dict["exp_x"], y_label: train_dict["exp_y"], "size": 5, "colour": EXP_TRAIN_COLOUR}
+            plot_dict["calibration"] = {x_label: train_dict["exp_x"], y_label: train_dict["exp_y"], "size": 5, "colour": EXP_TRAIN_COLOUR}
         if valid_dict["exp_x"] != []:
             plot_dict["validation"] = {x_label: valid_dict["exp_x"], y_label: valid_dict["exp_y"], "size": 5, "colour": EXP_VALID_COLOUR}
         all_x = train_dict["prd_x"] + valid_dict["prd_x"]
         all_y = train_dict["prd_y"] + valid_dict["prd_y"]
-        plot_dict["prediction"] = {x_label: all_x , y_label: all_y, "size": 2, "colour": "red"}
+        plot_dict["simulation"] = {x_label: all_x , y_label: all_y, "size": 2, "colour": "red"}
         return plot_dict
 
     def create_record(self, file_path:str, in_x_label:str=None, in_y_label:str=None) -> None:
@@ -319,53 +322,73 @@ class Recorder:
             # Creates a quick-view plot, if desired
             if self.plot_opt:
                 plotter = Plotter(f"{self.results_dir}/opt_{type}.png", x_label, y_label)
-                plotter.prep_plot("Best Prediction")
-                for key in ["training", "validation", "prediction"]:
+                plotter.prep_plot("Best Simulation")
+                for key in ["calibration", "validation", "simulation"]:
                     if key in plot_dict.keys():
                         plotter.scat_plot(plot_dict[key], plot_dict[key]["colour"], plot_dict[key]["size"])
                 plotter.save_plot()
                 plotter.clear()
         
-        # Creates a text file with the reduced error
-        if self.plot_opt:
-            reduction_method = self.controller.get_objective_reduction_method()
-            reduced_error = self.optimal_solution_list[0][reduction_method]
-            reduced_error_path = f"{self.results_dir}/opt_err.txt"
-            with open(reduced_error_path, "w+") as fh:
-                fh.write(str(reduced_error))
-
-        # Plots the loss, if desired
-        if self.plot_loss:
-
-            # Get loss data
-            reduction_method = self.controller.get_objective_reduction_method()
-            loss = self.optimal_solution_list[-1][reduction_method]
-            self.loss_history["loss"].append(round(loss, 6))
-            self.loss_history["generations"].append(self.num_gens_completed)
-
-            # Write loss data
-            curr_loss_file = f"{self.results_dir}/opt_loss"
-            curr_loss_path = curr_loss_file
-            loss_history_str = "\n".join([f"{self.loss_history['generations'][i]}, {self.loss_history['loss'][i]}"
-                                         for i in range(len(self.loss_history["loss"]))])
-            for i in range(1, 10000):
-                try:
-                    with open(f"{curr_loss_path}.csv", "w+") as fh:
-                        fh.write(loss_history_str)
-                    break
-                except PermissionError:
-                    curr_loss_path = f"{curr_loss_file} ({i})"
-
-            # Plot loss
-            plotter = Plotter(f"{self.results_dir}/opt_loss.png", "generations", "loss")
-            plotter.prep_plot("Loss history")
-            plotter.set_log_scale(False, True)
-            plotter.scat_plot(self.loss_history, "red", 3)
-            plotter.save_plot()
-            plotter.clear()
-
         # Close the spreadsheet
         spreadsheet.close()
+
+        # Output files based on recorder settings
+        self.write_error() if self.plot_opt else None
+        self.write_loss() if self.plot_loss else None
+        self.save_calibrated_model() if self.save_model else None
+
+    def write_error(self):
+        """
+        Creates a text file with the reduced error
+        """
+        reduction_method = self.controller.get_objective_reduction_method()
+        reduced_error = self.optimal_solution_list[0][reduction_method]
+        reduced_error_path = f"{self.results_dir}/opt_err.txt"
+        with open(reduced_error_path, "w+") as fh:
+            fh.write(str(reduced_error))
+
+    def write_loss(self):
+        """
+        Creates a text file with the loss history and creates a plot
+        """
+
+        # Get loss data
+        reduction_method = self.controller.get_objective_reduction_method()
+        loss = self.optimal_solution_list[-1][reduction_method]
+        self.loss_history["loss"].append(round(loss, 6))
+        self.loss_history["generations"].append(self.num_gens_completed)
+
+        # Write loss data
+        curr_loss_file = f"{self.results_dir}/opt_loss"
+        curr_loss_path = curr_loss_file
+        loss_history_str = "\n".join([f"{self.loss_history['generations'][i]}, {self.loss_history['loss'][i]}"
+                                        for i in range(len(self.loss_history["loss"]))])
+        for i in range(1, 10000):
+            try:
+                with open(f"{curr_loss_path}.csv", "w+") as fh:
+                    fh.write(loss_history_str)
+                break
+            except PermissionError:
+                curr_loss_path = f"{curr_loss_file} ({i})"
+
+        # Plot loss
+        plotter = Plotter(f"{self.results_dir}/opt_loss.png", "generations", "loss")
+        plotter.prep_plot("Loss history")
+        plotter.set_log_scale(False, True)
+        plotter.scat_plot(self.loss_history, "red", 3)
+        plotter.save_plot()
+        plotter.clear()
+
+    def save_calibrated_model(self):
+        """
+        Saves the calibrated model
+        """
+        opt_solution     = self.optimal_solution_list[0]["params"]
+        opt_params       = opt_solution.values()
+        calibrated_model = self.controller.model.get_calibrated_model(*opt_params)
+        model_path       = f"{self.results_dir}/opt_model.xml"
+        model_name       = self.controller.model.get_name()
+        calibrated_model.save(model_path, model_name)
 
 def process_data_dict(data_dict:dict, x_label:str, y_label:str) -> tuple:
     """
