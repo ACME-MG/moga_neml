@@ -6,9 +6,8 @@ api.define_model("cih")
 
 api.read_data("cyclic/Airbase316.csv")
 api.change_data("num_cycles", 1)
-api.add_error("area", "strain", "stress")
-# api.add_error("area", "time", "strain")
-# api.add_error("area", "time", "stress")
+api.add_error("area", "time", "strain")
+api.add_error("area", "time", "stress")
  
 api.set_driver(verbose=True)
 api.set_recorder(10, True, True, True, True)
