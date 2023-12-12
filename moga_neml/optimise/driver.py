@@ -31,7 +31,7 @@ class Driver:
         * `num_steps`:  Number of steps to run
         * `rel_tol`:    Relative error tolerance
         * `abs_tol`:    Absolute error tolerance
-        * `max_strain`: The maximum strain to run the tensile driver
+        * `max_strain`: The maximum strain to run the tensile / cyclic driver
         * `verbose`:    Whether to run the driver in verbose mode
         """
         self.exp_data   = exp_data

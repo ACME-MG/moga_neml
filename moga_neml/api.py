@@ -456,7 +456,7 @@ class API:
         * `num_steps`:  Number of steps to run
         * `rel_tol`:    Relative error tolerance
         * `abs_tol`:    Absolute error tolerance
-        * `max_strain`: The maximum strain to run the tensile driver
+        * `max_strain`: The maximum strain to run the tensile / cyclic driver
         * `verbose`:    Whether to print updates during the driving
         """
         self.__print__(f"Initialising the driver")
