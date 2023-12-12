@@ -174,7 +174,7 @@ class Recorder:
             # Display progress in console
             progress = f"{num_gens_completed_padded}/{self.num_gens}"
             index = round(self.num_gens_completed//self.interval)
-            print(f"      {index}]\tRecorded in {update_duration}s ({progress} gens) ({self.num_evals_completed} evals)")
+            print(f"      {index}]\tRecorded in {update_duration}s ({progress} gens, {self.num_evals_completed} evals)")
     
     def get_summary_dict(self) -> dict:
         """
