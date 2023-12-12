@@ -21,7 +21,7 @@ CYCLIC_RATIO = -1
 class Driver:
     
     def __init__(self, exp_data:dict, model, num_steps:int=500, rel_tol:float=1e-6,
-                 abs_tol:float=1e-10, max_strain:float=1.0, verbose:bool=False) -> None:
+                 abs_tol:float=1e-10, max_strain:float=None, verbose:bool=False) -> None:
         """
         Initialises the driver class
         
@@ -93,8 +93,9 @@ class Driver:
         Runs the tensile driver;
         returns the results
         """
+        max_strain = 1.0 if self.max_strain == None else self.max_strain
         results = drivers.uniaxial_test(self.model, erate=self.exp_data["strain_rate"], T=self.exp_data["temperature"],
-                                        emax=self.max_strain, check_dmg=True, dtol=DAMAGE_TOL, nsteps=self.num_steps,
+                                        emax=max_strain, check_dmg=True, dtol=DAMAGE_TOL, nsteps=self.num_steps,
                                         verbose=self.verbose, rtol=self.rel_tol, atol=self.abs_tol)
         return results
     
@@ -103,7 +104,7 @@ class Driver:
         Runs the cyclic driver;
         returns the results
         """
-        max_strain = self.exp_data["max_strain"]
+        max_strain = self.exp_data["max_strain"] if self.max_strain == None else self.max_strain
         num_cycles = int(self.exp_data["num_cycles"])
         results = drivers.strain_cyclic(self.model, T=self.exp_data["temperature"], emax=max_strain, erate=self.exp_data["strain_rate"],
                                         verbose=self.verbose, R=CYCLIC_RATIO, ncycles=num_cycles, nsteps=self.num_steps)

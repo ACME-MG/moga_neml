@@ -448,7 +448,7 @@ class API:
         recorder.save_calibrated_model(list(params))
 
     def set_driver(self, num_steps:int=1000, rel_tol:float=1e-6, abs_tol:float=1e-10,
-                   max_strain:float=1.0, verbose:bool=False) -> None:
+                   max_strain:float=None, verbose:bool=False) -> None:
         """
         Sets some general options for the NEML driver
         
