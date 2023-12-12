@@ -93,9 +93,9 @@ class Driver:
         Runs the tensile driver;
         returns the results
         """
-        strain_rate = self.exp_data["strain_rate"] / 3600
-        results = drivers.uniaxial_test(self.model, erate=strain_rate, T=self.exp_data["temperature"], emax=self.max_strain,
-                                        check_dmg=True, dtol=DAMAGE_TOL, nsteps=self.num_steps, verbose=self.verbose, rtol=self.rel_tol, atol=self.abs_tol)
+        results = drivers.uniaxial_test(self.model, erate=self.exp_data["strain_rate"], T=self.exp_data["temperature"],
+                                        emax=self.max_strain, check_dmg=True, dtol=DAMAGE_TOL, nsteps=self.num_steps,
+                                        verbose=self.verbose, rtol=self.rel_tol, atol=self.abs_tol)
         return results
     
     def run_cyclic(self) -> dict:
@@ -104,9 +104,8 @@ class Driver:
         returns the results
         """
         max_strain = self.exp_data["max_strain"]
-        strain_rate = self.exp_data["strain_rate"] / 3600
         num_cycles = int(self.exp_data["num_cycles"])
-        results = drivers.strain_cyclic(self.model, T=self.exp_data["temperature"], emax=max_strain, erate=strain_rate,
+        results = drivers.strain_cyclic(self.model, T=self.exp_data["temperature"], emax=max_strain, erate=self.exp_data["strain_rate"],
                                         verbose=self.verbose, R=CYCLIC_RATIO, ncycles=num_cycles, nsteps=self.num_steps)
         results["time"] /= 3600
         return results
