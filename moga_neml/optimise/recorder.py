@@ -218,6 +218,19 @@ class Recorder:
         results[reduction_method] = [sf_format(o_sol[reduction_method]) for o_sol in self.optimal_solution_list]
         return results
     
+    def get_opt_params(self) -> dict:
+        """
+        Returns the best set of parameters from the optimisation
+        """
+        return self.optimal_solution_list[0]["params"]
+
+    def get_opt_error(self) -> float:
+        """
+        Returns the error corresponding to the best set of parameters from the optimisation
+        """
+        reduction_method = self.controller.get_objective_reduction_method()
+        return self.optimal_solution_list[0][reduction_method]
+
     def get_plot_dict(self, type:str, x_label:str, y_label:str) -> dict:
         """
         Gets the curves for a curve type
@@ -233,8 +246,7 @@ class Recorder:
         # If there are no optimal parameters, leave
         if len(self.optimal_solution_list) == 0:
             return
-        opt_solution = self.optimal_solution_list[0]["params"]
-        opt_params = opt_solution.values()
+        opt_params = self.get_opt_params().values()
         
         # Initialise data structure
         train_dict = {"exp_x": [], "exp_y": [], "prd_x": [], "prd_y": []}
@@ -340,8 +352,7 @@ class Recorder:
         """
         Creates a text file with the reduced error
         """
-        reduction_method = self.controller.get_objective_reduction_method()
-        reduced_error = self.optimal_solution_list[0][reduction_method]
+        reduced_error = self.get_opt_error()
         reduced_error_path = f"{self.results_dir}/opt_err.txt"
         with open(reduced_error_path, "w+") as fh:
             fh.write(str(reduced_error))
@@ -388,8 +399,7 @@ class Recorder:
         * `param_list`: Parameters as a list; if undefined, uses the most optimal
                         parameters from the optimisation
         """
-        if param_list == None:
-            param_list = self.optimal_solution_list[0]["params"].values()
+        param_list = self.get_opt_params().values() if param_list == None else param_list
         calibrated_model = self.controller.model.get_calibrated_model(*param_list)
         model_path = f"{self.results_dir}/opt_model.xml"
         model_name = self.controller.model.get_name()

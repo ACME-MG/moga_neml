@@ -1,11 +1,17 @@
 import sys; sys.path += ["../.."]
 from moga_neml.api import API
 
-api = API("ondrej evpy IsoKinJ2I1", input_path="../data", output_path="../results")
-# api.define_model("evpy", yield_function="IsoJ2")
-# api.define_model("evpy", yield_function="IsoJ2I1")
+api = API("ondrej evpy", input_path="../data", output_path="../results")
+api.define_model("evpy", yield_function="IsoJ2")
 
-api.read_data("cyclic/Airbase316_tensile.csv")
+api.read_data("cyclic/Airbase316.csv")
+api.change_data("type", "cyclic")
+api.remove_manual("strain", 0.014)
+api.add_error("area", "strain", "stress")
+api.add_error("end", "strain")
+
+api.read_data("cyclic/Airbase316.csv")
+api.change_data("type", "tensile")
 api.remove_manual("strain", 0.014)
 api.add_error("area", "strain", "stress")
 api.add_error("end", "strain")

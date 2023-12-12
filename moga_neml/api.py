@@ -111,24 +111,25 @@ class API:
         self.__print__(f"Reading data from '{file_name}'")
         exp_data = read_exp_data(self.__input_path__, file_name)
         self.__controller__.add_curve(exp_data["type"], exp_data)
-    
-    def add_custom_data(self, type:str, exp_data:dict) -> None:
+
+    def change_data(self, field:str, value) -> None:
         """
-        Adds custom data; useful for defining specific test conditions
-        
+        Changes a field in the most recently added experimental data
+
         Parameters:
-        * `type`:      The data type (e.g., creep, tensile)
-        * `exp_data`:  Information about the data
+        * `field`: The field to be changed
+        * `value`: The new value to replace the existing value
         """
-        self.__print__(f"Adding custom {type} data!")
-        exp_data["file_name"] = "custom"
-        exp_data["type"] = type
+        self.__print__(f"Changing the '{field}' field")
+        curve = self.__controller__.get_last_curve()
+        exp_data = curve.get_exp_data()
+        exp_data[field] = value
         check_exp_data(exp_data)
-        self.__controller__.add_curve(type, exp_data)
-    
+        curve.set_exp_data(exp_data)
+
     def add_error(self, error_name:str, x_label:str="", y_label:str="", weight:float=1, **kwargs) -> None:
         """
-        Adds an error to optimise for the most recenrtly added experimental data
+        Adds an error to optimise for the most recently added experimental data
         
         Parameters:
         * `error_name`: The name of the error
@@ -541,6 +542,11 @@ class API:
         self.__recorder__.define_hyperparameters(num_gens, population, offspring, crossover, mutation)
         moga = MOGA(problem, num_gens, population, offspring, crossover, mutation)
         moga.optimise()
+
+        # Get the resuls and print
+        opt_params = self.__recorder__.get_opt_params()
+        opt_error = self.__recorder__.get_opt_error()
+        print(f"\n\tParams:\t{opt_params}\n\tError:\t{opt_error}")
 
     def __check_curves__(self, message:str):
         """
