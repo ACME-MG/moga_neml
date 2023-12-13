@@ -1,6 +1,7 @@
 """
  Title:         The area objective function
- Description:   The objective function for calculating the vertical areas between two curves
+ Description:   The objective function for calculating the vertical areas between two curves;
+                Only works well for bijective data
  Author:        Janzen Choi
 
 """
@@ -8,7 +9,6 @@
 # Libraries
 import math, numpy as np
 from moga_neml.errors.__error__ import __Error__
-from moga_neml.helper.data import get_thinned_list
 from moga_neml.helper.interpolator import Interpolator
 
 # The Area class
@@ -34,10 +34,15 @@ class Error(__Error__):
 
         Returns the error
         """
+
+        # Get predicted data
         x_label = self.get_x_label()
         y_label = self.get_y_label()
-        prd_x_list = get_thinned_list(prd_data[x_label], self.num_points)
-        prd_y_list = get_thinned_list(prd_data[y_label], self.num_points)
+        prd_x_list = np.linspace(prd_data[x_label][0], min(self.exp_x_end, prd_data[x_label][-1]), self.num_points)
+        prd_interpolator = Interpolator(prd_data[x_label], prd_data[y_label], self.num_points)
+        prd_y_list = prd_interpolator.evaluate(prd_x_list)
+
+        # Get experimental data and calculate error
         exp_y_list = self.interpolator.evaluate(prd_x_list)
         area = [math.pow(prd_y_list[i] - exp_y_list[i], 2) for i in range(self.num_points) if prd_x_list[i] <= self.exp_x_end]
         return math.sqrt(np.average(area)) / self.avg_y

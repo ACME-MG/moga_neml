@@ -47,9 +47,6 @@ class Controller():
         self.error_reduction_method     = "average"
         self.objective_reduction_method = "average"
         
-        # Other initialisation
-        self.set_driver()
-        
     def define_model(self, model_name:str, **kwargs) -> None:
         """
         Defines the model
@@ -259,24 +256,6 @@ class Controller():
         self.group_type = group_type
         self.group_labels = group_labels
 
-    def set_driver(self, num_steps:int=1000, rel_tol:float=1e-6, abs_tol:float=1e-10,
-                   max_strain:float=None, verbose:bool=False) -> None:
-        """
-        Sets some general options for the NEML driver
-        
-        Parameters:
-        * `num_steps`:  Number of steps to run
-        * `rel_tol`:    Relative error tolerance
-        * `abs_tol`:    Absolute error tolerance
-        * `max_strain`: The maximum strain to run the tensile / cyclic driver
-        * `verbose`:    Whether to print updates during the driving
-        """
-        self.num_steps  = num_steps
-        self.rel_tol    = rel_tol
-        self.abs_tol    = abs_tol
-        self.max_strain = max_strain
-        self.verbose    = verbose
-
     def get_error_grouping(self) -> str:
         """
         Gets the error grouping approach as a string
@@ -321,8 +300,7 @@ class Controller():
             return None
         
         # Get the driver and prediction
-        model_driver = Driver(curve.get_exp_data(), calibrated_model, self.num_steps,
-                              self.rel_tol, self.abs_tol, self.max_strain, self.verbose)
+        model_driver = Driver(curve, calibrated_model)
         prd_data = model_driver.run()
 
         # Check data has some data points

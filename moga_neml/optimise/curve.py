@@ -17,17 +17,20 @@ class Curve:
         Stores information about a curve
 
         Parameters:
-        * `type`:     The type of the curve
-        * `exp_data`: The experimental data
-        * `model`:    The model to use for the predictions
+        * `type`:          The type of the curve
+        * `exp_data`:      The experimental data
+        * `model`:         The model to use for the predictions
+        * `custom_driver`: The custom driver
         """
 
         # Initialise inputs variables
-        self.type     = type
-        self.exp_data = exp_data
-        self.model    = model
+        self.type          = type
+        self.exp_data      = exp_data
+        self.model         = model
         
         # Initialise internal variables
+        self.custom_driver = None
+        self.custom_driver_kwargs = None
         self.error_list = []
         self.prd_data = None # the latest predicted data, as a dictionary
 
@@ -39,6 +42,12 @@ class Curve:
         * `exp_data`: The experimental data
         """
         self.exp_data = exp_data
+    
+    def get_exp_data(self) -> dict:
+        """
+        Gets the experimental data
+        """
+        return self.exp_data
 
     def set_prd_data(self, prd_data:dict) -> None:
         """
@@ -48,6 +57,11 @@ class Curve:
         * `prd_data`: The predicted data
         """
         self.prd_data = prd_data
+    
+    def get_prd_data(self) -> dict:
+        """
+        Gets the predicted data
+        """
     
     def get_type(self) -> str:
         """
@@ -60,18 +74,22 @@ class Curve:
         Gets whether the curve will be used for training or validation
         """
         return len(self.error_list) != 0
-    
-    def get_exp_data(self) -> dict:
+
+    def set_custom_driver(self, custom_driver:str, custom_driver_kwargs) -> None:
         """
-        Gets the experimental data
+        Sets the custom driver
+
+        Parameters:
+        * `custom_driver`: The custom driver handle
         """
-        return self.exp_data
-    
-    def get_prd_data(self) -> dict:
+        self.custom_driver = custom_driver
+        self.custom_driver_kwargs = custom_driver_kwargs
+
+    def get_custom_driver(self) -> tuple:
         """
-        Gets the predicted data
+        Returns the custom driver
         """
-        return self.prd_data
+        return self.custom_driver, self.custom_driver_kwargs
     
     def get_error_list(self) -> list:
         """

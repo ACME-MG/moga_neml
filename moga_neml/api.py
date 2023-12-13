@@ -62,33 +62,6 @@ class API:
             safe_mkdir(output_path)
             safe_mkdir(self.__output_path__)
     
-    def __print__(self, message:str, add_index:bool=True, sub_index:bool=False) -> None:
-        """
-        Displays a message before running the command (for internal use only)
-        
-        Parameters:
-        * `message`:   the message to be displayed
-        * `add_index`: if true, adds a number at the start of the message
-        * `sub_index`: if true, adds a number as a decimal
-        """
-        
-        # Special printing cases
-        if not self.__verbose__:
-            return
-        if not add_index:
-            print(message)
-            return
-        
-        # Prints with an index / subindex
-        if sub_index:
-            self.__print_subindex__ += 1
-            print_index = f"     {self.__print_index__}.{self.__print_subindex__}"
-        else:
-            self.__print_index__ += 1
-            self.__print_subindex__ = 0
-            print_index = f"{self.__print_index__}"
-        print(f"   {print_index})\t{message} ...")
-    
     def define_model(self, model_name:str, **kwargs) -> None:
         """
         Defines the model to be optimised
@@ -127,6 +100,17 @@ class API:
         exp_data[field] = value
         check_exp_data(exp_data)
         curve.set_exp_data(exp_data)
+
+    def set_custom_driver(self, driver_type:str, **kwargs) -> None:
+        """
+        Forces the optimiser to use a specific driver instead of one of the defined ones
+        
+        Parameters:
+        * `driver_type`: The driver type
+        """
+        self.__print__(f"Setting a custom '{driver_type}' driver")
+        curve = self.__controller__.get_last_curve()
+        curve.set_custom_driver(driver_type, kwargs)
 
     def add_error(self, error_name:str, x_label:str="", y_label:str="", weight:float=1, **kwargs) -> None:
         """
@@ -447,21 +431,6 @@ class API:
         recorder = Recorder(self.__controller__, 0, self.__output_path__, "")
         recorder.define_hyperparameters(0, 1, 0, 0, 0)
         recorder.save_calibrated_model(list(params))
-
-    def set_driver(self, num_steps:int=1000, rel_tol:float=1e-6, abs_tol:float=1e-10,
-                   max_strain:float=None, verbose:bool=False) -> None:
-        """
-        Sets some general options for the NEML driver
-        
-        Parameters:
-        * `num_steps`:  Number of steps to run
-        * `rel_tol`:    Relative error tolerance
-        * `abs_tol`:    Absolute error tolerance
-        * `max_strain`: The maximum strain to run the tensile / cyclic driver
-        * `verbose`:    Whether to print updates during the driving
-        """
-        self.__print__(f"Initialising the driver")
-        self.__controller__.set_driver(num_steps, rel_tol, abs_tol, max_strain, verbose)
     
     def set_recorder(self, interval:int=10, plot_opt:bool=False, plot_loss:bool=False,
                      save_model:bool=False) -> None:
@@ -519,7 +488,7 @@ class API:
         self.__controller__.set_objective_reduction_method(method)
     
     def optimise(self, num_gens:int=10000, population:int=100, offspring:int=50,
-                 crossover:float=0.65, mutation:float=0.35) -> None:
+                 crossover:float=0.80, mutation:float=0.01) -> None:
         """
         Prepares and conducts the optimisation
         
@@ -547,6 +516,33 @@ class API:
         opt_params = self.__recorder__.get_opt_params()
         opt_error = self.__recorder__.get_opt_error()
         print(f"\n\tParams:\t{opt_params}\n\tError:\t{opt_error}")
+    
+    def __print__(self, message:str, add_index:bool=True, sub_index:bool=False) -> None:
+        """
+        Displays a message before running the command (for internal use only)
+        
+        Parameters:
+        * `message`:   the message to be displayed
+        * `add_index`: if true, adds a number at the start of the message
+        * `sub_index`: if true, adds a number as a decimal
+        """
+        
+        # Special printing cases
+        if not self.__verbose__:
+            return
+        if not add_index:
+            print(message)
+            return
+        
+        # Prints with an index / subindex
+        if sub_index:
+            self.__print_subindex__ += 1
+            print_index = f"     {self.__print_index__}.{self.__print_subindex__}"
+        else:
+            self.__print_index__ += 1
+            self.__print_subindex__ = 0
+            print_index = f"{self.__print_index__}"
+        print(f"   {print_index})\t{message} ...")
 
     def __check_curves__(self, message:str):
         """
