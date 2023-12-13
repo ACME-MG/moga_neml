@@ -9,16 +9,16 @@
 import time
 from moga_neml.interface.plotter import Plotter, EXP_TRAIN_COLOUR, EXP_VALID_COLOUR
 from moga_neml.interface.spreadsheet import Spreadsheet
-from moga_neml.maths.data import  get_thinned_list
-from moga_neml.maths.experiment import DATA_DENSITY, DATA_FIELD_PLOT_MAP
+from moga_neml.helper.data import  get_thinned_list
+from moga_neml.helper.experiment import DATA_FIELD_PLOT_MAP
 from moga_neml.optimise.controller import Controller
+from moga_neml.helper.general import get_file_path_writable
 
 # The Recorder class
 class Recorder:
     
     def __init__(self, controller:Controller, interval:int, results_dir:str,
-                 overwrite:bool=True, plot_opt:bool=False, plot_loss:bool=False,
-                 save_model:bool=False):
+                 plot_opt:bool=False, plot_loss:bool=False, save_model:bool=False):
         """
         Class for recording the results
 
@@ -26,7 +26,6 @@ class Recorder:
         * `controller`:  The controller for controlling the optimisation results
         * `interval`:    The number of generations to record the results
         * `results_dir`: The directory to store the results
-        * `overwrite`:   Whether to overwrite the results instead of creating a new file
         * `plot_opt`:    Whether to plot the best plot after every update
         * `plot_loss`:   Whether to plot the loss history after every update
         * `save_model`:  Whether to save the best calibrated model
@@ -36,7 +35,6 @@ class Recorder:
         self.controller  = controller
         self.interval    = interval
         self.results_dir = results_dir
-        self.overwrite   = overwrite
         self.plot_opt    = plot_opt
         self.plot_loss   = plot_loss
         self.save_model  = save_model
@@ -165,11 +163,7 @@ class Recorder:
 
             # Display output
             num_gens_completed_padded = str(round(self.num_gens_completed)).zfill(len(str(self.num_gens)))
-            if self.overwrite:
-                file_path = f"{self.results_dir}/results"
-            else:
-                file_path = f"{self.results_dir}/results_{num_gens_completed_padded} ({update_duration}s)"
-            self.create_record(file_path)
+            self.create_record(f"{self.results_dir}/results")
 
             # Display progress in console
             progress = f"{num_gens_completed_padded}/{self.num_gens}"
@@ -298,13 +292,8 @@ class Recorder:
         """
 
         # If the results file is open, redirect to another path
-        curr_file_path = f"{file_path}.xlsx"
-        for i in range(1, 10000):
-            try:
-                spreadsheet = Spreadsheet(curr_file_path)
-                break
-            except PermissionError:
-                curr_file_path = f"{file_path} ({i}).xlsx"
+        file_path = get_file_path_writable(file_path, "xlsx")
+        spreadsheet = Spreadsheet(file_path)
 
         # Write the data to the spreadsheet
         spreadsheet.write_data(self.get_summary_dict(), "summary")
@@ -353,7 +342,7 @@ class Recorder:
         Creates a text file with the reduced error
         """
         reduced_error = self.get_opt_error()
-        reduced_error_path = f"{self.results_dir}/opt_err.txt"
+        reduced_error_path = get_file_path_writable(f"{self.results_dir}/opt_err", "txt")
         with open(reduced_error_path, "w+") as fh:
             fh.write(str(reduced_error))
 
@@ -368,20 +357,12 @@ class Recorder:
         self.loss_history["loss"].append(round(loss, 6))
         self.loss_history["generations"].append(self.num_gens_completed)
 
-        # Format loss data
-        curr_loss_file = f"{self.results_dir}/opt_loss"
-        curr_loss_path = curr_loss_file
+        # Format loss data and write it
+        loss_path = get_file_path_writable(f"{self.results_dir}/opt_loss", "csv")
         loss_history_str = "\n".join([f"{self.loss_history['generations'][i]}, {self.loss_history['loss'][i]}"
                                         for i in range(len(self.loss_history["loss"]))])
-        
-        # Write loss data
-        for i in range(1, 10000):
-            try:
-                with open(f"{curr_loss_path}.csv", "w+") as fh:
-                    fh.write(loss_history_str)
-                break
-            except PermissionError:
-                curr_loss_path = f"{curr_loss_file} ({i})"
+        with open(loss_path, "w+") as fh:
+            fh.write(loss_history_str)
 
         # Plot loss
         plotter = Plotter(f"{self.results_dir}/opt_loss.png", "generations", "loss")
@@ -401,7 +382,7 @@ class Recorder:
         """
         param_list = self.get_opt_params().values() if param_list == None else param_list
         calibrated_model = self.controller.model.get_calibrated_model(*param_list)
-        model_path = f"{self.results_dir}/opt_model.xml"
+        model_path = get_file_path_writable(f"{self.results_dir}/opt_model", "xml")
         model_name = self.controller.model.get_name()
         calibrated_model.save(model_path, model_name)
 
@@ -416,6 +397,6 @@ def process_data_dict(data_dict:dict, x_label:str, y_label:str) -> tuple:
 
     Returns the thinned x and y lists
     """
-    data_dict[x_label] = get_thinned_list(data_dict[x_label], DATA_DENSITY)
-    data_dict[y_label] = get_thinned_list(data_dict[y_label], DATA_DENSITY)
+    data_dict[x_label] = get_thinned_list(data_dict[x_label], 1000)
+    data_dict[y_label] = get_thinned_list(data_dict[y_label], 1000)
     return data_dict[x_label], data_dict[y_label]

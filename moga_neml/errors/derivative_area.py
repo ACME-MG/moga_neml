@@ -8,9 +8,9 @@
 # Libraries
 import math, numpy as np
 from moga_neml.errors.__error__ import __Error__
-from moga_neml.maths.data import get_thinned_list
-from moga_neml.maths.derivative import differentiate_curve
-from moga_neml.maths.interpolator import Interpolator
+from moga_neml.helper.data import get_thinned_list
+from moga_neml.helper.derivative import differentiate_curve
+from moga_neml.helper.interpolator import Interpolator
 
 # Constants
 NUM_POINTS = 50

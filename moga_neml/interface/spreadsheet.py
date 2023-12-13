@@ -7,7 +7,7 @@
 
 # Libraries
 import pandas as pd
-from moga_neml.maths.experiment import DATA_UNITS
+from moga_neml.helper.experiment import DATA_UNITS
 
 # Spreadsheet class
 class Spreadsheet:

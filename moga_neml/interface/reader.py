@@ -7,8 +7,8 @@
 
 # Libraries
 from numbers import Number
-from moga_neml.maths.data import get_thinned_list
-from moga_neml.maths.experiment import DATA_FIELD_DICT, DATA_DENSITY
+from moga_neml.helper.data import get_thinned_list
+from moga_neml.helper.experiment import DATA_FIELD_DICT
 
 def try_float_cast(value:str) -> float:
     """
@@ -22,13 +22,15 @@ def try_float_cast(value:str) -> float:
     except:
         return value
 
-def get_curve_dict(headers:list, data:list) -> dict:
+def get_curve_dict(headers:list, data:list, num_points:int, thin_data:bool) -> dict:
     """
     Converts CSV data into a curve dict
 
     Parameters:
-    * `headers`: A list of strings representing the keys
-    * `data`:    A list of lists containing the data
+    * `headers`:    A list of strings representing the keys
+    * `data`:       A list of lists containing the data
+    * `num_points`: How many points to thin the data to
+    * `thin_data`:  Whether to thin the data or not
     """
 
     # Get indexes of data
@@ -39,7 +41,8 @@ def get_curve_dict(headers:list, data:list) -> dict:
     curve = {}
     for index in list_indexes:
         value_list = [float(d[index]) for d in data]
-        value_list = get_thinned_list(value_list, DATA_DENSITY)
+        if thin_data:
+            value_list = get_thinned_list(value_list, num_points)
         curve[headers[index]] = value_list
     for index in info_indexes:
         curve[headers[index]] = try_float_cast(data[0][index])
@@ -47,13 +50,15 @@ def get_curve_dict(headers:list, data:list) -> dict:
     # Return curve
     return curve
 
-def read_exp_data(file_dir:str, file_name:str) -> dict:
+def read_exp_data(file_dir:str, file_name:str, num_points:int, thin_data:bool) -> dict:
     """
     Reads the experimental data
 
     Parameters:
-    * `file_dir`:  The path to the folder containing the experimental data files
-    * `file_name`: The name of the file containing the experimental data
+    * `file_dir`:   The path to the folder containing the experimental data files
+    * `file_name`:  The name of the file containing the experimental data
+    * `num_points`: How many points to thin the data to
+    * `thin_data`:  Whether to thin the data or not
     """
 
     # Read data
@@ -62,7 +67,7 @@ def read_exp_data(file_dir:str, file_name:str) -> dict:
         data = [line.replace("\n","").split(",") for line in file.readlines()]
     
     # Create, check, and convert curve
-    exp_data = get_curve_dict(headers, data)
+    exp_data = get_curve_dict(headers, data, num_points, thin_data)
     exp_data["file_name"] = file_name
     check_exp_data(exp_data)
     

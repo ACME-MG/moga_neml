@@ -6,8 +6,9 @@
 """
 
 # Libraries
+import numpy as np
 from scipy.interpolate import splev, splrep, splder
-from moga_neml.maths.data import get_thinned_list
+from moga_neml.helper.data import get_thinned_list
 
 # The Interpolator Class
 class Interpolator:
@@ -22,11 +23,13 @@ class Interpolator:
         * `resolution`: The resolution used for the interpolation
         * `smooth`:     Whether to smooth the interpolation
         """
-        is_thick = len(x_list) > resolution
-        thin_x_list = get_thinned_list(x_list, resolution) if is_thick else x_list
-        thin_y_list = get_thinned_list(y_list, resolution) if is_thick else y_list
+        x_list, indices = np.unique(np.array(x_list), return_index=True)
+        y_list = np.array(y_list)[indices]
+        if len(x_list) > resolution:
+            x_list = get_thinned_list(list(x_list), resolution)
+            y_list = get_thinned_list(list(y_list), resolution)
         smooth_amount = resolution if smooth else 0
-        self.spl = splrep(thin_x_list, thin_y_list, s=smooth_amount)
+        self.spl = splrep(x_list, y_list, s=smooth_amount)
     
     def differentiate(self) -> None:
         """

@@ -12,11 +12,10 @@ from moga_neml.optimise.recorder import Recorder
 from moga_neml.optimise.controller import Controller
 from moga_neml.optimise.problem import Problem
 from moga_neml.optimise.moga import MOGA
-from moga_neml.maths.data import remove_data_after
-from moga_neml.maths.derivative import remove_after_sp
-from moga_neml.maths.experiment import DATA_UNITS
-from moga_neml.maths.general import safe_mkdir
-from moga_neml.interface.plotter import ALL_COLOURS
+from moga_neml.helper.data import remove_data_after
+from moga_neml.helper.derivative import remove_after_sp
+from moga_neml.helper.experiment import DATA_UNITS
+from moga_neml.helper.general import safe_mkdir, get_file_path_exists
 
 # API Class
 class API:
@@ -101,15 +100,17 @@ class API:
         self.__print__(f"Defining model '{model_name}'")
         self.__controller__.define_model(model_name, **kwargs)
     
-    def read_data(self, file_name:str) -> None:
+    def read_data(self, file_name:str, num_points:int=1000, thin_data:bool=True) -> None:
         """
         Reads in the experimental data from a file
         
         Parameters:
-        * `file_name`: The name of the file relative to the defined `input_path`
+        * `file_name`:  The name of the file relative to the defined `input_path`
+        * `num_points`: How many points to thin the data to
+        * `thin_data`:  Whether to thin the data or not
         """
         self.__print__(f"Reading data from '{file_name}'")
-        exp_data = read_exp_data(self.__input_path__, file_name)
+        exp_data = read_exp_data(self.__input_path__, file_name, num_points, thin_data)
         self.__controller__.add_curve(exp_data["type"], exp_data)
 
     def change_data(self, field:str, value) -> None:
@@ -290,8 +291,8 @@ class API:
         # Iterate through the curves and plot them
         type_list = self.__controller__.get_all_types()
         for type in type_list:
-            file_name = f"exp_{type}_d{derivative}.png" if derivative > 0 else f"exp_{type}.png"
-            file_path = self.__get_output__(file_name)
+            file_name = f"exp_{type}_d{derivative}" if derivative > 0 else f"exp_{type}"
+            file_path = get_file_path_exists(self.__get_output__(file_name), "png")
             self.__check_curves__("There are no experimental curves to plot!")
             self.__controller__.plot_exp_curves(type, file_path, x_label, y_label, derivative, x_log, y_log)
 
@@ -462,22 +463,21 @@ class API:
         self.__print__(f"Initialising the driver")
         self.__controller__.set_driver(num_steps, rel_tol, abs_tol, max_strain, verbose)
     
-    def set_recorder(self, interval:int=10, overwrite:bool=True, plot_opt:bool=False,
-                     plot_loss:bool=False, save_model:bool=False) -> None:
+    def set_recorder(self, interval:int=10, plot_opt:bool=False, plot_loss:bool=False,
+                     save_model:bool=False) -> None:
         """
         Sets the options for the results recorder
         
         Parameters:
         * `interval`:   The number of generations for which the most updated results will
                         be generated
-        * `overwrite`:  Whether to overwrite the results instead of creating a new file
         * `plot_opt`:   Whether to plot the best plot after every update
         * `plot_loss`:  Whether to plot the loss history after every update
         * `save_model`: Whether to save the best calibrated model
         """
         self.__print__(f"Initialising the recorder with an interval of {interval}")
         self.__recorder__ = Recorder(self.__controller__, interval, self.__output_path__,
-                                     overwrite, plot_opt, plot_loss, save_model)
+                                     plot_opt, plot_loss, save_model)
 
     def group_errors(self, name:bool=True, type:bool=True, labels:bool=True):
         """

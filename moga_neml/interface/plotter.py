@@ -8,7 +8,7 @@
 # Libraries
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolours
-from moga_neml.maths.experiment import DATA_UNITS
+from moga_neml.helper.experiment import DATA_UNITS
 
 # Constants
 DEFAULT_PATH     = "./plot"

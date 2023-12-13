@@ -9,6 +9,41 @@
 import csv, os, subprocess, sys
 import math, numpy as np
 
+def get_file_path_writable(file_path:str, extension:str):
+    """
+    Appends a number after a path if it exists
+
+    Parameters:
+    * `file_path`: Path to file without the extension
+    * `extension`: The extension for the file
+    """
+    new_file_path = f"{file_path}.{extension}"
+    if not os.path.exists(new_file_path):
+        return new_file_path
+    index = 1
+    while True:
+        try:
+            with open(new_file_path, 'a'):
+                return new_file_path
+        except IOError:
+            new_file_path = f"{file_path} ({index}).{extension}"
+            index += 1
+
+def get_file_path_exists(file_path:str, extension:str):
+    """
+    Appends a number after a path if it exists
+
+    Parameters:
+    * `file_path`: Path to file without the extension
+    * `extension`: The extension for the file
+    """
+    new_file_path = f"{file_path}.{extension}"
+    index = 1
+    while os.path.exists(new_file_path):
+        new_file_path = f"{file_path} ({index}).{extension}"
+        index += 1
+    return new_file_path
+
 def reduce_list(value_list:list, method:str) -> float:
     """
     Reduces a list of values based on a method

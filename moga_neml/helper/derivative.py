@@ -7,7 +7,7 @@
 
 # Libraries
 from copy import deepcopy
-from moga_neml.maths.interpolator import Interpolator
+from moga_neml.helper.interpolator import Interpolator
 
 def get_bfd(x_list:list, y_list:list) -> tuple:
     """
