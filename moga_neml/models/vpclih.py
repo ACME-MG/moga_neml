@@ -7,7 +7,7 @@
 
 # Libraries
 from moga_neml.models.__model__ import __Model__
-from neml import elasticity, surfaces, hardening, visco_flow, general_flow, models, ri_flow
+from neml import elasticity, surfaces, hardening, visco_flow, general_flow, models
 
 # The Visco-Plastic Chaboche Linear Isotropic Hardening Class
 class Model(__Model__):
@@ -18,12 +18,14 @@ class Model(__Model__):
         """
         self.add_param("lih_s0",  0.0e0, 1.0e2) # isotropic hardening initial yield stress
         self.add_param("lih_k",   0.0e0, 1.0e3) # isotropic hardening slope
+        self.add_param("vih_n",   0.0e0, 1.0e2) # ViscoFlowRule
+        self.add_param("vih_eta", 0.0e0, 1.0e4) # ViscoFlowRule
         self.add_param("c_gs1",   0.0e0, 1.0e6) # Chaboche
         self.add_param("c_gs2",   0.0e0, 1.0e6) # Chaboche
         self.add_param("c_cs1",   0.0e0, 1.0e6) # Chaboche
         self.add_param("c_cs2",   0.0e0, 1.0e6) # Chaboche
     
-    def calibrate_model(self, lih_s0, lih_k, c_gs1, c_gs2, c_cs1, c_cs2):
+    def calibrate_model(self, lih_s0, lih_k, vih_n, vih_eta, c_gs1, c_gs2, c_cs1, c_cs2):
         """
         Gets the predicted curves
 
@@ -38,6 +40,8 @@ class Model(__Model__):
         lih_rule       = hardening.LinearIsotropicHardeningRule(lih_s0, lih_k)
         gamma_rule     = [hardening.ConstantGamma(g) for g in [c_gs1, c_gs2]]
         chaboche_model = hardening.Chaboche(lih_rule, [c_cs1, c_cs2], gamma_rule, [0.0, 0.0], [1.0, 1.0])
-        plastic_flow   = ri_flow.RateIndependentNonAssociativeHardening(yield_surface, chaboche_model)
-        rilic_model    = models.SmallStrainRateIndependentPlasticity(elastic_model, plastic_flow)
-        return rilic_model
+        fluidity       = visco_flow.ConstantFluidity(vih_eta)
+        cf_rule        = visco_flow.ChabocheFlowRule(yield_surface, chaboche_model, fluidity, vih_n)
+        flow_rule      = general_flow.TVPFlowRule(elastic_model, cf_rule)
+        vpclih_model   = models.GeneralIntegrator(elastic_model, flow_rule)
+        return vpclih_model

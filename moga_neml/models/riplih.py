@@ -36,5 +36,5 @@ class Model(__Model__):
         yield_surface = surfaces.IsoJ2()
         lih_rule      = hardening.PowerLawIsotropicHardeningRule(plih_s0, plih_A, plih_n)
         plastic_flow  = ri_flow.RateIndependentAssociativeFlow(yield_surface, lih_rule)
-        ripli_model   = models.SmallStrainRateIndependentPlasticity(elastic_model, plastic_flow)
-        return ripli_model
+        riplih_model  = models.SmallStrainRateIndependentPlasticity(elastic_model, plastic_flow)
+        return riplih_model

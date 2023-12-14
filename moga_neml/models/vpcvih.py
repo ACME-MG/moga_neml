@@ -44,5 +44,5 @@ class Model(__Model__):
         fluidity       = visco_flow.ConstantFluidity(vih_eta)
         cf_rule        = visco_flow.ChabocheFlowRule(yield_surface, chaboche_model, fluidity, vih_n)
         flow_rule      = general_flow.TVPFlowRule(elastic_model, cf_rule)
-        vpcvi_model    = models.GeneralIntegrator(elastic_model, flow_rule)
-        return vpcvi_model
+        vpcvih_model   = models.GeneralIntegrator(elastic_model, flow_rule)
+        return vpcvih_model

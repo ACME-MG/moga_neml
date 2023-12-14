@@ -38,5 +38,5 @@ class Model(__Model__):
         lkh_rule      = hardening.LinearKinematicHardeningRule(lkh_h)
         ch_rule       = hardening.CombinedHardeningRule(lih_rule, lkh_rule)
         plastic_flow  = ri_flow.RateIndependentAssociativeFlow(yield_surface, ch_rule)
-        rilik_model   = models.SmallStrainRateIndependentPlasticity(elastic_model, plastic_flow)
-        return rilik_model
+        rilikh_model  = models.SmallStrainRateIndependentPlasticity(elastic_model, plastic_flow)
+        return rilikh_model

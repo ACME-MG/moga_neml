@@ -1,5 +1,5 @@
 """
- Title:         The Rate-Independent Voce Isotropic Hardening Model
+ Title:         The Rate-Independent Linear Isotropic Hardening Model
  Description:   Rate-independent plasticity algorithm with a linearly isotropic hardening yield surface
  Author:        Janzen Choi
 
@@ -9,7 +9,7 @@
 from moga_neml.models.__model__ import __Model__
 from neml import ri_flow, elasticity, surfaces, hardening, models
 
-# The Rate-Independent Voce Isotropic Hardening Class
+# The Rate-Independent Linear Isotropic Hardening Class
 class Model(__Model__):
 
     def initialise(self):
@@ -18,11 +18,10 @@ class Model(__Model__):
         """
         
         # Define parameters
-        self.add_param("vih_s0", 0.0e0, 1.0e3) # VoceIsotropicHardeningRule
-        self.add_param("vih_R",  0.0e0, 1.0e3) # VoceIsotropicHardeningRule
-        self.add_param("vih_d",  0.0e0, 1.0e2) # VoceIsotropicHardeningRule
-
-    def calibrate_model(self, vih_s0, vih_R, vih_d):
+        self.add_param("lih_s0", 0.0e0, 1.0e2) # isotropic hardening initial yield stress
+        self.add_param("lih_k",  0.0e0, 1.0e3) # isotropic hardening slope
+        
+    def calibrate_model(self, lih_s0, lih_k):
         """
         Gets the predicted curves
 
@@ -34,7 +33,7 @@ class Model(__Model__):
         elastic_model = elasticity.IsotropicLinearElasticModel(self.get_data("youngs"), "youngs",
                                                                self.get_data("poissons"), "poissons")
         yield_surface = surfaces.IsoJ2()
-        vih_rule      = hardening.VoceIsotropicHardeningRule(vih_s0, vih_R, vih_d)
-        plastic_flow  = ri_flow.RateIndependentAssociativeFlow(yield_surface, vih_rule)
-        rivi_model    = models.SmallStrainRateIndependentPlasticity(elastic_model, plastic_flow)
-        return rivi_model
+        lih_rule      = hardening.LinearIsotropicHardeningRule(lih_s0, lih_k)
+        plastic_flow  = ri_flow.RateIndependentAssociativeFlow(yield_surface, lih_rule)
+        rilih_model   = models.SmallStrainRateIndependentPlasticity(elastic_model, plastic_flow)
+        return rilih_model
