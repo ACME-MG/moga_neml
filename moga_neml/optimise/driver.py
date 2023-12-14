@@ -72,7 +72,7 @@ class Driver:
         if custom_driver != None:
             custom_driver = getattr(drivers, custom_driver)
             results = custom_driver(self.model, **custom_driver_kwargs)
-            for key in ["time", "rtime"]:
+            for key in ["rtime"]:
                 results[key] /= 3600
             return results
 
@@ -115,5 +115,4 @@ class Driver:
         results = drivers.strain_cyclic(self.model, T=self.exp_data["temperature"], emax=self.exp_data["max_strain"],
                                         erate=self.exp_data["strain_rate"], verbose=VERBOSE, R=CYCLIC_RATIO,
                                         ncycles=num_cycles, nsteps=NUM_STEPS)
-        results["time"] /= 3600
         return results
