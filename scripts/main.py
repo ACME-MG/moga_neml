@@ -12,9 +12,11 @@ api.fix_params(params_list[0])
 
 api.read_data("creep/inl_1/AirBase_800_80_G25.csv")
 api.add_error("area", "time", "strain")
+api.add_error("end", "time")
+api.add_error("end", "strain")
 
-# api.plot_prediction(3109.8, 4.8245, 6.6364)
-# api.get_results(3109.8, 4.8245, 6.6364)
+api.plot_prediction(3109.8, 4.8245, 6.6364)
+api.get_results(3109.8, 4.8245, 6.6364)
 
-api.set_recorder(interval=1, save_model=True)
-api.optimise(population=10, offspring=5)
+# api.set_recorder(interval=1, plot_opt=True, plot_loss=True, save_model=False)
+# api.optimise(population=100, offspring=50)

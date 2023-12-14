@@ -225,46 +225,34 @@ class Recorder:
         reduction_method = self.controller.get_objective_reduction_method()
         return self.optimal_solution_list[0][reduction_method]
 
-    def get_plot_dict(self, type:str, x_label:str, y_label:str) -> dict:
+    def get_plot_dict(self, prd_data_list:list, valid_curve_list:list, x_label:str, y_label:str) -> dict:
         """
         Gets the curves for a curve type
 
         Parameters:
-        * `type`:    The curve type
-        * `x_label`: The label of the x axis
-        * `y_label`: The label of the y axis
+        * `prd_data_list`:    The list of predicted data
+        * `valid_curve_list`: The list of relevant experimental curves
+        * `x_label`:          The label of the x axis
+        * `y_label`:          The label of the y axis
 
         Returns the dictionary of plot information, and none if the predicted data is invalid
         """
-
-        # If there are no optimal parameters, leave
-        if len(self.optimal_solution_list) == 0:
-            return
-        opt_params = self.get_opt_params().values()
         
         # Initialise data structure
         train_dict = {"exp_x": [], "exp_y": [], "prd_x": [], "prd_y": []}
         valid_dict = {"exp_x": [], "exp_y": [], "prd_x": [], "prd_y": []}
         
-        # Get the experimental training and validation data
-        for curve in self.curve_list:
-            
-            # Ignore data not of desired type
-            if curve.get_type() != type:
-                continue
-            
-            # Get experimental data and thin
-            exp_data = curve.get_exp_data()
+        # Iterate through curves and predictions
+        for i in range(len(prd_data_list)):
+
+            # Get experimental / predicted data and process
+            exp_data = valid_curve_list[i].get_exp_data()
+            prd_data = prd_data_list[i]
             exp_x_list, exp_y_list = process_data_dict(exp_data, x_label, y_label)
-            
-            # Get predicted data and test validity
-            prd_data = self.controller.get_prd_data(curve, *opt_params)
-            if prd_data == None:
-                return None
             prd_x_list, prd_y_list = process_data_dict(prd_data, x_label, y_label)
             
             # Add to data structure
-            data_dict = train_dict if curve.get_train() else valid_dict
+            data_dict = train_dict if valid_curve_list[i].get_train() else valid_dict
             data_dict["exp_x"] += exp_x_list
             data_dict["exp_y"] += exp_y_list
             data_dict["prd_x"] += prd_x_list
@@ -313,17 +301,27 @@ class Recorder:
         * `spreadsheet`: The spreadsheet to add the plot to
         """
 
+        # If there are no optimal parameters, leave
+        if len(self.optimal_solution_list) == 0:
+            return
+        opt_params = self.get_opt_params().values()
+
+        # Get predicted curves first
+        valid_curve_list = [curve for curve in self.curve_list if curve.get_type() == type]
+        prd_data_list = []
+        for curve in valid_curve_list:
+            prd_data = self.controller.get_prd_data(curve, *opt_params)
+            if prd_data == None:
+                return
+            prd_data_list.append(prd_data)
+
         # Iterate through data field combinations
         for i in range(len(DATA_FIELD_PLOT_MAP[type])):
             x_label = DATA_FIELD_PLOT_MAP[type][i]["x"]
             y_label = DATA_FIELD_PLOT_MAP[type][i]["y"]
 
-            # Gets the data
-            plot_dict = self.get_plot_dict(type, x_label, y_label)
-            if plot_dict == None:
-                continue
-            
-            # Create a plot in the spreadsheet
+            # Gets the data and plots it on the spreadsheet
+            plot_dict = self.get_plot_dict(prd_data_list, valid_curve_list, x_label, y_label)
             spreadsheet.write_plot(
                 data_dict_dict = plot_dict,
                 sheet_name     = f"plot_{type}_{x_label}_{y_label}",
@@ -332,15 +330,15 @@ class Recorder:
                 plot_type      = "scatter"
             )
     
-        # Creates a quick-view plot, if desired
-        if self.plot_opt:
-            plotter = Plotter(f"{self.results_dir}/opt_{type}_{x_label}_{y_label}.png", x_label, y_label)
-            plotter.prep_plot("Best Simulation")
-            for key in ["calibration", "validation", "simulation"]:
-                if key in plot_dict.keys():
-                    plotter.scat_plot(plot_dict[key], plot_dict[key]["colour"], plot_dict[key]["size"])
-            plotter.save_plot()
-            plotter.clear()
+            # Creates a quick-view plot, if desired
+            if self.plot_opt:
+                plotter = Plotter(f"{self.results_dir}/opt_{type}_{x_label}_{y_label}.png", x_label, y_label)
+                plotter.prep_plot("Best Simulation")
+                for key in ["calibration", "validation", "simulation"]:
+                    if key in plot_dict.keys():
+                        plotter.scat_plot(plot_dict[key], plot_dict[key]["colour"], plot_dict[key]["size"])
+                plotter.save_plot()
+                plotter.clear()
 
     def write_error(self):
         """

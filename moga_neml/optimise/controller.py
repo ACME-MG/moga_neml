@@ -441,6 +441,15 @@ class Controller():
         * `y_log`:      Whether to log the y axis
         """
         
+        # Get predicted curves first
+        valid_curve_list = [curve for curve in self.curve_list if curve.get_type() == type]
+        prd_data_list = []
+        for curve in valid_curve_list:
+            prd_data = self.get_prd_data(curve, *params)
+            if prd_data == None:
+                raise ValueError("The model is unable to run with the parameters!")
+            prd_data_list.append(prd_data)
+
         # Iterate through data field combinations
         for i in range(len(DATA_FIELD_PLOT_MAP[type])):
             x_label = DATA_FIELD_PLOT_MAP[type][i]["x"]
@@ -452,13 +461,9 @@ class Controller():
             plotter.prep_plot(f"Experimental vs Simulation ({type.capitalize()})")
             
             # Plot experimental and predicted data
-            for curve in self.curve_list:
-                if curve.get_type() != type:
-                    continue
-                exp_data = curve.get_exp_data()
-                prd_data = self.get_prd_data(curve, *params)
-                if prd_data == None:
-                    raise ValueError("The model is unable to run with the parameters!")
+            for j in range(len(valid_curve_list)):
+                exp_data = valid_curve_list[j].get_exp_data()
+                prd_data = prd_data_list[j]
                 plotter.scat_plot(exp_data)
                 plotter.line_plot(prd_data)
             
@@ -484,6 +489,18 @@ class Controller():
         * `y_limits`:    The upper and lower bounds bound of the plot for the y scale
         """
 
+        # Get predicted curves first
+        valid_curve_list = [curve for curve in self.curve_list if curve.get_type() == type]
+        prd_data_list_list = []
+        for params in params_list:
+            prd_data_list = []
+            for curve in valid_curve_list:
+                prd_data = self.get_prd_data(curve, *params)
+                if prd_data == None:
+                    raise ValueError(f"The model is unable to run with the parameters - {params}!")
+                prd_data_list.append(prd_data)
+            prd_data_list_list.append(prd_data_list)
+
         # Iterate through data field combinations
         for i in range(len(DATA_FIELD_PLOT_MAP[type])):
             x_label = DATA_FIELD_PLOT_MAP[type][i]["x"]
@@ -496,36 +513,22 @@ class Controller():
             plotter.set_limits(x_limits, y_limits)
             
             # Plot experimental data
-            for curve in self.curve_list:
-                if curve.get_type() != type:
-                    continue
+            for curve in valid_curve_list:
                 exp_data = curve.get_exp_data()
                 colour = EXP_VALID_COLOUR if curve.is_validation() else EXP_TRAIN_COLOUR
                 plotter.scat_plot(exp_data, size=7, colour=colour)
 
-            # Iterate through the parameters
-            for i in range(len(params_list)):
-
-                # Iterate through the curves            
-                for curve in self.curve_list:
-                    if curve.get_type() != type:
-                        continue
-
-                    # Get prediction
-                    prd_data = self.get_prd_data(curve, *params_list[i])
-                    if prd_data == None:
-                        raise ValueError(f"The model is unable to run with the parameters, {params_list[i]}!")
-                    
-                    # Clip the prediction if necessary
+            # Plot predictions
+            for j in range(len(params_list)):
+                for k in range(len(valid_curve_list)):
+                    prd_data = prd_data_list_list[j][k]
                     if clip:
                         max_x = max(curve.get_exp_data()[x_label])
                         x_list = [x_value for x_value in prd_data[x_label] if x_value <= max_x]
-                        prd_data[y_label] = [prd_data[y_label][i] for i in range(len(prd_data[x_label]))
-                                            if prd_data[x_label][i] <= max_x]
+                        prd_data[y_label] = [prd_data[y_label][j] for j in range(len(prd_data[x_label]))
+                                            if prd_data[x_label][j] <= max_x]
                         prd_data[x_label] = x_list
-                    
-                    # Plot
-                    plotter.line_plot(prd_data, ALL_COLOURS[i])
+                    plotter.line_plot(prd_data, ALL_COLOURS[j])
 
             # Define legend information
             colour_list = [EXP_TRAIN_COLOUR, "black"]
@@ -534,7 +537,7 @@ class Controller():
             type_list   = ["scatter", "line"]
 
             # Add to legend information if validation
-            if True in [curve.is_validation() for curve in self.curve_list]:
+            if True in [curve.is_validation() for curve in valid_curve_list]:
                 colour_list.insert(1, EXP_VALID_COLOUR)
                 label_list.insert(1, "Validation")
                 size_list.insert(1, 7)
