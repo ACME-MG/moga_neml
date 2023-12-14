@@ -62,6 +62,7 @@ class Curve:
         """
         Gets the predicted data
         """
+        return self.prd_data
     
     def get_type(self) -> str:
         """
