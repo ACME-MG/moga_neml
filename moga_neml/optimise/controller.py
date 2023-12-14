@@ -14,9 +14,8 @@ from moga_neml.interface.plotter import Plotter, EXP_TRAIN_COLOUR, EXP_VALID_COL
 from moga_neml.interface.boxplotter import plot_boxplots
 from moga_neml.optimise.driver import Driver
 from moga_neml.optimise.curve import Curve
-from moga_neml.helper.derivative import differentiate_curve
 from moga_neml.helper.experiment import DATA_FIELD_PLOT_MAP
-from moga_neml.helper.general import reduce_list, transpose, get_file_path_exists
+from moga_neml.helper.general import reduce_list, transpose
 
 # Constants
 MIN_DATA    = 5

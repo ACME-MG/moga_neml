@@ -15,7 +15,7 @@ from moga_neml.optimise.moga import MOGA
 from moga_neml.helper.data import remove_data_after
 from moga_neml.helper.derivative import remove_after_sp
 from moga_neml.helper.experiment import DATA_UNITS
-from moga_neml.helper.general import safe_mkdir, get_file_path_exists
+from moga_neml.helper.general import safe_mkdir
 
 # API Class
 class API:

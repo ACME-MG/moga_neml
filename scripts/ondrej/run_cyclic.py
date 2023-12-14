@@ -16,7 +16,7 @@ api.define_model(model_name)
 
 api.read_data("cyclic/Airbase316.csv", num_points=5000)
 # api.change_data("num_cycles", 2)
-api.remove_manual("time", 252)
+# api.remove_manual("time", 252)
 api.add_error("area", "time", "strain", num_points=1500)
 api.add_error("area", "time", "stress", num_points=1500)
 api.add_error("max", "strain")
