@@ -53,11 +53,10 @@ api.add_error("area", "strain", "stress")
 api.add_error("end", "strain", weight=0.5)
 api.add_error("arg_max", "strain", "stress", weight=0.5)
 api.add_error("yield", yield_stress=291)
-# api.add_error("end", "stress")
 
 api.reduce_errors("square_average")
 api.reduce_objectives("square_average")
 
 api.plot_experimental()
-api.set_recorder(10, True, True, True)
+api.set_recorder(10, plot_opt=True, plot_loss=True)
 api.optimise(10000, 100, 50, 0.8, 0.01)

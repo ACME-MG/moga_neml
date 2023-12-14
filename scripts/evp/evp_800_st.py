@@ -28,5 +28,5 @@ api.reduce_errors("square_average")
 api.reduce_objectives("square_average")
 
 api.plot_experimental()
-api.set_recorder(10, True, True, True)
+api.set_recorder(10, plot_opt=True, plot_loss=True)
 api.optimise(10000, 100, 50, 0.8, 0.01)
