@@ -81,7 +81,6 @@ class __Model__:
 
         Returns the calibrated model
         """
-
         self.calibrated_model = self.calibrate_model(*params)
         return self.calibrated_model
 

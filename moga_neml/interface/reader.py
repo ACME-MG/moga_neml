@@ -101,7 +101,9 @@ def check_lists(exp_data:dict, header_list:list) -> None:
     list_length = len(exp_data[header_list[0]])
     for header in header_list:
         if len(exp_data[header]) != list_length:
-            raise ValueError(f"The data at '{exp_data['file_name']}' unequally sized data!")
+            raise ValueError(f"The '{header}' data at '{exp_data['file_name']}' has unequally sized data!")
+        if len(exp_data[header]) <= 5:
+            raise ValueError(f"The '{header}' data at '{exp_data['file_name']}' must have more than 5 points!")
 
 def check_exp_data(exp_data:dict) -> None:
     """

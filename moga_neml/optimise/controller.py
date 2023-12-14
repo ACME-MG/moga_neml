@@ -16,7 +16,7 @@ from moga_neml.optimise.driver import Driver
 from moga_neml.optimise.curve import Curve
 from moga_neml.helper.derivative import differentiate_curve
 from moga_neml.helper.experiment import DATA_FIELD_PLOT_MAP
-from moga_neml.helper.general import reduce_list, transpose
+from moga_neml.helper.general import reduce_list, transpose, get_file_path_exists
 
 # Constants
 MIN_DATA    = 5
@@ -179,16 +179,16 @@ class Controller():
         """
         return self.init_param_dict
 
-    def incorporate_fix_param_dict(self, *params) -> list:
+    def incorporate_fix_param_dict(self, *params:tuple) -> list:
         """
         Incorporates the fixed parameters
 
         Parameters:
         * `params`: The parameters
         """
+        params = list(params)
         param_names = list(self.model.get_param_dict().keys())
         fix_indexes = [i for i in range(len(param_names)) if param_names[i] in self.fix_param_dict.keys()]
-        params = list(params)
         for fix_index in fix_indexes:
             fix_value = self.fix_param_dict[param_names[fix_index]]
             params.insert(fix_index, fix_value)
@@ -397,17 +397,13 @@ class Controller():
         objective_dict = self.reduce_errors(error_list_dict)
         return objective_dict
 
-    def plot_exp_curves(self, type:str, file_path:str="", x_label:str=None, y_label:str=None,
-                        derivative:int=0, x_log:bool=False, y_log:bool=False) -> None:
+    def plot_exp_curves(self, type:str, file_path:str="", x_log:bool=False, y_log:bool=False) -> None:
         """
         Plots the experimental curves for a given type
 
         Parameters:
         * `type:`       The type of the experimental data
-        * `file_path`:  The path to plot the experimental curves
-        * `x_label`:    The x label for the plot
-        * `y_label`:    The y label for the plot
-        * `derivative`: How many derivatives to take the curves to
+        * `file_path`:  The path to plot the experimental curves without the extension
         * `x_log`:      Whether to log the x axis
         * `y_log`:      Whether to log the y axis
         """
@@ -415,63 +411,64 @@ class Controller():
         # Gets the data of defined type
         exp_data_list = [curve.get_exp_data() for curve in self.curve_list if curve.get_type() == type]
         
-        # Initialise plotter
-        x_label = DATA_FIELD_PLOT_MAP[type]["x"] if x_label == None else x_label
-        y_label = DATA_FIELD_PLOT_MAP[type]["y"] if y_label == None else y_label
-        plotter = Plotter(file_path, x_label, y_label)
-        plotter.prep_plot("Experimental")
-        
-        # Converts the list into a derivative if desired
-        for _ in range(derivative):
-            exp_data_list = deepcopy(exp_data_list)
-            exp_data_list = [differentiate_curve(exp_data, x_label, y_label) for exp_data in exp_data_list]
-        
-        # Plot the data, save, and clear for next plot
-        for exp_data in exp_data_list:
-            plotter.scat_plot(exp_data)
-        plotter.set_log_scale(x_log, y_log)
-        plotter.save_plot()
-        plotter.clear()
+        # Iterate through data field combinations
+        for i in range(len(DATA_FIELD_PLOT_MAP[type])):
+            x_label = DATA_FIELD_PLOT_MAP[type][i]["x"]
+            y_label = DATA_FIELD_PLOT_MAP[type][i]["y"]
 
-    def plot_prd_curves(self, *params:tuple, type:str, file_path:str="", x_label:str=None,
-                        y_label:str=None, x_log:bool=False, y_log:bool=False) -> None:
+            # Prepare the plotter
+            plot_file_path = f"{file_path}_{x_label}_{y_label}.png"
+            plotter = Plotter(plot_file_path, x_label, y_label)
+            plotter.prep_plot("Experimental")
+            
+            # Plot the data, save, and clear for next plot
+            for exp_data in exp_data_list:
+                plotter.scat_plot(exp_data)
+            plotter.set_log_scale(x_log, y_log)
+            plotter.save_plot()
+            plotter.clear()
+
+    def plot_prd_curves(self, *params:tuple, type:str, file_path:str="", x_log:bool=False,
+                        y_log:bool=False) -> None:
         """
         Plots the predicted curves for a given type
 
         Parameters:
         * `params`:     The parameters to perform the prediction
         * `type:`       The type of the experimental data
-        * `file_path`:  The path to plot the experimental curves
-        * `x_label`:    The x label for the plot
-        * `y_label`:    The y label for the plot
+        * `file_path`:  The path to plot the experimental curves without the extension
         * `x_log`:      Whether to log the x axis
         * `y_log`:      Whether to log the y axis
         """
         
-        # Initialise plotter
-        x_label = DATA_FIELD_PLOT_MAP[type]["x"] if x_label == None else x_label
-        y_label = DATA_FIELD_PLOT_MAP[type]["y"] if y_label == None else y_label
-        plotter = Plotter(file_path, x_label, y_label)
-        plotter.prep_plot(f"Experimental vs Simulation ({type.capitalize()})")
-        
-        # Plot experimental and predicted data
-        for curve in self.curve_list:
-            if curve.get_type() != type:
-                continue
-            exp_data = curve.get_exp_data()
-            prd_data = self.get_prd_data(curve, *params)
-            if prd_data == None:
-                raise ValueError("The model is unable to run with the parameters!")
-            plotter.scat_plot(exp_data)
-            plotter.line_plot(prd_data)
-        
-        # Format and save
-        plotter.set_log_scale(x_log, y_log)
-        plotter.save_plot()
-        plotter.clear()
+        # Iterate through data field combinations
+        for i in range(len(DATA_FIELD_PLOT_MAP[type])):
+            x_label = DATA_FIELD_PLOT_MAP[type][i]["x"]
+            y_label = DATA_FIELD_PLOT_MAP[type][i]["y"]
 
-    def plot_multiple_prd_curves(self, params_list:list, clip:bool, type:str, file_path:str="", x_label:str=None,
-                                 y_label:str=None, x_limits:float=None, y_limits:float=None) -> None:
+            # Prepare the plotter
+            plot_file_path = f"{file_path}_{x_label}_{y_label}.png"
+            plotter = Plotter(plot_file_path, x_label, y_label)
+            plotter.prep_plot(f"Experimental vs Simulation ({type.capitalize()})")
+            
+            # Plot experimental and predicted data
+            for curve in self.curve_list:
+                if curve.get_type() != type:
+                    continue
+                exp_data = curve.get_exp_data()
+                prd_data = self.get_prd_data(curve, *params)
+                if prd_data == None:
+                    raise ValueError("The model is unable to run with the parameters!")
+                plotter.scat_plot(exp_data)
+                plotter.line_plot(prd_data)
+            
+            # Format and save
+            plotter.set_log_scale(x_log, y_log)
+            plotter.save_plot()
+            plotter.clear()
+
+    def plot_multiple_prd_curves(self, params_list:list, clip:bool, type:str, file_path:str="", 
+                                 x_limits:float=None, y_limits:float=None) -> None:
         """
         Visualises the predicted curves from a set of parameters
         
@@ -481,70 +478,72 @@ class Controller():
                          meaning that there will be clashes if the parameter values are defined twice.
         * `clip`:        Whether to clip the predictions so they end at the same x position as the
         * `type:`        The type of the experimental data
-        * `file_path`:   The path to plot the experimental curves
-        * `x_label`:     The measurement to be visualised on the x-axis
-        * `y_label`:     The measurement to be visualised on the y-axis
+        * `file_path`:   The path to plot the experimental curves without the extension
                          experimental data
         * `x_limits`:    The upper and lower bounds of the plot for the x scale
         * `y_limits`:    The upper and lower bounds bound of the plot for the y scale
         """
 
-        # Initialise plotter
-        x_label = DATA_FIELD_PLOT_MAP[type]["x"] if x_label == None else x_label
-        y_label = DATA_FIELD_PLOT_MAP[type]["y"] if y_label == None else y_label
-        plotter = Plotter(file_path, x_label, y_label)
-        plotter.prep_plot(f"Experimental vs Simulation ({type.capitalize()})")
-        plotter.set_limits(x_limits, y_limits)
-        
-        # Plot experimental data
-        for curve in self.curve_list:
-            if curve.get_type() != type:
-                continue
-            exp_data = curve.get_exp_data()
-            colour = EXP_VALID_COLOUR if curve.is_validation() else EXP_TRAIN_COLOUR
-            plotter.scat_plot(exp_data, size=7, colour=colour)
+        # Iterate through data field combinations
+        for i in range(len(DATA_FIELD_PLOT_MAP[type])):
+            x_label = DATA_FIELD_PLOT_MAP[type][i]["x"]
+            y_label = DATA_FIELD_PLOT_MAP[type][i]["y"]
 
-        # Iterate through the parameters
-        for i in range(len(params_list)):
-
-            # Iterate through the curves            
+            # Prepare the plotter
+            plot_file_path = f"{file_path}_{x_label}_{y_label}.png"
+            plotter = Plotter(plot_file_path, x_label, y_label)
+            plotter.prep_plot(f"Experimental vs Simulation ({type.capitalize()})")
+            plotter.set_limits(x_limits, y_limits)
+            
+            # Plot experimental data
             for curve in self.curve_list:
                 if curve.get_type() != type:
                     continue
+                exp_data = curve.get_exp_data()
+                colour = EXP_VALID_COLOUR if curve.is_validation() else EXP_TRAIN_COLOUR
+                plotter.scat_plot(exp_data, size=7, colour=colour)
 
-                # Get prediction
-                prd_data = self.get_prd_data(curve, *params_list[i])
-                if prd_data == None:
-                    raise ValueError(f"The model is unable to run with the parameters, {params_list[i]}!")
-                
-                # Clip the prediction if necessary
-                if clip:
-                    max_x = max(curve.get_exp_data()[x_label])
-                    x_list = [x_value for x_value in prd_data[x_label] if x_value <= max_x]
-                    prd_data[y_label] = [prd_data[y_label][i] for i in range(len(prd_data[x_label]))
-                                         if prd_data[x_label][i] <= max_x]
-                    prd_data[x_label] = x_list
-                
-                # Plot
-                plotter.line_plot(prd_data, ALL_COLOURS[i])
+            # Iterate through the parameters
+            for i in range(len(params_list)):
 
-        # Define legend information
-        colour_list = [EXP_TRAIN_COLOUR, "black"]
-        label_list  = ["Calibration", "Simulation"]
-        size_list   = [7, 1]
-        type_list   = ["scatter", "line"]
+                # Iterate through the curves            
+                for curve in self.curve_list:
+                    if curve.get_type() != type:
+                        continue
 
-        # Add to legend information if validation
-        if True in [curve.is_validation() for curve in self.curve_list]:
-            colour_list.insert(1, EXP_VALID_COLOUR)
-            label_list.insert(1, "Validation")
-            size_list.insert(1, 7)
-            type_list.insert(1, "scatter")
+                    # Get prediction
+                    prd_data = self.get_prd_data(curve, *params_list[i])
+                    if prd_data == None:
+                        raise ValueError(f"The model is unable to run with the parameters, {params_list[i]}!")
+                    
+                    # Clip the prediction if necessary
+                    if clip:
+                        max_x = max(curve.get_exp_data()[x_label])
+                        x_list = [x_value for x_value in prd_data[x_label] if x_value <= max_x]
+                        prd_data[y_label] = [prd_data[y_label][i] for i in range(len(prd_data[x_label]))
+                                            if prd_data[x_label][i] <= max_x]
+                        prd_data[x_label] = x_list
+                    
+                    # Plot
+                    plotter.line_plot(prd_data, ALL_COLOURS[i])
 
-        # Format and save the plot
-        plotter.define_legend(colour_list, label_list, size_list, type_list)
-        plotter.save_plot()
-        plotter.clear()
+            # Define legend information
+            colour_list = [EXP_TRAIN_COLOUR, "black"]
+            label_list  = ["Calibration", "Simulation"]
+            size_list   = [7, 1]
+            type_list   = ["scatter", "line"]
+
+            # Add to legend information if validation
+            if True in [curve.is_validation() for curve in self.curve_list]:
+                colour_list.insert(1, EXP_VALID_COLOUR)
+                label_list.insert(1, "Validation")
+                size_list.insert(1, 7)
+                type_list.insert(1, "scatter")
+
+            # Format and save the plot
+            plotter.define_legend(colour_list, label_list, size_list, type_list)
+            plotter.save_plot()
+            plotter.clear()
 
     def plot_distribution(self, params_list:list, file_path:str, limits_dict:dict=None, log:bool=False) -> None:
         """

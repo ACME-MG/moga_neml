@@ -253,35 +253,28 @@ class API:
         exp_data = remove_data_after(exp_data, value, label)
         curve.set_exp_data(exp_data)
     
-    def plot_experimental(self, x_label:str=None, y_label:str=None,
-                          derivative:int=0, x_log:bool=False, y_log:bool=False) -> None:
+    def plot_experimental(self, x_log:bool=False, y_log:bool=False) -> None:
         """
         Visualises the experimental data
         
         Parameters:
         * `x_label`:    The measurement to be visualised on the x-axis
         * `y_label`:    The measurement to be visualised on the y-axis
-        * `derivative`: The derivative order of the data; the default is 0, meaning that the
-                        visualised data is not differentiated
         * `x_log`:      Whether to log the x-axis
         * `y_log`:      Whether to log the y-axis
         """
         
         # Display informative message
-        ordinal = lambda n: "%d%s" % (n,"tsnrhtdd"[(n//10%10!=1)*(n%10<4)*n%10::4])
-        derivative_str = f" {ordinal(derivative)} derivative of the" if derivative > 0 else ""
-        self.__print__(f"Visualising the{derivative_str} experimental data")
+        self.__print__(f"Visualising the experimental data")
         
         # Iterate through the curves and plot them
         type_list = self.__controller__.get_all_types()
         for type in type_list:
-            file_name = f"exp_{type}_d{derivative}" if derivative > 0 else f"exp_{type}"
-            file_path = get_file_path_exists(self.__get_output__(file_name), "png")
+            file_path = self.__get_output__(f"exp_{type}")
             self.__check_curves__("There are no experimental curves to plot!")
-            self.__controller__.plot_exp_curves(type, file_path, x_label, y_label, derivative, x_log, y_log)
+            self.__controller__.plot_exp_curves(type, file_path, x_log, y_log)
 
-    def plot_prediction(self, *params:tuple, x_label:str=None, y_label:str=None,
-                       x_log:bool=False, y_log:bool=False) -> None:
+    def plot_prediction(self, *params:tuple, x_log:bool=False, y_log:bool=False) -> None:
         """
         Visualises the predicted curves from a set of parameters
         
@@ -289,8 +282,6 @@ class API:
         * `params`:    The parameter values for the model; note that defining the parameters as
                        arguments to this function is similar to fixing the parameters via `fix_params`,
                        meaning that there will be clashes if the parameter values are defined twice.
-        * `x_label`:   The measurement to be visualised on the x-axis
-        * `y_label`:   The measurement to be visualised on the y-axis
         * `x_log`:     Whether to log the x-axis
         * `y_log`:     Whether to log the y-axis
         """
@@ -304,12 +295,11 @@ class API:
         # Iterate through types and plot predictions
         type_list = self.__controller__.get_all_types()
         for type in type_list:
-            file_path = self.__get_output__(f"prd_{type}.png")
-            self.__controller__.plot_prd_curves(*params, type=type, file_path=file_path, x_label=x_label,
-                                                y_label=y_label, x_log=x_log, y_log=y_log)
+            file_path = self.__get_output__(f"prd_{type}")
+            self.__controller__.plot_prd_curves(*params, type=type, file_path=file_path, x_log=x_log,
+                                                y_log=y_log)
 
-    def plot_predictions(self, params_list:list, clip:bool=False, x_label:str=None, y_label:str=None,
-                         limits_dict:dict=None) -> None:
+    def plot_predictions(self, params_list:list, clip:bool=False, limits_dict:dict=None) -> None:
         """
         Visualises the predicted curves from a set of parameters
         
@@ -319,8 +309,6 @@ class API:
                            meaning that there will be clashes if the parameter values are defined twice.
         * `colour_list`:   A list of colours to attach to each set of parameter values 
         * `clip`:          Whether to clip the predictions so they end at the same x position as the
-        * `x_label`:       The measurement to be visualised on the x-axis
-        * `y_label`:       The measurement to be visualised on the y-axis
                            experimental data
         * `limits_dict`:   The lower and upper bound of the plot for the scales; dictionary of tuples of
                            tuples; e.g., {"tensile": ((0, 1), (2, 3)), "creep": ((3, 2), (0,3))}
@@ -342,14 +330,13 @@ class API:
 
         # Iterate through types and plot predictions
         for i in range(len(type_list)):
-            file_path = self.__get_output__(f"prds_{type_list[i]}.png")
+            file_path = self.__get_output__(f"prds_{type_list[i]}")
             x_limits, y_limits = None, None
             if limits_dict != None:
                 x_limits = limits_dict[type_list[i]][0]
                 y_limits = limits_dict[type_list[i]][1]
             self.__controller__.plot_multiple_prd_curves(params_list, clip=clip, type=type_list[i],
-                                                         file_path=file_path, x_label=x_label, y_label=y_label,
-                                                         x_limits=x_limits, y_limits=y_limits)
+                                                         file_path=file_path, x_limits=x_limits, y_limits=y_limits)
 
     def plot_distribution(self, params_list:list, limits_dict:dict=None, log:bool=False) -> None:
         """
@@ -382,7 +369,7 @@ class API:
         file_path = self.__get_output__(f"box_plot.png")
         self.__controller__.plot_distribution(params_list, file_path, limits_dict, log)
 
-    def get_results(self, *params:tuple, x_label:str=None, y_label:str=None) -> None:
+    def get_results(self, *params:tuple) -> None:
         """
         Gets the optimisation, parameter, and error summary from a set of parameters
         
@@ -390,8 +377,6 @@ class API:
         * `params`:    The parameter values of the model; note that defining the parameters as
                        arguments to this function is similar to fixing the parameters via `fix_params`,
                        meaning that there will be clashes if the parameter values are defined twice.
-        * `x_label`:   The measurement to be visualised on the x-axis
-        * `y_label`:   The measurement to be visualised on the y-axis
         """
         
         # Display and check
@@ -409,7 +394,7 @@ class API:
         param_value_dict = {key: value for key, value in zip(param_name_list, params)}
         error_value_dict = self.__controller__.calculate_objectives(*params, include_validation=True)
         recorder.update_optimal_solution(param_value_dict, error_value_dict)
-        recorder.create_record(self.__get_output__("results"), x_label, y_label)
+        recorder.create_record(self.__get_output__("results"), replace=False)
     
     def save_model(self, *params:tuple) -> None:
         """

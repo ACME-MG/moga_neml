@@ -22,9 +22,9 @@ NEML_FIELD_CONVERSION = {
 
 # Identifies which fields to plot by default
 DATA_FIELD_PLOT_MAP = {
-    "creep":   {"x": "time", "y": "strain"},
-    "tensile": {"x": "strain", "y": "stress"},
-    "cyclic":  {"x": "strain", "y": "stress"},
+    "creep":   [{"x": "time", "y": "strain"}],
+    "tensile": [{"x": "strain", "y": "stress"}],
+    "cyclic":  [{"x": "strain", "y": "stress"}, {"x": "time", "y": "strain"}, {"x": "time", "y": "stress"}],
 }
 
 # Stores all the units

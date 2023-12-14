@@ -12,7 +12,7 @@ from moga_neml.interface.spreadsheet import Spreadsheet
 from moga_neml.helper.data import  get_thinned_list
 from moga_neml.helper.experiment import DATA_FIELD_PLOT_MAP
 from moga_neml.optimise.controller import Controller
-from moga_neml.helper.general import get_file_path_writable
+from moga_neml.helper.general import get_file_path_writable, get_file_path_exists
 
 # The Recorder class
 class Recorder:
@@ -281,31 +281,44 @@ class Recorder:
         plot_dict["simulation"] = {x_label: all_x , y_label: all_y, "size": 2, "colour": "red"}
         return plot_dict
 
-    def create_record(self, file_path:str, in_x_label:str=None, in_y_label:str=None) -> None:
+    def create_record(self, file_path:str, replace:bool=True) -> None:
         """
         Returns a writer object
 
         Parameters:
         * `file_path`:  The path to the record without the extension
-        * `in_x_label`: The label for the x axis
-        * `in_y_label`: The label for the y axis
+        * `replace`:    Whether to replace the results file or not
         """
 
-        # If the results file is open, redirect to another path
-        file_path = get_file_path_writable(file_path, "xlsx")
+        # Create spreadsheet and write to it
+        file_path = get_file_path_writable(file_path, "xlsx") if replace else get_file_path_exists(file_path, "xlsx")
         spreadsheet = Spreadsheet(file_path)
-
-        # Write the data to the spreadsheet
         spreadsheet.write_data(self.get_summary_dict(), "summary")
         spreadsheet.write_data(self.get_result_dict(), "results")
+        for type in self.controller.get_all_types():
+            self.create_record_type(type, spreadsheet)
+        spreadsheet.close()
 
-        # Get plots
-        type_list = self.controller.get_all_types()
-        for type in type_list:
-            
+        # Output files based on recorder settings
+        self.write_error() if self.plot_opt else None
+        self.write_loss() if self.plot_loss else None
+        self.save_calibrated_model() if self.save_model else None
+
+    def create_record_type(self, type:str, spreadsheet:Spreadsheet) -> None:
+        """
+        Adds a plot to a spreadsheet
+
+        Parameters:
+        * `type`:        The type of data being plotted
+        * `spreadsheet`: The spreadsheet to add the plot to
+        """
+
+        # Iterate through data field combinations
+        for i in range(len(DATA_FIELD_PLOT_MAP[type])):
+            x_label = DATA_FIELD_PLOT_MAP[type][i]["x"]
+            y_label = DATA_FIELD_PLOT_MAP[type][i]["y"]
+
             # Gets the data
-            x_label = DATA_FIELD_PLOT_MAP[type]["x"] if in_x_label == None else in_x_label
-            y_label = DATA_FIELD_PLOT_MAP[type]["y"] if in_y_label == None else in_y_label
             plot_dict = self.get_plot_dict(type, x_label, y_label)
             if plot_dict == None:
                 continue
@@ -313,29 +326,21 @@ class Recorder:
             # Create a plot in the spreadsheet
             spreadsheet.write_plot(
                 data_dict_dict = plot_dict,
-                sheet_name     = f"plot_{type}",
+                sheet_name     = f"plot_{type}_{x_label}_{y_label}",
                 x_label        = x_label,
                 y_label        = y_label,
                 plot_type      = "scatter"
             )
-        
-            # Creates a quick-view plot, if desired
-            if self.plot_opt:
-                plotter = Plotter(f"{self.results_dir}/opt_{type}.png", x_label, y_label)
-                plotter.prep_plot("Best Simulation")
-                for key in ["calibration", "validation", "simulation"]:
-                    if key in plot_dict.keys():
-                        plotter.scat_plot(plot_dict[key], plot_dict[key]["colour"], plot_dict[key]["size"])
-                plotter.save_plot()
-                plotter.clear()
-        
-        # Close the spreadsheet
-        spreadsheet.close()
-
-        # Output files based on recorder settings
-        self.write_error() if self.plot_opt else None
-        self.write_loss() if self.plot_loss else None
-        self.save_calibrated_model() if self.save_model else None
+    
+        # Creates a quick-view plot, if desired
+        if self.plot_opt:
+            plotter = Plotter(f"{self.results_dir}/opt_{type}_{x_label}_{y_label}.png", x_label, y_label)
+            plotter.prep_plot("Best Simulation")
+            for key in ["calibration", "validation", "simulation"]:
+                if key in plot_dict.keys():
+                    plotter.scat_plot(plot_dict[key], plot_dict[key]["colour"], plot_dict[key]["size"])
+            plotter.save_plot()
+            plotter.clear()
 
     def write_error(self):
         """
@@ -372,13 +377,13 @@ class Recorder:
         plotter.save_plot()
         plotter.clear()
 
-    def save_calibrated_model(self, param_list:list=None):
+    def save_calibrated_model(self, custom_params:tuple=None):
         """
         Saves the calibrated model
 
         Parameters:
-        * `param_list`: Parameters as a list; if undefined, uses the most optimal
-                        parameters from the optimisation
+        * `custom_params`: Parameters as a list; if undefined, uses the most optimal
+                           parameters from the optimisation
         """
 
         # Iterate through all experimental data
@@ -389,9 +394,12 @@ class Recorder:
             exp_data = curve_list[i].get_exp_data()
             self.controller.model.set_exp_data(exp_data)
 
+            # Get calibrated model
+            params = self.get_opt_params().values() if custom_params == None else custom_params
+            params = self.controller.incorporate_fix_param_dict(*params)
+            calibrated_model = self.controller.model.get_calibrated_model(*params)
+            
             # Saves the model
-            param_list = self.get_opt_params().values() if param_list == None else param_list
-            calibrated_model = self.controller.model.get_calibrated_model(*param_list)
             model_path = get_file_path_writable(f"{self.results_dir}/opt_model_{i+1}", "xml")
             model_name = self.controller.model.get_name()
             calibrated_model.save(model_path, model_name)
