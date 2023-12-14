@@ -72,8 +72,6 @@ class Driver:
         if custom_driver != None:
             custom_driver = getattr(drivers, custom_driver)
             results = custom_driver(self.model, **custom_driver_kwargs)
-            for key in ["rtime"]:
-                results[key] /= 3600
             return results
 
         # Runs driver based on data type
@@ -93,7 +91,6 @@ class Driver:
         results = drivers.creep(self.model, self.exp_data["stress"], STRESS_RATE, TIME_HOLD,
                                 T=self.exp_data["temperature"], verbose=VERBOSE, check_dmg=True,
                                 dtol=DAMAGE_TOL, nsteps_up=NUM_STEPS_UP, nsteps=NUM_STEPS, logspace=False)
-        results["rtime"] /= 3600
         return results
 
     def run_tensile(self) -> dict:

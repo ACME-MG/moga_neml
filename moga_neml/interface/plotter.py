@@ -90,7 +90,10 @@ class Plotter:
         * `size`:      The size of the curve
         * `priority`:  The priority of the curve
         """
-        plt.scatter(data_dict[self.x_label], data_dict[self.y_label], s=size**2,
+        x_list = data_dict[self.x_label]
+        if self.x_label == "time":
+            x_list = [x/3600 for x in x_list]
+        plt.scatter(x_list, data_dict[self.y_label], s=size**2,
                     marker="o", color=colour, linewidth=1, zorder=priority)
         
     def line_plot(self, data_dict:dict, colour=PRD_DATA_COLOUR, priority:int=1) -> None:
@@ -102,7 +105,10 @@ class Plotter:
         * `colour`:    The colour to plot the data
         * `priority`:  The priority of the curve
         """
-        plt.plot(data_dict[self.x_label], data_dict[self.y_label], colour, zorder=priority)
+        x_list = data_dict[self.x_label]
+        if self.x_label == "time":
+            x_list = [x/3600 for x in x_list]
+        plt.plot(x_list, data_dict[self.y_label], colour, zorder=priority)
 
     def define_legend(self, colour_list:list, label_list:list, size_list:list, type_list:list) -> None:
         """
