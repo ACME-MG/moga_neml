@@ -15,7 +15,7 @@ from moga_neml.models.__model__ import __Model__
 class Model(__Model__):
 
     # api.define_model("vshai", ori_path="data/ebsd/input_stats.csv", lattice=1.0, slip_dir=[1,1,0], slip_plane=[1,1,1], num_threads=16)
-    def initialise(self, ori_path, lattice, slip_dir, slip_plane, num_threads):
+    def initialise(self, ori_path:str, lattice:float, slip_dir:list, slip_plane:list, num_threads:int):
         """
         Runs at the start, once
         """
