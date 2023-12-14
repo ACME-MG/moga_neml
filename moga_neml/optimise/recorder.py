@@ -380,11 +380,21 @@ class Recorder:
         * `param_list`: Parameters as a list; if undefined, uses the most optimal
                         parameters from the optimisation
         """
-        param_list = self.get_opt_params().values() if param_list == None else param_list
-        calibrated_model = self.controller.model.get_calibrated_model(*param_list)
-        model_path = get_file_path_writable(f"{self.results_dir}/opt_model", "xml")
-        model_name = self.controller.model.get_name()
-        calibrated_model.save(model_path, model_name)
+
+        # Iterate through all experimental data
+        curve_list = self.controller.get_curve_list()
+        for i in range(len(curve_list)):
+
+            # Sets the experimental data to the curve
+            exp_data = curve_list[i].get_exp_data()
+            self.controller.model.set_exp_data(exp_data)
+
+            # Saves the model
+            param_list = self.get_opt_params().values() if param_list == None else param_list
+            calibrated_model = self.controller.model.get_calibrated_model(*param_list)
+            model_path = get_file_path_writable(f"{self.results_dir}/opt_model_{i+1}", "xml")
+            model_name = self.controller.model.get_name()
+            calibrated_model.save(model_path, model_name)
 
 def process_data_dict(data_dict:dict, x_label:str, y_label:str) -> tuple:
     """

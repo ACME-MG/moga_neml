@@ -73,17 +73,17 @@ class API:
         self.__print__(f"Defining model '{model_name}'")
         self.__controller__.define_model(model_name, **kwargs)
     
-    def read_data(self, file_name:str, num_points:int=1000, thin_data:bool=True) -> None:
+    def read_data(self, file_name:str, thin_data:bool=True, num_points:int=1000) -> None:
         """
         Reads in the experimental data from a file
         
         Parameters:
         * `file_name`:  The name of the file relative to the defined `input_path`
-        * `num_points`: How many points to thin the data to
         * `thin_data`:  Whether to thin the data or not
+        * `num_points`: How many points to thin the data to
         """
         self.__print__(f"Reading data from '{file_name}'")
-        exp_data = read_exp_data(self.__input_path__, file_name, num_points, thin_data)
+        exp_data = read_exp_data(self.__input_path__, file_name, thin_data, num_points)
         self.__controller__.add_curve(exp_data["type"], exp_data)
 
     def change_data(self, field:str, value) -> None:
@@ -427,7 +427,7 @@ class API:
         self.__check_curves__("Results cannot obtained without experimental curves!")
         self.__check_params__(params)
 
-        # Actually save the model
+        # Save the model
         recorder = Recorder(self.__controller__, 0, self.__output_path__, "")
         recorder.define_hyperparameters(0, 1, 0, 0, 0)
         recorder.save_calibrated_model(list(params))

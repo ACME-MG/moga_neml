@@ -22,15 +22,15 @@ def try_float_cast(value:str) -> float:
     except:
         return value
 
-def get_curve_dict(headers:list, data:list, num_points:int, thin_data:bool) -> dict:
+def get_curve_dict(headers:list, data:list, thin_data:bool, num_points:int) -> dict:
     """
     Converts CSV data into a curve dict
 
     Parameters:
     * `headers`:    A list of strings representing the keys
     * `data`:       A list of lists containing the data
-    * `num_points`: How many points to thin the data to
     * `thin_data`:  Whether to thin the data or not
+    * `num_points`: How many points to thin the data to
     """
 
     # Get indexes of data
@@ -50,15 +50,15 @@ def get_curve_dict(headers:list, data:list, num_points:int, thin_data:bool) -> d
     # Return curve
     return curve
 
-def read_exp_data(file_dir:str, file_name:str, num_points:int, thin_data:bool) -> dict:
+def read_exp_data(file_dir:str, file_name:str, thin_data:bool, num_points:int) -> dict:
     """
     Reads the experimental data
 
     Parameters:
     * `file_dir`:   The path to the folder containing the experimental data files
     * `file_name`:  The name of the file containing the experimental data
-    * `num_points`: How many points to thin the data to
     * `thin_data`:  Whether to thin the data or not
+    * `num_points`: How many points to thin the data to
     """
 
     # Read data
@@ -67,7 +67,7 @@ def read_exp_data(file_dir:str, file_name:str, num_points:int, thin_data:bool) -
         data = [line.replace("\n","").split(",") for line in file.readlines()]
     
     # Create, check, and convert curve
-    exp_data = get_curve_dict(headers, data, num_points, thin_data)
+    exp_data = get_curve_dict(headers, data, thin_data, num_points)
     exp_data["file_name"] = file_name
     check_exp_data(exp_data)
     

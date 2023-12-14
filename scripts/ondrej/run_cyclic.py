@@ -1,8 +1,9 @@
 import sys; sys.path += ["../.."]
 from moga_neml.api import API
- 
-api = API("chaboche", input_path="../data", output_path="../results")
-api.define_model("cih")
+
+model_name = "cvih"
+api = API(model_name, input_path="../data", output_path="../results")
+api.define_model(model_name)
 
 api.read_data("cyclic/Airbase316.csv", num_points=5000)
 api.change_data("num_cycles", 1)
@@ -20,4 +21,4 @@ api.plot_experimental("strain", "stress")
 # exit()
 
 api.set_recorder(1, True, True, True)
-api.optimise(100, 5, 5, 0.8, 0.01)
+api.optimise(100, 50, 25, 0.8, 0.01)
