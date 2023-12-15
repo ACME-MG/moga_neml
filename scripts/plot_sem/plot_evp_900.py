@@ -11,7 +11,7 @@ api.read_data("creep/inl_1/AirBase_900_31_G50.csv")
 api.remove_damage(0.1, 0.7)
 api.add_error("dummy")
 api.read_data("creep/inl_1/AirBase_900_28_G45.csv")
-api.remove_damage(0.1, 0.7)
+api.remove_damage(0.2, 0.7)
 # api.add_error("dummy")
 api.read_data("creep/inl_1/AirBase_900_26_G59.csv")
 api.remove_damage(0.1, 0.7)
@@ -31,6 +31,7 @@ params_str = """
 12.622	15.441	4.5386	3.7305	1371.6
 12.256	273.68	0.20866	3.8422	1242.3
 7.044	16.175	6.7949	4.1207	1090
+
 """
 params_list = [list(map(float, line.split())) for line in params_str.strip().split("\n")]
 

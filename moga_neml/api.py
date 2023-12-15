@@ -32,7 +32,7 @@ class API:
         * `verbose`:     If true, outputs messages for each function call
         * `output_here`: If true, just dumps the output in ths executing directory
         """
-        
+
         # Initialise internal variables
         self.__controller__  = Controller()
         self.__recorder__    = None

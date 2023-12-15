@@ -6,7 +6,6 @@
 """
 
 # Libraries
-from copy import deepcopy
 from moga_neml.constraints.__constraint__ import __Constraint__, create_constraint
 from moga_neml.models.__model__ import __Model__, create_model
 from moga_neml.errors.__error__ import __Error__
@@ -519,7 +518,7 @@ class Controller():
                 for k in range(len(valid_curve_list)):
                     prd_data = prd_data_list_list[j][k]
                     if clip:
-                        max_x = max(curve.get_exp_data()[x_label])
+                        max_x = max(valid_curve_list[k].get_exp_data()[x_label])
                         x_list = [x_value for x_value in prd_data[x_label] if x_value <= max_x]
                         prd_data[y_label] = [prd_data[y_label][j] for j in range(len(prd_data[x_label]))
                                             if prd_data[x_label][j] <= max_x]

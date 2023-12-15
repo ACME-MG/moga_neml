@@ -9,14 +9,23 @@ api.add_error("dummy")
 api.read_data("creep/inl_1/AirBase_800_70_G44.csv")
 api.add_error("dummy")
 api.read_data("creep/inl_1/AirBase_800_65_G33.csv")
-api.add_error("dummy")
+# api.add_error("dummy")
 api.read_data("creep/inl_1/AirBase_800_60_G32.csv")
-api.add_error("dummy")
+# api.add_error("dummy")
 api.read_data("tensile/inl/AirBase_800_D7.csv")
 api.add_error("dummy")
 
 params_str = """
-4.4611	35.628	31.021	3.6186	3016.2	3411.1	4.8323	12.863
+31.647	120.62	0.85485	3.7266	2297.8	2165.7	5.3247	7.7724
+33.297	522.85	0.11871	3.9767	1762.4	1913.8	5.6638	11.287
+13.247	47.88	7.216	3.9583	2115.6	3764.3	4.474	5.1694
+38.181	51.055	2.4819	3.2572	3154.4	2725.2	5.0167	8.33
+24.889	44.932	1.2076	4.5055	1527.9	2589.7	5.1066	8.695
+23.304	276.66	0.32123	4.2592	1767.2	2168.5	5.3181	6.7619
+30.401	34.817	4.5983	3.5323	2583	2520.9	5.1559	8.5891
+5.0569	40.476	10.017	4.1585	1730.1	1998.1	5.5564	10.337
+31.809	43.194	2.2399	3.9613	1820.1	2245.4	5.3179	8.5096
+0.36499	45.374	15.687	3.6105	2878.3	3325.8	4.847	12.328
 """
 params_list = [list(map(float, line.split())) for line in params_str.strip().split("\n")]
 

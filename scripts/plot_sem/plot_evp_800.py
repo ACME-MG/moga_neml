@@ -12,16 +12,26 @@ api.remove_damage()
 api.add_error("dummy")
 api.read_data("creep/inl_1/AirBase_800_65_G33.csv")
 api.remove_damage(0.1, 0.7)
-api.add_error("dummy")
+# api.add_error("dummy")
 api.read_data("creep/inl_1/AirBase_800_60_G32.csv")
 api.remove_damage(0.1, 0.7)
-api.add_error("dummy")
+# api.add_error("dummy")
 api.read_data("tensile/inl/AirBase_800_D7.csv")
 api.remove_manual("strain", 0.3)
 api.add_error("dummy")
 
 params_str = """
-17.217	179.74	0.61754	4.4166	1783.5
+31.327	104.92	0.8548	3.7508	2575.8
+22.393	462.57	0.13573	4.314	1828.1
+11.45	53.151	7.1666	3.9502	2221.6
+37.742	49.123	2.4996	3.4102	3172
+18.768	89.18	0.88069	4.5055	1677.4
+23.304	306.58	0.32123	4.2592	1822.6
+31.137	31.413	4.6003	3.6958	2583
+29.726	45.991	2.3174	3.9613	2101.3
+0.85682	42.524	9.6283	4.5033	1707
+4.4611	35.628	31.021	3.6186	3016.2
+
 """
 params_list = [list(map(float, line.split())) for line in params_str.strip().split("\n")]
 
