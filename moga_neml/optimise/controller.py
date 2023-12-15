@@ -14,7 +14,7 @@ from moga_neml.interface.plotter import Plotter, EXP_TRAIN_COLOUR, EXP_VALID_COL
 from moga_neml.interface.boxplotter import plot_boxplots
 from moga_neml.optimise.driver import Driver
 from moga_neml.optimise.curve import Curve
-from moga_neml.helper.experiment import DATA_FIELD_PLOT_MAP
+from moga_neml.helper.experiment import get_labels_list
 from moga_neml.helper.general import reduce_list, transpose
 
 # Constants
@@ -411,9 +411,8 @@ class Controller():
         exp_data_list = [curve.get_exp_data() for curve in self.curve_list if curve.get_type() == type]
         
         # Iterate through data field combinations
-        for i in range(len(DATA_FIELD_PLOT_MAP[type])):
-            x_label = DATA_FIELD_PLOT_MAP[type][i]["x"]
-            y_label = DATA_FIELD_PLOT_MAP[type][i]["y"]
+        labels_list = get_labels_list(type)
+        for x_label, y_label in labels_list:
 
             # Prepare the plotter
             plot_file_path = f"{file_path}_{x_label}_{y_label}.png"
@@ -450,9 +449,8 @@ class Controller():
             prd_data_list.append(prd_data)
 
         # Iterate through data field combinations
-        for i in range(len(DATA_FIELD_PLOT_MAP[type])):
-            x_label = DATA_FIELD_PLOT_MAP[type][i]["x"]
-            y_label = DATA_FIELD_PLOT_MAP[type][i]["y"]
+        labels_list = get_labels_list(type)
+        for x_label, y_label in labels_list:
 
             # Prepare the plotter
             plot_file_path = f"{file_path}_{x_label}_{y_label}.png"
@@ -501,9 +499,8 @@ class Controller():
             prd_data_list_list.append(prd_data_list)
 
         # Iterate through data field combinations
-        for i in range(len(DATA_FIELD_PLOT_MAP[type])):
-            x_label = DATA_FIELD_PLOT_MAP[type][i]["x"]
-            y_label = DATA_FIELD_PLOT_MAP[type][i]["y"]
+        labels_list = get_labels_list(type)
+        for x_label, y_label in labels_list:
 
             # Prepare the plotter
             plot_file_path = f"{file_path}_{x_label}_{y_label}.png"

@@ -10,7 +10,7 @@ import time
 from moga_neml.interface.plotter import Plotter, EXP_TRAIN_COLOUR, EXP_VALID_COLOUR
 from moga_neml.interface.spreadsheet import Spreadsheet
 from moga_neml.helper.data import  get_thinned_list
-from moga_neml.helper.experiment import DATA_FIELD_PLOT_MAP
+from moga_neml.helper.experiment import get_labels_list
 from moga_neml.optimise.controller import Controller
 from moga_neml.helper.general import get_file_path_writable, get_file_path_exists
 
@@ -269,36 +269,14 @@ class Recorder:
         plot_dict["simulation"] = {x_label: all_x , y_label: all_y, "size": 2, "colour": "red"}
         return plot_dict
 
-    def create_record(self, file_path:str, replace:bool=True) -> None:
+    def get_plot_dict_list(self, type:str) -> list:
         """
-        Returns a writer object
+        Gets a list of plot data information based on the data type
 
         Parameters:
-        * `file_path`:  The path to the record without the extension
-        * `replace`:    Whether to replace the results file or not
-        """
+        * `type`: The type of data to be plotted
 
-        # Create spreadsheet and write to it
-        file_path = get_file_path_writable(file_path, "xlsx") if replace else get_file_path_exists(file_path, "xlsx")
-        spreadsheet = Spreadsheet(file_path)
-        spreadsheet.write_data(self.get_summary_dict(), "summary")
-        spreadsheet.write_data(self.get_result_dict(), "results")
-        for type in self.controller.get_all_types():
-            self.create_record_type(type, spreadsheet)
-        spreadsheet.close()
-
-        # Output files based on recorder settings
-        self.write_error() if self.plot_opt else None
-        self.write_loss() if self.plot_loss else None
-        self.save_calibrated_model() if self.save_model else None
-
-    def create_record_type(self, type:str, spreadsheet:Spreadsheet) -> None:
-        """
-        Adds a plot to a spreadsheet
-
-        Parameters:
-        * `type`:        The type of data being plotted
-        * `spreadsheet`: The spreadsheet to add the plot to
+        Returns a list of plot data dictionaries
         """
 
         # If there are no optimal parameters, leave
@@ -315,30 +293,61 @@ class Recorder:
                 return
             prd_data_list.append(prd_data)
 
-        # Iterate through data field combinations
-        for i in range(len(DATA_FIELD_PLOT_MAP[type])):
-            x_label = DATA_FIELD_PLOT_MAP[type][i]["x"]
-            y_label = DATA_FIELD_PLOT_MAP[type][i]["y"]
-
-            # Gets the data and plots it on the spreadsheet
+        # Iterate through data field combinations and return the list
+        plot_dict_list = []
+        labels_list = get_labels_list(type)
+        for x_label, y_label in labels_list:
             plot_dict = self.get_plot_dict(prd_data_list, valid_curve_list, x_label, y_label)
-            spreadsheet.write_plot(
-                data_dict_dict = plot_dict,
-                sheet_name     = f"plot_{type}_{x_label}_{y_label}",
-                x_label        = x_label,
-                y_label        = y_label,
-                plot_type      = "scatter"
-            )
+            plot_dict_list.append(plot_dict)
+        return plot_dict_list
+
+    def create_record(self, file_path:str, replace:bool=True) -> None:
+        """
+        Returns a writer object
+
+        Parameters:
+        * `file_path`:  The path to the record without the extension
+        * `replace`:    Whether to replace the results file or not
+        """
+
+        # Get the plot data
+        plot_dict_list_dict = {}
+        for type in self.controller.get_all_types():
+            plot_dict_list_dict[type] = self.get_plot_dict_list(type)
+
+        # Create the spreadsheet and write to it
+        file_path = get_file_path_writable(file_path, "xlsx") if replace else get_file_path_exists(file_path, "xlsx")
+        spreadsheet = Spreadsheet(file_path)
+        spreadsheet.write_data(self.get_summary_dict(), "summary")
+        spreadsheet.write_data(self.get_result_dict(), "results")
+        for type in self.controller.get_all_types():
+            labels_list = get_labels_list(type)
+            for i in range(len(labels_list)):
+                x_label, y_label = labels_list[i]
+                plot_dict = plot_dict_list_dict[type][i]
+                sheet_name = f"plot_{type}_{x_label}_{y_label}"
+                spreadsheet.write_plot(plot_dict, sheet_name, x_label, y_label, "scatter")
+        spreadsheet.close()
     
-            # Creates a quick-view plot, if desired
-            if self.plot_opt:
-                plotter = Plotter(f"{self.results_dir}/opt_{type}_{x_label}_{y_label}.png", x_label, y_label)
-                plotter.prep_plot("Best Simulation")
-                for key in ["calibration", "validation", "simulation"]:
-                    if key in plot_dict.keys():
-                        plotter.scat_plot(plot_dict[key], plot_dict[key]["colour"], plot_dict[key]["size"])
-                plotter.save_plot()
-                plotter.clear()
+        # Creates a quick-view plot, if desired
+        if self.plot_opt:
+            for type in self.controller.get_all_types():
+                labels_list = get_labels_list(type)
+                for i in range(len(labels_list)):
+                    x_label, y_label = labels_list[i]
+                    plot_dict = plot_dict_list_dict[type][i]
+                    plotter = Plotter(f"{self.results_dir}/opt_{type}_{x_label}_{y_label}.png", x_label, y_label)
+                    plotter.prep_plot("Best Simulation")
+                    for key in ["calibration", "validation", "simulation"]:
+                        if key in plot_dict.keys():
+                            plotter.scat_plot(plot_dict[key], plot_dict[key]["colour"], plot_dict[key]["size"])
+                    plotter.save_plot()
+                    plotter.clear()
+
+        # Output files based on recorder settings
+        self.write_error() if self.plot_opt else None
+        self.write_loss() if self.plot_loss else None
+        self.save_calibrated_model() if self.save_model else None
 
     def write_error(self):
         """

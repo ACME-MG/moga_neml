@@ -36,3 +36,12 @@ DATA_UNITS = {
     "time": "h",
     "youngs": "MPa",
 }
+
+# Returns a list of x and y labels for a data type
+def get_labels_list(type:str) -> list:
+    labels_list = []
+    for i in range(len(DATA_FIELD_PLOT_MAP[type])):
+        x_label = DATA_FIELD_PLOT_MAP[type][i]["x"]
+        y_label = DATA_FIELD_PLOT_MAP[type][i]["y"]
+        labels_list.append((x_label, y_label))
+    return labels_list
