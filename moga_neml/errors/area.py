@@ -1,6 +1,6 @@
 """
  Title:         The area objective function
- Description:   The objective function for calculating the vertical areas between two curves;
+ Description:   The objective function for minimising the vertical areas between two curves;
                 Only works well for bijective data
  Author:        Janzen Choi
 
@@ -18,12 +18,12 @@ class Error(__Error__):
         """
         Runs at the start, once
         """
-        self.num_points = num_points
-        x_list = self.get_x_data()
-        y_list = self.get_y_data()
+        self.num_points   = num_points
+        x_list            = self.get_x_data()
+        y_list            = self.get_y_data()
         self.interpolator = Interpolator(x_list, y_list, self.num_points)
-        self.exp_x_end = min(x_list[-1], max_value) if max_value != None else x_list[-1]
-        self.avg_y = abs(np.average(y_list))
+        self.exp_x_end    = min(x_list[-1], max_value) if max_value != None else x_list[-1]
+        self.avg_abs_y    = np.average([abs(y) for y in y_list])
 
     def get_value(self, prd_data:dict) -> float:
         """
@@ -36,13 +36,13 @@ class Error(__Error__):
         """
 
         # Get predicted data
-        x_label = self.get_x_label()
-        y_label = self.get_y_label()
-        prd_x_list = np.linspace(prd_data[x_label][0], min(self.exp_x_end, prd_data[x_label][-1]), self.num_points)
+        x_label          = self.get_x_label()
+        y_label          = self.get_y_label()
+        prd_x_list       = np.linspace(prd_data[x_label][0], min(self.exp_x_end, prd_data[x_label][-1]), self.num_points)
         prd_interpolator = Interpolator(prd_data[x_label], prd_data[y_label], self.num_points)
-        prd_y_list = prd_interpolator.evaluate(prd_x_list)
+        prd_y_list       = prd_interpolator.evaluate(prd_x_list)
 
         # Get experimental data and calculate error
         exp_y_list = self.interpolator.evaluate(prd_x_list)
         area = [math.pow(prd_y_list[i] - exp_y_list[i], 2) for i in range(self.num_points) if prd_x_list[i] <= self.exp_x_end]
-        return math.sqrt(np.average(area)) / self.avg_y
+        return math.sqrt(np.average(area)) / self.avg_abs_y

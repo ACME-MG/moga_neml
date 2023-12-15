@@ -1,6 +1,7 @@
 """
  Title:         The hardening objective function
- Description:   The objective function for optimising the hardening gradient of a tensile curve
+ Description:   The objective function for minimising the discrepancies between the 
+                hardening gradients of a tensile curve
  Author:        Janzen Choi
 
  """

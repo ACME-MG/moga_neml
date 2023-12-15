@@ -1,6 +1,6 @@
 """
  Title:         The n_cycles objective function
- Description:   The objective function for calculating the number of cycles in a periodic curve
+ Description:   The objective function for minimising the number of cycles in a periodic curve
  Author:        Janzen Choi
 
  """

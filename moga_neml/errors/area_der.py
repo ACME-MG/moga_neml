@@ -1,6 +1,7 @@
 """
  Title:         The derivative area objective function
- Description:   The objective function for calculating the vertical areas between the derivatives of two curves
+ Description:   The objective function for minimising the vertical areas between
+                the derivatives of two curves
  Author:        Janzen Choi
 
 """
@@ -27,7 +28,7 @@ class Error(__Error__):
         self.interpolator = Interpolator(x_list, y_list, NUM_POINTS)
         self.interpolator.differentiate()
         self.exp_x_end = x_list[-1]
-        self.avg_dy = abs(np.average(self.interpolator.evaluate(x_list)))
+        self.avg_abs_dy = np.average([abs(y) for y in self.interpolator.evaluate(x_list)])
 
     def get_value(self, prd_data:dict) -> float:
         """
@@ -45,4 +46,4 @@ class Error(__Error__):
         prd_data = differentiate_curve(prd_data, x_label, y_label)
         exp_dy_list = self.interpolator.evaluate(prd_data[x_label])
         area = [math.pow(prd_data[y_label][i] - exp_dy_list[i], 2) for i in range(len(prd_data[y_label])) if prd_data[x_label][i] <= self.exp_x_end]
-        return math.sqrt(np.average(area)) / self.avg_dy
+        return math.sqrt(np.average(area)) / self.avg_abs_dy

@@ -1,6 +1,6 @@
 """
  Title:         The end_value objective function
- Description:   The objective function for calculating the x end point
+ Description:   The objective function for minimising the discrepancies between the x end points
  Author:        Janzen Choi
 
 """

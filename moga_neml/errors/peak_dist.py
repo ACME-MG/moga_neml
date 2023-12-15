@@ -1,6 +1,7 @@
 """
  Title:         The x_peaks objective function
- Description:   The objective function for getting the wavelength of a periodic curve
+ Description:   The objective function for minimising the discrepancies between the
+                wavelengths of two periodic curves
  Author:        Janzen Choi
 
  """

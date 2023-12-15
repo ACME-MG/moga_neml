@@ -1,6 +1,7 @@
 """
  Title:         The yield objective function
- Description:   The objective function for optimising the yield point of a tensile curve
+ Description:   The objective function for minimising the discrepancies between the
+                yield points of tensile curves
  Author:        Janzen Choi
 
  """

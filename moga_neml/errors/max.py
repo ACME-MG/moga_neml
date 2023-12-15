@@ -1,6 +1,6 @@
 """
  Title:         The max objective function
- Description:   The objective function for calculating the maximum x magnitude of two curves
+ Description:   The objective function for minimising the maximum x magnitude of two curves
  Author:        Janzen Choi
 
 """

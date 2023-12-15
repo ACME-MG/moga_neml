@@ -1,6 +1,6 @@
 """
  Title:         The arg_max objective function
- Description:   The objective function for calculating the discrepancies between the
+ Description:   The objective function for minimising the discrepancies between the
                 x value corresponding to the maximum y values of two curves
  Author:        Janzen Choi
 
