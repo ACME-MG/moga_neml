@@ -1,8 +1,8 @@
 import sys; sys.path += ["../.."]
 from moga_neml.api import API
 
-model_name = "cvih"
-# model_name = "riclih"
+# model_name = "cvih"
+model_name = "riclih"
 # model_name = "rilih"
 # model_name = "rilikh"
 # model_name = "riplih"
@@ -17,8 +17,8 @@ api.define_model(model_name)
 api.read_data("cyclic/Airbase316.csv", num_points=5000)
 # api.change_data("num_cycles", 2)
 # api.remove_manual("time", 250)
-api.add_error("area_norm", "time", "strain", num_points=1500)
-api.add_error("area_norm", "time", "stress", num_points=1500)
+api.add_error("area_saddle", "time", "strain", num_points=100, tolerance=0.005)
+api.add_error("area_saddle", "time", "stress", num_points=100, tolerance=10.0)
 api.add_error("saddle", "time", "stress")
 api.add_error("num_peaks", "time", "strain")
 api.add_error("end", "time")

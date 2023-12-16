@@ -19,7 +19,7 @@ class Error(__Error__):
         Runs at the start, once
 
         Parameters:
-        * `tolerance`: Tolerance for grouping similar values together
+        * `tolerance`: Tolerance for grouping similar y values together
         """
         self.enforce_data_type("cyclic")
         self.tolerance   = tolerance
@@ -28,7 +28,7 @@ class Error(__Error__):
         exp_dy_dx        = np.gradient(y_list, x_list)
         sp_indexes       = np.where(np.diff(np.sign(exp_dy_dx)))[0]
         self.exp_sp_list = group_sp(np.array(y_list)[sp_indexes], tolerance)
-        self.exp_sp_list = remove_zero_sp(self.exp_sp_list)
+        self.exp_sp_list = remove_zero_sp(self.exp_sp_list, tolerance)
         self.avg_abs_sp  = np.average([abs(sp) for sp in self.exp_sp_list])
         
     def get_value(self, prd_data:dict) -> float:
@@ -46,7 +46,7 @@ class Error(__Error__):
         y_label     = self.get_y_label()
         prd_dy_dx   = np.gradient(prd_data[y_label], prd_data[x_label])
         sp_indexes  = np.where(np.diff(np.sign(prd_dy_dx)))[0]
-        prd_sp_list = group_sp(np.array(prd_data[y_label])[sp_indexes])
+        prd_sp_list = group_sp(np.array(prd_data[y_label])[sp_indexes], self.tolerance)
 
         # Calculate the discrepancies between the stationary points
         discrepancy_list = []
@@ -55,7 +55,7 @@ class Error(__Error__):
             discrepancy_list.append(discrepancy)
         return math.sqrt(np.average(discrepancy_list)) / self.avg_abs_sp
 
-def group_sp(y_list:list, tolerance:float=10.0):
+def group_sp(y_list:list, tolerance:float):
     """
     Groups the stationary points together
 
@@ -76,7 +76,7 @@ def group_sp(y_list:list, tolerance:float=10.0):
     sp_list.append(np.average(curr_group))
     return sp_list
 
-def remove_zero_sp(y_list:list, tolerance:float=10.0):
+def remove_zero_sp(y_list:list, tolerance:float):
     """
     Removes stationary points close to 0
 

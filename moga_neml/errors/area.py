@@ -7,9 +7,9 @@
 """
 
 # Libraries
-import math, numpy as np
 from moga_neml.errors.__error__ import __Error__
 from moga_neml.helper.interpolator import Interpolator
+import math, numpy as np
 
 # The Area class
 class Error(__Error__):
@@ -17,6 +17,10 @@ class Error(__Error__):
     def initialise(self, num_points:int=50, max_value:float=None):
         """
         Runs at the start, once
+
+        Parameters:
+        * `num_points`: Number of points to evaluate
+        * `max_value`:  Maximum value to evaluate to
         """
         self.num_points   = num_points
         x_list            = self.get_x_data()
