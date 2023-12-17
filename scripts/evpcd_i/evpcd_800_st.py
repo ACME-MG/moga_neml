@@ -16,7 +16,7 @@ params_str = """
 29.726	45.991	2.3174	3.9613	2101.3	3064.2	4.855	7.1608
 0.85682	42.524	9.6283	4.5033	1707	1685.9	5.7223	5.7749
 4.4611	35.628	31.021	3.6186	3016.2	3775.5	4.7615	14.738
-"""
+""" 
 params_list = [list(map(float, line.split())) for line in params_str.strip().split("\n")]
 api.init_params(params_list[0])
 
