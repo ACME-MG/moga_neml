@@ -1,11 +1,11 @@
 import sys; sys.path += ["../.."]
 from moga_neml.api import API
 
-model_name = "cvih"
+# model_name = "cvih"
 # model_name = "riclih"
 # model_name = "rilih"
 # model_name = "rilikh"
-# model_name = "riplih"
+model_name = "riplih"
 # model_name = "rivih"
 # model_name = "vpclih"
 # model_name = "vpcvih"
