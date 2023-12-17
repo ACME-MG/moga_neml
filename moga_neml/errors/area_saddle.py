@@ -1,7 +1,7 @@
 """
  Title:         The area saddle objective function
- Description:   The objective function for minimising the normalised vertical area of
-                two curves using their stationary points;
+ Description:   The objective function for minimising the vertical area of two curves
+                by normalising between their stationary points;
                 Works well only with periodic data (e.g., cyclic data)
  Author:        Janzen Choi
 

@@ -17,7 +17,7 @@ class Model(__Model__):
         Runs at the start, once
         """
         self.add_param("lih_s0", 0.0e0, 1.0e3) # isotropic hardening initial yield stress
-        self.add_param("lih_k",  0.0e0, 1.0e3) # isotropic hardening slope
+        self.add_param("lih_k",  0.0e0, 1.0e4) # isotropic hardening slope
         self.add_param("pl_n",   0.0e0, 1.0e2) # power law
         self.add_param("pl_eta", 0.0e0, 1.0e4) # power law
     

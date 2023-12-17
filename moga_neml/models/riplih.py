@@ -18,7 +18,7 @@ class Model(__Model__):
         """
         
         # Define parameters
-        self.add_param("plih_s0", 0.0e0, 1.0e2)
+        self.add_param("plih_s0", 0.0e0, 1.0e3)
         self.add_param("plih_A",  0.0e0, 1.0e4)
         self.add_param("plih_n",  0.0e0, 1.0e2)
         

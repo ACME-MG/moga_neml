@@ -12,21 +12,19 @@ from moga_neml.models.__model__ import __Model__
 # The Curve class
 class Curve:
     
-    def __init__(self, type:str, exp_data:dict, model:__Model__):
+    def __init__(self, exp_data:dict, model:__Model__):
         """
         Stores information about a curve
 
         Parameters:
-        * `type`:          The type of the curve
         * `exp_data`:      The experimental data
         * `model`:         The model to use for the predictions
         * `custom_driver`: The custom driver
         """
 
         # Initialise inputs variables
-        self.type          = type
-        self.exp_data      = exp_data
-        self.model         = model
+        self.exp_data = exp_data
+        self.model    = model
         
         # Initialise internal variables
         self.custom_driver = None
@@ -68,7 +66,7 @@ class Curve:
         """
         Gets the curve type
         """
-        return self.type
+        return self.exp_data["type"]
     
     def get_train(self) -> bool:
         """

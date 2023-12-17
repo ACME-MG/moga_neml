@@ -18,8 +18,8 @@ class Model(__Model__):
         """
         
         # Define parameters
-        self.add_param("lih_s0", 0.0e0, 1.0e2) # isotropic hardening initial yield stress
-        self.add_param("lih_k",  0.0e0, 1.0e3) # isotropic hardening slope
+        self.add_param("lih_s0", 0.0e0, 1.0e3) # isotropic hardening initial yield stress
+        self.add_param("lih_k",  0.0e0, 1.0e4) # isotropic hardening slope
         
     def calibrate_model(self, lih_s0, lih_k):
         """

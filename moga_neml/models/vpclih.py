@@ -16,8 +16,8 @@ class Model(__Model__):
         """
         Runs at the start, once
         """
-        self.add_param("lih_s0",  0.0e0, 1.0e2) # isotropic hardening initial yield stress
-        self.add_param("lih_k",   0.0e0, 1.0e3) # isotropic hardening slope
+        self.add_param("lih_s0",  0.0e0, 1.0e3) # isotropic hardening initial yield stress
+        self.add_param("lih_k",   0.0e0, 1.0e4) # isotropic hardening slope
         self.add_param("vih_n",   0.0e0, 1.0e2) # ViscoFlowRule
         self.add_param("vih_eta", 0.0e0, 1.0e4) # ViscoFlowRule
         self.add_param("c_gs1",   0.0e0, 1.0e6) # Chaboche

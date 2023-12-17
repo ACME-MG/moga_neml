@@ -84,7 +84,7 @@ class API:
         """
         self.__print__(f"Reading data from '{file_name}'")
         exp_data = read_exp_data(self.__input_path__, file_name, thin_data, num_points)
-        self.__controller__.add_curve(exp_data["type"], exp_data)
+        self.__controller__.add_curve(exp_data)
 
     def change_data(self, field:str, value) -> None:
         """
@@ -94,7 +94,7 @@ class API:
         * `field`: The field to be changed
         * `value`: The new value to replace the existing value
         """
-        self.__print__(f"Changing the '{field}' field")
+        self.__print__(f"Changing the '{field}' field", sub_index=True)
         curve = self.__controller__.get_last_curve()
         exp_data = curve.get_exp_data()
         exp_data[field] = value

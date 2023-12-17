@@ -54,15 +54,14 @@ class Controller():
         """
         self.model = create_model(model_name, **kwargs)
         
-    def add_curve(self, type:str, exp_data:dict) -> None:
+    def add_curve(self, exp_data:dict) -> None:
         """
         Adds an experimental curve to the controller
         
         Parameters:
-        * `type`:     The type of the curve
         * `exp_data`: The corresponding experimental data
         """
-        curve = Curve(type, exp_data, self.model)
+        curve = Curve(exp_data, self.model)
         self.curve_list.append(curve)
     
     def get_curve_list(self) -> list:
