@@ -5,10 +5,10 @@ from moga_neml.api import API
 # model_name = "riclih"
 # model_name = "rilih"
 # model_name = "rilikh"
-model_name = "riplih"
+# model_name = "riplih"
 # model_name = "rivih"
 # model_name = "vpclih"
-# model_name = "vpcvih"
+model_name = "vpcvih"
 # model_name = "vpplih"
 # model_name = "vppvih"
 api = API(model_name, input_path="../data", output_path="../results")
