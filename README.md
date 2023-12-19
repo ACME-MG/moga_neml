@@ -75,28 +75,22 @@ The `API` class contains several optional arguments. These include:
 * `verbose`: This optional argument tells the script whether to display any information about the actions of the `API` class in the terminal. The default value for this argument is `True`, meaning that the information will be displayed in the terminal.
 * `output_here`: This optional argument tells the script whether to just place the output files in the same directory as the script. The default value for this is `False`. Note that when the user sets the argument to `True`, the `title` and `output_path` values will not have any effect.
 
-The implementation of the `API` class can be accessed via `moga_neml/moga_neml/api.py`.
+The implementation of the `API` class can be accessed via `moga_neml/moga_neml/api.py`. The next sections provide descriptions of the available functions, their available arguments, and how to use them. Note that additional descriptions of the `API` functions can also be accessed by hovering your cursor over the functions. However, this functionality is only supported by some IDEs (e.g., Visual Studio Code).
 
-## API Functions
-
-The user can interact with the script by calling the functions in the `API` class. The following provides descriptions of the available functions,.their available arguments, and how to use them.
-
-Note that additional descriptions of the `API` functions can also be accessed by hovering your cursor over the functions. However, this functionality is only supported by some IDEs (e.g., Visual Studio Code).
-
-### Defining the Model (`define_model`)
+## Defining the Model (`define_model`)
 
 The `define_model` function defines the model to be optimised.
 * `model_name`: This argument defines the name of the model, which corresponds to the name of the model file in the `moga_neml/moga_neml/models/` directory.
 * `**kwargs`: This optional argument allows the user to pass on some arguments to the defined model's `initialise` function.
 
-### Reading an experimental dataset (`read_data`)
+## Reading an experimental dataset (`read_data`)
 
 The `read_data` function reads experimental data into the `API` class.
 * `file_path`: This argument defines the path to the experimental data. Note that this path appends the `input_path` value defined when initialising the `API` class.
 * `thin_data`: This optional argument tells the script whether to thin the data before reading the experimental data into the `API` class. The default value for this argument is `True`.
 * `num_points`: This optional argument defines how many points the experimental data will be thinned to. This argument only works if the `thin_data` argument has been set to `True`. The default value for this argument is `1000`.
 
-### Changing a field in the experimental data (`change_data`)
+## Changing a field in the experimental data (`change_data`)
 
 The `change_data` function changes files in the last read experimental data by the `read_data` function.
 * `field`: This argument defines the name of the field.
@@ -104,7 +98,7 @@ The `change_data` function changes files in the last read experimental data by t
 
 This function relies on the `read_data` function to be called first.
 
-### Removing damage from creep data (`remove_damage`)
+## Removing damage from creep data (`remove_damage`)
 
 The `remove_damage` function removes the the tertiary regime of experimental creep data using their stationary points. This function applies only to the last read experimental data by the `read_data` function.
 * `window`: This optional argument allows the user to define the window size to determine the stationary points. The default value of this argument is `0.1`, which will tell the function to search using intervals of 10% of the number of data points in the experimental data.
@@ -112,7 +106,7 @@ The `remove_damage` function removes the the tertiary regime of experimental cre
 
 This function relies on the `read_data` function to be called first.
 
-### Removing oxidation from creep data (`remove_oxidation`)
+## Removing oxidation from creep data (`remove_oxidation`)
 
 The `remove_oxidation` function removes data after the tertiary regime of experimental creep data (resulting from oxidation) using their stationary points. This function applies only to the last read experimental data by the `read_data` function.
 * `window`: This optional argument allows the user to define the window size to determine the stationary points. The default value of this argument is `0.1`, which will tell the function to search using intervals of 10% of the number of data points in the experimental data.
@@ -120,7 +114,7 @@ The `remove_oxidation` function removes data after the tertiary regime of experi
 
 This function relies on the `read_data` function to be called first.
 
-### Removing data manually (`remove_manual`)
+## Removing data manually (`remove_manual`)
 
 The `remove_manual` function removes data after a point which the user defines.
 * `label`: This argument defines the data label (e.g., `"strain"`, `"stress"`, `"time"`).
@@ -130,7 +124,7 @@ If `label` is set to `time` and `value` is set to `100`, then the function will 
 
 This function relies on the `read_data` function to be called first.
 
-### Defining an error (`add_error`)
+## Defining an error (`add_error`)
 
 The `add_error` function defines an error for the MOGA to minimise during the optimisation.
 * `error_name`: This argument defines the name of the error, which corresponds to the name of the error file in the `moga_neml/moga_neml/errors/` directory.
@@ -143,7 +137,7 @@ This function relies on the `read_data` function to be called first.
 
 Note that if an experimental dataset is read in but no errors or constraints are defined for it, then it will still be included in the MOGA optimisation for validation. This means that any outputted plots / results will still include the experimental dataset, but the dataset will not influence the optimisation.
 
-### Grouping the errors (`group_errors`)
+## Grouping the errors (`group_errors`)
 
 The `group_errors` function defines how the errors will be grouped into objective functions for the MOGA optimisation.
 * `name`: This optional argument tells the MOGA to group the errors by their name. The default value for this argument is `True`.
@@ -152,21 +146,21 @@ The `group_errors` function defines how the errors will be grouped into objectiv
 
 Note that this function is optional, and the default values will be set without the function being called. Additionally, if all the arguments are set to false, then the errors will be grouped into a single objective function.
 
-### Reducing the errors (`reduce_errors`)
+## Reducing the errors (`reduce_errors`)
 
 The `reduce_erroprs` function defines how the error values will be combined to calculate the objective values for the MOGA optimisation.
 * `method`: This optional argument sets the reduction method. The available values include `"sum"`, `"average"`, `"square_sum"`, and `"square_average"`. The default value for this argument is `"average"`.
 
 Note that this function is optional, and the default value will be set without the function being called.
 
-### Reducing the objective values (`reduce_objectives`)
+## Reducing the objective values (`reduce_objectives`)
 
 The `reduce_objectves` function defines how the objective values will be combined to calculate the optimal set of parameters from the population of parameters.
 * `method`: This optional argument sets the reduction method. The available values include `"sum"`, `"average"`, `"square_sum"`, and `"square_average"`. The default value for this argument is `"average"`.
 
 Note that this function is optional, and the default value will be set without the function being called.
 
-### Defining a constraint (`add_constraint`)
+## Defining a constraint (`add_constraint`)
 
 The `add_constraint` function defines a constraint for the MOGA optimisation. If the constraint is violated, then the MOGA will reject the corresponding parameters.
 * `constraint_name`: This argument defines the name of the constraint, which corresponds to the name of the constraint file in the `moga_neml/moga_neml/constraints/` directory.
@@ -176,7 +170,7 @@ The `add_constraint` function defines a constraint for the MOGA optimisation. If
 
 This function relies on the `read_data` function to be called first.
 
-### Fixing a parameter (`fix_param`)
+## Fixing a parameter (`fix_param`)
 
 The `fix_param` function tells the MOGA to fix a parameter to a value when optimising.
 * `param_name`: This argument defines the name of the parameter.
@@ -184,14 +178,14 @@ The `fix_param` function tells the MOGA to fix a parameter to a value when optim
 
 This function relies on the `define_model` function to be called first.
 
-### Fixing multipler parameters (`fix_params`)
+## Fixing multipler parameters (`fix_params`)
 
 The `fix_params` function tells the MOGA to fix multiple parameters during the optimisation. This function can be used in lieu of the `fix_param` function.
 * `param_values`: This argument defines a list of the fixed parameter values. Note that the script will fix the first `len(param_values)` parameters to those values.
 
 This function relies on the `define_model` function to be called first.
 
-### Initialising a parameter (`init_param`)
+## Initialising a parameter (`init_param`)
 
 The `init_param` function tells the MOGA to initialise a parameter to a value for the initial population of the optimisation. This differs from the `fix_param` function in that the MOGA will still try to change the initialised parameter's values during the optimisation.
 * `param_name`: This argument defines the name of the parameter.
@@ -199,14 +193,14 @@ The `init_param` function tells the MOGA to initialise a parameter to a value fo
 
 This function relies on the `define_model` function to be called first.
 
-### Initialising multipler parameters (`init_params`)
+## Initialising multipler parameters (`init_params`)
 
 The `init_params` function tells the MOGA to initialise multiple parameters during the optimisation. This function can be used in lieu of the `init_param` function.
 * `param_values`: This argument defines a list of the initialised parameter values. Note that the script will initialise the first `len(param_values)` parameters to those values.
 
 This function relies on the `define_model` function to be called first.
 
-### Setting a custom driver (`set_driver`)
+## Setting a custom driver (`set_driver`)
 
 The `set_driver` function forces the script to use a specific NEML driver instead of the pre-defined drivers in the script. Information about these drivers can be found on the [official NEML documentation](https://neml.readthedocs.io/en/dev/python/drivers.html#driver-classes).
 * `driver_type`: This arugment defines the name of the NEML driver.
@@ -214,7 +208,7 @@ The `set_driver` function forces the script to use a specific NEML driver instea
 
 Note that this function is optional, since the script already wraps several of the NEML drivers (i.e., `"creep"`, `"tensile"`, and (strain-controlled) `"cyclic"`). This function should only be used if the desired driver has not been wrapped or if the user wants to alter the set argument values in the driver.
 
-### Plotting the experimental data (`plot_experimental`)
+## Plotting the experimental data (`plot_experimental`)
 
 The `plot_experimental` function creates a plot of all the experimental data that has been read by the `read_data` function.
 * `x_log`: This optional argument tells the function whether to plot the x-axis on a log scale. The default value of this argument is `False`.
@@ -222,7 +216,7 @@ The `plot_experimental` function creates a plot of all the experimental data tha
 
 This function relies on the `read_data` function to be called first.
 
-### Plotting simulation results (`plot_simulation`)
+## Plotting simulation results (`plot_simulation`)
 
 The `plot_simulations` function creates a plot of all the experimental data that has been read by the `read_data` function as well as their simulated responses.
 * `params`: This argument defines a list of parameter values to pass to the defined model to obtain the simulated responses.
@@ -233,7 +227,7 @@ This function relies on the `read_data` and `define_model` functions to be calle
 
 Note that defining the parameters as arguments to this function is similar to fixing the parameters via `fix_params`, meaning that there will be clashes if the parameter values are defined twice.
 
-### Plotting multiple simulation results (`plot_simulations`)
+## Plotting multiple simulation results (`plot_simulations`)
 
 The `plot_simulations` function creates a plot of all the experimental data that has been read by the `read_data` function as well as multiple simulated responses from multiple sets of parameters.
 * `params`: This argument defines a list of lists of parameter values to pass to the defined model to obtain the multiple simulated responses.
@@ -244,14 +238,14 @@ This function relies on the `read_data` and `define_model` functions to be calle
 
 Note that defining the parameters as arguments to this function is similar to fixing the parameters via `fix_params`, meaning that there will be clashes if the parameter values are defined twice.
 
-### Plot the parameter distribution (`plot_distribution`)
+## Plot the parameter distribution (`plot_distribution`)
 
 The `plot_distribution` function creates a plot of boxplots for multiple sets of parameters.
 * `params`: This argument defines a list of lists of parameter values for the boxplots.
 * `limits_dict`: This optional argument defines the lower and upper bounds of the boxplots. This argument should be defined as a dictionary of tuples (i.e., `(lower, upper)`) with keys corresponding to the names of the parameters of the model. The default value for this argument is `None`, meaning that the limits will be determined automatically.
 * `log`: This optional argument tells the function whether to apply the log scale for the boxplots. The default value for this argument is `False`.
 
-### Plotting simulation results (`plot_simulation`)
+## Plotting simulation results (`plot_simulation`)
 
 The `plot_simulations` function creates a `.xlsx` file with information about the optimisation and errors used for a set of parameters.
 * `params`: This argument defines a list of parameter values to pass to the defined model to obtain the simulated responses.
@@ -260,7 +254,7 @@ This function relies on the `read_data` and `define_model` functions to be calle
 
 Note that defining the parameters as arguments to this function is similar to fixing the parameters via `fix_params`, meaning that there will be clashes if the parameter values are defined twice.
 
-### Saving the model (`save_model`)
+## Saving the model (`save_model`)
 
 The `save_model` function creates `.xml` files for use in other programs (e.g., Abaqus, MOOSE). The function will output a number of files depending on the number of experimental data has been read by the `read_data` function.
 * `params`: This argument defines a list of parameter values to pass to the defined model to obtain the simulated responses.
@@ -269,7 +263,7 @@ This function relies on the `read_data` and `define_model` functions to be calle
 
 Note that defining the parameters as arguments to this function is similar to fixing the parameters via `fix_params`, meaning that there will be clashes if the parameter values are defined twice.
 
-### Recording the results (`set_recorder`)
+## Recording the results (`set_recorder`)
 
 The `set_recorder` function sets the options for recording the results during the MOGA optimisation.
 * `interval`: This optional argument defines the number of generations the MOGA should run before recording the results of the optimisation. The results will be stored in a `.xlsx` file, similar with the `get_results` function. The default value for this argument is `10`.
@@ -279,7 +273,7 @@ The `set_recorder` function sets the options for recording the results during th
 
 Note that this function is optional, and the default value will be set without the function being called.
 
-### Running the optimisation (`optimise`)
+## Running the optimisation (`optimise`)
 
 The `optimise` function conducts the MOGA optimisation.
 * `num_gens`: This optional argument defines the number of generations to run the MOGA optimisation. The default value for this argument is `10000`.
