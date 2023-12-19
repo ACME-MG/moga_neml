@@ -73,17 +73,17 @@ class API:
         self.__print__(f"Defining model '{model_name}'")
         self.__controller__.define_model(model_name, **kwargs)
     
-    def read_data(self, file_name:str, thin_data:bool=True, num_points:int=1000) -> None:
+    def read_data(self, file_path:str, thin_data:bool=True, num_points:int=1000) -> None:
         """
         Reads in the experimental data from a file
         
         Parameters:
-        * `file_name`:  The name of the file relative to the defined `input_path`
+        * `file_path`:  The name of the file relative to the defined `input_path`
         * `thin_data`:  Whether to thin the data or not
         * `num_points`: How many points to thin the data to
         """
-        self.__print__(f"Reading data from '{file_name}'")
-        exp_data = read_exp_data(self.__input_path__, file_name, thin_data, num_points)
+        self.__print__(f"Reading data from '{file_path}'")
+        exp_data = read_exp_data(self.__input_path__, file_path, thin_data, num_points)
         self.__controller__.add_curve(exp_data)
 
     def change_data(self, field:str, value) -> None:
@@ -100,106 +100,6 @@ class API:
         exp_data[field] = value
         check_exp_data(exp_data)
         curve.set_exp_data(exp_data)
-
-    def set_custom_driver(self, driver_type:str, **kwargs) -> None:
-        """
-        Forces the optimiser to use a specific driver instead of one of the defined ones
-        
-        Parameters:
-        * `driver_type`: The driver type
-        """
-        self.__print__(f"Setting a custom '{driver_type}' driver")
-        curve = self.__controller__.get_last_curve()
-        curve.set_custom_driver(driver_type, kwargs)
-
-    def add_error(self, error_name:str, x_label:str="", y_label:str="", weight:float=1, **kwargs) -> None:
-        """
-        Adds an error to optimise for the most recently added experimental data
-        
-        Parameters:
-        * `error_name`: The name of the error
-        * `x_label`:    The measurement on the x-axis (e.g., time, strain)
-        * `y_label`:    The measurement on the y-axis (e.g., strain, stress)
-        * `weight`:     The factor multipled with the error when the errors are reduced
-        * `kwargs`:     Any additional keyword arguments to pass to the model
-        """
-        
-        # Display error information
-        labels = f"{x_label}-{y_label}" if x_label != "" and y_label != "" else f"{x_label}" if x_label != "" else ""
-        label_str = f"for {labels} " if labels != "" else ""
-        weight_str = f"with a weight of {weight}" if weight != 1 else ""
-        self.__print__(f"Adding '{error_name}' error {label_str}{weight_str}", sub_index=True)
-        
-        # Add error to curve
-        curve = self.__controller__.get_last_curve()
-        curve.add_error(error_name, x_label, y_label, weight, **kwargs)
-
-    def fix_param(self, param_name:str, param_value:float) -> None:
-        """
-        Fixes a parameter to a value and stops it from changing during the optimisation
-        
-        Parameters:
-        * `param_name`:  The name of the parameter
-        * `param_value`: The value the parameter will be fixed to
-        """
-        self.__print__("Fixing the '{}' parameter to fixed value of {:0.4}".format(param_name, float(param_value)))
-        self.__controller__.fix_param(param_name, param_value)
-
-    def fix_params(self, param_values:list) -> None:
-        """
-        Fixes multiple parameters to a list of values to stop them from changing during
-        the optimisation; note that the script assumes that the first len(param_values)
-        are being fixed
-
-        Parameters:
-        * `param_values`: A list of parameter values to be fixed
-        """
-        self.__print__(f"Fixing the first {len(param_values)} of the model")
-        unfix_param_names = self.__controller__.get_unfix_param_names()
-        for i in range(len(param_values)):
-            self.__controller__.fix_param(unfix_param_names[i], param_values[i])
-
-    def init_param(self, param_name:str, param_value:float, param_std:float=0) -> None:
-        """
-        Gives a parameter an initial value in the initial population of the optimisation
-        
-        Parameters:
-        * `param_name`:  The name of the parameter
-        * `param_value`: The value the parameter is initialised to
-        * `param_std`:   The deviation of the parameter in the initial population
-        """
-        message = "Setting the '{}' parameter to an initial value of {:0.4} and deviation of {:0.4}"
-        self.__print__(message.format(param_name, float(param_value), float(param_std)))
-        self.__controller__.init_param(param_name, param_value, param_std)
-
-    def init_params(self, param_values:list, param_stds:list=None) -> None:
-        """
-        Initialises multiple parameters to a list of values for the initial population of
-        the optimisation; note that the script assumes that the first len(param_values)
-        are being initialised
-
-        Parameters:
-        * `param_values`: A list of parameter values to be initialised
-        * `param_stds`:   A list of deviation values
-        """
-        self.__print__(f"Initialising the first {len(param_values)} of the model")
-        unfix_param_names = self.__controller__.get_unfix_param_names()
-        for i in range(len(param_values)):
-            param_std = 0 if param_stds == None else param_stds[i]
-            self.__controller__.init_param(unfix_param_names[i], param_values[i], param_std)
-
-    def add_constraint(self, constraint_name:str, x_label:str="", y_label:str="", **kwargs) -> None:
-        """
-        Adds a constraint to all the curves that prevent a solution from being accepted
-
-        Parameters:
-        * `constraint_name`: The name of the constraint
-        * `x_label`:    The measurement on the x-axis (e.g., time, strain)
-        * `y_label`:    The measurement on the y-axis (e.g., strain, stress)
-        * `kwargs`:     Any additional keyword arguments to pass to the model
-        """
-        self.__print__(f"Adding the {constraint_name} constraint to the optimisation")
-        self.__controller__.add_constraint(constraint_name, x_label, y_label, **kwargs)
 
     def remove_damage(self, window:int=0.1, acceptance:float=0.9) -> None:
         """
@@ -252,16 +152,157 @@ class API:
         exp_data = curve.get_exp_data()
         exp_data = remove_data_after(exp_data, value, label)
         curve.set_exp_data(exp_data)
+
+    def add_error(self, error_name:str, x_label:str="", y_label:str="", weight:float=1, **kwargs) -> None:
+        """
+        Adds an error to optimise for the most recently added experimental data
+        
+        Parameters:
+        * `error_name`: The name of the error
+        * `x_label`:    The measurement on the x-axis (e.g., time, strain)
+        * `y_label`:    The measurement on the y-axis (e.g., strain, stress)
+        * `weight`:     The factor multipled with the error when the errors are reduced
+        * `kwargs`:     Any additional keyword arguments to pass to the model
+        """
+        
+        # Display error information
+        labels = f"{x_label}-{y_label}" if x_label != "" and y_label != "" else f"{x_label}" if x_label != "" else ""
+        label_str = f"for {labels} " if labels != "" else ""
+        weight_str = f"with a weight of {weight}" if weight != 1 else ""
+        self.__print__(f"Adding '{error_name}' error {label_str}{weight_str}", sub_index=True)
+        
+        # Add error to curve
+        curve = self.__controller__.get_last_curve()
+        curve.add_error(error_name, x_label, y_label, weight, **kwargs)
+
+    def group_errors(self, name:bool=True, type:bool=True, labels:bool=True):
+        """
+        Sets the options for the grouping of errors into objective functions; if all the parameters
+        are set to false, then the errors will be grouped into a single objective function
+        
+        Parameters:
+        * `name`:   If true, the errors will be grouped by their names (e.g., end_value, area)
+        * `type`:   If true, the errors will be grouped by the data types (e.g., creep, tensile)
+        * `labels`: If true, the errors will be grouped by their measurements (e.g., strain, stress)
+        """
+        self.__controller__.set_error_grouping(name, type, labels)
+        group_str = self.__controller__.get_error_grouping()
+        group_str_out = f"based on {group_str}" if group_str != "" else "individually"
+        self.__print__(f"Grouping the errors {group_str_out}") # prints after action
     
+    def reduce_errors(self, method:str="average"):
+        """
+        Sets the reduction method to convert a list of error values into a single
+        value for each objective function; the reduced values are then optimised
+        by the multi-objective genetic algorithm
+        
+        Parameters:
+        * `method`: The reduction method ("sum", "average", "square_sum", "square_average")
+        """
+        self.__print__(f"Reducing the errors based on {method}")
+        self.__controller__.set_error_reduction_method(method)
+    
+    def reduce_objectives(self, method:str="average"):
+        """
+        Sets the reduction method to convert a list of objective function values into a
+        single value; this single value is for determining the optimal solution in the
+        collection of solutions during the optimisation process
+        
+        Parameters:
+        * `method`: The reduction method ("sum", "average", "square_sum", "square_average")
+        """
+        self.__print__(f"Reducing the objective functions based on {method}")
+        self.__controller__.set_objective_reduction_method(method)
+
+    def add_constraint(self, constraint_name:str, x_label:str="", y_label:str="", **kwargs) -> None:
+        """
+        Adds a constraint to all the curves that prevent a solution from being accepted
+
+        Parameters:
+        * `constraint_name`: The name of the constraint
+        * `x_label`:    The measurement on the x-axis (e.g., time, strain)
+        * `y_label`:    The measurement on the y-axis (e.g., strain, stress)
+        * `kwargs`:     Any additional keyword arguments to pass to the model
+        """
+        self.__print__(f"Adding the {constraint_name} constraint to the optimisation", sub_index=True)
+        self.__controller__.add_constraint(constraint_name, x_label, y_label, **kwargs)
+
+    def fix_param(self, param_name:str, param_value:float) -> None:
+        """
+        Fixes a parameter to a value and stops it from changing during the optimisation
+        
+        Parameters:
+        * `param_name`:  The name of the parameter
+        * `param_value`: The value the parameter will be fixed to
+        """
+        self.__print__("Fixing the '{}' parameter to fixed value of {:0.4}".format(param_name, float(param_value)))
+        self.__check_model__()
+        self.__controller__.fix_param(param_name, param_value)
+
+    def fix_params(self, param_values:list) -> None:
+        """
+        Fixes multiple parameters to a list of values to stop them from changing during
+        the optimisation; note that the script assumes that the first len(param_values)
+        are being fixed
+
+        Parameters:
+        * `param_values`: A list of parameter values to be fixed
+        """
+        self.__print__(f"Fixing the first {len(param_values)} of the model")
+        self.__check_model__()
+        unfix_param_names = self.__controller__.get_unfix_param_names()
+        for i in range(len(param_values)):
+            self.__controller__.fix_param(unfix_param_names[i], param_values[i])
+
+    def init_param(self, param_name:str, param_value:float, param_std:float=0) -> None:
+        """
+        Gives a parameter an initial value in the initial population of the optimisation
+        
+        Parameters:
+        * `param_name`:  The name of the parameter
+        * `param_value`: The value the parameter is initialised to
+        * `param_std`:   The deviation of the parameter in the initial population
+        """
+        message = "Setting the '{}' parameter to an initial value of {:0.4} and deviation of {:0.4}"
+        self.__check_model__()
+        self.__print__(message.format(param_name, float(param_value), float(param_std)))
+        self.__controller__.init_param(param_name, param_value, param_std)
+
+    def init_params(self, param_values:list, param_stds:list=None) -> None:
+        """
+        Initialises multiple parameters to a list of values for the initial population of
+        the optimisation; note that the script assumes that the first len(param_values)
+        are being initialised
+
+        Parameters:
+        * `param_values`: A list of parameter values to be initialised
+        * `param_stds`:   A list of deviation values
+        """
+        self.__print__(f"Initialising the first {len(param_values)} of the model")
+        self.__check_model__()
+        unfix_param_names = self.__controller__.get_unfix_param_names()
+        for i in range(len(param_values)):
+            param_std = 0 if param_stds == None else param_stds[i]
+            self.__controller__.init_param(unfix_param_names[i], param_values[i], param_std)
+
+    def set_custom_driver(self, driver_type:str, **kwargs) -> None:
+        """
+        Forces the optimiser to use a specific driver instead of one of the defined ones
+        
+        Parameters:
+        * `driver_type`: The driver type
+        """
+        self.__print__(f"Setting a custom '{driver_type}' driver")
+        curve = self.__controller__.get_last_curve()
+        curve.set_custom_driver(driver_type, kwargs)
+
     def plot_experimental(self, x_log:bool=False, y_log:bool=False) -> None:
         """
         Visualises the experimental data
         
         Parameters:
-        * `x_label`:    The measurement to be visualised on the x-axis
-        * `y_label`:    The measurement to be visualised on the y-axis
-        * `x_log`:      Whether to log the x-axis
-        * `y_log`:      Whether to log the y-axis
+        * `x_log`: Whether to log the x-axis
+        * `y_log`: Whether to log the y-axis
         """
         
         # Display informative message
@@ -274,21 +315,22 @@ class API:
             self.__check_curves__("There are no experimental curves to plot!")
             self.__controller__.plot_exp_curves(type, file_path, x_log, y_log)
 
-    def plot_prediction(self, *params:tuple, x_log:bool=False, y_log:bool=False) -> None:
+    def plot_simulation(self, params:list, x_log:bool=False, y_log:bool=False) -> None:
         """
-        Visualises the predicted curves from a set of parameters
+        Visualises the simulated curves from a set of parameters
         
         Parameters:
-        * `params`:    The parameter values for the model; note that defining the parameters as
-                       arguments to this function is similar to fixing the parameters via `fix_params`,
-                       meaning that there will be clashes if the parameter values are defined twice.
-        * `x_log`:     Whether to log the x-axis
-        * `y_log`:     Whether to log the y-axis
+        * `params`: The parameter values for the model; note that defining the parameters as
+                    arguments to this function is similar to fixing the parameters via `fix_params`,
+                    meaning that there will be clashes if the parameter values are defined twice.
+        * `x_log`:  Whether to log the x-axis
+        * `y_log`:  Whether to log the y-axis
         """
         
         # Convert parameters into a string, display, and check
         param_str = ["{:0.4}".format(float(param)) for param in params]
         self.__print__("Plotting the curves for {}".format(str(param_str).replace("'", "")))
+        self.__check_model__()
         self.__check_curves__("There are no experimental curves to plot!")
         self.__check_params__(params)
 
@@ -299,23 +341,23 @@ class API:
             self.__controller__.plot_prd_curves(*params, type=type, file_path=file_path, x_log=x_log,
                                                 y_log=y_log)
 
-    def plot_predictions(self, params_list:list, clip:bool=False, limits_dict:dict=None) -> None:
+    def plot_simulations(self, params_list:list, clip:bool=False, limits_dict:dict=None) -> None:
         """
-        Visualises the predicted curves from a set of parameters
+        Visualises the simulated curves from a set of parameters
         
         Parameters:
-        * `params_list`:   A list of parameter sets for the model; note that defining the parameters as
-                           arguments to this function is similar to fixing the parameters via `fix_params`,
-                           meaning that there will be clashes if the parameter values are defined twice.
-        * `colour_list`:   A list of colours to attach to each set of parameter values 
-        * `clip`:          Whether to clip the predictions so they end at the same x position as the
-                           experimental data
-        * `limits_dict`:   The lower and upper bound of the plot for the scales; dictionary of tuples of
-                           tuples; e.g., {"tensile": ((0, 1), (2, 3)), "creep": ((3, 2), (0,3))}
+        * `params_list`: A list of parameter sets for the model; note that defining the parameters as
+                         arguments to this function is similar to fixing the parameters via `fix_params`,
+                         meaning that there will be clashes if the parameter values are defined twice.
+        * `clip`:        Whether to clip the predictions so they end at the same x position as the
+                         experimental data
+        * `limits_dict`: The lower and upper bound of the plot for the scales; dictionary of tuples of
+                         tuples; e.g., {"tensile": ((0, 1), (2, 3)), "creep": ((3, 2), (0,3))}
         """
 
         # Print out message and check
         self.__print__(f"Plotting the predictions for {len(params_list)} sets of parameters")
+        self.__check_model__()
         self.__check_curves__("There are no experimental curves to plot!")
         self.__check_params_list__(params_list)
 
@@ -369,19 +411,20 @@ class API:
         file_path = self.__get_output__(f"box_plot.png")
         self.__controller__.plot_distribution(params_list, file_path, limits_dict, log)
 
-    def get_results(self, *params:tuple) -> None:
+    def get_results(self, params:list) -> None:
         """
         Gets the optimisation, parameter, and error summary from a set of parameters
         
         Parameters:
-        * `params`:    The parameter values of the model; note that defining the parameters as
-                       arguments to this function is similar to fixing the parameters via `fix_params`,
-                       meaning that there will be clashes if the parameter values are defined twice.
+        * `params`: The parameter values of the model; note that defining the parameters as
+                    arguments to this function is similar to fixing the parameters via `fix_params`,
+                    meaning that there will be clashes if the parameter values are defined twice.
         """
         
         # Display and check
         param_str = ["{:0.4}".format(float(param)) for param in params]
         self.__print__("Getting the results for {}".format(str(param_str).replace("'", "")))
+        self.__check_model__()
         self.__check_curves__("Results cannot obtained without experimental curves!")
         self.__check_params__(params)
 
@@ -396,7 +439,7 @@ class API:
         recorder.update_optimal_solution(param_value_dict, error_value_dict)
         recorder.create_record(self.__get_output__("results"), replace=False)
     
-    def save_model(self, *params:tuple) -> None:
+    def save_model(self, params:list) -> None:
         """
         Calibrates the model with parameters and saves the model as an XML file
         
@@ -409,6 +452,7 @@ class API:
         # Display and check
         param_str = ["{:0.4}".format(float(param)) for param in params]
         self.__print__("Saving the calibrated model for {}".format(str(param_str).replace("'", "")))
+        self.__check_model__()
         self.__check_curves__("Results cannot obtained without experimental curves!")
         self.__check_params__(params)
 
@@ -432,48 +476,9 @@ class API:
         self.__print__(f"Initialising the recorder with an interval of {interval}")
         self.__recorder__ = Recorder(self.__controller__, interval, self.__output_path__,
                                      plot_opt, plot_loss, save_model)
-
-    def group_errors(self, name:bool=True, type:bool=True, labels:bool=True):
-        """
-        Sets the options for the grouping of errors into objective functions; if all the parameters
-        are set to false, then the errors will be grouped into a single objective function
-        
-        Parameters:
-        * `name`:   If true, the errors will be grouped by their names (e.g., end_value, area)
-        * `type`:   If true, the errors will be grouped by the data types (e.g., creep, tensile)
-        * `labels`: If true, the errors will be grouped by their measurements (e.g., strain, stress)
-        """
-        self.__controller__.set_error_grouping(name, type, labels)
-        group_str = self.__controller__.get_error_grouping()
-        group_str_out = f"based on {group_str}" if group_str != "" else "individually"
-        self.__print__(f"Grouping the errors {group_str_out}") # prints after action
-    
-    def reduce_errors(self, method:str="average"):
-        """
-        Sets the reduction method to convert a list of error values into a single
-        value for each objective function; the reduced values are then optimised
-        by the multi-objective genetic algorithm
-        
-        Parameters:
-        * `method`: The reduction method ("sum", "average", "square_sum", "square_average")
-        """
-        self.__print__(f"Reducing the errors based on {method}")
-        self.__controller__.set_error_reduction_method(method)
-    
-    def reduce_objectives(self, method:str="average"):
-        """
-        Sets the reduction method to convert a list of objective function values into a
-        single value; this single value is for determining the optimal solution in the
-        collection of solutions during the optimisation process
-        
-        Parameters:
-        * `method`: The reduction method ("sum", "average", "square_sum", "square_average")
-        """
-        self.__print__(f"Reducing the objective functions based on {method}")
-        self.__controller__.set_objective_reduction_method(method)
     
     def optimise(self, num_gens:int=10000, population:int=100, offspring:int=50,
-                 crossover:float=0.80, mutation:float=0.01) -> None:
+                 crossover:float=0.80, mutation:float=0.01) -> dict:
         """
         Prepares and conducts the optimisation
         
@@ -487,8 +492,13 @@ class API:
         
         # Display and conduct checks
         self.__print__(f"Conducting the optimisation ({num_gens}, {population}, {offspring}, {crossover}, {mutation})")
+        self.__check_model__()
         self.__check_curves__("Optimisation cannot run without experimental curves!")
         self.__check_errors__("Optimisation cannot run without any objective functions!")
+        
+        # Adds the recorder if it has not been defined; otherwise, check defined recorder
+        if self.__recorder__ == None:
+            self.__recorder__ = Recorder(self.__controller__, 10, self.__output_path__)
         self.__check_variable__(self.__recorder__, "Optimisation cannot run without initialising a recorder!")
         
         # Initialise and run the optimisation
@@ -497,11 +507,12 @@ class API:
         moga = MOGA(problem, num_gens, population, offspring, crossover, mutation)
         moga.optimise()
 
-        # Get the resuls and print
+        # Get the results, print, and return the parameters
         opt_params = self.__recorder__.get_opt_params()
         opt_error = self.__recorder__.get_opt_error()
         print(f"\n\tParams:\t{opt_params}\n\tError:\t{opt_error}")
-    
+        return opt_params
+
     def __print__(self, message:str, add_index:bool=True, sub_index:bool=False) -> None:
         """
         Displays a message before running the command (for internal use only)
@@ -528,6 +539,13 @@ class API:
             self.__print_subindex__ = 0
             print_index = f"{self.__print_index__}"
         print(f"   {print_index})\t{message} ...")
+
+    def __check_model__(self):
+        """
+        Checks whether the model has been defined
+        """
+        if self.__controller__.model == None:
+            raise ValueError("The model must be defined first!")
 
     def __check_curves__(self, message:str):
         """

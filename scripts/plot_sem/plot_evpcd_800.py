@@ -29,7 +29,7 @@ params_str = """
 """
 params_list = [list(map(float, line.split())) for line in params_str.strip().split("\n")]
 
-api.plot_predictions(
+api.plot_simulations(
     params_list = params_list,
     limits_dict = {"creep": ((0, 8000), (0, 0.7)), "tensile": ((0, 1.0), (0, 500))},
 )

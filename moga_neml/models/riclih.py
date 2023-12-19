@@ -18,10 +18,10 @@ class Model(__Model__):
         """
         self.add_param("lih_s0", 0.0e0, 1.0e3) # isotropic hardening initial yield stress
         self.add_param("lih_k",  0.0e0, 1.0e4) # isotropic hardening slope
-        self.add_param("c_gs1",  0.0e0, 1.0e6) # Chaboche
-        self.add_param("c_gs2",  0.0e0, 1.0e6) # Chaboche
+        self.add_param("c_gs1",  0.0e0, 1.0e4) # Chaboche
+        self.add_param("c_gs2",  0.0e0, 1.0e2) # Chaboche
         self.add_param("c_cs1",  0.0e0, 1.0e6) # Chaboche
-        self.add_param("c_cs2",  0.0e0, 1.0e6) # Chaboche
+        self.add_param("c_cs2",  0.0e0, 1.0e4) # Chaboche
     
     def calibrate_model(self, lih_s0, lih_k, c_gs1, c_gs2, c_cs1, c_cs2):
         """

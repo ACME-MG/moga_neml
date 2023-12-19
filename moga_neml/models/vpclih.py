@@ -20,10 +20,10 @@ class Model(__Model__):
         self.add_param("lih_k",   0.0e0, 1.0e4) # isotropic hardening slope
         self.add_param("vih_n",   0.0e0, 1.0e2) # ViscoFlowRule
         self.add_param("vih_eta", 0.0e0, 1.0e4) # ViscoFlowRule
-        self.add_param("c_gs1",   0.0e0, 1.0e6) # Chaboche
-        self.add_param("c_gs2",   0.0e0, 1.0e6) # Chaboche
+        self.add_param("c_gs1",   0.0e0, 1.0e4) # Chaboche
+        self.add_param("c_gs2",   0.0e0, 1.0e2) # Chaboche
         self.add_param("c_cs1",   0.0e0, 1.0e6) # Chaboche
-        self.add_param("c_cs2",   0.0e0, 1.0e6) # Chaboche
+        self.add_param("c_cs2",   0.0e0, 1.0e4) # Chaboche
     
     def calibrate_model(self, lih_s0, lih_k, vih_n, vih_eta, c_gs1, c_gs2, c_cs1, c_cs2):
         """
@@ -39,7 +39,7 @@ class Model(__Model__):
         yield_surface  = surfaces.IsoKinJ2()
         lih_rule       = hardening.LinearIsotropicHardeningRule(lih_s0, lih_k)
         gamma_rule     = [hardening.ConstantGamma(g) for g in [c_gs1, c_gs2]]
-        chaboche_model = hardening.Chaboche(lih_rule, [c_cs1, c_cs2], gamma_rule, [0.0, 0.0], [1.0, 1.0])
+        chaboche_model = hardening.Chaboche(lih_rule, [c_cs1, c_cs2], gamma_rule, [0.0, 0.0], [2.0, 2.0])
         fluidity       = visco_flow.ConstantFluidity(vih_eta)
         cf_rule        = visco_flow.ChabocheFlowRule(yield_surface, chaboche_model, fluidity, vih_n)
         flow_rule      = general_flow.TVPFlowRule(elastic_model, cf_rule)
