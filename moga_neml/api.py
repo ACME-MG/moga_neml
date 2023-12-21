@@ -14,7 +14,7 @@ from moga_neml.optimise.problem import Problem
 from moga_neml.optimise.moga import MOGA
 from moga_neml.helper.data import remove_data_after
 from moga_neml.helper.derivative import remove_after_sp
-from moga_neml.helper.experiment import DATA_UNITS
+from moga_neml.helper.experiment import get_units
 from moga_neml.helper.general import safe_mkdir
 
 # API Class
@@ -147,8 +147,8 @@ class API:
         * `value`: The value to start removing data
         """
         curve = self.__controller__.get_last_curve()
-        units = DATA_UNITS[label]
-        self.__print__(f"Removing the values after {label} of {value} ({units})", sub_index=True)
+        units = get_units(label)
+        self.__print__(f"Removing the values after {label} of {value}{units}", sub_index=True)
         exp_data = curve.get_exp_data()
         exp_data = remove_data_after(exp_data, value, label)
         curve.set_exp_data(exp_data)

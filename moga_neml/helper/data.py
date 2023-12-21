@@ -78,7 +78,7 @@ def remove_data_after(exp_data:dict, x_value:float, x_label:str) -> dict:
     # Initialise new curve
     new_exp_data = deepcopy(exp_data)
     for header in new_exp_data.keys():
-        if isinstance(new_exp_data[header], list):
+        if isinstance(new_exp_data[header], list) and len(exp_data[header]) == len(exp_data[x_label]):
             new_exp_data[header] = []
             
     # Remove data after specific value
@@ -86,7 +86,7 @@ def remove_data_after(exp_data:dict, x_value:float, x_label:str) -> dict:
         if exp_data[x_label][i] > x_value:
             break
         for header in new_exp_data.keys():
-            if isinstance(new_exp_data[header], list):
+            if isinstance(new_exp_data[header], list) and len(exp_data[header]) == len(exp_data[x_label]):
                 new_exp_data[header].append(exp_data[header][i])
     
     # Return new data

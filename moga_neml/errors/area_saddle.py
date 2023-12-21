@@ -8,9 +8,10 @@
 """
 
 # Libraries
+import math, matplotlib.pyplot as plt, numpy as np
 from moga_neml.errors.__error__ import __Error__
 from moga_neml.helper.interpolator import Interpolator
-import math, matplotlib.pyplot as plt, numpy as np
+from moga_neml.helper.experiment import remove_zero_sp, group_sp
 
 # The Area Saddle class
 class Error(__Error__):
@@ -120,53 +121,3 @@ def get_interp_list(x_list:list, y_list:list, num_points:int, tolerance:float) -
     # Return
     raw_x_list_list = [np.linspace(sp_x_list[i], sp_x_list[i+1], num_points) for i in range(len(sp_x_list)-1)]
     return interp_list, raw_x_list_list
-
-def group_sp(x_list:list, y_list:list, tolerance:float) -> tuple:
-    """
-    Groups the stationary points together
-
-    Parameters:
-    * `x_list`:    The list of values corresponding to the y_list
-    * `y_list`:    The list of values being grouped
-    * `tolerance`: The tolerance used for the grouping
-    
-    Returns two lists representing the grouped stationary points
-    """
-
-    # Initialise
-    sp_x_list = []
-    sp_y_list = []
-    curr_x_group = [x_list[0]]
-    curr_y_group = [y_list[0]]
-
-    # Start grouping
-    for i in range(1, len(x_list)):
-        if abs(y_list[i] - curr_y_group[-1]) < tolerance:
-            curr_x_group.append(x_list[i])
-            curr_y_group.append(y_list[i])
-        else:
-            sp_x_list.append(np.average(curr_x_group))
-            sp_y_list.append(np.average(curr_y_group))
-            curr_x_group = [x_list[i]]
-            curr_y_group = [y_list[i]]
-
-    # Final grouping and return
-    sp_x_list.append(np.average(curr_x_group))
-    sp_y_list.append(np.average(curr_y_group))
-    return sp_x_list, sp_y_list
-
-def remove_zero_sp(x_list:list, y_list:list, tolerance:float) -> tuple:
-    """
-    Removes stationary points close to 0
-
-    Parameters:
-    * `x_list`:    The list of x values
-    * `y_list`:    The list of y values
-    * `tolerance`: The tolerance used for the removal
-    
-    Returns two lists representing the non-close-to-zero stationary points
-    """
-    keep_indexes = [i for i in range(len(y_list)) if abs(y_list[i]) > tolerance]
-    x_list = list(np.array(x_list)[keep_indexes])
-    y_list = list(np.array(y_list)[keep_indexes])
-    return x_list, y_list

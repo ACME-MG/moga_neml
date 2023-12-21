@@ -8,7 +8,7 @@
 # Libraries
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolours
-from moga_neml.helper.experiment import DATA_UNITS
+from moga_neml.helper.experiment import get_units
 
 # Constants
 DEFAULT_PATH     = "./plot"
@@ -49,10 +49,10 @@ class Plotter:
         plt.gca().grid(which="major", axis="both", color="SlateGray", linewidth=1, linestyle=":")
 
         # Set x and y labels
-        x_units = f" ({DATA_UNITS[self.x_label]})" if self.x_label in DATA_UNITS.keys() else ""
-        y_units = f" ({DATA_UNITS[self.y_label]})" if self.y_label in DATA_UNITS.keys() else ""
-        plt.xlabel(f"{self.x_label.capitalize()}{x_units}", fontsize=size)
-        plt.ylabel(f"{self.y_label.capitalize()}{y_units}", fontsize=size)
+        x_units = get_units(self.x_label)
+        y_units = get_units(self.y_label)
+        plt.xlabel(f"{self.x_label.replace('_', ' ').capitalize()}{x_units}", fontsize=size)
+        plt.ylabel(f"{self.y_label.replace('_', ' ').capitalize()}{y_units}", fontsize=size)
     
     def set_limits(self, x_limits:tuple=None, y_limits:tuple=None) -> None:
         """

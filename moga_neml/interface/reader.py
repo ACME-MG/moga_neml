@@ -8,7 +8,7 @@
 # Libraries
 from numbers import Number
 from moga_neml.helper.data import get_thinned_list
-from moga_neml.helper.experiment import DATA_FIELD_DICT
+from moga_neml.helper.experiment import DATA_FIELD_DICT, get_min_max_stress
 
 def try_float_cast(value:str) -> float:
     """
@@ -70,6 +70,10 @@ def read_exp_data(file_dir:str, file_name:str, thin_data:bool, num_points:int) -
     exp_data = get_curve_dict(headers, data, thin_data, num_points)
     exp_data["file_name"] = file_name
     check_exp_data(exp_data)
+
+    # Add additional fields
+    if exp_data["type"] == "cyclic":
+        exp_data = add_cyclic_fields(exp_data)
     
     # Return curves
     return exp_data
@@ -121,3 +125,18 @@ def check_exp_data(exp_data:dict) -> None:
         check_lists(exp_data, data_field["lists"])
         for value_field in data_field["values"]:
             check_header(exp_data, value_field, Number)
+
+def add_cyclic_fields(exp_data:dict) -> dict:
+    """
+    Adds fields to experimental cyclic data
+
+    Parameters:
+    * `exp_data`:    The dictionary of experimental data
+    
+    Returns the new experimental data dictionary
+    """
+    cycle_list, min_stress_list, max_stress_list = get_min_max_stress(exp_data["time"], exp_data["stress"], 10.0)
+    exp_data["cycles"] = cycle_list
+    exp_data["min_stress"] = min_stress_list
+    exp_data["max_stress"] = max_stress_list
+    return exp_data

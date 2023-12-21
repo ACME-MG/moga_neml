@@ -7,7 +7,7 @@
 
 # Libraries
 import pandas as pd
-from moga_neml.helper.experiment import DATA_UNITS
+from moga_neml.helper.experiment import get_units
 
 # Spreadsheet class
 class Spreadsheet:
@@ -94,10 +94,10 @@ class Spreadsheet:
         # Add axes and add the chart to the sheet
         if len(data_dict_dict.keys()) == 1:
             chart.set_legend({"none": True})
-        chart.set_x_axis({"name": f"{x_label} ({DATA_UNITS[x_label]})",
-                          "major_gridlines": {"visible": True}})
-        chart.set_y_axis({"name": f"{y_label} ({DATA_UNITS[y_label]})",
-                          "major_gridlines": {"visible": True}})
+        x_units = get_units(x_label)
+        y_units = get_units(y_label)
+        chart.set_x_axis({"name": f"{x_label}{x_units}", "major_gridlines": {"visible": True}})
+        chart.set_y_axis({"name": f"{y_label}{y_units}", "major_gridlines": {"visible": True}})
         sheet.insert_chart("A1", chart)
 
     # Closes the writer
