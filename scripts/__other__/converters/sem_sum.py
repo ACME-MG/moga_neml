@@ -5,7 +5,7 @@ import pandas as pd
 
 # Constants
 NUM_PARAMS = 6
-KEY_WORD = "900_all"
+KEY_WORDS = ["800_all", "800_st", "900_all", "900_st"]
 
 # Converts a dictionary into a CSV file
 def dict_to_csv(data_dict:dict, csv_path:str) -> None:
@@ -28,39 +28,42 @@ def dict_to_csv(data_dict:dict, csv_path:str) -> None:
         csv_fh.write(row_str + "\n")
     csv_fh.close()
 
-# Initialise dictionary to store parameters
-data_dict = {}
-
-# Iterates through all folders
+# Get all directories
 current_directory = os.getcwd()
 directories = [d for d in os.listdir(current_directory) if os.path.isdir(os.path.join(current_directory, d))]
-for i in range(len(directories)):
 
-    # Get results file
-    directory = directories[i]
-    if not KEY_WORD in directory:
-        print(f"Skipping {directory} ...")
-        continue
-    results_file = f"{directory}/results.xlsx"
-    print(f"Reading {results_file} ...")
-    
-    # Extract data from file
-    data = pd.read_excel(io=results_file, sheet_name="results")
-    param_names = list(data.columns[range(NUM_PARAMS)])
-    error_name = data.columns[-1]
-    params = list(data.iloc[0][range(NUM_PARAMS)])
-    error = data.iloc[0][-1]
+# Iterate through keywords
+for key_word in KEY_WORDS:
 
-    # Initialise parameters and error
-    if i == 0:
-        for param_name in param_names:
-            data_dict[param_name] = []
-        data_dict[error_name] = []
+    # Initialise dictionary and iterate through dictionaries
+    data_dict = {}
+    for i in range(len(directories)):
 
-    # Add parameters and error to dictionary
-    for j in range(len(param_names)):
-        data_dict[param_names[j]].append(params[j])
-    data_dict[error_name].append(error)
+        # Get results file
+        directory = directories[i]
+        if not key_word in directory:
+            print(f"Skipping {directory} ...")
+            continue
+        results_file = f"{directory}/results.xlsx"
+        print(f"Reading {results_file} ...")
+        
+        # Extract data from file
+        data = pd.read_excel(io=results_file, sheet_name="results")
+        param_names = list(data.columns[range(NUM_PARAMS)])
+        error_name = data.columns[-1]
+        params = list(data.iloc[0][range(NUM_PARAMS)])
+        error = data.iloc[0][-1]
 
-# Save dictionary as CSV
-dict_to_csv(data_dict, f"{current_directory}/summary.csv")
+        # Initialise parameters and error
+        if i == 0:
+            for param_name in param_names:
+                data_dict[param_name] = []
+            data_dict[error_name] = []
+
+        # Add parameters and error to dictionary
+        for j in range(len(param_names)):
+            data_dict[param_names[j]].append(params[j])
+        data_dict[error_name].append(error)
+
+    # Save dictionary as CSV
+    dict_to_csv(data_dict, f"{current_directory}/summary_{key_word}.csv")
