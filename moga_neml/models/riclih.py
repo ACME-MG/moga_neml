@@ -1,6 +1,6 @@
 """
- Title:         The Visco-Plastic Chaboche Linear Isotropic Hardening Model
- Description:   Visco-plastic Chaboche with a linearly isotropic hardening yield surface
+ Title:         The Rate-Independent Chaboche Linear Isotropic Hardening Model
+ Description:   Rate-Independent Chaboche with a linearly isotropic hardening yield surface
  Author:        Janzen Choi
 
 """
@@ -9,7 +9,7 @@
 from moga_neml.models.__model__ import __Model__
 from neml import elasticity, surfaces, hardening, models, ri_flow
 
-# The Visco-Plastic Chaboche Linear Isotropic Hardening Class
+# The Rate-Independent Chaboche Linear Isotropic Hardening Class
 class Model(__Model__):
 
     def initialise(self):

@@ -4,7 +4,7 @@ import os
 import pandas as pd
 
 # Constants
-NUM_PARAMS = 6
+NUM_PARAMS = 11
 KEY_WORDS = ["800_all", "800_st", "900_all", "900_st"]
 
 # Converts a dictionary into a CSV file
@@ -30,21 +30,20 @@ def dict_to_csv(data_dict:dict, csv_path:str) -> None:
 
 # Get all directories
 current_directory = os.getcwd()
-directories = [d for d in os.listdir(current_directory) if os.path.isdir(os.path.join(current_directory, d))]
+all_directories = [d for d in os.listdir(current_directory) if os.path.isdir(os.path.join(current_directory, d))]
 
 # Iterate through keywords
 for key_word in KEY_WORDS:
+    
+    # Get relevant directories
+    directories = [directory for directory in all_directories if key_word in directory]
 
     # Initialise dictionary and iterate through dictionaries
     data_dict = {}
     for i in range(len(directories)):
 
         # Get results file
-        directory = directories[i]
-        if not key_word in directory:
-            print(f"Skipping {directory} ...")
-            continue
-        results_file = f"{directory}/results.xlsx"
+        results_file = f"{directories[i]}/results.xlsx"
         print(f"Reading {results_file} ...")
         
         # Extract data from file

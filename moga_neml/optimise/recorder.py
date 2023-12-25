@@ -197,7 +197,12 @@ class Recorder:
         results = {}
         sf_format = lambda x : float("{:0.5}".format(float(x)))
         
-        # Add parameter information
+        # Add fixed parameter information
+        fix_params = self.controller.get_fix_param_dict()
+        for param_name in fix_params.keys():
+            results[param_name] = [sf_format(fix_params[param_name]) for _ in self.optimal_solution_list]
+
+        # Add unfixed parameter information
         unfix_param_names = list(self.controller.get_unfix_param_dict().keys())
         for param_name in unfix_param_names:
             results[param_name] = [sf_format(o_sol["params"][param_name]) for o_sol in self.optimal_solution_list]
@@ -422,6 +427,8 @@ def process_data_dict(data_dict:dict, x_label:str, y_label:str) -> tuple:
 
     Returns the thinned x and y lists
     """
+    if x_label == "time":
+        data_dict[x_label] = [t/3600 for t in data_dict[x_label]]
     data_dict[x_label] = get_thinned_list(data_dict[x_label], 1000)
     data_dict[y_label] = get_thinned_list(data_dict[y_label], 1000)
     return data_dict[x_label], data_dict[y_label]

@@ -16,13 +16,13 @@ class Model(__Model__):
         """
         Runs at the start, once
         """
-        self.add_param("vih_s0",  0.0e0, 1.0e3) # VoceIsotropicHardeningRule
-        self.add_param("vih_R",   0.0e0, 1.0e3) # VoceIsotropicHardeningRule
-        self.add_param("vih_d",   0.0e0, 1.0e2) # VoceIsotropicHardeningRule
-        self.add_param("c_gs1",   0.0e0, 1.0e4) # Chaboche
-        self.add_param("c_gs2",   0.0e0, 1.0e2) # Chaboche
-        self.add_param("c_cs1",   0.0e0, 1.0e6) # Chaboche
-        self.add_param("c_cs2",   0.0e0, 1.0e4) # Chaboche
+        self.add_param("vih_s0", 0.0e0, 1.0e3) # VoceIsotropicHardeningRule
+        self.add_param("vih_R",  0.0e0, 1.0e3) # VoceIsotropicHardeningRule
+        self.add_param("vih_d",  0.0e0, 1.0e2) # VoceIsotropicHardeningRule
+        self.add_param("c_gs1",  0.0e0, 1.0e4) # Chaboche
+        self.add_param("c_gs2",  0.0e0, 1.0e2) # Chaboche
+        self.add_param("c_cs1",  0.0e0, 1.0e6) # Chaboche
+        self.add_param("c_cs2",  0.0e0, 1.0e4) # Chaboche
     
     def calibrate_model(self, vih_s0, vih_R, vih_d, c_gs1, c_gs2, c_cs1, c_cs2):
         """
