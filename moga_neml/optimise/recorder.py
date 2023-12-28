@@ -7,6 +7,7 @@
 
 # Libraries
 import time
+from copy import deepcopy
 from moga_neml.interface.plotter import Plotter, EXP_TRAIN_COLOUR, EXP_VALID_COLOUR
 from moga_neml.interface.spreadsheet import Spreadsheet
 from moga_neml.helper.data import  get_thinned_list
@@ -329,8 +330,11 @@ class Recorder:
             labels_list = get_labels_list(type)
             for i in range(len(labels_list)):
                 x_label, y_label = labels_list[i]
-                plot_dict = plot_dict_list_dict[type][i]
+                plot_dict = deepcopy(plot_dict_list_dict[type][i])
                 sheet_name = f"plot_{type}_{x_label}_{y_label}"
+                if x_label == "time":
+                    for data_type in plot_dict.keys():
+                        plot_dict[data_type][x_label] = [x/3600 for x in plot_dict[data_type][x_label]]
                 spreadsheet.write_plot(plot_dict, sheet_name, x_label, y_label, "scatter")
         spreadsheet.close()
     
@@ -427,8 +431,6 @@ def process_data_dict(data_dict:dict, x_label:str, y_label:str) -> tuple:
 
     Returns the thinned x and y lists
     """
-    if x_label == "time":
-        data_dict[x_label] = [t/3600 for t in data_dict[x_label]]
     data_dict[x_label] = get_thinned_list(data_dict[x_label], 1000)
     data_dict[y_label] = get_thinned_list(data_dict[y_label], 1000)
     return data_dict[x_label], data_dict[y_label]
