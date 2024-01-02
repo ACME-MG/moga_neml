@@ -1,29 +1,29 @@
 import sys; sys.path += ["../.."]
-from moga_neml.api import API
+from moga_neml.interface import Interface
 
-api = API("evp 1000 all", input_path="../data", output_path="../results")
+itf = Interface("evp 1000 all", input_path="../data", output_path="../results")
 
-api.define_model("evp")
+itf.define_model("evp")
 
-api.read_data("creep/inl_1/AirBase_1000_16_G18.csv")
-api.remove_damage(0.2, 0.8)
-api.add_error("area", "time", "strain")
+itf.read_data("creep/inl_1/AirBase_1000_16_G18.csv")
+itf.remove_damage(0.2, 0.8)
+itf.add_error("area", "time", "strain")
 
-api.read_data("creep/inl_1/AirBase_1000_13_G30.csv")
-api.remove_damage(0.2, 0.8)
-api.add_error("area", "time", "strain")
+itf.read_data("creep/inl_1/AirBase_1000_13_G30.csv")
+itf.remove_damage(0.2, 0.8)
+itf.add_error("area", "time", "strain")
 
-api.read_data("creep/inl_1/AirBase_1000_12_G52.csv")
-api.remove_damage(0.2, 0.8)
-api.add_error("area", "time", "strain")
+itf.read_data("creep/inl_1/AirBase_1000_12_G52.csv")
+itf.remove_damage(0.2, 0.8)
+itf.add_error("area", "time", "strain")
 
-api.read_data("creep/inl_1/AirBase_1000_11_G39.csv")
-api.remove_damage(0.2, 0.8)
-api.add_error("area", "time", "strain")
+itf.read_data("creep/inl_1/AirBase_1000_11_G39.csv")
+itf.remove_damage(0.2, 0.8)
+itf.add_error("area", "time", "strain")
 
-api.reduce_errors("square_average")
-api.reduce_objectives("square_average")
+itf.reduce_errors("square_average")
+itf.reduce_objectives("square_average")
 
-api.plot_experimental()
-api.set_recorder(10, plot_opt=True, plot_loss=True)
-api.optimise(10000, 100, 50, 0.8, 0.01)
+itf.plot_experimental()
+itf.set_recorder(10, plot_opt=True, plot_loss=True)
+itf.optimise(10000, 100, 50, 0.8, 0.01)

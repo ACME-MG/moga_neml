@@ -453,7 +453,7 @@ class Controller():
             # Prepare the plotter
             plot_file_path = f"{file_path}_{x_label}_{y_label}.png"
             plotter = Plotter(plot_file_path, x_label, y_label)
-            plotter.prep_plot(f"Experimental vs Simulation ({type.capitalize()})")
+            plotter.prep_plot(f"Experimental vs Simulation ({type.citftalize()})")
             
             # Plot experimental and predicted data
             for j in range(len(valid_curve_list)):
@@ -503,7 +503,7 @@ class Controller():
             # Prepare the plotter
             plot_file_path = f"{file_path}_{x_label}_{y_label}.png"
             plotter = Plotter(plot_file_path, x_label, y_label)
-            plotter.prep_plot(f"Experimental vs Simulation ({type.capitalize()})")
+            plotter.prep_plot(f"Experimental vs Simulation ({type.citftalize()})")
             plotter.set_limits(x_limits, y_limits)
             
             # Plot experimental data

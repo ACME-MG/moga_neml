@@ -1,9 +1,9 @@
 import sys; sys.path += ["../.."]
-from moga_neml.api import API
+from moga_neml.interface import Interface
 
-api = API("evpcd i 900 all", input_path="../data", output_path="../results")
+itf = Interface("evpcd i 900 all", input_path="../data", output_path="../results")
 
-api.define_model("evpcd")
+itf.define_model("evpcd")
 
 params_str = """
 4.871	11.518	7.0281	4.2421	1138.3	1899.3	4.4974	9.6201
@@ -18,46 +18,46 @@ params_str = """
 7.5292	23.505	4.9899	3.8623	1369.1	2070.7	4.3049	6.8212
 """
 params_list = [list(map(float, line.split())) for line in params_str.strip().split("\n")]
-api.init_params(params_list[7])
+itf.init_params(params_list[7])
 
-api.read_data("creep/inl_1/AirBase_900_36_G22.csv")
-api.add_error("area", "time", "strain")
-api.add_error("end", "time")
-api.add_error("end", "strain")
-api.add_constraint("inc_end", "strain")
-api.add_constraint("dec_end", "time")
+itf.read_data("creep/inl_1/AirBase_900_36_G22.csv")
+itf.add_error("area", "time", "strain")
+itf.add_error("end", "time")
+itf.add_error("end", "strain")
+itf.add_constraint("inc_end", "strain")
+itf.add_constraint("dec_end", "time")
 
-api.read_data("creep/inl_1/AirBase_900_31_G50.csv")
-api.add_error("area", "time", "strain")
-api.add_error("end", "time")
-api.add_error("end", "strain")
-api.add_constraint("inc_end", "strain")
-api.add_constraint("dec_end", "time")
+itf.read_data("creep/inl_1/AirBase_900_31_G50.csv")
+itf.add_error("area", "time", "strain")
+itf.add_error("end", "time")
+itf.add_error("end", "strain")
+itf.add_constraint("inc_end", "strain")
+itf.add_constraint("dec_end", "time")
 
-api.read_data("creep/inl_1/AirBase_900_28_G45.csv")
-api.add_error("area", "time", "strain")
-api.add_error("end", "time")
-api.add_error("end", "strain")
-api.add_constraint("inc_end", "strain")
-api.add_constraint("dec_end", "time")
+itf.read_data("creep/inl_1/AirBase_900_28_G45.csv")
+itf.add_error("area", "time", "strain")
+itf.add_error("end", "time")
+itf.add_error("end", "strain")
+itf.add_constraint("inc_end", "strain")
+itf.add_constraint("dec_end", "time")
 
-api.read_data("creep/inl_1/AirBase_900_26_G59.csv")
-api.remove_oxidation()
-api.add_error("area", "time", "strain")
-api.add_error("end", "time")
-api.add_error("end", "strain")
-api.add_constraint("inc_end", "strain")
-api.add_constraint("dec_end", "time")
+itf.read_data("creep/inl_1/AirBase_900_26_G59.csv")
+itf.remove_oxidation()
+itf.add_error("area", "time", "strain")
+itf.add_error("end", "time")
+itf.add_error("end", "strain")
+itf.add_constraint("inc_end", "strain")
+itf.add_constraint("dec_end", "time")
 
-api.read_data("tensile/inl/AirBase_900_D10.csv")
-api.add_error("area", "strain", "stress")
-api.add_error("end", "strain", weight=0.5)
-api.add_error("arg_max", "strain", "stress", weight=0.5)
-api.add_error("yield", yield_stress=164)
+itf.read_data("tensile/inl/AirBase_900_D10.csv")
+itf.add_error("area", "strain", "stress")
+itf.add_error("end", "strain", weight=0.5)
+itf.add_error("arg_max", "strain", "stress", weight=0.5)
+itf.add_error("yield", yield_stress=164)
 
-api.reduce_errors("square_average")
-api.reduce_objectives("square_average")
+itf.reduce_errors("square_average")
+itf.reduce_objectives("square_average")
 
-api.plot_experimental()
-api.set_recorder(10, plot_opt=True, plot_loss=True)
-api.optimise(10000, 100, 50, 0.8, 0.01)
+itf.plot_experimental()
+itf.set_recorder(10, plot_opt=True, plot_loss=True)
+itf.optimise(10000, 100, 50, 0.8, 0.01)

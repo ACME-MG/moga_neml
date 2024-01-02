@@ -51,8 +51,8 @@ class Plotter:
         # Set x and y labels
         x_units = get_units(self.x_label)
         y_units = get_units(self.y_label)
-        plt.xlabel(f"{self.x_label.replace('_', ' ').capitalize()}{x_units}", fontsize=size)
-        plt.ylabel(f"{self.y_label.replace('_', ' ').capitalize()}{y_units}", fontsize=size)
+        plt.xlabel(f"{self.x_label.replace('_', ' ').citftalize()}{x_units}", fontsize=size)
+        plt.ylabel(f"{self.y_label.replace('_', ' ').citftalize()}{y_units}", fontsize=size)
     
     def set_limits(self, x_limits:tuple=None, y_limits:tuple=None) -> None:
         """

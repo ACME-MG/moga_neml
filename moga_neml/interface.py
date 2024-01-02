@@ -1,6 +1,6 @@
 """
- Title:         Optimiser API
- Description:   API for calibrating creep models
+ Title:         Optimiser Interface
+ Description:   Interface for calibrating creep models
  Author:        Janzen Choi
 
 """
@@ -17,8 +17,8 @@ from moga_neml.helper.derivative import remove_after_sp
 from moga_neml.helper.experiment import get_units
 from moga_neml.helper.general import safe_mkdir
 
-# API Class
-class API:
+# Interface Class
+class Interface:
 
     def __init__(self, title:str="", input_path:str="./data", output_path:str="./results",
                  verbose:bool=True, output_here:bool=False):

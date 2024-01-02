@@ -1,24 +1,24 @@
 import sys; sys.path += ["../.."]
-from moga_neml.api import API
+from moga_neml.interface import Interface
 
-api = API("plot", output_here=True, input_path="../data", output_path="../results")
-api.define_model("evp")
+itf = Interface("plot", output_here=True, input_path="../data", output_path="../results")
+itf.define_model("evp")
 
-api.read_data("creep/inl_1/AirBase_900_36_G22.csv")
-api.remove_damage(0.1, 0.7)
-api.add_error("dummy")
-api.read_data("creep/inl_1/AirBase_900_31_G50.csv")
-api.remove_damage(0.1, 0.7)
-api.add_error("dummy")
-api.read_data("creep/inl_1/AirBase_900_28_G45.csv")
-api.remove_damage(0.2, 0.7)
-# api.add_error("dummy")
-api.read_data("creep/inl_1/AirBase_900_26_G59.csv")
-api.remove_damage(0.1, 0.7)
-# api.add_error("dummy")
-api.read_data("tensile/inl/AirBase_900_D10.csv")
-api.remove_manual("strain", 0.3)
-api.add_error("dummy")
+itf.read_data("creep/inl_1/AirBase_900_36_G22.csv")
+itf.remove_damage(0.1, 0.7)
+itf.add_error("dummy")
+itf.read_data("creep/inl_1/AirBase_900_31_G50.csv")
+itf.remove_damage(0.1, 0.7)
+itf.add_error("dummy")
+itf.read_data("creep/inl_1/AirBase_900_28_G45.csv")
+itf.remove_damage(0.2, 0.7)
+# itf.add_error("dummy")
+itf.read_data("creep/inl_1/AirBase_900_26_G59.csv")
+itf.remove_damage(0.1, 0.7)
+# itf.add_error("dummy")
+itf.read_data("tensile/inl/AirBase_900_D10.csv")
+itf.remove_manual("strain", 0.3)
+itf.add_error("dummy")
 
 params_str = """
 4.8238	378.86	0.1423	4.4021	1006.9
@@ -35,13 +35,13 @@ params_str = """
 """
 params_list = [list(map(float, line.split())) for line in params_str.strip().split("\n")]
 
-api.plot_simulations(
+itf.plot_simulations(
     params_list = params_list,
     clip        = True,
     limits_dict = {"creep": ((0, 7000), (0, 0.35)), "tensile": ((0, 1.0), (0, 250))},
 )
 
-api.plot_distribution(
+itf.plot_distribution(
     params_list = params_list,
     limits_dict = {"evp_s0": (0, 40), "evp_R": (0, 500), "evp_d": (0, 50), "evp_n": (0, 10), "evp_eta": (0, 4000)},
 )

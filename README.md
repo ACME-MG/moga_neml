@@ -59,23 +59,23 @@ import moga_neml
 
 The following section provides a tutorial on using the `moga_neml` code.
 
-## API Class
+## Interface Class
 
-The `API` class allows the user to interact with the `moga_neml` code. To access the `API` class, the user must first import the `moga_neml` package and initialise the `API` class. The following is an example of doing so from the `moga_neml/scripts/` directory.
+The `Interface` class allows the user to interact with the `moga_neml` code. To access the `Interface` class, the user must first import the `moga_neml` package and initialise the `Interface` class. The following is an example of doing so from the `moga_neml/scripts/` directory.
 ```py
 import sys; sys.path += [".."]
-from moga_neml import API
-api = API()
+from moga_neml import Interface
+itf = Interface()
 ```
 
-The `API` class contains several optional arguments. These include:
+The `Interface` class contains several optional arguments. These include:
 * `title`: This optional argument appends a title in front of the directory in which the output files will be placed in. The default value for this argument is an empty string.
 * `input_path`: This optional argument defines the relative path to the input directory, which stores the experimental data. The default value for this argument is `"./data"`.
 * `output_path`: This optional argument defines the relative path to the output directory, which tells the script where to place the output files. The default value for this arguemnt is `"./results"`.
-* `verbose`: This optional argument tells the script whether to display any information about the actions of the `API` class in the terminal. The default value for this argument is `True`, meaning that the information will be displayed in the terminal.
+* `verbose`: This optional argument tells the script whether to display any information about the actions of the `Interface` class in the terminal. The default value for this argument is `True`, meaning that the information will be displayed in the terminal.
 * `output_here`: This optional argument tells the script whether to just place the output files in the same directory as the script. The default value for this is `False`. Note that when the user sets the argument to `True`, the `title` and `output_path` values will not have any effect.
 
-The implementation of the `API` class can be accessed via `moga_neml/moga_neml/api.py`. The next sections provide descriptions of the available functions, their available arguments, and how to use them. Note that additional descriptions of the `API` functions can also be accessed by hovering your cursor over the functions. However, this functionality is only supported by some IDEs (e.g., Visual Studio Code).
+The implementation of the `Interface` class can be accessed via `moga_neml/moga_neml/itf.py`. The next sections provide descriptions of the available functions, their available arguments, and how to use them. Note that additional descriptions of the `Interface` functions can also be accessed by hovering your cursor over the functions. However, this functionality is only supported by some IDEs (e.g., Visual Studio Code).
 
 ## Defining the Model (`define_model`)
 
@@ -85,9 +85,9 @@ The `define_model` function defines the model to be optimised.
 
 ## Reading an experimental dataset (`read_data`)
 
-The `read_data` function reads experimental data into the `API` class.
-* `file_path`: This argument defines the path to the experimental data. Note that this path appends the `input_path` value defined when initialising the `API` class.
-* `thin_data`: This optional argument tells the script whether to thin the data before reading the experimental data into the `API` class. The default value for this argument is `True`.
+The `read_data` function reads experimental data into the `Interface` class.
+* `file_path`: This argument defines the path to the experimental data. Note that this path appends the `input_path` value defined when initialising the `Interface` class.
+* `thin_data`: This optional argument tells the script whether to thin the data before reading the experimental data into the `Interface` class. The default value for this argument is `True`.
 * `num_points`: This optional argument defines how many points the experimental data will be thinned to. This argument only works if the `thin_data` argument has been set to `True`. The default value for this argument is `1000`.
 
 ## Changing a field in the experimental data (`change_data`)
@@ -286,27 +286,27 @@ The function returns the optimised parameters as a dictionary once the MOGA opti
 
 # Example `moga_neml` scripts
 
-The following section contains some examples of using functions in the `API` class.
+The following section contains some examples of using functions in the `Interface` class.
 
 ## Creep model optimisation for one creep curve
 
 ```py
 # Import moga_neml
 import sys; sys.path += [".."]
-from moga_neml.api import API
+from moga_neml.interface import Interface
 
-# Initialise API and define model
-api = API("creep optimisation")
-api.define_model("evpcd")
+# Initialise Interface and define model
+itf = Interface("creep optimisation")
+itf.define_model("evpcd")
 
 # Read data and add errors
-api.read_data("creep/inl_1/AirBase_800_80_G25.csv")
-api.add_error("area", "time", "strain")
-api.add_error("end", "time")
-api.add_error("end", "strain")
+itf.read_data("creep/inl_1/AirBase_800_80_G25.csv")
+itf.add_error("area", "time", "strain")
+itf.add_error("end", "time")
+itf.add_error("end", "strain")
 
 # Optimise
-api.optimise(
+itf.optimise(
     num_gens   = 100,
     population = 100,
     offspring  = 50,
@@ -320,34 +320,34 @@ api.optimise(
 ```py
 # Import moga_neml
 import sys; sys.path += [".."]
-from moga_neml.api import API
+from moga_neml.interface import Interface
 
-# Initialise API and define model
-api = API("creep optimisation with validation")
-api.define_model("evpcd")
+# Initialise Interface and define model
+itf = Interface("creep optimisation with validation")
+itf.define_model("evpcd")
 
 # Read first creep curve, add errors, and add constraints
-api.read_data("creep/inl_1/AirBase_800_80_G25.csv")
-api.add_error("area", "time", "strain")
-api.add_error("end", "time")
-api.add_error("end", "strain")
-api.add_constraint("inc_end", "strain")
-api.add_constraint("dec_end", "time")
+itf.read_data("creep/inl_1/AirBase_800_80_G25.csv")
+itf.add_error("area", "time", "strain")
+itf.add_error("end", "time")
+itf.add_error("end", "strain")
+itf.add_constraint("inc_end", "strain")
+itf.add_constraint("dec_end", "time")
 
 # Read second creep curve, add errors, and add constraints
-api.read_data("creep/inl_1/AirBase_800_70_G44.csv")
-api.add_error("area", "time", "strain")
-api.add_error("end", "time")
-api.add_error("end", "strain")
-api.add_constraint("inc_end", "strain")
-api.add_constraint("dec_end", "time")
+itf.read_data("creep/inl_1/AirBase_800_70_G44.csv")
+itf.add_error("area", "time", "strain")
+itf.add_error("end", "time")
+itf.add_error("end", "strain")
+itf.add_constraint("inc_end", "strain")
+itf.add_constraint("dec_end", "time")
 
 # Add validation data
-api.read_data("creep/inl_1/AirBase_800_65_G33.csv")
-api.read_data("creep/inl_1/AirBase_800_60_G32.csv")
+itf.read_data("creep/inl_1/AirBase_800_65_G33.csv")
+itf.read_data("creep/inl_1/AirBase_800_60_G32.csv")
 
 # Optimise
-api.optimise(
+itf.optimise(
     num_gens   = 250,
     population = 100,
     offspring  = 50,
@@ -361,30 +361,30 @@ api.optimise(
 ```py
 # Import moga_neml
 import sys; sys.path += [".."]
-from moga_neml.api import API
+from moga_neml.interface import Interface
 
-# Initialise API and define model
-api = API("elastic-plastic creep and tensile optimisation")
-api.define_model("evp")
+# Initialise Interface and define model
+itf = Interface("elastic-plastic creep and tensile optimisation")
+itf.define_model("evp")
 
 # Read first creep curve, remove damage, and add error
-api.read_data("creep/inl_1/AirBase_800_80_G25.csv")
-api.remove_damage()
-api.add_error("area", "time", "strain")
+itf.read_data("creep/inl_1/AirBase_800_80_G25.csv")
+itf.remove_damage()
+itf.add_error("area", "time", "strain")
 
 # Read second creep curve, remove damage, and add error
-api.read_data("creep/inl_1/AirBase_800_70_G44.csv")
-api.remove_damage()
-api.add_error("area", "time", "strain")
+itf.read_data("creep/inl_1/AirBase_800_70_G44.csv")
+itf.remove_damage()
+itf.add_error("area", "time", "strain")
 
 # Read tensile, manually remove damage, and add errors
-api.read_data("tensile/inl/AirBase_800_D7.csv")
-api.remove_manual("strain", 0.3)
-api.add_error("yield", yield_stress=291)
-api.add_error("area", "strain", "stress")
+itf.read_data("tensile/inl/AirBase_800_D7.csv")
+itf.remove_manual("strain", 0.3)
+itf.add_error("yield", yield_stress=291)
+itf.add_error("area", "strain", "stress")
 
 # Optimise
-api.optimise(
+itf.optimise(
     num_gens   = 250,
     population = 100,
     offspring  = 50,
@@ -398,33 +398,33 @@ api.optimise(
 ```py
 # Import moga_neml
 import sys; sys.path += [".."]
-from moga_neml.api import API
+from moga_neml.interface import Interface
 
-# Initialise API and define model
-api = API("fixed creep optimisation")
-api.define_model("evpcd")
+# Initialise Interface and define model
+itf = Interface("fixed creep optimisation")
+itf.define_model("evpcd")
 
 # Fix elastic-plastic parameters
-api.fix_param("evp_s0",  17.217)
-api.fix_param("evp_R",   179.74)
-api.fix_param("evp_d",   0.61754)
-api.fix_param("evp_n",   4.4166)
-api.fix_param("evp_eta", 1783.5)
+itf.fix_param("evp_s0",  17.217)
+itf.fix_param("evp_R",   179.74)
+itf.fix_param("evp_d",   0.61754)
+itf.fix_param("evp_n",   4.4166)
+itf.fix_param("evp_eta", 1783.5)
 
 # Read first creep curve and add errors
-api.read_data("creep/inl_1/AirBase_800_80_G25.csv")
-api.add_error("area", "time", "strain")
-api.add_error("end", "time")
-api.add_error("end", "strain")
+itf.read_data("creep/inl_1/AirBase_800_80_G25.csv")
+itf.add_error("area", "time", "strain")
+itf.add_error("end", "time")
+itf.add_error("end", "strain")
 
 # Read second creep curve and add errors
-api.read_data("creep/inl_1/AirBase_800_70_G44.csv")
-api.add_error("area", "time", "strain")
-api.add_error("end", "time")
-api.add_error("end", "strain")
+itf.read_data("creep/inl_1/AirBase_800_70_G44.csv")
+itf.add_error("area", "time", "strain")
+itf.add_error("end", "time")
+itf.add_error("end", "strain")
 
 # Optimise
-api.optimise(
+itf.optimise(
     num_gens   = 250,
     population = 100,
     offspring  = 50,
@@ -438,29 +438,29 @@ api.optimise(
 ```py
 # Import moga_neml
 import sys; sys.path += [".."]
-from moga_neml.api import API
+from moga_neml.interface import Interface
 
-# Initialise API and define model
-api = API("initialised creep optimisation")
-api.define_model("evpcd")
+# Initialise Interface and define model
+itf = Interface("initialised creep optimisation")
+itf.define_model("evpcd")
 
 # Initialise elastic-plastic parameters
-api.init_params([17.217, 179.74, 0.61754, 4.4166, 1783.5])
+itf.init_params([17.217, 179.74, 0.61754, 4.4166, 1783.5])
 
 # Read first creep curve and add errors
-api.read_data("creep/inl_1/AirBase_800_80_G25.csv")
-api.add_error("area", "time", "strain")
-api.add_error("end", "time")
-api.add_error("end", "strain")
+itf.read_data("creep/inl_1/AirBase_800_80_G25.csv")
+itf.add_error("area", "time", "strain")
+itf.add_error("end", "time")
+itf.add_error("end", "strain")
 
 # Read second creep curve and add errors
-api.read_data("creep/inl_1/AirBase_800_70_G44.csv")
-api.add_error("area", "time", "strain")
-api.add_error("end", "time")
-api.add_error("end", "strain")
+itf.read_data("creep/inl_1/AirBase_800_70_G44.csv")
+itf.add_error("area", "time", "strain")
+itf.add_error("end", "time")
+itf.add_error("end", "strain")
 
 # Optimise
-api.optimise(
+itf.optimise(
     num_gens   = 250,
     population = 100,
     offspring  = 50,
@@ -473,41 +473,41 @@ api.optimise(
 
 ```py
 import sys; sys.path += [".."]
-from moga_neml.api import API
+from moga_neml.interface import Interface
 
 # Define model
-api = API("ricvih_1")
-api.define_model("ricvih")
+itf = Interface("ricvih_1")
+itf.define_model("ricvih")
 
 # Add cyclic data, change data, remove data after initial stress-strain, and add error
-api.read_data("cyclic/Airbase316.csv", num_points=5000)
-api.change_data("num_cycles", 0)
-api.remove_manual("strain", 0.014)
-api.add_error("area", "strain", "stress", num_points=100)
+itf.read_data("cyclic/Airbase316.csv", num_points=5000)
+itf.change_data("num_cycles", 0)
+itf.remove_manual("strain", 0.014)
+itf.add_error("area", "strain", "stress", num_points=100)
 
 # First optimisation for initial stress-strain curve
-api.set_recorder(1, plot_opt=True)
-opt_params = api.optimise(50, 100, 50, 0.8, 0.01)
+itf.set_recorder(1, plot_opt=True)
+opt_params = itf.optimise(50, 100, 50, 0.8, 0.01)
 
 # Redefine model
-api = API("ricvih_2")
-api.define_model("ricvih")
+itf = Interface("ricvih_2")
+itf.define_model("ricvih")
 
 # Initialise with initial parameters
 for param_name in ["vih_s0", "c_gs1", "c_gs2", "c_cs1", "c_cs2"]:
-    api.fix_param(param_name, opt_params[param_name])
+    itf.fix_param(param_name, opt_params[param_name])
 
 # Add cyclic data and add errors
-api.read_data("cyclic/Airbase316.csv", num_points=5000)
-api.add_error("area_saddle", "time", "strain", num_points=100, tolerance=0.005)
-api.add_error("area_saddle", "time", "stress", num_points=100, tolerance=10.0)
-api.add_error("saddle", "time", "stress")
-api.add_error("num_peaks", "time", "strain")
-api.add_error("end", "time")
+itf.read_data("cyclic/Airbase316.csv", num_points=5000)
+itf.add_error("area_saddle", "time", "strain", num_points=100, tolerance=0.005)
+itf.add_error("area_saddle", "time", "stress", num_points=100, tolerance=10.0)
+itf.add_error("saddle", "time", "stress")
+itf.add_error("num_peaks", "time", "strain")
+itf.add_error("end", "time")
 
 # Second optimisation for entire cyclic data
-api.set_recorder(1, plot_opt=True)
-opt_params = api.optimise(100, 100, 50, 0.8, 0.01)
+itf.set_recorder(1, plot_opt=True)
+opt_params = itf.optimise(100, 100, 50, 0.8, 0.01)
 ```
 
 ## Outputting the experimental data plot, creep simulation plot, error information, and models
@@ -515,32 +515,32 @@ opt_params = api.optimise(100, 100, 50, 0.8, 0.01)
 ```py
 # Import moga_neml
 import sys; sys.path += [".."]
-from moga_neml.api import API
+from moga_neml.interface import Interface
 
-# Initialise API and define model
-api = API("optimisation results")
-api.define_model("evpcd")
+# Initialise Interface and define model
+itf = Interface("optimisation results")
+itf.define_model("evpcd")
 
 # Read first creep curve and add errors
-api.read_data("creep/inl_1/AirBase_800_80_G25.csv")
-api.add_error("area", "time", "strain")
-api.add_error("end", "time")
-api.add_error("end", "strain")
+itf.read_data("creep/inl_1/AirBase_800_80_G25.csv")
+itf.add_error("area", "time", "strain")
+itf.add_error("end", "time")
+itf.add_error("end", "strain")
 
 # Read second creep curve and add errors
-api.read_data("creep/inl_1/AirBase_800_70_G44.csv")
-api.add_error("area", "time", "strain")
-api.add_error("end", "time")
-api.add_error("end", "strain")
+itf.read_data("creep/inl_1/AirBase_800_70_G44.csv")
+itf.add_error("area", "time", "strain")
+itf.add_error("end", "time")
+itf.add_error("end", "strain")
 
 # Define parameters
 params = [17.217, 179.74, 0.61754, 4.4166, 1783.5, 3109.8, 4.8245, 6.6364]
 
 # Plot experimental data and simulation response
-api.plot_experimental(x_log=True)
-api.plot_simulation(params, x_log=True)
+itf.plot_experimental(x_log=True)
+itf.plot_simulation(params, x_log=True)
 
 # Get error information and model
-api.get_results(params)
-api.save_model(params)
+itf.get_results(params)
+itf.save_model(params)
 ```
