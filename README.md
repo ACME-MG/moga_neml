@@ -61,7 +61,7 @@ The following section provides a tutorial on using the `moga_neml` code.
 
 ## Interface Class
 
-The `Interface` class allows the user to interact with the `moga_neml` code. To access the `Interface` class, the user must first import the `moga_neml` package and initialise the `Interface` class. The following is an example of doing so from the `moga_neml/scripts/` directory.
+The `Interface` class allows the user to interact with the `moga_neml` code. To access the `Interface` class, the user must first import the `moga_neml` package and initialise an `Interface` object. The following is an example of doing so from the `moga_neml/scripts/` directory.
 ```py
 import sys; sys.path += [".."]
 from moga_neml import Interface
