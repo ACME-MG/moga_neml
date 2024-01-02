@@ -7,7 +7,7 @@
 
 # Libraries
 import re, time
-from moga_neml.interface.reader import read_exp_data, check_exp_data
+from moga_neml.io.reader import read_exp_data, check_exp_data
 from moga_neml.optimise.recorder import Recorder
 from moga_neml.optimise.controller import Controller
 from moga_neml.optimise.problem import Problem

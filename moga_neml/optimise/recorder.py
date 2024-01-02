@@ -8,8 +8,8 @@
 # Libraries
 import time
 from copy import deepcopy
-from moga_neml.interface.plotter import Plotter, EXP_TRAIN_COLOUR, EXP_VALID_COLOUR
-from moga_neml.interface.spreadsheet import Spreadsheet
+from moga_neml.io.plotter import Plotter, EXP_TRAIN_COLOUR, EXP_VALID_COLOUR
+from moga_neml.io.spreadsheet import Spreadsheet
 from moga_neml.helper.data import  get_thinned_list
 from moga_neml.helper.experiment import get_labels_list
 from moga_neml.optimise.controller import Controller

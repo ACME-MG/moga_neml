@@ -9,8 +9,8 @@
 from moga_neml.constraints.__constraint__ import __Constraint__, create_constraint
 from moga_neml.models.__model__ import __Model__, create_model
 from moga_neml.errors.__error__ import __Error__
-from moga_neml.interface.plotter import Plotter, EXP_TRAIN_COLOUR, EXP_VALID_COLOUR
-from moga_neml.interface.boxplotter import plot_boxplots
+from moga_neml.io.plotter import Plotter, EXP_TRAIN_COLOUR, EXP_VALID_COLOUR
+from moga_neml.io.boxplotter import plot_boxplots
 from moga_neml.optimise.driver import Driver
 from moga_neml.optimise.curve import Curve
 from moga_neml.helper.experiment import get_labels_list
@@ -453,7 +453,7 @@ class Controller():
             # Prepare the plotter
             plot_file_path = f"{file_path}_{x_label}_{y_label}.png"
             plotter = Plotter(plot_file_path, x_label, y_label)
-            plotter.prep_plot(f"Experimental vs Simulation ({type.citftalize()})")
+            plotter.prep_plot(f"Experimental vs Simulation ({type.capitalize()})")
             
             # Plot experimental and predicted data
             for j in range(len(valid_curve_list)):
@@ -503,7 +503,7 @@ class Controller():
             # Prepare the plotter
             plot_file_path = f"{file_path}_{x_label}_{y_label}.png"
             plotter = Plotter(plot_file_path, x_label, y_label)
-            plotter.prep_plot(f"Experimental vs Simulation ({type.citftalize()})")
+            plotter.prep_plot(f"Experimental vs Simulation ({type.capitalize()})")
             plotter.set_limits(x_limits, y_limits)
             
             # Plot experimental data
