@@ -1,6 +1,6 @@
 """
  Title:         Optimiser Interface
- Description:   Interface for calibrating creep models
+ Description:   Interface for calibrating NEML models
  Author:        Janzen Choi
 
 """

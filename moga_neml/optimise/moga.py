@@ -1,5 +1,5 @@
 """
- Title:         Multi-Curve Genetic Algorithm
+ Title:         Multi-Objective Genetic Algorithm
  Description:   For parameter optimisation
  Author:        Janzen Choi
 

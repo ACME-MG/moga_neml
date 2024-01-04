@@ -1,6 +1,6 @@
 """
- Title:         The Curve class
- Description:   For storing the errors to be minimised
+ Title:         The Controller class
+ Description:   The intermediary between the interface and the rest of the code
  Author:        Janzen Choi
 
 """

@@ -73,7 +73,7 @@ class Recorder:
         # Summarise data information
         self.data_info_list = []
         for curve in self.curve_list:
-            status = "calibration" if curve.get_train() else "validation"
+            status = "validation" if curve.is_validation() else "calibration"
             data_info = "{} ({})".format(curve.get_exp_data()["file_name"], status)
             self.data_info_list.append(data_info)
         
@@ -258,7 +258,7 @@ class Recorder:
             prd_x_list, prd_y_list = process_data_dict(prd_data, x_label, y_label)
             
             # Add to data structure
-            data_dict = train_dict if valid_curve_list[i].get_train() else valid_dict
+            data_dict = valid_dict if valid_curve_list[i].is_validation() else train_dict
             data_dict["exp_x"] += exp_x_list
             data_dict["exp_y"] += exp_y_list
             data_dict["prd_x"] += prd_x_list

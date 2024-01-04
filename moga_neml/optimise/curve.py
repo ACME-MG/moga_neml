@@ -67,12 +67,6 @@ class Curve:
         Gets the curve type
         """
         return self.exp_data["type"]
-    
-    def get_train(self) -> bool:
-        """
-        Gets whether the curve will be used for training or validation
-        """
-        return len(self.error_list) != 0
 
     def set_custom_driver(self, custom_driver:str, custom_driver_kwargs) -> None:
         """
