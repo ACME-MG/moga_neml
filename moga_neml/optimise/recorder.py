@@ -60,7 +60,7 @@ class Recorder:
             if param_name in fix_param_dict.keys():
                 param_info += " (fixed={:0.4})".format(float(fix_param_dict[param_name]))
             elif param_name in init_param_dict.keys():
-                param_info += " (init={:0.4})".format(float(init_param_dict[param_name]["value"]))
+                param_info += " (init={:0.4})".format(float(init_param_dict[param_name]))
             self.param_info_list.append(param_info)
         
         # Summarise parameter bound information

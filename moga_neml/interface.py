@@ -254,7 +254,7 @@ class Interface:
         for i in range(len(param_values)):
             self.__controller__.fix_param(unfix_param_names[i], param_values[i])
 
-    def init_param(self, param_name:str, param_value:float, param_std:float=0) -> None:
+    def init_param(self, param_name:str, param_value:float) -> None:
         """
         Gives a parameter an initial value in the initial population of the optimisation
         
@@ -263,12 +263,11 @@ class Interface:
         * `param_value`: The value the parameter is initialised to
         * `param_std`:   The deviation of the parameter in the initial population
         """
-        message = "Setting the '{}' parameter to an initial value of {:0.4} and deviation of {:0.4}"
+        self.__print__("Setting the '{}' parameter to an initial value of {:0.4}".format(param_name, float(param_value)))
         self.__check_model__()
-        self.__print__(message.format(param_name, float(param_value), float(param_std)))
-        self.__controller__.init_param(param_name, param_value, param_std)
+        self.__controller__.init_param(param_name, param_value)
 
-    def init_params(self, param_values:list, param_stds:list=None) -> None:
+    def init_params(self, param_values:list) -> None:
         """
         Initialises multiple parameters to a list of values for the initial population of
         the optimisation; note that the script assumes that the first len(param_values)
@@ -282,8 +281,7 @@ class Interface:
         self.__check_model__()
         unfix_param_names = self.__controller__.get_unfix_param_names()
         for i in range(len(param_values)):
-            param_std = 0 if param_stds == None else param_stds[i]
-            self.__controller__.init_param(unfix_param_names[i], param_values[i], param_std)
+            self.__controller__.init_param(unfix_param_names[i], param_values[i])
 
     def set_custom_driver(self, driver_type:str, **kwargs) -> None:
         """
@@ -540,14 +538,14 @@ class Interface:
             print_index = f"{self.__print_index__}"
         print(f"   {print_index})\t{message} ...")
 
-    def __check_model__(self):
+    def __check_model__(self) -> None:
         """
         Checks whether the model has been defined
         """
         if self.__controller__.model == None:
             raise ValueError("The model must be defined first!")
 
-    def __check_curves__(self, message:str):
+    def __check_curves__(self, message:str) -> None:
         """
         Checks the experimental data
         
@@ -558,7 +556,7 @@ class Interface:
         if len(curve_list) == 0:
             raise ValueError(message)
         
-    def __check_errors__(self, message:str):
+    def __check_errors__(self, message:str) -> None:
         """
         Checks the errors
         
@@ -570,7 +568,7 @@ class Interface:
         if sum(num_errors) == 0:
             raise ValueError(message)
     
-    def __check_variable__(self, variable, message:str):
+    def __check_variable__(self, variable, message:str) -> None:
         """
         Checks that a variable has been initialised
         

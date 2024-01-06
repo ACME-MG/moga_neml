@@ -74,8 +74,8 @@ class MOGA:
             
             # If the user defined a starting value
             if param_name in init_param_dict.keys():
-                mean_list.append(init_param_dict[param_name]["value"])
-                stdev_list.append(init_param_dict[param_name]["std"])
+                mean_list.append(init_param_dict[param_name])
+                stdev_list.append(0)
             
             # Otherwise, define normal sampling
             else:

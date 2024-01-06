@@ -102,7 +102,7 @@ class Controller():
             raise ValueError(f"{pretext} it has already been set!")
         self.fix_param_dict[param_name] = param_value
 
-    def init_param(self, param_name:str, param_value:float, param_std:float) -> None:
+    def init_param(self, param_name:str, param_value:float) -> None:
         """
         Sets the initial value of a parameter
 
@@ -117,11 +117,7 @@ class Controller():
             raise ValueError(f"{pretext} it is not defined in {self.model.get_name()}!")
         if param_name in self.fix_param_dict.keys():
             raise ValueError(f"{pretext} it has already been fixed!")
-        if param_value - param_std < param_dict[param_name]["l_bound"]:
-            raise ValueError(f"{pretext} has been set an initial 'value + deviation' smaller than its lower bound!")
-        if param_value + param_std > param_dict[param_name]["u_bound"]:
-            raise ValueError(f"{pretext} has been set an initial 'value + deviation' larger than its upper bound!")
-        self.init_param_dict[param_name] = {"value": param_value, "std": param_std}
+        self.init_param_dict[param_name] = param_value
 
     def add_constraint(self, constraint_name:str, x_label:str="", y_label:str="", **kwargs) -> None:
         """
