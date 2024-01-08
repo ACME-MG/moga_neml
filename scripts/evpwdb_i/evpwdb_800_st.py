@@ -18,7 +18,7 @@ params_str = """
 4.4611	35.628	31.021	3.6186	3016.2	9.5057	0.33046	3.327	4.6459	0.20498	2.728
 """
 params_list = [list(map(float, line.split())) for line in params_str.strip().split("\n")]
-itf.init_params(params_list[0])
+itf.init_params(params_list[1])
 
 itf.read_data("creep/inl_1/AirBase_800_80_G25.csv")
 itf.add_error("area", "time", "strain")
