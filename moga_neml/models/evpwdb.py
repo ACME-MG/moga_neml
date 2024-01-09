@@ -44,6 +44,10 @@ class Model(__Model__):
 
         Returns the calibrated model
         """
+
+        # If tensile gradient is less than creep gradient, then bad parameters
+        if t_0 < c_0:
+            return
         
         # Define EVP model
         elastic_model = elasticity.IsotropicLinearElasticModel(self.get_data("youngs"), "youngs",

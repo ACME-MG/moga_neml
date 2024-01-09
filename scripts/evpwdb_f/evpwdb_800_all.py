@@ -18,7 +18,7 @@ params_str = """
 8.5923	38.904	5.4829	4.4795	1841
 """
 params_list = [list(map(float, line.split())) for line in params_str.strip().split("\n")]
-itf.fix_params(params_list[9])
+itf.fix_params(params_list[0])
 
 itf.read_data("creep/inl_1/AirBase_800_80_G25.csv")
 itf.add_error("area", "time", "strain")

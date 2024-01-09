@@ -1,6 +1,7 @@
-import math
-import numpy as np
 
+# Libraries
+import numpy as np
+import matplotlib.pyplot as plt
 
 def get_damage(a_0:float, a_1:float, b_0:float, b_1:float):
     """
@@ -31,8 +32,12 @@ def get_damage(a_0:float, a_1:float, b_0:float, b_1:float):
     y_list = list(np.linspace(y_0, y_1, num_points)) + list(np.linspace(y_1, y_2, num_points))
     return x_list, y_list
 
-x_list, y_list = get_damage(0.3684, 3.2014, 0.9971, 3.8264)
+params_str = """
+0.3684	3.2014	0.9971	3.8264
+"""
+params_list = [list(map(float, line.split())) for line in params_str.strip().split("\n")]
 
-import matplotlib.pyplot as plt
-plt.scatter(x_list, y_list)
+for params in params_list:
+    x_list, y_list = get_damage(*params)
+    plt.plot(x_list, y_list)
 plt.savefig("plot")
