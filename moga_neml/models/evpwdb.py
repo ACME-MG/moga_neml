@@ -45,8 +45,8 @@ class Model(__Model__):
         Returns the calibrated model
         """
 
-        # If tensile gradient is less than creep gradient, then bad parameters
-        if t_0 < c_0:
+        # If tensile shelf is not higher than creep shelf, then bad parameters
+        if t_0 < c_0 or t_1 > c_1:
             return
         
         # Define EVP model

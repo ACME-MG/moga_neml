@@ -1,6 +1,13 @@
+"""
+ Title:         Plot Experimental Work
+ Description:   Plotter for work done in experimental data
+ Author:        Janzen Choi
+
+"""
+
 # Libraries
 import matplotlib.pyplot as plt
-import numpy as np, math
+import numpy as np, math, os
 from copy import deepcopy
 from scipy.interpolate import splev, splrep, splder
 from scipy.integrate import simps
@@ -62,59 +69,136 @@ def get_curve_dict(headers:list, data:list) -> dict:
     for index in info_indexes:
         curve[headers[index]] = try_float_cast(data[0][index])
 
+    # Make stress a list for creep curves
+    if curve["type"] == "creep":
+        curve["stress"] = [curve["stress"]] * len(curve["strain"])
+
     # Return curve
     return curve
 
-# Initialise
-work_failure_list = []
-avg_work_rate_list = []
-
-# File names
-file_path_list = [
-    "../../creep/inl_1/AirBase_900_36_G22.csv",
-    "../../creep/inl_1/AirBase_900_31_G50.csv",
-    "../../creep/inl_1/AirBase_900_28_G45.csv",
-    "../../creep/inl_1/AirBase_900_26_G59_unox.csv",
-    "../../tensile/inl/AirBase_900_D10.csv",
-]
-
-# Iterate through curves
-for file_path in file_path_list:
-
-    # Read file
+# Gets the curve dict given a file path
+def get_curve(file_path:str) -> dict:
     with open(file_path, "r") as file:
         headers = file.readline().replace("\n","").split(",")
         data = [line.replace("\n","").split(",") for line in file.readlines()]
         curve = get_curve_dict(headers, data)
+        return curve
 
-    # Get stress
-    if curve["type"] == "creep":
-        curve["stress"] = [curve["stress"]] * len(curve["strain"])
+# Removes data from a curve
+def remove_data(curve:dict, label:str, value:float=None) -> dict:
+
+    # If the value is none, then don't remove anything
+    if value == None:
+        return curve
+
+    # Create a copy of the curve with empty lists
+    new_curve = deepcopy(curve)
+    for header in new_curve.keys():
+        if isinstance(new_curve[header], list) and len(new_curve[header]) == len(curve[label]):
+            new_curve[header] = []
+            
+    # Remove data after specific value
+    for i in range(len(curve[label])):
+        if curve[label][i] > value:
+            break
+        for header in new_curve.keys():
+            if isinstance(new_curve[header], list) and len(curve[header]) == len(curve[label]):
+                new_curve[header].append(curve[header][i])
     
-    # Get work rate
-    work_failure = simps(curve["stress"], curve["strain"], axis=-1, even='avg')
-    # work_failure = curve["stress"][-1] * curve["strain"][-1]
-    work_failure = math.log(work_failure)
-    work_failure_list.append(work_failure)
+    # Return new data
+    return new_curve
 
-    # Get average work rate
-    curve["time"] = [t * 3600 for t in curve["time"]]
+# Gets the critical work and average work rate from a data dictionary
+def get_work_info(curve:dict) -> tuple:
+    critical_work = simps(curve["stress"], curve["strain"], axis=-1, even='avg')
     d_curve = differentiate_curve(curve, "time", "strain")
     work_rate_list = [curve["stress"][i] * d_curve["strain"][i] for i in range(len(curve["stress"]))]
-    avg_work_rate = np.average(work_rate_list)
-    avg_work_rate = math.log(avg_work_rate)
-    avg_work_rate_list.append(avg_work_rate)
-    
-    # Plot the results
-    plt.scatter([avg_work_rate], [work_failure])
+    average_work_rate = np.average(work_rate_list)
+    return critical_work, average_work_rate
 
-# Gets the gradient and intercept
-polynomial = np.polyfit(avg_work_rate_list, work_failure_list, 1)
-print(f"M = {polynomial[0]}")
-print(f"B = {polynomial[1]}")
+# Gets the critical work and average work rate for a list of files
+def get_work_info_list(file_list:list) -> tuple:
+    critical_work_list, average_work_rate_list = [], []
+    for file_dict in file_list:
+        curve = get_curve(file_dict["path"])
+        curve = remove_data(curve, "time", file_dict["time_end"])
+        critical_work, average_work_rate = get_work_info(curve)
+        critical_work_list.append(critical_work)
+        average_work_rate_list.append(average_work_rate)
+    return critical_work_list, average_work_rate_list
 
-# Save the plot
-plt.xlabel("log_e(avg_work_rate)")
-plt.ylabel("log_e(work_failure)")
-plt.legend([file_path.split("/")[-1] for file_path in file_path_list] + ["LOBF"])
-plt.savefig("plot")
+# Initialise list of CSV files for creep
+creep_file_list = [
+    # {"path": "../../data/creep/inl_1/AirBase_1000_11_G39.csv", "time_end": 20610000},
+    # {"path": "../../data/creep/inl_1/AirBase_1000_12_G48.csv", "time_end": 19400000},
+    # {"path": "../../data/creep/inl_1/AirBase_1000_12_G52.csv", "time_end": 20560000},
+    # {"path": "../../data/creep/inl_1/AirBase_1000_13_G30.csv", "time_end": 18500000},
+    # {"path": "../../data/creep/inl_1/AirBase_1000_13_G51.csv", "time_end": 15100000},
+    # {"path": "../../data/creep/inl_1/AirBase_1000_16_G18.csv", "time_end": 8940000},
+    # {"path": "../../data/creep/inl_1/AirBase_1000_16_G38.csv", "time_end": 9000000},
+    {"path": "../../data/creep/inl_1/AirBase_800_60_G32.csv", "time_end": None},
+    # {"path": "../../data/creep/inl_1/AirBase_800_60_G47.csv", "time_end": None},
+    {"path": "../../data/creep/inl_1/AirBase_800_65_G33.csv", "time_end": None},
+    # {"path": "../../data/creep/inl_1/AirBase_800_65_G43.csv", "time_end": None},
+    # {"path": "../../data/creep/inl_1/AirBase_800_70_G24.csv", "time_end": None},
+    {"path": "../../data/creep/inl_1/AirBase_800_70_G44.csv", "time_end": None},
+    {"path": "../../data/creep/inl_1/AirBase_800_80_G25.csv", "time_end": None},
+    # {"path": "../../data/creep/inl_1/AirBase_800_80_G34.csv", "time_end": None},
+    # {"path": "../../data/creep/inl_1/AirBase_900_26_G42.csv", "time_end": 20250000},
+    {"path": "../../data/creep/inl_1/AirBase_900_26_G59.csv", "time_end": 21490000},
+    # {"path": "../../data/creep/inl_1/AirBase_900_28_G40.csv", "time_end": 16730000},
+    {"path": "../../data/creep/inl_1/AirBase_900_28_G45.csv", "time_end": None},
+    # {"path": "../../data/creep/inl_1/AirBase_900_31_G21.csv", "time_end": None},
+    {"path": "../../data/creep/inl_1/AirBase_900_31_G50.csv", "time_end": None},
+    # {"path": "../../data/creep/inl_1/AirBase_900_36_G19.csv", "time_end": None},
+    {"path": "../../data/creep/inl_1/AirBase_900_36_G22.csv", "time_end": None},
+    # {"path": "../../data/creep/inl_1/AirBase_900_36_G63.csv", "time_end": None},
+]
+
+# Initialise list of CSV files for tensile
+tensile_file_list = [
+    # {"path": "../../data/tensile/inl/AirBase_1000_D12.csv", "time_end": None},
+    # {"path": "../../data/tensile/inl/AirBase_20_D5.csv", "time_end": None},
+    # {"path": "../../data/tensile/inl/AirBase_650_D8.csv", "time_end": None},
+    # {"path": "../../data/tensile/inl/AirBase_700_D4.csv", "time_end": None},
+    # {"path": "../../data/tensile/inl/AirBase_750_D6.csv", "time_end": None},
+    {"path": "../../data/tensile/inl/AirBase_800_D7.csv", "time_end": None},
+    # {"path": "../../data/tensile/inl/AirBase_850_D9.csv", "time_end": None},
+    {"path": "../../data/tensile/inl/AirBase_900_D10.csv", "time_end": None},
+    # {"path": "../../data/tensile/inl/AirBase_950_D11.csv", "time_end": None},
+]
+
+# Get data for creep
+creep_cw_list, creep_awr_list = get_work_info_list(creep_file_list)
+creep_log_awr_list = [math.log10(awr) for awr in creep_awr_list]
+creep_m, creep_b = np.polyfit(creep_log_awr_list, creep_cw_list, 1)
+
+# Get data for tensile
+tensile_cw_list, tensile_awr_list = get_work_info_list(tensile_file_list)
+tensile_log_awr_list = [math.log10(awr) for awr in tensile_awr_list]
+tensile_m, tensile_b = np.polyfit(tensile_log_awr_list, tensile_cw_list, 1)
+
+# Prepare data for LOBFs
+lobf_x_list = list(np.linspace(-1.0e1, 1.0e0, 100))
+creep_lobf_y_list = [creep_m*x + creep_b for x in lobf_x_list]
+tensile_lobf_y_list = [tensile_m*x + tensile_b for x in lobf_x_list]
+lobf_x_list = [10**x for x in lobf_x_list]
+
+# Plot everything
+plt.figure(figsize=(5,5))
+plt.scatter(creep_awr_list, creep_cw_list, color="red", label="Creep Data")
+plt.scatter(tensile_awr_list, tensile_cw_list, color="blue", label="Tensile Data")
+plt.plot(lobf_x_list, creep_lobf_y_list, color="red", label="Creep LOBF")
+plt.plot(lobf_x_list, tensile_lobf_y_list, color="blue", label="Tensile LOBF")
+
+# Format and save
+plt.title("Average Work Rate vs Critical Work", fontsize=15, fontweight="bold", y=1.05)
+plt.gca().set_position([0.17, 0.12, 0.75, 0.75])
+plt.gca().grid(which="major", axis="both", color="SlateGray", linewidth=1, linestyle=":")
+plt.xlabel("Average Work Rate (MPa/s)", fontsize=12)
+plt.ylabel("Critical Work (MPa)", fontsize=12)
+plt.xscale("log")
+plt.xlim(1.0e-8, 1.0e0)
+plt.ylim(-1.0e2, 5.0e2)
+plt.legend(framealpha=1, edgecolor="black", fancybox=True, facecolor="white")
+plt.savefig("plot.png")

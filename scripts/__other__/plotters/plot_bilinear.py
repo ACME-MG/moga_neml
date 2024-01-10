@@ -40,4 +40,4 @@ params_list = [list(map(float, line.split())) for line in params_str.strip().spl
 for params in params_list:
     x_list, y_list = get_damage(*params)
     plt.plot(x_list, y_list)
-plt.savefig("plot")
+plt.savefig("prd_plot")
