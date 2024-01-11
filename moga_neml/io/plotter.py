@@ -33,26 +33,29 @@ class Plotter:
         self.x_label = x_label
         self.y_label = y_label
 
-    def prep_plot(self, title:str="", size:int=12) -> None:
+    def prep_plot(self, title:str="", label_size:int=15, tick_size:int=11) -> None:
         """
         Prepares the plot
         
         Parameters:
-        * `title`: The title of the plot
-        * `size`:  The size of the font
+        * `title`:       The title of the plot
+        * `lable_size`:  The size of the font
+        * `tick_size`:   The size of the numbers on the axes
         """
 
         # Set figure size and title
         plt.figure(figsize=(5,5))
-        plt.title(title, fontsize=size+3, fontweight="bold", y=1.05)
+        # plt.title(title, fontsize=size+3, fontweight="bold", y=1.05) # uncomment me
         plt.gca().set_position([0.17, 0.12, 0.75, 0.75])
         plt.gca().grid(which="major", axis="both", color="SlateGray", linewidth=1, linestyle=":")
 
         # Set x and y labels
         x_units = get_units(self.x_label)
         y_units = get_units(self.y_label)
-        plt.xlabel(f"{self.x_label.replace('_', ' ').capitalize()}{x_units}", fontsize=size)
-        plt.ylabel(f"{self.y_label.replace('_', ' ').capitalize()}{y_units}", fontsize=size)
+        plt.xlabel(f"{self.x_label.replace('_', ' ').capitalize()}{x_units}", fontsize=label_size)
+        plt.ylabel(f"{self.y_label.replace('_', ' ').capitalize()}{y_units}", fontsize=label_size)
+        plt.xticks(fontsize=tick_size)
+        plt.yticks(fontsize=tick_size)
     
     def set_limits(self, x_limits:tuple=None, y_limits:tuple=None) -> None:
         """
@@ -110,7 +113,7 @@ class Plotter:
             x_list = [x/3600 for x in x_list]
         plt.plot(x_list, data_dict[self.y_label], colour, zorder=priority)
 
-    def define_legend(self, colour_list:list, label_list:list, size_list:list, type_list:list) -> None:
+    def define_legend(self, colour_list:list, label_list:list, size_list:list, type_list:list, font_size:int=12) -> None:
         """
         Defines the plot legend
         
@@ -119,13 +122,14 @@ class Plotter:
         * `label_list`:  The keys to add to the legend
         * `size_list`:   The size of the icons in the legend
         * `type_list`:   The type of the icons in the legend
+        * 'font_size`:   The size of the legend text
         """
         for i in range(len(colour_list)):
             if type_list[i] == "scatter":
                 plt.scatter([0], [0], color=colour_list[i], label=label_list[i], s=size_list[i]**2)
             elif type_list[i] == "line":
                 plt.plot([0], [0], color=colour_list[i], label=label_list[i], linewidth=size_list[i])
-        plt.legend(framealpha=1, edgecolor="black", fancybox=True, facecolor="white")
+        plt.legend(framealpha=1, edgecolor="black", fancybox=True, facecolor="white", fontsize=font_size)
 
     def save_plot(self) -> None:
         """

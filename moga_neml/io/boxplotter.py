@@ -25,28 +25,30 @@ def plot_boxplots(data_list_list:list, file_path:str, title:str, colour_list:lis
 
     # Create plots
     num_data = len(data_list_list)
-    fig, axes = plt.subplots(nrows=1, ncols=num_data, figsize=(num_data*2, num_data), sharey=False)
+    fig, axes = plt.subplots(nrows=num_data, ncols=1, figsize=(5, num_data*0.8), sharex=False)
 
-    # Add boxplots and data points
+    # Add horizontal boxplots and data points
     for i, axis in enumerate(axes):
 
-        # Prepare the plotting
+        # Create boxplot
         data_list = data_list_list[i]
-        x_list = [i+1] * len(data_list)
+        y_list = [i + 1] * len(data_list)
+        sns.boxplot(x=data_list, y=y_list, ax=axis, width=0.5, showfliers=False, boxprops=dict(alpha=0.5),
+                    color=colour_list[i] if colour_list is not None else None, orient="h")
 
-        # Plot boxplot and data points
-        sns.boxplot(x=x_list, y=data_list, ax=axis, width=0.5, showfliers=False, boxprops=dict(alpha=0.5),
-                    color=colour_list[i] if colour_list != None else None)
-        sns.stripplot(x=x_list, y=data_list, ax=axis, color="black", alpha=0.5)
+        # Format ticks
+        axis.tick_params(axis="x", labelsize=14)
+        axis.set_yticks([])
+        axis.set_ylabel("")
 
         # Apply limits and log if desired
         if limits_dict != None:
             limits = list(limits_dict.values())[i]
-            axis.set_ylim(limits)
+            axis.set_xlim(limits)
         if log:
-            axis.set_yscale("log")
+            axis.set_xscale("log")
 
     # Format and save figure
-    fig.suptitle(title, fontsize=14, fontweight="bold")
+    # fig.suptitle(title, fontsize=14, fontweight="bold") # uncomment me
     fig.tight_layout()
     plt.savefig(file_path)

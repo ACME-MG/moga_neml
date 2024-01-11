@@ -402,7 +402,7 @@ class Controller():
         """
 
         # Gets the data of defined type
-        exp_data_list = [curve.get_exp_data() for curve in self.curve_list if curve.get_type() == type]
+        curve_list = [curve for curve in self.curve_list if curve.get_type() == type]
         
         # Iterate through data field combinations
         labels_list = get_labels_list(type)
@@ -414,8 +414,9 @@ class Controller():
             plotter.prep_plot("Experimental")
             
             # Plot the data, save, and clear for next plot
-            for exp_data in exp_data_list:
-                plotter.scat_plot(exp_data)
+            for curve in curve_list:
+                colour = EXP_VALID_COLOUR if curve.is_validation() else EXP_TRAIN_COLOUR
+                plotter.scat_plot(curve.get_exp_data(), colour=colour)
             plotter.set_log_scale(x_log, y_log)
             plotter.save_plot()
             plotter.clear()
