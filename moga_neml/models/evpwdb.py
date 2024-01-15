@@ -27,13 +27,13 @@ class Model(__Model__):
         
         # Creep damage parameters
         self.add_param("c_n", 1.0e0, 2.0e1)
-        self.add_param("c_0", 0.0e0, 1.0e0)
-        self.add_param("c_1", 0.0e0, 1.0e1)
+        self.add_param("c_0", 0.0e0, 1.0e3)
+        self.add_param("c_1", 0.0e0, 1.0e3)
 
         # Tensile damage parameters
         self.add_param("t_n", 1.0e0, 2.0e1)
-        self.add_param("t_0", 0.0e0, 1.0e0)
-        self.add_param("t_1", 0.0e0, 1.0e1)
+        self.add_param("t_0", 0.0e0, 1.0e3)
+        self.add_param("t_1", 0.0e0, 1.0e3)
 
     def calibrate_model(self, evp_s0, evp_R, evp_d, evp_n, evp_eta, c_n, c_0, c_1, t_n, t_0, t_1):
         """
@@ -46,7 +46,7 @@ class Model(__Model__):
         """
 
         # If tensile shelf is not higher than creep shelf, then bad parameters
-        if t_0 < c_0 or t_1 > c_1:
+        if t_0 < c_0 or t_1 < c_1:
             return
         
         # Define EVP model
@@ -121,7 +121,7 @@ def get_wc(x_0:float, x_1:float, x_2:float, y_0:float, y_1:float, y_2:float):
     
     Returns the x (w_rate) and y (w_crit) values (on the log10-log10 scale)
     """
-    num_points = 16
+    num_points = 32
     x_list = list(np.linspace(x_0, x_1, num_points)) + list(np.linspace(x_1, x_2, num_points))
     y_list = list(np.linspace(y_0, y_1, num_points)) + list(np.linspace(y_1, y_2, num_points))
     return x_list, y_list
@@ -139,7 +139,7 @@ def get_n(x_0:float, x_1:float, x_2:float, a_n:float, b_n:float):
     
     Returns the x (w_rate) and y (n) values (on the log10-log10 scale)
     """
-    num_points = 16
+    num_points = 32
     x_list = list(np.linspace(x_0, x_1, num_points)) + list(np.linspace(x_1, x_2, num_points))
     y_list = [a_n] * num_points + [b_n] * num_points
     return x_list, y_list

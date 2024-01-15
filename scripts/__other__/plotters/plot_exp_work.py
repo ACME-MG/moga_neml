@@ -172,11 +172,13 @@ tensile_file_list = [
 creep_cw_list, creep_awr_list = get_work_info_list(creep_file_list)
 creep_log_awr_list = [math.log10(awr) for awr in creep_awr_list]
 creep_m, creep_b = np.polyfit(creep_log_awr_list, creep_cw_list, 1)
+print("creep", creep_m, creep_b)
 
 # Get data for tensile
 tensile_cw_list, tensile_awr_list = get_work_info_list(tensile_file_list)
 tensile_log_awr_list = [math.log10(awr) for awr in tensile_awr_list]
 tensile_m, tensile_b = np.polyfit(tensile_log_awr_list, tensile_cw_list, 1)
+print("tensile", tensile_m, tensile_b)
 
 # Prepare data for LOBFs
 lobf_x_list = list(np.linspace(-1.0e1, 1.0e0, 100))

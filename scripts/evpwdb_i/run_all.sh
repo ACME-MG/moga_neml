@@ -1,9 +1,16 @@
 #!/bin/bash
 
 export OMP_NUM_THREADS=1
-nohup python3 evpwdb_800_all.py &
-nohup python3 evpwdb_800_st.py &
-nohup python3 evpwdb_900_all.py &
-nohup python3 evpwdb_900_st.py &
-# nohup python3 evpwd_1000_st.py &
-# nohup python3 evpwd_1000_all.py &
+counter=10
+while [ $counter -gt 0 ]; do
+    echo "run $counter"
+    nohup python3 evpwdb_800_all.py &
+    nohup python3 evpwdb_800_st.py &
+    nohup python3 evpwdb_900_all.py &
+    nohup python3 evpwdb_900_st.py &
+    # nohup python3 evpwd_1000_st.py &
+    # nohup python3 evpwd_1000_all.py &
+    sleep 1
+    ((counter--))
+done
+

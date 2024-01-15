@@ -319,7 +319,10 @@ class Recorder:
         # Get the plot data
         plot_dict_list_dict = {}
         for type in self.controller.get_all_types():
-            plot_dict_list_dict[type] = self.get_plot_dict_list(type)
+            plot_dict_list = self.get_plot_dict_list(type)
+            if plot_dict_list == None:
+                return
+            plot_dict_list_dict[type] = plot_dict_list
 
         # Create the spreadsheet and write to it
         file_path = get_file_path_writable(file_path, "xlsx") if replace else get_file_path_exists(file_path, "xlsx")
