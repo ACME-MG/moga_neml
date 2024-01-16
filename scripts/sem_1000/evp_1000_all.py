@@ -21,6 +21,11 @@ itf.read_data("creep/inl_1/AirBase_1000_11_G39.csv")
 itf.remove_damage(0.2, 0.8)
 itf.add_error("area", "time", "strain")
 
+itf.read_data("tensile/inl/AirBase_1000_D12.csv")
+itf.remove_manual("strain", 0.3)
+itf.add_error("yield", yield_stress=90)
+itf.add_error("area", "strain", "stress")
+
 itf.reduce_errors("square_average")
 itf.reduce_objectives("square_average")
 
