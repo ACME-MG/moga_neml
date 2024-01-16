@@ -6,7 +6,7 @@
 """
 
 # Libraries
-import numpy as np
+import numpy as np, math
 from moga_neml.models.__model__ import __Model__
 from neml import models, elasticity, surfaces, hardening, visco_flow, general_flow, damage, interpolate
 
@@ -67,6 +67,8 @@ class Model(__Model__):
             x_list, y_list = get_wc(x_0, x_1, x_2, y_0, y_1, y_2)
         except:
             return
+        x_list = [x_list[i] for i in range(len(x_list)) if y_list[i] > 0]
+        y_list = [math.log10(y_list[i]) for i in range(len(y_list)) if y_list[i] > 0]
         wd_wc = interpolate.PiecewiseLinearInterpolate(x_list, y_list)
         
         # Get n-work_rate interpolation

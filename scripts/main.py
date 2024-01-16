@@ -1,7 +1,7 @@
 import sys; sys.path += [".."]
 from moga_neml.interface import Interface
 
-itf = Interface("evpwdb 800 all")
+itf = Interface("evpwdb power")
 
 itf.define_model("evpwdb")
 
@@ -49,5 +49,5 @@ itf.reduce_errors("square_average")
 itf.reduce_objectives("square_average")
 
 itf.plot_experimental()
-itf.set_recorder(100, plot_opt=True, plot_loss=True)
+itf.set_recorder(1, plot_opt=True, plot_loss=True)
 itf.optimise(10000, 100, 50, 0.8, 0.01)
