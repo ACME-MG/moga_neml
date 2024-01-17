@@ -418,6 +418,8 @@ class Controller():
                 colour = EXP_VALID_COLOUR if curve.is_validation() else EXP_TRAIN_COLOUR
                 plotter.scat_plot(curve.get_exp_data(), colour=colour)
             plotter.set_log_scale(x_log, y_log)
+            # plotter.define_legend([EXP_VALID_COLOUR, EXP_TRAIN_COLOUR], ["Data", "Oxidation"], [7, 7], ["scatter"]*2)
+            # plotter.set_limits((0, 20000), (0, 0.7))
             plotter.save_plot()
             plotter.clear()
 

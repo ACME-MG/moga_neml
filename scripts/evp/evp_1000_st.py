@@ -6,18 +6,18 @@ itf = Interface("evp 1000 st", input_path="../data", output_path="../results")
 itf.define_model("evp")
 
 itf.read_data("creep/inl_1/AirBase_1000_16_G18.csv")
-itf.remove_damage(0.2, 0.8)
+itf.remove_manual("time", 900*3600)
 itf.add_error("area", "time", "strain")
 
 itf.read_data("creep/inl_1/AirBase_1000_13_G30.csv")
-itf.remove_damage(0.2, 0.8)
+itf.remove_manual("time", 1800*3600)
 itf.add_error("area", "time", "strain")
 
-itf.read_data("creep/inl_1/AirBase_1000_12_G52.csv")
-itf.remove_damage(0.2, 0.8)
+itf.read_data("creep/inl_1/AirBase_1000_12_G48.csv")
+itf.remove_manual("time", 2100*3600)
 
 itf.read_data("creep/inl_1/AirBase_1000_11_G39.csv")
-itf.remove_damage(0.2, 0.8)
+itf.remove_manual("time", 2500*3600)
 
 itf.read_data("tensile/inl/AirBase_1000_D12.csv")
 itf.remove_manual("strain", 0.3)
