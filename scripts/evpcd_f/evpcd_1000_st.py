@@ -2,47 +2,26 @@ import sys; sys.path += ["../.."]
 from moga_neml.interface import Interface
 from constants import PARAM_INDEX
 
-itf = Interface("evpcd f 900 all", input_path="../data", output_path="../results")
+itf = Interface("evpcd f 1000 st", input_path="../data", output_path="../results")
 
 itf.define_model("evpcd")
 
 params_str = """
-4.871	11.518	7.0281	4.2421	1138.3
-10.692	29.068	2.9831	3.7278	1433.5
-11.2	24.262	2.2615	3.9651	1163
-11.208	16.738	5.9587	3.6377	1530.1
-10.45	14.769	7.8792	3.54	1787.3
-11.011	11.071	13.523	3.5672	1593.8
-5.6656	8.2222	14.47	4.3001	1000.8
-15.185	64.875	1.4526	3.2003	2110.6
-8.0572	29.804	2.5836	4.0204	1210.4
-7.5292	23.505	4.9899	3.8623	1369.1
+0.004615	6.1843	2.2823	4.8326	460.27
+3.9207	130.97	0.16188	3.9466	752.32
+0.012675	18.528	0.99367	4.8134	471.18
+0.26123	35.054	0.42681	4.7436	490.7
+1.4714	3.11	5.9009	4.4241	584.77
+4.1445	21.946	1.2583	3.9467	726.26
+3.2085	17.287	1.3622	4.0769	697.16
+4.3446	10.148	2.2066	3.8806	776.41
+3.3748	51.076	0.45747	4.0575	700.49
+4.2665	246.76	0.084953	3.9445	738.14
 """
 params_list = [list(map(float, line.split())) for line in params_str.strip().split("\n")]
 itf.fix_params(params_list[PARAM_INDEX])
 
-itf.read_data("creep/inl_1/AirBase_900_36_G22.csv")
-itf.add_error("area", "time", "strain")
-itf.add_error("end", "time")
-itf.add_error("end", "strain")
-itf.add_constraint("inc_end", "strain")
-itf.add_constraint("dec_end", "time")
-
-itf.read_data("creep/inl_1/AirBase_900_31_G50.csv")
-itf.add_error("area", "time", "strain")
-itf.add_error("end", "time")
-itf.add_error("end", "strain")
-itf.add_constraint("inc_end", "strain")
-itf.add_constraint("dec_end", "time")
-
-itf.read_data("creep/inl_1/AirBase_900_28_G45.csv")
-itf.add_error("area", "time", "strain")
-itf.add_error("end", "time")
-itf.add_error("end", "strain")
-itf.add_constraint("inc_end", "strain")
-itf.add_constraint("dec_end", "time")
-
-itf.read_data("creep/inl_1/AirBase_900_26_G59.csv")
+itf.read_data("creep/inl_1/AirBase_1000_16_G18.csv")
 itf.remove_oxidation()
 itf.add_error("area", "time", "strain")
 itf.add_error("end", "time")
@@ -50,11 +29,25 @@ itf.add_error("end", "strain")
 itf.add_constraint("inc_end", "strain")
 itf.add_constraint("dec_end", "time")
 
+itf.read_data("creep/inl_1/AirBase_1000_13_G30.csv")
+itf.remove_oxidation(0.1, 0.7)
+itf.add_error("area", "time", "strain")
+itf.add_error("end", "time")
+itf.add_error("end", "strain")
+itf.add_constraint("inc_end", "strain")
+itf.add_constraint("dec_end", "time")
+
+itf.read_data("creep/inl_1/AirBase_1000_12_G48.csv")
+itf.remove_oxidation()
+
+itf.read_data("creep/inl_1/AirBase_1000_11_G39.csv")
+itf.remove_oxidation(0.1, 0.7)
+
 itf.read_data("tensile/inl/AirBase_900_D10.csv")
 itf.add_error("area", "strain", "stress")
 itf.add_error("end", "strain", weight=0.5)
 itf.add_error("arg_max", "strain", "stress", weight=0.5)
-itf.add_error("yield", yield_stress=164)
+itf.add_error("yield", yield_stress=90)
 
 itf.reduce_errors("square_average")
 itf.reduce_objectives("square_average")

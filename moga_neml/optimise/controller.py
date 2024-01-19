@@ -413,13 +413,20 @@ class Controller():
             plotter = Plotter(plot_file_path, x_label, y_label)
             plotter.prep_plot("Experimental")
             
-            # Plot the data, save, and clear for next plot
+            # Plot the data
             for curve in curve_list:
                 colour = EXP_VALID_COLOUR if curve.is_validation() else EXP_TRAIN_COLOUR
                 plotter.scat_plot(curve.get_exp_data(), colour=colour)
+
+            # Format, save, and clear for next plot
             plotter.set_log_scale(x_log, y_log)
-            # plotter.define_legend([EXP_VALID_COLOUR, EXP_TRAIN_COLOUR], ["Data", "Oxidation"], [7, 7], ["scatter"]*2)
-            # plotter.set_limits((0, 20000), (0, 0.7))
+            has_valid = True in [curve.is_validation() for curve in curve_list]
+            plotter.define_legend(
+                colour_list = [EXP_TRAIN_COLOUR, EXP_VALID_COLOUR] if has_valid else [EXP_TRAIN_COLOUR],
+                label_list  = ["Calibration", "Validation"] if has_valid else ["Calibration"],
+                size_list   = [7, 7] if has_valid else [7],
+                type_list   = ["scatter", "scatter"] if has_valid else ["scatter"]
+            )
             plotter.save_plot()
             plotter.clear()
 
