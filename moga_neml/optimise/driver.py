@@ -13,8 +13,8 @@ from moga_neml.optimise.curve import Curve
 from moga_neml.models.__model__ import __Model__
 
 # General Driver Constants
-TIME_HOLD    = 11500.0 * 3600
-NUM_STEPS    = 1000
+TIME_HOLD    = 15000.0 * 3600
+NUM_STEPS    = 1300
 REL_TOL      = 1e-6
 ABS_TOL      = 1e-10
 MAX_STRAIN   = 1.0

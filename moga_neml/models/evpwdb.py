@@ -26,14 +26,14 @@ class Model(__Model__):
         self.add_param("evp_eta", 0.0e0, 1.0e4) # 5
         
         # Creep damage parameters
-        self.add_param("c_n", 1.0e0, 2.0e1)
+        self.add_param("c_n", 1.0e0, 3.0e1)
         self.add_param("c_0", 0.0e0, 1.0e3)
-        self.add_param("c_1", 0.0e0, 1.0e3)
+        self.add_param("c_1", 0.0e0, 2.0e3)
 
         # Tensile damage parameters
-        self.add_param("t_n", 1.0e0, 2.0e1)
+        self.add_param("t_n", 1.0e0, 3.0e1)
         self.add_param("t_0", 0.0e0, 1.0e3)
-        self.add_param("t_1", 0.0e0, 1.0e3)
+        self.add_param("t_1", 0.0e0, 2.0e3)
 
     def calibrate_model(self, evp_s0, evp_R, evp_d, evp_n, evp_eta, c_n, c_0, c_1, t_n, t_0, t_1):
         """
