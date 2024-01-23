@@ -12,31 +12,36 @@ itf.remove_oxidation(0.1, 0.7)
 itf.add_error("dummy")
 itf.read_data("creep/inl_1/AirBase_1000_12_G48.csv")
 itf.remove_oxidation()
-itf.add_error("dummy")
+# itf.add_error("dummy")
 itf.read_data("creep/inl_1/AirBase_1000_11_G39.csv")
 itf.remove_oxidation(0.1, 0.7)
-itf.add_error("dummy")
+# itf.add_error("dummy")
 itf.read_data("tensile/inl/AirBase_1000_D12.csv")
 itf.add_error("dummy")
 
 params_str = """
-0.004615	6.1843	2.2823	4.8326	460.27	3173	3.4123	7.686
 0.004615	6.1843	2.2823	4.8326	460.27	3478.8	3.3414	7.403
-0.004615	6.1843	2.2823	4.8326	460.27	3491.9	3.3461	7.3952
-0.004615	6.1843	2.2823	4.8326	460.27	2349.8	3.6332	8.8389
-0.004615	6.1843	2.2823	4.8326	460.27	3054.6	3.4511	8.5961
+3.9207	130.97	0.16188	3.9466	752.32	2965	3.3761	5.2626
+0.012675	18.528	0.99367	4.8134	471.18	2229.9	3.5893	5.6052
+0.26123	35.054	0.42681	4.7436	490.7	2850.7	3.4043	5.3243
+1.4714	3.11	5.9009	4.4241	584.77	3948.5	3.2559	7.3001
+4.1445	21.946	1.2583	3.9467	726.26	3639.1	3.2451	4.9525
+3.2085	17.287	1.3622	4.0769	697.16	3927.3	3.2118	4.7916
+4.3446	10.148	2.2066	3.8806	776.41	4502.1	3.1688	6.5437
+3.3748	51.076	0.45747	4.0575	700.49	2863	3.4027	5.3671
+4.2665	246.76	0.084953	3.9445	738.14	2087.2	3.6288	5.307
 
 """
 params_list = [list(map(float, line.split())) for line in params_str.strip().split("\n")]
 
-itf.plot_simulations(
+itf.plot_simulation(
     params_list = params_list,
-    clip        = True,
+    # clip        = True,
     limits_dict = {"creep": ((0, 8000), (0, 0.35)), "tensile": ((0, 1.0), (0, 160))},
 )
 
-# itf.plot_distribution(
-#     params_list = params_list,
-#     limits_dict = {"evp_s0": (0, 40), "evp_R": (0, 500), "evp_d": (0, 50), "evp_n": (0, 10), "evp_eta": (0, 4000),
-#                    "cd_A": (0, 5000), "cd_xi": (0, 10), "cd_phi": (0, 30)},
-# )
+itf.plot_distribution(
+    params_list = params_list,
+    limits_dict = {"evp_s0": (0, 40), "evp_R": (0, 500), "evp_d": (0, 50), "evp_n": (0, 10), "evp_eta": (0, 1000),
+                   "cd_A": (0, 10000), "cd_xi": (0, 10), "cd_phi": (0, 30)},
+)

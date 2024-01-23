@@ -198,16 +198,15 @@ class Recorder:
         results = {}
         sf_format = lambda x : float("{:0.5}".format(float(x)))
         
-        # Add fixed parameter information
+        # Get parameter information
         fix_params = self.controller.get_fix_param_dict()
-        for param_name in fix_params.keys():
-            results[param_name] = [sf_format(fix_params[param_name]) for _ in self.optimal_solution_list]
+        all_param_names = self.controller.get_param_names()
+        for param_name in all_param_names:
+            if param_name in fix_params.keys():
+                results[param_name] = [sf_format(fix_params[param_name]) for _ in self.optimal_solution_list]
+            else:
+                results[param_name] = [sf_format(o_sol["params"][param_name]) for o_sol in self.optimal_solution_list]
 
-        # Add unfixed parameter information
-        unfix_param_names = list(self.controller.get_unfix_param_dict().keys())
-        for param_name in unfix_param_names:
-            results[param_name] = [sf_format(o_sol["params"][param_name]) for o_sol in self.optimal_solution_list]
-        
         # Add objective information
         objective_info_list = self.controller.get_objective_info_list()
         for objective_info in objective_info_list:

@@ -216,21 +216,10 @@ The `plot_experimental` function creates a plot of all the experimental data tha
 
 This function relies on the `read_data` function to be called first.
 
-## Plotting simulation results (`plot_simulation`)
+## Plotting multiple simulation results (`plot_simulation`)
 
-The `plot_simulations` function creates a plot of all the experimental data that has been read by the `read_data` function as well as their simulated responses.
-* `params`: This argument defines a list of parameter values to pass to the defined model to obtain the simulated responses.
-* `x_log`: This optional argument tells the function whether to plot the x-axis on a log scale. The default value of this argument is `False`.
-* `y_log`: This optional argument tells the function whether to plot the y-axis on a log scale. The default value of this argument is `False`.
-
-This function relies on the `read_data` and `define_model` functions to be called first. The function will raise an error if the defined parameters are invalid for the defined model.
-
-Note that defining the parameters as arguments to this function is similar to fixing the parameters via `fix_params`, meaning that there will be clashes if the parameter values are defined twice.
-
-## Plotting multiple simulation results (`plot_simulations`)
-
-The `plot_simulations` function creates a plot of all the experimental data that has been read by the `read_data` function as well as multiple simulated responses from multiple sets of parameters.
-* `params`: This argument defines a list of lists of parameter values to pass to the defined model to obtain the multiple simulated responses.
+The `plot_simulation` function creates a plot of all the experimental data that has been read by the `read_data` function as well as multiple simulated responses from multiple sets of parameters.
+* `params_list`: This argument defines a list of lists of parameter values to pass to the defined model to obtain the multiple simulated responses. The user can optionally just pass a list of parameter values if the user desires to only obtain a single simulated response.
 * `clip`: This optional argument tells the function whether to clip the simulated response to the last value of the experimental data. The default value of this argument is `False`.
 * `limits_dict`: This optional argument defines the lower and upper bounds of the outputted plot. This argument should be defined as a dictionary of tuples of tuples - e.g., `e.g., {"tensile": ((0, 1), (2, 3)), "creep": ((3, 2), (0,3))}`. The default value for this argument is `None`, meaning that the limits will be determined automatically.
 
@@ -241,14 +230,14 @@ Note that defining the parameters as arguments to this function is similar to fi
 ## Plot the parameter distribution (`plot_distribution`)
 
 The `plot_distribution` function creates a plot of boxplots for multiple sets of parameters.
-* `params`: This argument defines a list of lists of parameter values for the boxplots.
+* `params_list`: This argument defines a list of lists of parameter values to pass to the defined model to obtain the multiple simulated responses. The user can optionally just pass a list of parameter values if the user desires to only obtain a single simulated response.
 * `limits_dict`: This optional argument defines the lower and upper bounds of the boxplots. This argument should be defined as a dictionary of tuples (i.e., `(lower, upper)`) with keys corresponding to the names of the parameters of the model. The default value for this argument is `None`, meaning that the limits will be determined automatically.
 * `log`: This optional argument tells the function whether to apply the log scale for the boxplots. The default value for this argument is `False`.
 
 ## Plotting simulation results (`plot_simulation`)
 
-The `plot_simulations` function creates a `.xlsx` file with information about the optimisation and errors used for a set of parameters.
-* `params`: This argument defines a list of parameter values to pass to the defined model to obtain the simulated responses.
+The `plot_simulation` function creates a `.xlsx` file with information about the optimisation and errors used for a set of parameters.
+* `params_list`: This argument defines a list of lists of parameter values to pass to the defined model to obtain the multiple simulated responses. The user can optionally just pass a list of parameter values if the user desires to only obtain a single simulated response.
 
 This function relies on the `read_data` and `define_model` functions to be called first. The function will raise an error if the defined parameters are invalid for the defined model. Additionally, the user can optionally call the `add_error` function beforehand to obtain the error values corresponding to the set of parameter values.
 

@@ -35,7 +35,7 @@ params_str = """
 """
 params_list = [list(map(float, line.split())) for line in params_str.strip().split("\n")]
 
-itf.plot_simulations(
+itf.plot_simulation(
     params_list = params_list,
     clip        = True,
     limits_dict = {"creep": ((0, 8000), (0, 0.7)), "tensile": ((0, 1.0), (0, 500))},
@@ -43,5 +43,5 @@ itf.plot_simulations(
 
 itf.plot_distribution(
     params_list = params_list,
-    limits_dict = {"evp_s0": (0, 40), "evp_R": (0, 500), "evp_d": (0, 50), "evp_n": (0, 10), "evp_eta": (0, 4000)},
+    limits_dict = {"evp_s0": (0, 40), "evp_R": (0, 600), "evp_d": (0, 40), "evp_n": (0, 5), "evp_eta": (0, 4000)},
 )

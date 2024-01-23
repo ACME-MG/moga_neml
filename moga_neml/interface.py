@@ -313,33 +313,7 @@ class Interface:
             self.__check_curves__("There are no experimental curves to plot!")
             self.__controller__.plot_exp_curves(type, file_path, x_log, y_log)
 
-    def plot_simulation(self, params:list, x_log:bool=False, y_log:bool=False) -> None:
-        """
-        Visualises the simulated curves from a set of parameters
-        
-        Parameters:
-        * `params`: The parameter values for the model; note that defining the parameters as
-                    arguments to this function is similar to fixing the parameters via `fix_params`,
-                    meaning that there will be clashes if the parameter values are defined twice.
-        * `x_log`:  Whether to log the x-axis
-        * `y_log`:  Whether to log the y-axis
-        """
-        
-        # Convert parameters into a string, display, and check
-        param_str = ["{:0.4}".format(float(param)) for param in params]
-        self.__print__("Plotting the curves for {}".format(str(param_str).replace("'", "")))
-        self.__check_model__()
-        self.__check_curves__("There are no experimental curves to plot!")
-        self.__check_params__(params)
-
-        # Iterate through types and plot predictions
-        type_list = self.__controller__.get_all_types()
-        for type in type_list:
-            file_path = self.__get_output__(f"prd_{type}")
-            self.__controller__.plot_prd_curves(*params, type=type, file_path=file_path, x_log=x_log,
-                                                y_log=y_log)
-
-    def plot_simulations(self, params_list:list, clip:bool=False, limits_dict:dict=None) -> None:
+    def plot_simulation(self, params_list:list, clip:bool=False, limits_dict:dict=None) -> None:
         """
         Visualises the simulated curves from a set of parameters
         
@@ -354,6 +328,7 @@ class Interface:
         """
 
         # Print out message and check
+        params_list = self.__process_params_list__(params_list)
         self.__print__(f"Plotting the predictions for {len(params_list)} sets of parameters")
         self.__check_model__()
         self.__check_curves__("There are no experimental curves to plot!")
@@ -375,8 +350,8 @@ class Interface:
             if limits_dict != None:
                 x_limits = limits_dict[type_list[i]][0]
                 y_limits = limits_dict[type_list[i]][1]
-            self.__controller__.plot_multiple_prd_curves(params_list, clip=clip, type=type_list[i],
-                                                         file_path=file_path, x_limits=x_limits, y_limits=y_limits)
+            self.__controller__.plot_prd_curves(params_list, clip=clip, type=type_list[i],
+                                                file_path=file_path, x_limits=x_limits, y_limits=y_limits)
 
     def plot_distribution(self, params_list:list, limits_dict:dict=None, log:bool=False) -> None:
         """
@@ -391,6 +366,7 @@ class Interface:
         """
 
         # Print out message and check
+        params_list = self.__process_params_list__(params_list)
         self.__print__(f"Plotting the distributions for {len(params_list)} sets of parameters")
         self.__check_curves__("There are no experimental curves to plot!")
         self.__check_params_list__(params_list)
@@ -409,32 +385,33 @@ class Interface:
         file_path = self.__get_output__(f"box_plot.png")
         self.__controller__.plot_distribution(params_list, file_path, limits_dict, log)
 
-    def get_results(self, params:list) -> None:
+    def get_results(self, params_list:list) -> None:
         """
         Gets the optimisation, parameter, and error summary from a set of parameters
         
         Parameters:
-        * `params`: The parameter values of the model; note that defining the parameters as
-                    arguments to this function is similar to fixing the parameters via `fix_params`,
-                    meaning that there will be clashes if the parameter values are defined twice.
+        * `params_list`: A list of parameter sets for the model; note that defining the parameters as
+                         arguments to this function is similar to fixing the parameters via `fix_params`,
+                         meaning that there will be clashes if the parameter values are defined twice.
         """
         
         # Display and check
-        param_str = ["{:0.4}".format(float(param)) for param in params]
-        self.__print__("Getting the results for {}".format(str(param_str).replace("'", "")))
+        params_list = self.__process_params_list__(params_list)
+        self.__print__(f"Getting the results for {len(params_list)} sets of parameters")
         self.__check_model__()
-        self.__check_curves__("Results cannot obtained without experimental curves!")
-        self.__check_params__(params)
+        self.__check_curves__("There are no experimental curves to plot!")
+        self.__check_params_list__(params_list)
 
         # Initialise recorder
         recorder = Recorder(self.__controller__, 0, "")
-        recorder.define_hyperparameters(0, 1, 0, 0, 0)
+        recorder.define_hyperparameters(0, len(params_list), 0, 0, 0)
         
         # Add parameters and create record
-        param_name_list = self.__controller__.get_unfix_param_names()
-        param_value_dict = {key: value for key, value in zip(param_name_list, params)}
-        error_value_dict = self.__controller__.calculate_objectives(*params, include_validation=True)
-        recorder.update_optimal_solution(param_value_dict, error_value_dict)
+        for params in params_list:
+            param_name_list = self.__controller__.get_unfix_param_names()
+            param_value_dict = {key: value for key, value in zip(param_name_list, params)}
+            error_value_dict = self.__controller__.calculate_objectives(*params, include_validation=True)
+            recorder.update_optimal_solution(param_value_dict, error_value_dict)
         recorder.create_record(self.__get_output__("results"), replace=False)
     
     def save_model(self, params:list) -> None:
@@ -537,6 +514,19 @@ class Interface:
             self.__print_subindex__ = 0
             print_index = f"{self.__print_index__}"
         print(f"   {print_index})\t{message} ...")
+
+    def __process_params_list__(self, params_list:list) -> list:
+        """
+        Converts a list of parameters into a list of parameter sets
+
+        Parameters:
+        * `params_list`: The list of parameters
+
+        Returns the new parameter list 
+        """
+        if not isinstance(params_list[0], list):
+            params_list = [params_list]
+        return params_list
 
     def __check_model__(self) -> None:
         """

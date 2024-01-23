@@ -7,21 +7,24 @@
 
 # Libraries
 import matplotlib.pyplot as plt
-import numpy as np, math, os
+import numpy as np, math
 from copy import deepcopy
 from scipy.interpolate import splev, splrep, splder
 from scipy.integrate import simps
+
+# Constants
+MAX_POINTS = 1000
 
 # The Interpolator Class
 class Interpolator:
 
     # Constructor
     def __init__(self, x_list, y_list, resolution=50, smooth=False):
-        thin_x_list = get_thinned_list(x_list, resolution)
-        thin_y_list = get_thinned_list(y_list, resolution)
+        x_list = get_thinned_list(x_list, resolution)
+        y_list = get_thinned_list(y_list, resolution)
         smooth_amount = resolution if smooth else 0
-        self.spl = splrep(thin_x_list, thin_y_list, s=smooth_amount)
-    
+        self.spl = splrep(x_list, y_list, s=smooth_amount)
+
     # Convert to derivative
     def differentiate(self):
         self.spl = splder(self.spl)
@@ -64,7 +67,8 @@ def get_curve_dict(headers:list, data:list) -> dict:
     curve = {}
     for index in list_indexes:
         value_list = [float(d[index]) for d in data]
-        value_list = get_thinned_list(value_list, 200)
+        if len(value_list) > MAX_POINTS:
+            value_list = get_thinned_list(value_list, MAX_POINTS)
         curve[headers[index]] = value_list
     for index in info_indexes:
         curve[headers[index]] = try_float_cast(data[0][index])
@@ -108,11 +112,28 @@ def remove_data(curve:dict, label:str, value:float=None) -> dict:
     # Return new data
     return new_curve
 
+# # Gets the critical work and average work rate from a data dictionary
+# def get_work_info(curve:dict) -> tuple:
+#     critical_work = simps(curve["stress"], curve["strain"], axis=-1, even="avg")
+#     d_curve = differentiate_curve(curve, "time", "strain")
+#     work_rate_list = [curve["stress"][i] * d_curve["strain"][i] for i in range(len(curve["stress"]))]
+#     average_work_rate = np.average(work_rate_list)
+#     return critical_work, average_work_rate
+
 # Gets the critical work and average work rate from a data dictionary
 def get_work_info(curve:dict) -> tuple:
-    critical_work = simps(curve["stress"], curve["strain"], axis=-1, even='avg')
-    d_curve = differentiate_curve(curve, "time", "strain")
-    work_rate_list = [curve["stress"][i] * d_curve["strain"][i] for i in range(len(curve["stress"]))]
+
+    # Calculate critical work
+    critical_work = simps(curve["stress"], curve["strain"], axis=-1, even="avg")
+    
+    # Calculate work rate
+    if curve["type"] in ["fatigue"]:
+        work_rate_list = [abs(curve["stress"][i]) * curve["strain_rate"] for i in range(len(curve["stress"]))]
+    elif curve["type"] in ["creep", "tensile"]:
+        d_curve = differentiate_curve(curve, "time", "strain")
+        work_rate_list = [curve["stress"][i] * d_curve["strain"][i] for i in range(len(curve["stress"]))]
+
+    # Calculate average work rate for tensile / creep
     average_work_rate = np.average(work_rate_list)
     return critical_work, average_work_rate
 
@@ -168,30 +189,92 @@ tensile_file_list = [
     {"path": "../../data/tensile/inl/AirBase_1000_D12.csv", "time_end": None},
 ]
 
-# Get data for creep
-creep_cw_list, creep_awr_list = get_work_info_list(creep_file_list)
-creep_log_awr_list = [math.log10(awr) for awr in creep_awr_list]
-creep_m, creep_b = np.polyfit(creep_log_awr_list, creep_cw_list, 1)
-print("creep", creep_m, creep_b)
+# Initialise list of CSV files for fatigue
+fatigue_file_list = [
+    {"path": "../../data/fatigue/AirPlate_850_1E-3_4-1-1.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_850_1E-3_416-10.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_850_1E-3_416-11.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_850_1E-3_416-12.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_850_1E-3_416-14.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_850_1E-3_416-15.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_850_1E-3_416-19.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_850_1E-3_416-20.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_850_1E-3_416-21.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_850_1E-3_416-22.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_850_1E-3_416-3.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_850_1E-3_416-4.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_850_1E-3_416-5.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_850_1E-3_416-7.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_850_1E-3_416-8.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_850_1E-3_416-9.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_850_1E-3_43-13.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_850_1E-3_43-18.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_850_1E-3_43-22.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_850_1E-3_43-6.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_950_1E-1_315-7.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_950_1E-1_43-17.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_950_1E-1_J-3.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_950_1E-3_315-1.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_950_1E-3_315-16.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_950_1E-3_43-16.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_950_1E-3_43-20.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_950_1E-3_43-5.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_950_1E-3_43-9.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_950_1E-3_A-20.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_950_1E-3_B-1.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_950_1E-3_B-13.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_950_1E-3_B-14.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_950_1E-3_B-15.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_950_1E-3_B-3.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_950_1E-3_E-11.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_950_1E-3_E-12.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_950_1E-3_E-13.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_950_1E-3_E-28.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_950_1E-3_F-12.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_950_1E-3_J-1.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_950_1E-3_J-5.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_950_1E-4_43-3.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_950_1E-4_43-8.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_950_1E-4_J-2.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_950_1E-4_J-4.csv", "time_end": None},
+    {"path": "../../data/fatigue/AirPlate_950_1E-4_J-6.csv", "time_end": None},
+]
 
-# Get data for tensile
-tensile_cw_list, tensile_awr_list = get_work_info_list(tensile_file_list)
-tensile_log_awr_list = [math.log10(awr) for awr in tensile_awr_list]
-tensile_m, tensile_b = np.polyfit(tensile_log_awr_list, tensile_cw_list, 1)
-print("tensile", tensile_m, tensile_b)
+# Gets the line of best fit given two lists of data
+def get_lobf(cw_list:list, awr_list:list) -> tuple:
+    log_awr_list = [math.log10(awr) for awr in awr_list]
+    log_cw_list = [math.log10(cw) for cw in cw_list]
+    m_value, b_value = np.polyfit(log_awr_list, log_cw_list, 1)
+    return m_value, b_value
 
-# Prepare data for LOBFs
-lobf_x_list = list(np.linspace(-1.0e1, 1.0e0, 100))
-creep_lobf_y_list = [creep_m*x + creep_b for x in lobf_x_list]
-tensile_lobf_y_list = [tensile_m*x + tensile_b for x in lobf_x_list]
-lobf_x_list = [10**x for x in lobf_x_list]
-
-# Plot everything
+# Prepare calculations and plot
+raw_lobf_x_list = list(np.linspace(-1.0e1, 1.0e0, 100))
+lobf_x_list = [10**x for x in raw_lobf_x_list]
 plt.figure(figsize=(5,5))
+
+# Plot data for creep
+creep_cw_list, creep_awr_list = get_work_info_list(creep_file_list)
+creep_m, creep_b = get_lobf(creep_cw_list, creep_awr_list)
+print("creep", creep_m, creep_b)
+creep_lobf_y_list = [10**(creep_m*x + creep_b) for x in raw_lobf_x_list]
 plt.scatter(creep_awr_list, creep_cw_list, color="red", label="Creep Data")
-plt.scatter(tensile_awr_list, tensile_cw_list, color="blue", label="Tensile Data")
 plt.plot(lobf_x_list, creep_lobf_y_list, color="red", label="Creep LOBF")
+
+# Plot data for tensile
+tensile_cw_list, tensile_awr_list = get_work_info_list(tensile_file_list)
+tensile_m, tensile_b = get_lobf(tensile_cw_list, tensile_awr_list)
+print("tensile", tensile_m, tensile_b)
+tensile_lobf_y_list = [10**(tensile_m*x + tensile_b) for x in raw_lobf_x_list]
+plt.scatter(tensile_awr_list, tensile_cw_list, color="blue", label="Tensile Data")
 plt.plot(lobf_x_list, tensile_lobf_y_list, color="blue", label="Tensile LOBF")
+
+# Plot data for fatigue
+fatigue_cw_list, fatigue_awr_list = get_work_info_list(fatigue_file_list)
+fatigue_m, fatigue_b = get_lobf(fatigue_cw_list, fatigue_awr_list)
+print("fatigue", fatigue_m, fatigue_b)
+fatigue_lobf_y_list = [10**(fatigue_m*x + fatigue_b) for x in raw_lobf_x_list]
+plt.scatter(fatigue_awr_list, fatigue_cw_list, color="green", label="Fatigue Data")
+plt.plot(lobf_x_list, fatigue_lobf_y_list, color="green", label="Fatigue LOBF")
 
 # Format and save
 # plt.title("Average Work Rate vs Critical Work", fontsize=15, fontweight="bold", y=1.05)
@@ -202,7 +285,8 @@ plt.ylabel("Critical Work (MPa)", fontsize=15)
 plt.xticks(fontsize=11)
 plt.yticks(fontsize=11)
 plt.xscale("log")
+plt.yscale("log")
 plt.xlim(1.0e-8, 1.0e0)
-plt.ylim(-1.0e2, 5.0e2)
+plt.ylim(1.0e-1, 1.0e4)
 plt.legend(framealpha=1, edgecolor="black", fancybox=True, facecolor="white", fontsize=12)
 plt.savefig("exp.png")

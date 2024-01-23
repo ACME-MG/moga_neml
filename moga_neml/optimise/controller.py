@@ -86,6 +86,13 @@ class Controller():
         type_list = list(set(type_list))
         return type_list
 
+    def get_param_names(self) -> list:
+        """
+        Returns a list of the model's parameter names
+        """
+        param_dict = self.model.get_param_dict()
+        return list(param_dict.keys())
+
     def fix_param(self, param_name:str, param_value:float) -> None:
         """
         Fixes a parameter to a value
@@ -94,9 +101,9 @@ class Controller():
         * `param_name`:  The name of the parameter
         * `param_value`: The value to fix the parameter to 
         """
-        param_dict = self.model.get_param_dict()
+        param_names = self.get_param_names()
         pretext = f"The '{param_name}' parameter cannot be fixed because"
-        if not param_name in param_dict.keys():
+        if not param_name in param_names:
             raise ValueError(f"{pretext} it is not defined in {self.model.get_name()}!")
         if param_name in self.init_param_dict.keys():
             raise ValueError(f"{pretext} it has already been set!")
@@ -111,9 +118,9 @@ class Controller():
         * `param_value`: The value to initialise the parameter to
         * `param_std`:   The initial standard deviation of the parameter
         """
-        param_dict = self.model.get_param_dict()
+        param_names = self.get_param_names()
         pretext = f"The '{param_name}' parameter cannot be set because"
-        if not param_name in param_dict.keys():
+        if not param_name in param_names:
             raise ValueError(f"{pretext} it is not defined in {self.model.get_name()}!")
         if param_name in self.fix_param_dict.keys():
             raise ValueError(f"{pretext} it has already been fixed!")
@@ -180,7 +187,7 @@ class Controller():
         * `params`: The parameters
         """
         params = list(params)
-        param_names = list(self.model.get_param_dict().keys())
+        param_names = self.get_param_names()
         fix_indexes = [i for i in range(len(param_names)) if param_names[i] in self.fix_param_dict.keys()]
         for fix_index in fix_indexes:
             fix_value = self.fix_param_dict[param_names[fix_index]]
@@ -430,51 +437,8 @@ class Controller():
             plotter.save_plot()
             plotter.clear()
 
-    def plot_prd_curves(self, *params:tuple, type:str, file_path:str="", x_log:bool=False,
-                        y_log:bool=False) -> None:
-        """
-        Plots the predicted curves for a given type
-
-        Parameters:
-        * `params`:     The parameters to perform the prediction
-        * `type:`       The type of the experimental data
-        * `file_path`:  The path to plot the experimental curves without the extension
-        * `x_log`:      Whether to log the x axis
-        * `y_log`:      Whether to log the y axis
-        """
-        
-        # Get predicted curves first
-        valid_curve_list = [curve for curve in self.curve_list if curve.get_type() == type]
-        prd_data_list = []
-        for curve in valid_curve_list:
-            prd_data = self.get_prd_data(curve, *params)
-            if prd_data == None:
-                raise ValueError("The model is unable to run with the parameters!")
-            prd_data_list.append(prd_data)
-
-        # Iterate through data field combinations
-        labels_list = get_labels_list(type)
-        for x_label, y_label in labels_list:
-
-            # Prepare the plotter
-            plot_file_path = f"{file_path}_{x_label}_{y_label}.png"
-            plotter = Plotter(plot_file_path, x_label, y_label)
-            plotter.prep_plot(f"Experimental vs Simulation ({type.capitalize()})")
-            
-            # Plot experimental and predicted data
-            for j in range(len(valid_curve_list)):
-                exp_data = valid_curve_list[j].get_exp_data()
-                prd_data = prd_data_list[j]
-                plotter.scat_plot(exp_data)
-                plotter.line_plot(prd_data)
-            
-            # Format and save
-            plotter.set_log_scale(x_log, y_log)
-            plotter.save_plot()
-            plotter.clear()
-
-    def plot_multiple_prd_curves(self, params_list:list, clip:bool, type:str, file_path:str="", 
-                                 x_limits:float=None, y_limits:float=None) -> None:
+    def plot_prd_curves(self, params_list:list, clip:bool, type:str, file_path:str="", 
+                        x_limits:float=None, y_limits:float=None) -> None:
         """
         Visualises the predicted curves from a set of parameters
         
