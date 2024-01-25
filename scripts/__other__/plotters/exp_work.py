@@ -243,8 +243,8 @@ fatigue_file_list = [
 # Gets the line of best fit given two lists of data
 def get_lobf(cw_list:list, awr_list:list) -> tuple:
     log_awr_list = [math.log10(awr) for awr in awr_list]
-    log_cw_list = [math.log10(cw) for cw in cw_list]
-    m_value, b_value = np.polyfit(log_awr_list, log_cw_list, 1)
+    # log_cw_list = [math.log10(cw) for cw in cw_list]
+    m_value, b_value = np.polyfit(log_awr_list, cw_list, 1)
     return m_value, b_value
 
 # Prepare calculations and plot
@@ -256,7 +256,7 @@ plt.figure(figsize=(5,5))
 creep_cw_list, creep_awr_list = get_work_info_list(creep_file_list)
 creep_m, creep_b = get_lobf(creep_cw_list, creep_awr_list)
 print("creep", creep_m, creep_b)
-creep_lobf_y_list = [10**(creep_m*x + creep_b) for x in raw_lobf_x_list]
+creep_lobf_y_list = [creep_m*x + creep_b for x in raw_lobf_x_list]
 plt.scatter(creep_awr_list, creep_cw_list, color="red", label="Creep Data")
 plt.plot(lobf_x_list, creep_lobf_y_list, color="red", label="Creep LOBF")
 
@@ -264,17 +264,17 @@ plt.plot(lobf_x_list, creep_lobf_y_list, color="red", label="Creep LOBF")
 tensile_cw_list, tensile_awr_list = get_work_info_list(tensile_file_list)
 tensile_m, tensile_b = get_lobf(tensile_cw_list, tensile_awr_list)
 print("tensile", tensile_m, tensile_b)
-tensile_lobf_y_list = [10**(tensile_m*x + tensile_b) for x in raw_lobf_x_list]
+tensile_lobf_y_list = [tensile_m*x + tensile_b for x in raw_lobf_x_list]
 plt.scatter(tensile_awr_list, tensile_cw_list, color="blue", label="Tensile Data")
 plt.plot(lobf_x_list, tensile_lobf_y_list, color="blue", label="Tensile LOBF")
 
-# Plot data for fatigue
-fatigue_cw_list, fatigue_awr_list = get_work_info_list(fatigue_file_list)
-fatigue_m, fatigue_b = get_lobf(fatigue_cw_list, fatigue_awr_list)
-print("fatigue", fatigue_m, fatigue_b)
-fatigue_lobf_y_list = [10**(fatigue_m*x + fatigue_b) for x in raw_lobf_x_list]
-plt.scatter(fatigue_awr_list, fatigue_cw_list, color="green", label="Fatigue Data")
-plt.plot(lobf_x_list, fatigue_lobf_y_list, color="green", label="Fatigue LOBF")
+# # Plot data for fatigue
+# fatigue_cw_list, fatigue_awr_list = get_work_info_list(fatigue_file_list)
+# fatigue_m, fatigue_b = get_lobf(fatigue_cw_list, fatigue_awr_list)
+# print("fatigue", fatigue_m, fatigue_b)
+# fatigue_lobf_y_list = [fatigue_m*x + fatigue_b for x in raw_lobf_x_list]
+# plt.scatter(fatigue_awr_list, fatigue_cw_list, color="green", label="Fatigue Data")
+# plt.plot(lobf_x_list, fatigue_lobf_y_list, color="green", label="Fatigue LOBF")
 
 # Format and save
 # plt.title("Average Work Rate vs Critical Work", fontsize=15, fontweight="bold", y=1.05)
@@ -285,8 +285,8 @@ plt.ylabel("Critical Work (MPa)", fontsize=15)
 plt.xticks(fontsize=11)
 plt.yticks(fontsize=11)
 plt.xscale("log")
-plt.yscale("log")
+# plt.yscale("log")
 plt.xlim(1.0e-8, 1.0e0)
-plt.ylim(1.0e-1, 1.0e4)
+plt.ylim(-1.0e2, 1.0e3)
 plt.legend(framealpha=1, edgecolor="black", fancybox=True, facecolor="white", fontsize=12)
 plt.savefig("exp.png")

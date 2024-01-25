@@ -26,14 +26,14 @@ class Model(__Model__):
         self.add_param("evp_eta", 0.0e0, 1.0e4) # 5
         
         # Creep damage parameters
-        self.add_param("c_n", 1.0e0, 3.0e1)
+        self.add_param("c_n", 1.0e0, 1.0e3)
         self.add_param("c_0", 0.0e0, 1.0e3)
-        self.add_param("c_1", 0.0e0, 2.0e3)
+        self.add_param("c_1", 0.0e0, 1.0e3)
 
         # Tensile damage parameters
-        self.add_param("t_n", 1.0e0, 3.0e1)
+        self.add_param("t_n", 1.0e0, 1.0e3)
         self.add_param("t_0", 0.0e0, 1.0e3)
-        self.add_param("t_1", 0.0e0, 2.0e3)
+        self.add_param("t_1", 0.0e0, 1.0e3)
 
     def calibrate_model(self, evp_s0, evp_R, evp_d, evp_n, evp_eta, c_n, c_0, c_1, t_n, t_0, t_1):
         """
@@ -62,24 +62,21 @@ class Model(__Model__):
         # Prepare the critical points of the bilinear curve
         x_0, x_1, x_2, y_0, y_1, y_2 = get_bilinear(c_0, c_1, t_0, t_1)
         
-        # Get work-work_rate interpolation
+        # Get interpolation data
         try:
-            x_list, y_list = get_wc(x_0, x_1, x_2, y_0, y_1, y_2)
+            wc_x_list, wc_y_list = get_wc(x_0, x_1, x_2, y_0, y_1, y_2)
+            n_x_list, n_y_list = get_n(x_0, x_1, x_2, c_n, t_n)
         except:
             return
-        x_list = [x_list[i] for i in range(len(x_list)) if y_list[i] > 0]
-        y_list = [math.log10(y_list[i]) for i in range(len(y_list)) if y_list[i] > 0]
-        wd_wc = interpolate.PiecewiseLinearInterpolate(x_list, y_list)
-        
-        # Get n-work_rate interpolation
-        try:
-            x_list, y_list = get_n(x_0, x_1, x_2, c_n, t_n)
-        except:
-            return
-        wd_n = interpolate.PiecewiseLinearInterpolate(x_list, y_list)
+        wc_x_list = [math.pow(10, x) for x in wc_x_list]
+        n_x_list = [math.pow(10, x) for x in n_x_list]
+
+        # Get interpolators
+        wd_wc = interpolate.PiecewiseSemiLogXLinearInterpolate(wc_x_list, wc_y_list)
+        wd_n = interpolate.PiecewiseSemiLogXLinearInterpolate(n_x_list, n_y_list)
         
         # Define work damage model and return
-        wd_model = damage.WorkDamage(elastic_model, wd_wc, wd_n, log=True, eps=1e-40, work_scale=1e5)
+        wd_model = damage.WorkDamage(elastic_model, wd_wc, wd_n, log=False, eps=1e-40, work_scale=1e5)
         evpwd_model = damage.NEMLScalarDamagedModel_sd(elastic_model, evp_model, wd_model, verbose=False)
         return evpwd_model
 
@@ -97,12 +94,12 @@ def get_bilinear(a_0:float, a_1:float, b_0:float, b_1:float):
     """
     
     # Get x values
-    x_0 = -a_1 / a_0                # x intercept of left line and x axis
+    x_0 = (1 - a_1) / a_0           # x intercept of left line and y=1
     x_1 = (b_1 - a_1) / (a_0 - b_0) # x intercept of two lines
     x_2 = 3                         # x intercept of right line and x=3
     
     # Get y values
-    y_0 = 0                         # y intercept of left line and x axis
+    y_0 = 1                         # y intercept of left line and y=1
     y_1 = a_0 * x_1 + a_1           # y intercept of two lines
     y_2 = b_0 * x_2 + b_1           # y intercept of right line and x=3
 

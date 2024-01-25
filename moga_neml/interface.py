@@ -248,7 +248,7 @@ class Interface:
         Parameters:
         * `param_values`: A list of parameter values to be fixed
         """
-        self.__print__(f"Fixing the first {len(param_values)} of the model")
+        self.__print__(f"Fixing the first {len(param_values)} parameters of the model")
         self.__check_model__()
         unfix_param_names = self.__controller__.get_unfix_param_names()
         for i in range(len(param_values)):

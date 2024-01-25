@@ -1,5 +1,6 @@
 import sys; sys.path += ["../.."]
 from moga_neml.interface import Interface
+from constants import PARAM_INDEX
 
 itf = Interface("evpcd i 800 all", input_path="../data", output_path="../results")
 
@@ -18,7 +19,7 @@ params_str = """
 8.5923	38.904	5.4829	4.4795	1841	2195.8	5.3108	6.956
 """
 params_list = [list(map(float, line.split())) for line in params_str.strip().split("\n")]
-itf.init_params(params_list[7])
+itf.init_params(params_list[PARAM_INDEX])
 
 itf.read_data("creep/inl_1/AirBase_800_80_G25.csv")
 itf.add_error("area", "time", "strain")
@@ -50,8 +51,8 @@ itf.add_constraint("dec_end", "time")
 
 itf.read_data("tensile/inl/AirBase_800_D7.csv")
 itf.add_error("area", "strain", "stress")
-itf.add_error("end", "strain", weight=0.5)
-itf.add_error("arg_max", "strain", "stress", weight=0.5)
+itf.add_error("end", "strain")
+itf.add_error("arg_max", "strain", "stress")
 itf.add_error("yield", yield_stress=291)
 
 itf.reduce_errors("square_average")

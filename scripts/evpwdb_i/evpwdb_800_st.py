@@ -55,8 +55,8 @@ itf.add_constraint("dec_end", "time")
 
 itf.read_data("tensile/inl/AirBase_800_D7.csv")
 itf.add_error("area", "strain", "stress")
-itf.add_error("end", "strain", weight=0.5)
-itf.add_error("arg_max", "strain", "stress", weight=0.5)
+itf.add_error("end", "strain")
+itf.add_error("arg_max", "strain", "stress")
 itf.add_error("yield", yield_stress=291)
 # itf.add_error("end", "stress")
 

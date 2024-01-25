@@ -10,7 +10,6 @@ from neml import drivers
 from moga_neml.helper.experiment import NEML_FIELD_CONVERSION
 from moga_neml.helper.general import BlockPrint
 from moga_neml.optimise.curve import Curve
-from moga_neml.models.__model__ import __Model__
 
 # General Driver Constants
 TIME_HOLD    = 15000.0 * 3600
@@ -27,19 +26,19 @@ CYCLIC_RATIO = -1
 # Driver class
 class Driver:
     
-    def __init__(self, curve:Curve, model:__Model__) -> None:
+    def __init__(self, curve:Curve, calibrated_model) -> None:
         """
         Initialises the driver class
         
         Parameters:
         * `curve`:      The curve the driver is being used on
-        * `model`:      The model to be run
+        * `model`:      The calibrated model to be run
         """
-        self.curve      = curve
-        self.exp_data   = curve.get_exp_data()
-        self.type       = self.exp_data["type"]
-        self.model      = model
-        self.conv_dict  = NEML_FIELD_CONVERSION[self.type]
+        self.curve     = curve
+        self.exp_data  = curve.get_exp_data()
+        self.type      = self.exp_data["type"]
+        self.conv_dict = NEML_FIELD_CONVERSION[self.type]
+        self.calibrated_model = calibrated_model
     
     def run(self) -> dict:
         """
@@ -71,7 +70,7 @@ class Driver:
         custom_driver, custom_driver_kwargs = self.curve.get_custom_driver()
         if custom_driver != None:
             custom_driver = getattr(drivers, custom_driver)
-            results = custom_driver(self.model, **custom_driver_kwargs)
+            results = custom_driver(self.calibrated_model, **custom_driver_kwargs)
             return results
 
         # Runs driver based on data type
@@ -88,7 +87,7 @@ class Driver:
         Runs the creep driver;
         returns the results
         """
-        results = drivers.creep(self.model, self.exp_data["stress"], STRESS_RATE, TIME_HOLD,
+        results = drivers.creep(self.calibrated_model, self.exp_data["stress"], STRESS_RATE, TIME_HOLD,
                                 T=self.exp_data["temperature"], verbose=VERBOSE, check_dmg=True,
                                 dtol=DAMAGE_TOL, nsteps_up=NUM_STEPS_UP, nsteps=NUM_STEPS, logspace=False)
         return results
@@ -98,7 +97,7 @@ class Driver:
         Runs the tensile driver;
         returns the results
         """
-        results = drivers.uniaxial_test(self.model, erate=self.exp_data["strain_rate"], T=self.exp_data["temperature"],
+        results = drivers.uniaxial_test(self.calibrated_model, erate=self.exp_data["strain_rate"], T=self.exp_data["temperature"],
                                         emax=MAX_STRAIN, check_dmg=True, dtol=DAMAGE_TOL, nsteps=NUM_STEPS,
                                         verbose=VERBOSE, rtol=REL_TOL, atol=ABS_TOL)
         return results
@@ -109,7 +108,7 @@ class Driver:
         returns the results
         """
         num_cycles = int(self.exp_data["num_cycles"])
-        results = drivers.strain_cyclic(self.model, T=self.exp_data["temperature"], emax=self.exp_data["max_strain"],
+        results = drivers.strain_cyclic(self.calibrated_model, T=self.exp_data["temperature"], emax=self.exp_data["max_strain"],
                                         erate=self.exp_data["strain_rate"], verbose=VERBOSE, R=CYCLIC_RATIO,
                                         ncycles=num_cycles, nsteps=NUM_STEPS)
         return results
