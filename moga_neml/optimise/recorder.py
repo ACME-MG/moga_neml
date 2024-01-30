@@ -156,20 +156,32 @@ class Recorder:
         
         # Record results after X generations
         if self.num_gens_completed > 0 and self.num_gens_completed % self.interval == 0:
-            
-            # Get time since previous update in seconds
-            current_time = time.time()
-            update_duration = round(current_time - self.update_time)
-            self.update_time = current_time
+            self.record_results()
 
-            # Display output
-            num_gens_completed_padded = str(round(self.num_gens_completed)).zfill(len(str(self.num_gens)))
-            self.create_record(f"{self.results_dir}/results")
+    def record_results(self) -> None:
+        """
+        Updates the results after X MOGA iterations
+        """
 
-            # Display progress in console
-            progress = f"{num_gens_completed_padded}/{self.num_gens}"
-            index = round(self.num_gens_completed//self.interval)
-            print(f"      {index}]\tRecorded in {update_duration}s ({progress} gens, {self.num_evals_completed} evals)")
+        # Get time since previous update in seconds
+        current_time = time.time()
+        update_duration = round(current_time - self.update_time)
+        self.update_time = current_time
+
+        # Display output
+        num_gens_completed_padded = str(round(self.num_gens_completed)).zfill(len(str(self.num_gens)))
+        self.create_record(f"{self.results_dir}/results")
+
+        # Output something from the model if implemented
+        if len(self.optimal_solution_list) > 0:
+            opt_params = self.get_opt_params().values()
+            all_params = self.controller.incorporate_fix_param_dict(*opt_params)
+            self.controller.get_model().record_results(self.results_dir, *all_params)
+
+        # Display progress in console
+        progress = f"{num_gens_completed_padded}/{self.num_gens}"
+        index = round(self.num_gens_completed//self.interval)
+        print(f"      {index}]\tRecorded in {update_duration}s ({progress} gens, {self.num_evals_completed} evals)")
     
     def get_summary_dict(self) -> dict:
         """

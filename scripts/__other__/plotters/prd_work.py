@@ -33,11 +33,8 @@ def get_damage(a_0:float, a_1:float, b_0:float, b_1:float):
     return x_list, y_list
 
 params_str = """
-26.937	184.82	88.573	277.48
-26.647	184.67	88.42	277.15
-27.369	185.26	88.964	278.07
-26.834	185.46	89.756	280.08
-26.84	186.61	89.511	349.8
+2.1462	24.063	167.25	4.6886	341.18	712.26
+
 """
 params_list = [list(map(float, line.split())) for line in params_str.strip().split("\n")]
 

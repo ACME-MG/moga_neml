@@ -45,7 +45,7 @@ class Plotter:
 
         # Set figure size and title
         plt.figure(figsize=(5,5))
-        # plt.title(title, fontsize=size+3, fontweight="bold", y=1.05) # uncomment me
+        # plt.title(title, fontsize=label_size, fontweight="bold", y=1.05) # uncomment me
         plt.gca().set_position([0.17, 0.12, 0.75, 0.75])
         plt.gca().grid(which="major", axis="both", color="SlateGray", linewidth=1, linestyle=":")
 

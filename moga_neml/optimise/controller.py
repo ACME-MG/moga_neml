@@ -356,7 +356,7 @@ class Controller():
 
         Returns a dictionary of the objectives
         """
-
+        
         # Create a dictionary of errors
         objective_info_list = self.get_objective_info_list()
         empty_list_list = [[] for _ in range(len(objective_info_list))]

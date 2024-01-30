@@ -24,12 +24,16 @@ class Model(__Model__):
         self.add_param("evp_n",   1.0e0, 1.0e2) # 2
         self.add_param("evp_eta", 0.0e0, 1.0e4) # 5
         
-    def calibrate_model(self, evp_s0, evp_R, evp_d, evp_n, evp_eta):
+    def calibrate_model(self, evp_s0:float, evp_R:float, evp_d:float, evp_n:float, evp_eta:float):
         """
         Gets the predicted curves
 
         Parameters:
-        * `...`: ...
+        * `evp_s0`:  Initial yield stress
+        * `evp_R`:   Isotropic hardening stress
+        * `evp_d`:   Isotropic hardening rate
+        * `evp_n`:   Rate sensitivity
+        * `evp_eta`: Viscoplastic fluidity
 
         Returns the calibrated model
         """

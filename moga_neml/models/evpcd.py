@@ -25,12 +25,20 @@ class Model(__Model__):
         self.add_param("cd_xi",   0.0e1, 1.0e2)
         self.add_param("cd_phi",  0.0e1, 1.0e2)
     
-    def calibrate_model(self, evp_s0, evp_R, evp_d, evp_n, evp_eta, cd_A, cd_xi, cd_phi):
+    def calibrate_model(self, evp_s0:float, evp_R:float, evp_d:float, evp_n:float, evp_eta:float,
+                        cd_A:float, cd_xi:float, cd_phi:float):
         """
         Gets the predicted curves
 
         Parameters:
-        * `...`: ...
+        * `evp_s0`:  Initial yield stress
+        * `evp_R`:   Isotropic hardening stress
+        * `evp_d`:   Isotropic hardening rate
+        * `evp_n`:   Rate sensitivity
+        * `evp_eta`: Viscoplastic fluidity
+        * `cd_A`:    Stress prefactor
+        * `cd_xi`:   Stress power law exponent
+        * `cd_phi`:  Damage power law exponent
 
         Returns the calibrated model
         """

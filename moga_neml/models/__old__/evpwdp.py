@@ -27,10 +27,11 @@ class Model(__Model__):
         
         # Creep damage parameters
         self.add_param("wd_n", 1.0e0, 2.0e1)
-        self.add_param("wd_0", 0.0e0, 1.0e2)
-        self.add_param("wd_1", 0.0e0, 1.0e3)
+        self.add_param("wd_0", 0.0e0, 1.0e1)
+        self.add_param("wd_1", 0.0e0, 1.0e1)
+        self.add_param("wd_2", 0.0e0, 1.0e1)
 
-    def calibrate_model(self, evp_s0, evp_R, evp_d, evp_n, evp_eta, wd_n, wd_0, wd_1):
+    def calibrate_model(self, evp_s0, evp_R, evp_d, evp_n, evp_eta, wd_n, wd_0, wd_1, wd_2):
         """
         Gets the predicted curves
 
@@ -51,12 +52,9 @@ class Model(__Model__):
         evp_model     = models.GeneralIntegrator(elastic_model, integrator, verbose=False)
         
         # Prepare the critical points of the linear curve
-        x_list = list(np.linspace(-12, 3, 32))
-        y_list = [wd_0 * x + wd_1 for x in x_list]
-        x_list = [math.pow(10, x) for x in x_list]
-        wd_wc = interpolate.PiecewiseSemiLogXLinearInterpolate(x_list, y_list)
+        wd_wc = interpolate.PolynomialInterpolate([wd_0, wd_1, wd_2])
         
         # Define work damage model and return
-        wd_model = damage.WorkDamage(elastic_model, wd_wc, wd_n, log=False, eps=1e-40, work_scale=1e5)
+        wd_model = damage.WorkDamage(elastic_model, wd_wc, wd_n, log=True, eps=1e-40, work_scale=1e5)
         evpwd_model = damage.NEMLScalarDamagedModel_sd(elastic_model, evp_model, wd_model, verbose=False)
         return evpwd_model

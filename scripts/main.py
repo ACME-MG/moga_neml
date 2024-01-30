@@ -1,11 +1,12 @@
 import sys; sys.path += [".."]
 from moga_neml.interface import Interface
 
-itf = Interface("evpwd")
-itf.define_model("evpwdb")
+itf = Interface("evpwdb_s")
+itf.define_model("evpwdb_s")
 
 params_str = """
 17.217	179.74	0.61754	4.4166	1783.5
+17.217	179.74	0.61754	4.4166	1783.5	2.1462	24.063	167.25	4.6886	341.18	712.26
 5.6908	66.627	1.9851	4.7723	1621.6
 9.3076	32.596	5.8114	4.5263	1775.9
 5.8951	36.245	5.3757	4.7311	1598.4
@@ -18,11 +19,6 @@ params_str = """
 """
 params_list = [list(map(float, line.split())) for line in params_str.strip().split("\n")]
 itf.fix_params(params_list[0])
-
-# itf.init_param("c_0", 14.562)
-# itf.init_param("c_1", 99.397)
-# itf.init_param("t_0", 316.14)
-# itf.init_param("t_1", 690.34)
 
 itf.read_data("creep/inl_1/AirBase_800_80_G25.csv")
 itf.add_error("area", "time", "strain")
@@ -58,16 +54,16 @@ itf.add_error("end", "strain")
 itf.add_error("arg_max", "strain", "stress")
 itf.add_error("yield", yield_stress=291)
 
-itf.reduce_errors("square_average")
-itf.reduce_objectives("square_average")
+# itf.reduce_errors("square_average")
+# itf.reduce_objectives("square_average")
 
 # itf.plot_experimental()
 # params_str = """
-# 10	100
+# 2.1462	24.063	167.25	4.6886	341.18	712.26
 # """
 # params_list = [list(map(float, line.split())) for line in params_str.strip().split("\n")]
-# for params in params_list:
-#     itf.plot_simulation(params)
+# itf.plot_simulation(params_list)
+# exit()
 
 itf.set_recorder(1, plot_opt=True, plot_loss=True)
 itf.optimise(10000, 100, 50, 0.8, 0.01)

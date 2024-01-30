@@ -26,12 +26,12 @@ class Model(__Model__):
         self.add_param("evp_eta", 0.0e0, 1.0e4) # 5
         
         # Creep damage parameters
-        self.add_param("c_n", 1.0e0, 1.0e3)
+        self.add_param("c_n", 1.0e0, 2.0e1)
         self.add_param("c_0", 0.0e0, 1.0e3)
         self.add_param("c_1", 0.0e0, 1.0e3)
 
         # Tensile damage parameters
-        self.add_param("t_n", 1.0e0, 1.0e3)
+        self.add_param("t_n", 1.0e0, 2.0e1)
         self.add_param("t_0", 0.0e0, 1.0e3)
         self.add_param("t_1", 0.0e0, 1.0e3)
 
@@ -94,12 +94,13 @@ def get_bilinear(a_0:float, a_1:float, b_0:float, b_1:float):
     """
     
     # Get x values
-    x_0 = (1 - a_1) / a_0           # x intercept of left line and y=1
+    min_y = 1
+    x_0 = (min_y - a_1) / a_0       # x intercept of left line and y=1
     x_1 = (b_1 - a_1) / (a_0 - b_0) # x intercept of two lines
     x_2 = 3                         # x intercept of right line and x=3
     
     # Get y values
-    y_0 = 1                         # y intercept of left line and y=1
+    y_0 = min_y                     # y intercept of left line and y=1
     y_1 = a_0 * x_1 + a_1           # y intercept of two lines
     y_2 = b_0 * x_2 + b_1           # y intercept of right line and x=3
 

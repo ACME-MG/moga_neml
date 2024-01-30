@@ -38,6 +38,6 @@ itf.plot_simulation(
 
 itf.plot_distribution(
     params_list = params_list,
-    limits_dict = {"evp_s0": (0, 40), "evp_R": (0, 500), "evp_d": (0, 50), "evp_n": (0, 10), "evp_eta": (0, 4000),
-                   "cd_A": (0, 5000), "cd_xi": (0, 10), "cd_phi": (0, 30)},
+    limits_dict = {"evp_s0": (0, 40), "evp_R": (0, 600), "evp_d": (0, 40), "evp_n": (0, 5), "evp_eta": (0, 4000),
+                   "cd_A": (0, 10000), "cd_xi": (0, 6), "cd_phi": (0, 25)},
 )

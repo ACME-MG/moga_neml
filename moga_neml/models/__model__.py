@@ -91,6 +91,15 @@ class __Model__:
         if self.calibrated_model == None:
             raise ValueError("Could not get the calibrated model because it has not been calibrated yet!")
         return self.calibrated_model
+    
+    def record_results(self, output_path:str, *params) -> None:
+        """
+        Records something if desired
+        
+        Parameters:
+        * `output_path`: The path to the output directory
+        """
+        pass
 
     def initialise(self) -> None:
         """
