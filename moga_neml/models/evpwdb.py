@@ -7,8 +7,14 @@
 
 # Libraries
 import numpy as np, math
+from moga_neml.io.plotter import Plotter
 from moga_neml.models.__model__ import __Model__
 from neml import models, elasticity, surfaces, hardening, visco_flow, general_flow, damage, interpolate
+
+# Constants
+TAIL_LENGTH = 5
+RESOLUTION  = 32
+MAX_WORK    = 5 # power of 10
 
 # The Elastic Visco Plastic Work Damage Class
 class Model(__Model__):
@@ -25,22 +31,33 @@ class Model(__Model__):
         self.add_param("evp_n",   1.0e0, 1.0e2) # 2
         self.add_param("evp_eta", 0.0e0, 1.0e4) # 5
         
-        # Creep damage parameters
+        # Critical work parameters
+        self.add_param("c_0", 0e0, 1.0e3)
+        self.add_param("c_1", 0e0, 1.0e3)
+        self.add_param("t_0", 0e0, 1.0e3)
+        self.add_param("t_1", 0e0, 1.0e3)
+
+        # Exponent parameters
         self.add_param("c_n", 1.0e0, 2.0e1)
-        self.add_param("c_0", 0.0e0, 1.0e3)
-        self.add_param("c_1", 0.0e0, 1.0e3)
-
-        # Tensile damage parameters
         self.add_param("t_n", 1.0e0, 2.0e1)
-        self.add_param("t_0", 0.0e0, 1.0e3)
-        self.add_param("t_1", 0.0e0, 1.0e3)
 
-    def calibrate_model(self, evp_s0, evp_R, evp_d, evp_n, evp_eta, c_n, c_0, c_1, t_n, t_0, t_1):
+    def calibrate_model(self, evp_s0:float, evp_R:float, evp_d:float, evp_n:float, evp_eta:float,
+                        c_0:float, c_1:float, t_0:float, t_1:float, c_n:float, t_n:float):
         """
         Gets the predicted curves
 
         Parameters:
-        * `...`: ...
+        * `evp_s0`:  Initial yield stress
+        * `evp_R`:   Isotropic hardening stress
+        * `evp_d`:   Isotropic hardening rate
+        * `evp_n`:   Rate sensitivity
+        * `evp_eta`: Viscoplastic fluidity
+        * `c_0`:     Gradient for left side of bilinear function
+        * `c_1`:     Vertical intercept for left side of bilinear function
+        * `t_0`:     Gradient for right side of bilinear function
+        * `t_1`:     Vertical intercept for right side of bilinear function
+        * `c_n`:     The exponent value for the left side of bilinear function
+        * `t_n`:     The exponent value for the right side of bilinear function
 
         Returns the calibrated model
         """
@@ -48,7 +65,7 @@ class Model(__Model__):
         # If tensile shelf is not higher than creep shelf, then bad parameters
         if t_0 < c_0 or t_1 < c_1:
             return
-        
+
         # Define EVP model
         elastic_model = elasticity.IsotropicLinearElasticModel(self.get_data("youngs"), "youngs",
                                                                self.get_data("poissons"), "poissons")
@@ -59,88 +76,134 @@ class Model(__Model__):
         integrator    = general_flow.TVPFlowRule(elastic_model, visco_model)
         evp_model     = models.GeneralIntegrator(elastic_model, integrator, verbose=False)
         
-        # Prepare the critical points of the bilinear curve
-        x_0, x_1, x_2, y_0, y_1, y_2 = get_bilinear(c_0, c_1, t_0, t_1)
-        
-        # Get interpolation data
-        try:
-            wc_x_list, wc_y_list = get_wc(x_0, x_1, x_2, y_0, y_1, y_2)
-            n_x_list, n_y_list = get_n(x_0, x_1, x_2, c_n, t_n)
-        except:
-            return
-        wc_x_list = [math.pow(10, x) for x in wc_x_list]
-        n_x_list = [math.pow(10, x) for x in n_x_list]
-
-        # Get interpolators
-        wd_wc = interpolate.PiecewiseSemiLogXLinearInterpolate(wc_x_list, wc_y_list)
-        wd_n = interpolate.PiecewiseSemiLogXLinearInterpolate(n_x_list, n_y_list)
+        # Gets the interpolators
+        wr_wc_list, wc_list = get_wc_data(c_0, c_1, t_0, t_1)
+        wr_n_list, n_list = get_n_data(c_0, c_1, t_0, t_1, c_n, t_n)
+        wd_wc = interpolate.PiecewiseSemiLogXLinearInterpolate(wr_wc_list, wc_list)
+        wd_n = interpolate.PiecewiseSemiLogXLinearInterpolate(wr_n_list, n_list)
         
         # Define work damage model and return
         wd_model = damage.WorkDamage(elastic_model, wd_wc, wd_n, log=False, eps=1e-40, work_scale=1e5)
         evpwd_model = damage.NEMLScalarDamagedModel_sd(elastic_model, evp_model, wd_model, verbose=False)
         return evpwd_model
 
-def get_bilinear(a_0:float, a_1:float, b_0:float, b_1:float):
+    def record_results(self, output_path:str, evp_s0:float, evp_R:float, evp_d:float, evp_n:float, evp_eta:float,
+                        c_0:float, c_1:float, t_0:float, t_1:float, c_n:float, t_n:float) -> None:
+        """
+        Records the interpolators
+
+        Parameters:
+        * `output_path`: The path to the output directory
+        * `evp_s0`:      Initial yield stress
+        * `evp_R`:       Isotropic hardening stress
+        * `evp_d`:       Isotropic hardening rate
+        * `evp_n`:       Rate sensitivity
+        * `evp_eta`:     Viscoplastic fluidity
+        * `c_0`:         Gradient for left side of bilinear function
+        * `c_1`:         Vertical intercept for left side of bilinear function
+        * `t_0`:         Gradient for right side of bilinear function
+        * `t_1`:         Vertical intercept for right side of bilinear function
+        * `c_n`:         The exponent value for the left side of bilinear function
+        * `t_n`:         The exponent value for the right side of bilinear function
+
+        Returns the calibrated model
+        """
+
+        # Plot wr-wc
+        wr_wc_list, wc_list = get_wc_data(c_0, c_1, t_0, t_1)
+        wc_plotter = Plotter(f"{output_path}/critical_work.png", "Work Rate", "Critical Work")
+        wc_plotter.prep_plot()
+        wc_plotter.scat_plot({"Work Rate": wr_wc_list, "Critical Work": wc_list})
+        wc_plotter.set_log_scale(x_log=True)
+        wc_plotter.save_plot()
+        wc_plotter.clear()
+
+        # Plot wr-wc
+        wr_n_list, n_list = get_n_data(c_0, c_1, t_0, t_1, c_n, t_n)
+        wc_plotter = Plotter(f"{output_path}/damage_exponent.png", "Work Rate", "Damage Exponent")
+        wc_plotter.prep_plot()
+        wc_plotter.scat_plot({"Work Rate": wr_n_list, "Damage Exponent": n_list})
+        wc_plotter.set_log_scale(x_log=True)
+        wc_plotter.save_plot()
+        wc_plotter.clear()
+
+def get_bounds(c_0:float, c_1:float, t_0:float, t_1:float) -> tuple:
     """
     Gets the interpolation bilinear points
     
     Parameters:
-    * `a_0`: Gradient for left side of bilinear function
-    * `a_1`: Vertical intercept for left side of bilinear function
-    * `b_0`: Gradient for right side of bilinear function
-    * `b_1`: Vertical intercept for right side of bilinear function
+    * `c_0`: Gradient for left side of bilinear function
+    * `c_1`: Vertical intercept for left side of bilinear function
+    * `t_0`: Gradient for right side of bilinear function
+    * `t_1`: Vertical intercept for right side of bilinear function
     
-    Returns the x and y coordinates of the critical points of the bilinear function
+    Returns the intervals of the interpolation
     """
-    
-    # Get x values
-    min_y = 1
-    x_0 = (min_y - a_1) / a_0       # x intercept of left line and y=1
-    x_1 = (b_1 - a_1) / (a_0 - b_0) # x intercept of two lines
-    x_2 = 3                         # x intercept of right line and x=3
-    
-    # Get y values
-    y_0 = min_y                     # y intercept of left line and y=1
-    y_1 = a_0 * x_1 + a_1           # y intercept of two lines
-    y_2 = b_0 * x_2 + b_1           # y intercept of right line and x=3
+    wr_0 = -c_1/c_0
+    wr_1 = (t_1-c_1) / (c_0-t_0)
+    wr_2 = MAX_WORK
+    return wr_0, wr_1, wr_2
 
-    # Return the x and y values
-    return x_0, x_1, x_2, y_0, y_1, y_2
-
-def get_wc(x_0:float, x_1:float, x_2:float, y_0:float, y_1:float, y_2:float):
+def get_wc(wr:float, c_0:float, c_1:float, t_0:float, t_1:float) -> float:
     """
-    Gets the critical work interpolation bilinear curve
+    Gets the critical work
     
     Parameters:
-    * `x_0`: The x coordinate corresponding to the start of the bilinear function
-    * `x_1`: The x coordinate corresponding to the corner of the bilinear function
-    * `x_2`: The x coordinate corresponding to the end of the bilinear function
-    * `y_0`: The y coordinate corresponding to the start of the bilinear function
-    * `y_1`: The y coordinate corresponding to the corner of the bilinear function
-    * `y_2`: The y coordinate corresponding to the end of the bilinear function
+    * `wr`:  The work rate value
+    * `c_0`: Gradient for left side of bilinear function
+    * `c_1`: Vertical intercept for left side of bilinear function
+    * `t_0`: Gradient for right side of bilinear function
+    * `t_1`: Vertical intercept for right side of bilinear function
     
-    Returns the x (w_rate) and y (w_crit) values (on the log10-log10 scale)
+    Returns the critical work
     """
-    num_points = 32
-    x_list = list(np.linspace(x_0, x_1, num_points)) + list(np.linspace(x_1, x_2, num_points))
-    y_list = list(np.linspace(y_0, y_1, num_points)) + list(np.linspace(y_1, y_2, num_points))
-    return x_list, y_list
+    wr_0, wr_1, wr_2 = get_bounds(c_0, c_1, t_0, t_1)
+    if wr <= wr_0 + 1:
+        return c_0 * math.exp(wr - wr_0 - 1)
+    elif wr_0 + 1 < wr and wr <= wr_1:
+        return c_0*wr + c_1
+    elif wr_1 and wr <= wr_2:
+        return t_0*wr + t_1
+    else:
+        return 0
 
-def get_n(x_0:float, x_1:float, x_2:float, a_n:float, b_n:float):
+def get_wc_data(c_0:float, c_1:float, t_0:float, t_1:float) -> tuple:
     """
-    Gets the n interpolation bilinear curve
+    Gets the work rate and critical work values
     
     Parameters:
-    * `x_0`: The x coordinate corresponding to the start of the bilinear function
-    * `x_1`: The x coordinate corresponding to the corner of the bilinear function
-    * `x_2`: The x coordinate corresponding to the end of the bilinear function
-    * `a_n`: The n value before the corner
-    * `b_n`: The n value after the corner
+    * `c_0`: Gradient for left side of bilinear function
+    * `c_1`: Vertical intercept for left side of bilinear function
+    * `t_0`: Gradient for right side of bilinear function
+    * `t_1`: Vertical intercept for right side of bilinear function
     
-    Returns the x (w_rate) and y (n) values (on the log10-log10 scale)
+    Returns lists of work rate and critical work values
     """
-    num_points = 32
-    x_list = list(np.linspace(x_0, x_1, num_points)) + list(np.linspace(x_1, x_2, num_points))
-    y_list = [a_n] * num_points + [b_n] * num_points
-    return x_list, y_list
+    wr_0, wr_1, wr_2 = get_bounds(c_0, c_1, t_0, t_1)
+    wr_list = list(np.linspace(wr_0-TAIL_LENGTH, wr_0+1, RESOLUTION)) +\
+              list(np.linspace(wr_0+1, wr_1, RESOLUTION)) +\
+              list(np.linspace(wr_1, wr_2, RESOLUTION))
+    wc_list = [get_wc(wr, c_0, c_1, t_0, t_1) for wr in wr_list]
+    wr_list = [math.pow(10, wr) for wr in wr_list]
+    return wr_list, wc_list
+
+def get_n_data(c_0:float, c_1:float, t_0:float, t_1:float, c_n:float, t_n:float) -> tuple:
+    """
+    Gets the work rate and critical work values
     
+    Parameters:
+    * `c_0`: Gradient for left side of bilinear function
+    * `c_1`: Vertical intercept for left side of bilinear function
+    * `t_0`: Gradient for right side of bilinear function
+    * `t_1`: Vertical intercept for right side of bilinear function
+    * `c_n`: The exponent value for the left side of bilinear function
+    * `t_n`: The exponent value for the right side of bilinear function
+    
+    Returns lists of work rate and exponent values
+    """
+    wr_0, wr_1, wr_2 = get_bounds(c_0, c_1, t_0, t_1)
+    wr_list = list(np.linspace(wr_0-TAIL_LENGTH, wr_1, RESOLUTION)) +\
+              list(np.linspace(wr_1, wr_2, RESOLUTION))
+    n_list = [c_n if wr < wr_1 else t_n for wr in wr_list]
+    wr_list = [math.pow(10, wr) for wr in wr_list]
+    return wr_list, n_list

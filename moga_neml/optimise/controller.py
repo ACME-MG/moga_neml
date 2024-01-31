@@ -9,7 +9,7 @@
 from moga_neml.constraints.__constraint__ import __Constraint__, create_constraint
 from moga_neml.models.__model__ import __Model__, create_model
 from moga_neml.errors.__error__ import __Error__
-from moga_neml.io.plotter import Plotter, EXP_TRAIN_COLOUR, EXP_VALID_COLOUR
+from moga_neml.io.plotter import Plotter, EXP_COLOUR, CAL_COLOUR, VAL_COLOUR
 from moga_neml.io.boxplotter import plot_boxplots
 from moga_neml.optimise.driver import Driver
 from moga_neml.optimise.curve import Curve
@@ -422,18 +422,11 @@ class Controller():
             
             # Plot the data
             for curve in curve_list:
-                colour = EXP_VALID_COLOUR if curve.is_validation() else EXP_TRAIN_COLOUR
-                plotter.scat_plot(curve.get_exp_data(), colour=colour)
+                plotter.scat_plot(curve.get_exp_data(), colour=EXP_COLOUR)
 
             # Format, save, and clear for next plot
             plotter.set_log_scale(x_log, y_log)
-            has_valid = True in [curve.is_validation() for curve in curve_list]
-            plotter.define_legend(
-                colour_list = [EXP_TRAIN_COLOUR, EXP_VALID_COLOUR] if has_valid else [EXP_TRAIN_COLOUR],
-                label_list  = ["Calibration", "Validation"] if has_valid else ["Calibration"],
-                size_list   = [7, 7] if has_valid else [7],
-                type_list   = ["scatter", "scatter"] if has_valid else ["scatter"]
-            )
+            plotter.define_legend([EXP_COLOUR], ["Experimental"], [7], ["scatter"])
             plotter.save_plot()
             plotter.clear()
 
@@ -455,11 +448,11 @@ class Controller():
         """
 
         # Get predicted curves first
-        valid_curve_list = [curve for curve in self.curve_list if curve.get_type() == type]
+        typed_curve_list = [curve for curve in self.curve_list if curve.get_type() == type]
         prd_data_list_list = []
         for params in params_list:
             prd_data_list = []
-            for curve in valid_curve_list:
+            for curve in typed_curve_list:
                 prd_data = self.get_prd_data(curve, *params)
                 if prd_data == None:
                     raise ValueError(f"The model is unable to run with the parameters - {params}!")
@@ -477,35 +470,29 @@ class Controller():
             plotter.set_limits(x_limits, y_limits)
             
             # Plot experimental data
-            for curve in valid_curve_list:
+            for curve in typed_curve_list:
                 exp_data = curve.get_exp_data()
-                colour = EXP_VALID_COLOUR if curve.is_validation() else EXP_TRAIN_COLOUR
-                plotter.scat_plot(exp_data, size=7, colour=colour)
+                plotter.scat_plot(exp_data, size=7, colour=EXP_COLOUR)
 
             # Plot predictions
             for j in range(len(params_list)):
-                for k in range(len(valid_curve_list)):
+                for k in range(len(typed_curve_list)):
+                    colour = VAL_COLOUR if typed_curve_list[k].is_validation() else CAL_COLOUR
                     prd_data = prd_data_list_list[j][k]
                     if clip:
-                        max_x = max(valid_curve_list[k].get_exp_data()[x_label])
+                        max_x = max(typed_curve_list[k].get_exp_data()[x_label])
                         x_list = [x_value for x_value in prd_data[x_label] if x_value <= max_x]
                         prd_data[y_label] = [prd_data[y_label][j] for j in range(len(prd_data[x_label]))
                                             if prd_data[x_label][j] <= max_x]
                         prd_data[x_label] = x_list
-                    plotter.line_plot(prd_data, ALL_COLOURS[j])
+                    plotter.line_plot(prd_data, colour)
 
             # Define legend information
-            colour_list = [EXP_TRAIN_COLOUR, "black"]
-            label_list  = ["Calibration", "Simulation"]
-            size_list   = [7, 1]
-            type_list   = ["scatter", "line"]
-
-            # Add to legend information if validation
-            if True in [curve.is_validation() for curve in valid_curve_list]:
-                colour_list.insert(1, EXP_VALID_COLOUR)
-                label_list.insert(1, "Validation")
-                size_list.insert(1, 7)
-                type_list.insert(1, "scatter")
+            has_valid   = True in [curve.is_validation() for curve in typed_curve_list]
+            colour_list = [EXP_COLOUR, CAL_COLOUR, VAL_COLOUR] if has_valid else [EXP_COLOUR, CAL_COLOUR]
+            label_list  = ["Experimental", "Calibration", "Validation"] if has_valid else ["Experimental", "Calibration"]
+            size_list   = [7, 1, 1] if has_valid else [7, 1]
+            type_list   = ["scatter", "line", "line"] if has_valid else ["scatter", "line"]
 
             # Format and save the plot
             plotter.define_legend(colour_list, label_list, size_list, type_list)

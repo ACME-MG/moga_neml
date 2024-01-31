@@ -8,7 +8,7 @@
 # Libraries
 import time
 from copy import deepcopy
-from moga_neml.io.plotter import Plotter, EXP_TRAIN_COLOUR, EXP_VALID_COLOUR
+from moga_neml.io.plotter import Plotter, EXP_COLOUR, CAL_COLOUR, VAL_COLOUR
 from moga_neml.io.spreadsheet import Spreadsheet
 from moga_neml.helper.data import  get_thinned_list
 from moga_neml.helper.experiment import get_labels_list
@@ -73,7 +73,7 @@ class Recorder:
         # Summarise data information
         self.data_info_list = []
         for curve in self.curve_list:
-            status = "validation" if curve.is_validation() else "calibration"
+            status = "Validation" if curve.is_validation() else "Calibration"
             data_info = "{} ({})".format(curve.get_exp_data()["file_name"], status)
             self.data_info_list.append(data_info)
         
@@ -172,12 +172,6 @@ class Recorder:
         num_gens_completed_padded = str(round(self.num_gens_completed)).zfill(len(str(self.num_gens)))
         self.create_record(f"{self.results_dir}/results")
 
-        # Output something from the model if implemented
-        if len(self.optimal_solution_list) > 0:
-            opt_params = self.get_opt_params().values()
-            all_params = self.controller.incorporate_fix_param_dict(*opt_params)
-            self.controller.get_model().record_results(self.results_dir, *all_params)
-
         # Display progress in console
         progress = f"{num_gens_completed_padded}/{self.num_gens}"
         index = round(self.num_gens_completed//self.interval)
@@ -242,13 +236,13 @@ class Recorder:
         reduction_method = self.controller.get_objective_reduction_method()
         return self.optimal_solution_list[0][reduction_method]
 
-    def get_plot_dict(self, prd_data_list:list, valid_curve_list:list, x_label:str, y_label:str) -> dict:
+    def get_plot_dict(self, prd_data_list:list, typed_curve_list:list, x_label:str, y_label:str) -> dict:
         """
         Gets the curves for a curve type
 
         Parameters:
         * `prd_data_list`:    The list of predicted data
-        * `valid_curve_list`: The list of relevant experimental curves
+        * `typed_curve_list`: The list of relevant experimental curves
         * `x_label`:          The label of the x axis
         * `y_label`:          The label of the y axis
 
@@ -256,20 +250,20 @@ class Recorder:
         """
         
         # Initialise data structure
-        train_dict = {"exp_x": [], "exp_y": [], "prd_x": [], "prd_y": []}
+        calib_dict = {"exp_x": [], "exp_y": [], "prd_x": [], "prd_y": []}
         valid_dict = {"exp_x": [], "exp_y": [], "prd_x": [], "prd_y": []}
         
         # Iterate through curves and predictions
         for i in range(len(prd_data_list)):
 
             # Get experimental / predicted data and process
-            exp_data = valid_curve_list[i].get_exp_data()
+            exp_data = typed_curve_list[i].get_exp_data()
             prd_data = prd_data_list[i]
             exp_x_list, exp_y_list = process_data_dict(exp_data, x_label, y_label)
             prd_x_list, prd_y_list = process_data_dict(prd_data, x_label, y_label)
             
             # Add to data structure
-            data_dict = valid_dict if valid_curve_list[i].is_validation() else train_dict
+            data_dict = valid_dict if typed_curve_list[i].is_validation() else calib_dict
             data_dict["exp_x"] += exp_x_list
             data_dict["exp_y"] += exp_y_list
             data_dict["prd_x"] += prd_x_list
@@ -277,13 +271,15 @@ class Recorder:
 
         # Prepare dict for plotting data
         plot_dict = {}
-        if train_dict["exp_x"] != []:
-            plot_dict["calibration"] = {x_label: train_dict["exp_x"], y_label: train_dict["exp_y"], "size": 5, "colour": EXP_TRAIN_COLOUR}
-        if valid_dict["exp_x"] != []:
-            plot_dict["validation"] = {x_label: valid_dict["exp_x"], y_label: valid_dict["exp_y"], "size": 5, "colour": EXP_VALID_COLOUR}
-        all_x = train_dict["prd_x"] + valid_dict["prd_x"]
-        all_y = train_dict["prd_y"] + valid_dict["prd_y"]
-        plot_dict["simulation"] = {x_label: all_x , y_label: all_y, "size": 2, "colour": "red"}
+        plot_dict["Experimental"] = {x_label: calib_dict["exp_x"] + valid_dict["exp_x"],
+                                     y_label: calib_dict["exp_y"] + valid_dict["exp_y"],
+                                     "size": 5, "colour": EXP_COLOUR}
+        if False in [curve.is_validation() for curve in typed_curve_list]:
+            plot_dict["Calibration"] = {x_label: calib_dict["prd_x"], y_label: calib_dict["prd_y"],
+                                        "size": 2, "colour": CAL_COLOUR}
+        if True in [curve.is_validation() for curve in typed_curve_list]:
+            plot_dict["Validation"] = {x_label: valid_dict["prd_x"], y_label: valid_dict["prd_y"],
+                                       "size": 2, "colour": VAL_COLOUR}
         return plot_dict
 
     def get_plot_dict_list(self, type:str) -> list:
@@ -296,15 +292,11 @@ class Recorder:
         Returns a list of plot data dictionaries
         """
 
-        # If there are no optimal parameters, leave
-        if len(self.optimal_solution_list) == 0:
-            return
-        opt_params = self.get_opt_params().values()
-
         # Get predicted curves first
-        valid_curve_list = [curve for curve in self.curve_list if curve.get_type() == type]
+        opt_params = self.get_opt_params().values()
+        typed_curve_list = [curve for curve in self.curve_list if curve.get_type() == type]
         prd_data_list = []
-        for curve in valid_curve_list:
+        for curve in typed_curve_list:
             prd_data = self.controller.get_prd_data(curve, *opt_params)
             if prd_data == None:
                 return
@@ -314,7 +306,7 @@ class Recorder:
         plot_dict_list = []
         labels_list = get_labels_list(type)
         for x_label, y_label in labels_list:
-            plot_dict = self.get_plot_dict(prd_data_list, valid_curve_list, x_label, y_label)
+            plot_dict = self.get_plot_dict(prd_data_list, typed_curve_list, x_label, y_label)
             plot_dict_list.append(plot_dict)
         return plot_dict_list
 
@@ -326,6 +318,15 @@ class Recorder:
         * `file_path`:  The path to the record without the extension
         * `replace`:    Whether to replace the results file or not
         """
+
+        # If no optimal solutions, leave
+        if len(self.optimal_solution_list) == 0:
+            return
+
+        # Output something from the model if implemented
+        opt_params = self.get_opt_params().values()
+        all_params = self.controller.incorporate_fix_param_dict(*opt_params)
+        self.controller.get_model().record_results(self.results_dir, *all_params)
 
         # Get the plot data
         plot_dict_list_dict = {}
@@ -361,11 +362,20 @@ class Recorder:
                     plot_dict = plot_dict_list_dict[type][i]
                     plotter = Plotter(f"{self.results_dir}/opt_{type}_{x_label}_{y_label}.png", x_label, y_label)
                     plotter.prep_plot("Best Simulation")
-                    for key in ["calibration", "validation", "simulation"]:
-                        if key in plot_dict.keys():
-                            plotter.scat_plot(plot_dict[key], plot_dict[key]["colour"], plot_dict[key]["size"])
-                    plotter.save_plot()
-                    plotter.clear()
+                    for key in plot_dict.keys():
+                        plotter.scat_plot(plot_dict[key], plot_dict[key]["colour"], plot_dict[key]["size"])
+                    
+                # Define legend information
+                has_valid   = True in ["Validation" in plot_dict.keys() for plot_dict in plot_dict_list_dict[type]]
+                colour_list = [EXP_COLOUR, CAL_COLOUR, VAL_COLOUR] if has_valid else [EXP_COLOUR, CAL_COLOUR]
+                label_list  = ["Experimental", "Calibration", "Validation"] if has_valid else ["Experimental", "Calibration"]
+                size_list   = [7, 1, 1] if has_valid else [7, 1]
+                type_list   = ["scatter", "line", "line"] if has_valid else ["scatter", "line"]
+
+                # Format and save the plot
+                plotter.define_legend(colour_list, label_list, size_list, type_list)
+                plotter.save_plot()
+                plotter.clear()
 
         # Output files based on recorder settings
         self.write_error() if self.plot_opt else None

@@ -7,15 +7,13 @@
 
 # Libraries
 import matplotlib.pyplot as plt
-import matplotlib.colors as mcolours
 from moga_neml.helper.experiment import get_units
 
 # Constants
-DEFAULT_PATH     = "./plot"
-EXP_TRAIN_COLOUR = "silver"
-EXP_VALID_COLOUR = "gray"
-PRD_DATA_COLOUR  = "r"
-ALL_COLOURS      = list(mcolours.TABLEAU_COLORS) + list(mcolours.BASE_COLORS) + list(mcolours.CSS4_COLORS)
+DEFAULT_PATH = "./plot"
+EXP_COLOUR   = "silver"
+CAL_COLOUR   = "green"
+VAL_COLOUR   = "red"
 
 # Plotter class
 class Plotter:
@@ -83,7 +81,7 @@ class Plotter:
         if y_log:
             plt.yscale("log")
     
-    def scat_plot(self, data_dict:dict, colour:str=EXP_TRAIN_COLOUR, size:int=5, priority:int=1) -> None:
+    def scat_plot(self, data_dict:dict, colour:str=EXP_COLOUR, size:int=5, priority:int=1) -> None:
         """
         Plots the experimental data using a scatter plot
 
@@ -99,7 +97,7 @@ class Plotter:
         plt.scatter(x_list, data_dict[self.y_label], s=size**2,
                     marker="o", color=colour, linewidth=1, zorder=priority)
         
-    def line_plot(self, data_dict:dict, colour=PRD_DATA_COLOUR, priority:int=1) -> None:
+    def line_plot(self, data_dict:dict, colour:str=VAL_COLOUR, priority:int=1) -> None:
         """
         Plots the experimental data using a line plot
 

@@ -403,7 +403,7 @@ class Interface:
         self.__check_params_list__(params_list)
 
         # Initialise recorder
-        recorder = Recorder(self.__controller__, 0, "")
+        recorder = Recorder(self.__controller__, 0, self.__output_path__)
         recorder.define_hyperparameters(0, len(params_list), 0, 0, 0)
         
         # Add parameters and create record

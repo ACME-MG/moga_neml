@@ -133,13 +133,13 @@ def get_work_info_list(file_list:list) -> tuple:
 
 # Initialise list of CSV files for creep
 creep_file_list = [
-    {"path": "../../data/creep/inl_1/AirBase_800_60_G32.csv", "time_end": None}, #
+    # {"path": "../../data/creep/inl_1/AirBase_800_60_G32.csv", "time_end": None}, #
     # {"path": "../../data/creep/inl_1/AirBase_800_60_G47.csv", "time_end": None},
-    {"path": "../../data/creep/inl_1/AirBase_800_65_G33.csv", "time_end": None}, #
+    # {"path": "../../data/creep/inl_1/AirBase_800_65_G33.csv", "time_end": None}, #
     # {"path": "../../data/creep/inl_1/AirBase_800_65_G43.csv", "time_end": None},
     # {"path": "../../data/creep/inl_1/AirBase_800_70_G24.csv", "time_end": None},
-    {"path": "../../data/creep/inl_1/AirBase_800_70_G44.csv", "time_end": None}, #
-    {"path": "../../data/creep/inl_1/AirBase_800_80_G25.csv", "time_end": None}, #
+    # {"path": "../../data/creep/inl_1/AirBase_800_70_G44.csv", "time_end": None}, #
+    # {"path": "../../data/creep/inl_1/AirBase_800_80_G25.csv", "time_end": None}, #
     # {"path": "../../data/creep/inl_1/AirBase_800_80_G34.csv", "time_end": None},
     # {"path": "../../data/creep/inl_1/AirBase_900_26_G42.csv", "time_end": 20250000},
     # {"path": "../../data/creep/inl_1/AirBase_900_26_G59.csv", "time_end": 21490000}, #
@@ -150,13 +150,13 @@ creep_file_list = [
     # {"path": "../../data/creep/inl_1/AirBase_900_36_G19.csv", "time_end": None},
     # {"path": "../../data/creep/inl_1/AirBase_900_36_G22.csv", "time_end": None}, #
     # {"path": "../../data/creep/inl_1/AirBase_900_36_G63.csv", "time_end": None},
-    # {"path": "../../data/creep/inl_1/AirBase_1000_11_G39.csv", "time_end": 20610000},
-    # {"path": "../../data/creep/inl_1/AirBase_1000_12_G48.csv", "time_end": 19400000},
-    # {"path": "../../data/creep/inl_1/AirBase_1000_12_G52.csv", "time_end": 20560000},
-    # {"path": "../../data/creep/inl_1/AirBase_1000_13_G30.csv", "time_end": 18500000},
-    # {"path": "../../data/creep/inl_1/AirBase_1000_13_G51.csv", "time_end": 15100000},
-    # {"path": "../../data/creep/inl_1/AirBase_1000_16_G18.csv", "time_end": 8940000},
-    # {"path": "../../data/creep/inl_1/AirBase_1000_16_G38.csv", "time_end": 9000000},
+    {"path": "../../data/creep/inl_1/AirBase_1000_11_G39.csv", "time_end": 20610000},
+    {"path": "../../data/creep/inl_1/AirBase_1000_12_G48.csv", "time_end": 19400000},
+    {"path": "../../data/creep/inl_1/AirBase_1000_12_G52.csv", "time_end": 20560000},
+    {"path": "../../data/creep/inl_1/AirBase_1000_13_G30.csv", "time_end": 18500000},
+    {"path": "../../data/creep/inl_1/AirBase_1000_13_G51.csv", "time_end": 15100000},
+    {"path": "../../data/creep/inl_1/AirBase_1000_16_G18.csv", "time_end": 8940000},
+    {"path": "../../data/creep/inl_1/AirBase_1000_16_G38.csv", "time_end": 9000000},
 ]
 
 # Initialise list of CSV files for tensile

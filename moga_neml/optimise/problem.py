@@ -90,3 +90,4 @@ class Problem(ElementwiseProblem):
             # Get parameter values and update recorder
             param_value_dict = {key: value for key, value in zip(self.unfixed_param_names, params)}
             self.recorder.update_iteration(param_value_dict, error_value_dict)
+            
