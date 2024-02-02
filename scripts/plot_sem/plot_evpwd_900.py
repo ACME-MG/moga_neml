@@ -9,15 +9,17 @@ itf.add_error("dummy")
 itf.read_data("creep/inl_1/AirBase_900_31_G50.csv")
 itf.add_error("dummy")
 itf.read_data("creep/inl_1/AirBase_900_28_G45.csv")
-# itf.add_error("dummy")
+itf.add_error("dummy")
 itf.read_data("creep/inl_1/AirBase_900_26_G59.csv")
 itf.remove_oxidation()
-# itf.add_error("dummy")
+itf.add_error("dummy")
 itf.read_data("tensile/inl/AirBase_900_D10.csv")
 itf.add_error("dummy")
 
 params_str = """
-4.871	11.518	7.0281	4.2421	1138.3	55.277	319.34	538.46	410.17	1.7528	8.735
+16.287	181.45	0.52517	3.0161	2606.2	27.356	160.99	370.42	699.88	2.1717	13.958
+16.287	181.45	0.52517	3.0161	2606.2	29.887	171.78	434.24	894.26	2.192	2.8378
+
 """
 params_list = [list(map(float, line.split())) for line in params_str.strip().split("\n")]
 
