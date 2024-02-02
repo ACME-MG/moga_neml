@@ -369,7 +369,7 @@ class Recorder:
                 has_valid   = True in ["Validation" in plot_dict.keys() for plot_dict in plot_dict_list_dict[type]]
                 colour_list = [EXP_COLOUR, CAL_COLOUR, VAL_COLOUR] if has_valid else [EXP_COLOUR, CAL_COLOUR]
                 label_list  = ["Experimental", "Calibration", "Validation"] if has_valid else ["Experimental", "Calibration"]
-                size_list   = [7, 1, 1] if has_valid else [7, 1]
+                size_list   = [7, 1.5, 1.5] if has_valid else [7, 1.5]
                 type_list   = ["scatter", "line", "line"] if has_valid else ["scatter", "line"]
 
                 # Format and save the plot

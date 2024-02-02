@@ -157,15 +157,13 @@ def get_wc(wr:float, c_0:float, c_1:float, t_0:float, t_1:float) -> float:
     
     Returns the critical work
     """
-    wr_0, wr_1, wr_2 = get_bounds(c_0, c_1, t_0, t_1)
+    wr_0, wr_1, _ = get_bounds(c_0, c_1, t_0, t_1)
     if wr <= wr_0 + 1:
         return c_0 * math.exp(wr - wr_0 - 1)
-    elif wr_0 + 1 < wr and wr <= wr_1:
+    elif wr <= wr_1:
         return c_0*wr + c_1
-    elif wr_1 and wr <= wr_2:
-        return t_0*wr + t_1
     else:
-        return 0
+        return t_0*wr + t_1
 
 def get_wc_data(c_0:float, c_1:float, t_0:float, t_1:float) -> tuple:
     """
@@ -187,9 +185,32 @@ def get_wc_data(c_0:float, c_1:float, t_0:float, t_1:float) -> tuple:
     wr_list = [math.pow(10, wr) for wr in wr_list]
     return wr_list, wc_list
 
+def get_n(wr:float, c_0:float, c_1:float, t_0:float, t_1:float, c_n:float, t_n:float) -> tuple:
+    """
+    Gets the exponent value from the work rate
+    
+    Parameters:
+    * `wr`: The work rate value
+    * `c_0`: Gradient for left side of bilinear function
+    * `c_1`: Vertical intercept for left side of bilinear function
+    * `t_0`: Gradient for right side of bilinear function
+    * `t_1`: Vertical intercept for right side of bilinear function
+    * `c_n`: The exponent value for the left side of bilinear function
+    * `t_n`: The exponent value for the right side of bilinear function
+    
+    Returns the exponent value
+    """
+    _, wr_1, _ = get_bounds(c_0, c_1, t_0, t_1)
+    if wr <= wr_1-0.5:
+        return c_n
+    elif wr_1-0.5 < wr and wr <= wr_1+0.5:
+        return (t_n-c_n)/2*math.sin(math.pi*(wr - wr_1)) + (t_n+c_n)/2
+    else:
+        return t_n
+
 def get_n_data(c_0:float, c_1:float, t_0:float, t_1:float, c_n:float, t_n:float) -> tuple:
     """
-    Gets the work rate and critical work values
+    Gets the work rate and exponent values
     
     Parameters:
     * `c_0`: Gradient for left side of bilinear function
@@ -202,8 +223,9 @@ def get_n_data(c_0:float, c_1:float, t_0:float, t_1:float, c_n:float, t_n:float)
     Returns lists of work rate and exponent values
     """
     wr_0, wr_1, wr_2 = get_bounds(c_0, c_1, t_0, t_1)
-    wr_list = list(np.linspace(wr_0-TAIL_LENGTH, wr_1, RESOLUTION)) +\
-              list(np.linspace(wr_1, wr_2, RESOLUTION))
-    n_list = [c_n if wr < wr_1 else t_n for wr in wr_list]
+    wr_list = list(np.linspace(wr_0-TAIL_LENGTH, wr_1-0.5, RESOLUTION)) +\
+              list(np.linspace(wr_1-0.5, wr_1+0.5, RESOLUTION)) +\
+              list(np.linspace(wr_1+0.5, wr_2, RESOLUTION))
+    n_list = [get_n(wr, c_0, c_1, t_0, t_1, c_n, t_n) for wr in wr_list]
     wr_list = [math.pow(10, wr) for wr in wr_list]
     return wr_list, n_list

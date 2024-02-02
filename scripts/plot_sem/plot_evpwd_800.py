@@ -2,7 +2,7 @@ import sys; sys.path += ["../.."]
 from moga_neml.interface import Interface
 
 itf = Interface("plot", output_here=True, input_path="../data", output_path="../results")
-itf.define_model("evpwdl")
+itf.define_model("evpwdb")
 
 itf.read_data("creep/inl_1/AirBase_800_80_G25.csv")
 itf.add_error("dummy")
@@ -16,7 +16,12 @@ itf.read_data("tensile/inl/AirBase_800_D7.csv")
 itf.add_error("dummy")
 
 params_str = """
-17.217	179.74	0.61754	4.4166	1783.5	4.6886	341.18	712.26
+4.1862	84.548	2.1123	4.7752	1574.3	75.478	425.59	251.11	537.64	2.1764	11.252
+4.1862	84.548	2.1123	4.7752	1574.3	76.845	426.48	538.73	819.21	2.2127	13.073
+4.1862	84.548	2.1123	4.7752	1574.3	66.288	365.89	242.53	486.11	2.7732	19.203
+4.1862	84.548	2.1123	4.7752	1574.3	96.054	498.14	507.56	749.55	2.6688	3.9596
+4.1862	84.548	2.1123	4.7752	1574.3	46.873	285.58	445.98	862.08	2.0514	19.771
+
 """
 params_list = [list(map(float, line.split())) for line in params_str.strip().split("\n")]
 

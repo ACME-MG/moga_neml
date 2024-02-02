@@ -2,50 +2,54 @@ import sys; sys.path += ["../.."]
 from moga_neml.interface import Interface
 from constants import PARAM_INDEX
 
-itf = Interface("evpwdb f 800 all", input_path="../data", output_path="../results")
+itf = Interface("evpwdb f 1000 all", input_path="../data", output_path="../results")
 
 itf.define_model("evpwdb")
 
 params_str = """
-17.217	179.74	0.61754	4.4166	1783.5
-5.6908	66.627	1.9851	4.7723	1621.6
-9.3076	32.596	5.8114	4.5263	1775.9
-5.8951	36.245	5.3757	4.7311	1598.4
-4.1862	84.548	2.1123	4.7752	1574.3
-25.038	90.693	0.61002	4.1982	1944.6
-27.547	78.081	0.84273	3.8992	2454.8
-27.885	124.89	0.65636	3.8874	2390.5
-19.2	52.204	1.7579	4.5105	1614.6
-8.5923	38.904	5.4829	4.4795	1841
+1.9315	481.1	0.021642	4.1572	723.11
+3.746	8.654	4.2439	3.932	749.09
+0.98812	26.958	0.64438	4.4936	567.97
+0.34142	0.1263	3.568	4.658	537.81
+0.90237	5.2742	1.5201	4.5482	558.2
+2.2723	17.684	0.52432	4.1895	695.87
+1.7845	0.26406	25.678	4.2799	669.49
+1.2224	0.036265	6.5932	4.3323	673.71
+1.5228	4.8478	3.7315	4.4061	590.03
+3.0295	12.903	2.3944	4.0586	713.26
 """
 params_list = [list(map(float, line.split())) for line in params_str.strip().split("\n")]
 itf.fix_params(params_list[PARAM_INDEX])
 
-itf.read_data("creep/inl_1/AirBase_800_80_G25.csv")
+itf.read_data("creep/inl_1/AirBase_1000_16_G18.csv")
+itf.remove_oxidation()
 itf.add_error("area", "time", "strain")
 itf.add_error("end", "time")
 itf.add_error("end", "strain")
 
-itf.read_data("creep/inl_1/AirBase_800_70_G44.csv")
+itf.read_data("creep/inl_1/AirBase_1000_13_G30.csv")
+itf.remove_oxidation(0.1, 0.7)
 itf.add_error("area", "time", "strain")
 itf.add_error("end", "time")
 itf.add_error("end", "strain")
 
-itf.read_data("creep/inl_1/AirBase_800_65_G33.csv")
+itf.read_data("creep/inl_1/AirBase_1000_12_G48.csv")
+itf.remove_oxidation()
 itf.add_error("area", "time", "strain")
 itf.add_error("end", "time")
 itf.add_error("end", "strain")
 
-itf.read_data("creep/inl_1/AirBase_800_60_G32.csv")
+itf.read_data("creep/inl_1/AirBase_1000_11_G39.csv")
+itf.remove_oxidation(0.1, 0.7)
 itf.add_error("area", "time", "strain")
 itf.add_error("end", "time")
 itf.add_error("end", "strain")
 
-itf.read_data("tensile/inl/AirBase_800_D7.csv")
+itf.read_data("tensile/inl/AirBase_1000_D12.csv")
 itf.add_error("area", "strain", "stress")
 itf.add_error("end", "strain")
 itf.add_error("arg_max", "strain", "stress")
-itf.add_error("yield", yield_stress=291)
+itf.add_error("yield", yield_stress=90)
 
 itf.reduce_errors("square_average")
 itf.reduce_objectives("square_average")

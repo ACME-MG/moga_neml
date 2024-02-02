@@ -25,15 +25,11 @@ itf.read_data("creep/inl_1/AirBase_800_80_G25.csv")
 itf.add_error("area", "time", "strain")
 itf.add_error("end", "time")
 itf.add_error("end", "strain")
-itf.add_constraint("inc_end", "strain")
-itf.add_constraint("dec_end", "time")
 
 itf.read_data("creep/inl_1/AirBase_800_70_G44.csv")
 itf.add_error("area", "time", "strain")
 itf.add_error("end", "time")
 itf.add_error("end", "strain")
-itf.add_constraint("inc_end", "strain")
-itf.add_constraint("dec_end", "time")
 
 itf.read_data("creep/inl_1/AirBase_800_65_G33.csv")
 

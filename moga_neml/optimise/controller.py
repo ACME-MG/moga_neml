@@ -485,13 +485,14 @@ class Controller():
                         prd_data[y_label] = [prd_data[y_label][j] for j in range(len(prd_data[x_label]))
                                             if prd_data[x_label][j] <= max_x]
                         prd_data[x_label] = x_list
+                    colour = ["red", "purple", "green", "orange", "blue", "magenta", "cyan", "olive", "pink", "brown"][j]
                     plotter.line_plot(prd_data, colour)
 
             # Define legend information
             has_valid   = True in [curve.is_validation() for curve in typed_curve_list]
             colour_list = [EXP_COLOUR, CAL_COLOUR, VAL_COLOUR] if has_valid else [EXP_COLOUR, CAL_COLOUR]
             label_list  = ["Experimental", "Calibration", "Validation"] if has_valid else ["Experimental", "Calibration"]
-            size_list   = [7, 1, 1] if has_valid else [7, 1]
+            size_list   = [7, 1.5, 1.5] if has_valid else [7, 1.5]
             type_list   = ["scatter", "line", "line"] if has_valid else ["scatter", "line"]
 
             # Format and save the plot
