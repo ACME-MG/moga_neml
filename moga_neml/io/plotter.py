@@ -127,7 +127,14 @@ class Plotter:
                 plt.scatter([], [], color=colour_list[i], label=label_list[i], s=size_list[i]**2)
             elif type_list[i] == "line":
                 plt.plot([], [], color=colour_list[i], label=label_list[i], linewidth=size_list[i])
-        plt.legend(framealpha=1, edgecolor="black", fancybox=True, facecolor="white", fontsize=font_size)
+        plt.legend(
+            framealpha = 1,
+            edgecolor  = "black",
+            fancybox   = True,
+            facecolor  = "white",
+            fontsize   = font_size,
+            loc        = "upper right"
+        )
 
     def save_plot(self) -> None:
         """

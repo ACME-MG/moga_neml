@@ -309,7 +309,7 @@ def get_data_points(info_list:list, params_str_list:list, model) -> tuple:
         if OPTION == "tensile_yield":
             exp_list, sim_list = get_yield_point(results_dict, "tensile")
         if OPTION == "tensile_uts":
-            exp_list, sim_list = get_arg_max(results_dict, "tensile", "strain", "stress")
+            exp_list, sim_list = get_end_lists(results_dict, "tensile", "stress")
 
         # Add to super lists and return
         all_exp_list += exp_list
@@ -383,7 +383,6 @@ params_str_list = [
 """
 ]
 
-
 # Get data
 model = MODEL("name")
 cal_exp_list, cal_sim_list = get_data_points(cal_info_list, params_str_list, model)
@@ -407,13 +406,13 @@ if OPTION == "min_dy":
     ax.ticklabel_format(axis="y", style="sci", scilimits=(-4,-4))
     ax.yaxis.major.formatter._useMathText = True
 if OPTION == "tensile_stress_area":
-    limits = (0, 400)    
+    limits = (0, 400)
 if OPTION == "tensile_strain_tf":
     limits = (0.6, 1.1)
 if OPTION == "tensile_yield":
     limits = (50, 350)
 if OPTION == "tensile_uts":
-    limits = (0.0, 0.4)
+    limits = (0, 400)
 
 # Set labels
 plt.xlabel(f"Experimental ({UNIT})", fontsize=15)
@@ -432,7 +431,8 @@ plt.text(limits[1]-0.35*(limits[1]-limits[0]), limits[0]+0.05*(limits[1]-limits[
 # Prepare legend
 if OPTION != "tensile_strain_tf":
     plt.plot([], [], color="black", label="1:1 Line", linestyle="--", linewidth=1.5)
-    plt.scatter([], [], color="green", label="Calibration", s=6**2)
+    if not "tensile" in OPTION:
+        plt.scatter([], [], color="green", label="Calibration", s=6**2)
     plt.scatter([], [], color="red", label="Validation", s=6**2)
     plt.legend(framealpha=1, edgecolor="black", fancybox=True, facecolor="white", fontsize=12)
 
