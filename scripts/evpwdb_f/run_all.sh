@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export OMP_NUM_THREADS=1
-counter=10
+counter=5
 while [ $counter -gt 0 ]; do
     echo "run $counter"
     # nohup python3 evpwdb_800_st.py &
