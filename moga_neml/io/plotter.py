@@ -124,9 +124,9 @@ class Plotter:
         """
         for i in range(len(colour_list)):
             if type_list[i] == "scatter":
-                plt.scatter([0], [0], color=colour_list[i], label=label_list[i], s=size_list[i]**2)
+                plt.scatter([], [], color=colour_list[i], label=label_list[i], s=size_list[i]**2)
             elif type_list[i] == "line":
-                plt.plot([0], [0], color=colour_list[i], label=label_list[i], linewidth=size_list[i])
+                plt.plot([], [], color=colour_list[i], label=label_list[i], linewidth=size_list[i])
         plt.legend(framealpha=1, edgecolor="black", fancybox=True, facecolor="white", fontsize=font_size)
 
     def save_plot(self) -> None:

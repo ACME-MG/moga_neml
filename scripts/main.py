@@ -54,9 +54,11 @@ itf.add_error("end", "strain")
 itf.add_error("arg_max", "strain", "stress")
 itf.add_error("yield", yield_stress=164)
 
-itf.reduce_errors("square_average")
-itf.reduce_objectives("square_average")
-# itf.group_errors(name=True, type=False, labels=True)
+itf.plot_experimental()
 
-itf.set_recorder(1, plot_opt=True, plot_loss=True)
-itf.optimise(10000, 100, 50, 0.8, 0.01)
+# itf.reduce_errors("square_average")
+# itf.reduce_objectives("square_average")
+# # itf.group_errors(name=True, type=False, labels=True)
+
+# itf.set_recorder(1, plot_opt=True, plot_loss=True)
+# itf.optimise(10000, 100, 50, 0.8, 0.01)

@@ -426,7 +426,7 @@ class Controller():
 
             # Format, save, and clear for next plot
             plotter.set_log_scale(x_log, y_log)
-            plotter.define_legend([EXP_COLOUR], ["Experimental"], [7], ["scatter"])
+            plotter.define_legend(["gray"], ["Used Data"], [7], ["scatter"])
             plotter.save_plot()
             plotter.clear()
 

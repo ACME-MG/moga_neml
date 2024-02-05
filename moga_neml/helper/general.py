@@ -29,7 +29,7 @@ def get_file_path_writable(file_path:str, extension:str):
             new_file_path = f"{file_path} ({index}).{extension}"
             index += 1
 
-def get_file_path_exists(file_path:str, extension:str):
+def get_file_path_exists(file_path:str, extension:str=""):
     """
     Appends a number after a path if it exists
 
@@ -37,10 +37,10 @@ def get_file_path_exists(file_path:str, extension:str):
     * `file_path`: Path to file without the extension
     * `extension`: The extension for the file
     """
-    new_file_path = f"{file_path}.{extension}"
+    new_file_path = f"{file_path}.{extension}" if extension != "" else file_path
     index = 1
     while os.path.exists(new_file_path):
-        new_file_path = f"{file_path} ({index}).{extension}"
+        new_file_path = f"{file_path} ({index}).{extension}" if extension != "" else f"{file_path} ({index})"
         index += 1
     return new_file_path
 
