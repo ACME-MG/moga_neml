@@ -22,7 +22,7 @@ itf.remove_damage(0.1, 0.7)
 itf.read_data("tensile/inl/AirBase_800_D7.csv")
 itf.remove_manual("strain", 0.3)
 itf.add_error("area", "strain", "stress")
-itf.add_error("yield", yield_stress=291)
+itf.add_error("yield_point", yield_stress=291)
 
 itf.reduce_errors("square_average")
 itf.reduce_objectives("square_average")

@@ -41,10 +41,9 @@ itf.read_data("creep/inl_1/AirBase_900_26_G59.csv")
 itf.remove_oxidation()
 
 itf.read_data("tensile/inl/AirBase_900_D10.csv")
-itf.add_error("area", "strain", "stress", weight=0.8)
-itf.add_error("end", "strain", weight=0.8)
-itf.add_error("arg_max", "strain", "stress", weight=0.8)
-itf.add_error("yield", yield_stress=164, weight=0.8)
+itf.add_error("area", "strain", "stress")
+itf.add_error("end", "strain")
+itf.add_error("yield_point", yield_stress=164)
 
 itf.reduce_errors("square_average")
 itf.reduce_objectives("square_average")

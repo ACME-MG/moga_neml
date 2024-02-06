@@ -30,10 +30,10 @@ params_str = """
 """
 params_list = [list(map(float, line.split())) for line in params_str.strip().split("\n")]
 
-itf.plot_simulation(
-    params_list = params_list,
-    limits_dict = {"creep": ((0, 7000), (0, 0.35)), "tensile": ((0, 1.0), (0, 250))},
-)
+# itf.plot_simulation(
+#     params_list = params_list,
+#     limits_dict = {"creep": ((0, 7000), (0, 0.35)), "tensile": ((0, 1.0), (0, 250))},
+# )
 
 itf.plot_distribution(
     params_list = params_list,

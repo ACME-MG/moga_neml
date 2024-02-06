@@ -51,8 +51,8 @@ itf.add_constraint("dec_end", "time")
 itf.read_data("tensile/inl/AirBase_900_D10.csv")
 itf.add_error("area", "strain", "stress")
 itf.add_error("end", "strain")
-itf.add_error("arg_max", "strain", "stress")
-itf.add_error("yield", yield_stress=164)
+
+itf.add_error("yield_point", yield_stress=164)
 
 itf.plot_experimental()
 

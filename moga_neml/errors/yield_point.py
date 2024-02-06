@@ -39,7 +39,7 @@ class Error(__Error__):
             yield_strain = x1 + (x2 - x1) * (yield_stress - y1) / (y2 - y1)
             self.exp_yield = (yield_strain, yield_stress)
         else:
-            self.exp_yield = self.get_yield(exp_data["strain"], exp_data["stress"])
+            self.exp_yield = get_yield(exp_data["strain"], exp_data["stress"], self.offset)
         self.mag_yield = math.sqrt(math.pow(self.exp_yield[0], 2) + math.pow(self.exp_yield[1], 2))
 
     # Computes the error value
@@ -53,25 +53,26 @@ class Error(__Error__):
         Returns the error
         """
         try:
-            prd_yield = self.get_yield(prd_data["strain"], prd_data["stress"])
+            prd_yield = get_yield(prd_data["strain"], prd_data["stress"], self.offset)
         except ValueError:
             return BIG_VALUE
         distance = math.sqrt(math.pow(self.exp_yield[0] - prd_yield[0], 2) + math.pow(self.exp_yield[1] - prd_yield[1], 2))
         return distance / self.mag_yield
 
-    def get_yield(self, strain_list:list, stress_list:list) -> tuple:
-        """
-        Calculates the yield strain and stress
+def get_yield(strain_list:list, stress_list:list, offset:float=0.002) -> tuple:
+    """
+    Calculates the yield strain and stress
 
-        Parameters:
-        * `strain_list`: The list of strain values
-        * `stress_list`: The list of stress values
+    Parameters:
+    * `strain_list`: The list of strain values
+    * `stress_list`: The list of stress values
+    * `offset`:      The offset used to determine the yield point
 
-        Returns the yield strain and stress
-        """
-        youngs = stress_list[1] / strain_list[1] # NEML produces noiseless curves
-        sfn = inter.interp1d(strain_list, stress_list, bounds_error=False, fill_value=0)
-        tfn = lambda e: youngs * (e - self.offset)
-        yield_strain = opt.brentq(lambda e: sfn(e) - tfn(e), 0.0, np.max(strain_list))
-        yield_stress = float(tfn(yield_strain))
-        return yield_strain, yield_stress
+    Returns the yield strain and stress
+    """
+    youngs = stress_list[1] / strain_list[1] # NEML produces noiseless curves
+    sfn = inter.interp1d(strain_list, stress_list, bounds_error=False, fill_value=0)
+    tfn = lambda e: youngs * (e - offset)
+    yield_strain = opt.brentq(lambda e: sfn(e) - tfn(e), 0.0, np.max(strain_list))
+    yield_stress = float(tfn(yield_strain))
+    return yield_strain, yield_stress

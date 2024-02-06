@@ -28,7 +28,7 @@ class Model(__Model__):
         self.add_param("evp_s0",  0.0e0, 1.0e2) # 3 (</ 1e2)
         self.add_param("evp_R",   0.0e0, 1.0e3) # 4
         self.add_param("evp_d",   0.0e0, 1.0e2) # 2
-        self.add_param("evp_n",   1.0e0, 1.0e2) # 2
+        self.add_param("evp_n",   0.0e0, 1.0e2) # 2
         self.add_param("evp_eta", 0.0e0, 1.0e4) # 5
         
         # Critical work parameters
@@ -38,8 +38,8 @@ class Model(__Model__):
         self.add_param("t_1", 0e0, 1.0e3)
 
         # Exponent parameters
-        self.add_param("c_n", 1.0e0, 2.0e1)
-        self.add_param("t_n", 1.0e0, 2.0e1)
+        self.add_param("c_n", 0.0e0, 2.0e1)
+        self.add_param("t_n", 0.0e0, 2.0e1)
 
     def calibrate_model(self, evp_s0:float, evp_R:float, evp_d:float, evp_n:float, evp_eta:float,
                         c_0:float, c_1:float, t_0:float, t_1:float, c_n:float, t_n:float):

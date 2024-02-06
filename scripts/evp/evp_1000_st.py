@@ -21,7 +21,7 @@ itf.remove_manual("time", 2500*3600)
 
 itf.read_data("tensile/inl/AirBase_1000_D12.csv")
 itf.remove_manual("strain", 0.3)
-itf.add_error("yield", yield_stress=90)
+itf.add_error("yield_point", yield_stress=90)
 itf.add_error("area", "strain", "stress")
 
 itf.reduce_errors("square_average")

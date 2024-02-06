@@ -369,7 +369,7 @@ itf.add_error("area", "time", "strain")
 # Read tensile, manually remove damage, and add errors
 itf.read_data("tensile/inl/AirBase_800_D7.csv")
 itf.remove_manual("strain", 0.3)
-itf.add_error("yield", yield_stress=291)
+itf.add_error("yield_point", yield_stress=291)
 itf.add_error("area", "strain", "stress")
 
 # Optimise
