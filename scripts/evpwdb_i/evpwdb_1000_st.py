@@ -46,13 +46,13 @@ itf.add_error("end", "time")
 itf.add_error("end", "strain")
 
 itf.read_data("tensile/inl/AirBase_1000_D12.csv")
-itf.add_error("area", "strain", "stress", weight=2)
-itf.add_error("end_zero", "stress", weight=2)
-itf.add_error("yield_point", yield_stress=90, weight=2)
+itf.add_error("area", "strain", "stress")
+itf.add_error("end_zero", "stress")
+itf.add_error("yield_point", yield_stress=90)
 
 itf.reduce_errors("square_average")
 itf.reduce_objectives("square_average")
 
 itf.plot_experimental()
 itf.set_recorder(10, plot_opt=True, plot_loss=True)
-itf.optimise(10000, 100, 50, 0.8, 0.1)
+itf.optimise(10000, 100, 50, 0.8, 0.01)
