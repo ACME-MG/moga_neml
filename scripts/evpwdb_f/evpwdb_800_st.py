@@ -1,6 +1,5 @@
 import sys; sys.path += ["../.."]
 from moga_neml.interface import Interface
-from constants import PARAM_INDEX
 
 itf = Interface("evpwdb f 800 st", input_path="../data", output_path="../results")
 
@@ -19,7 +18,7 @@ params_str = """
 29.726	45.991	2.3174	3.9613	2101.3
 """
 params_list = [list(map(float, line.split())) for line in params_str.strip().split("\n")]
-itf.fix_params(params_list[PARAM_INDEX])
+itf.fix_params(params_list[int(sys.argv[1])])
 
 itf.read_data("creep/inl_1/AirBase_800_80_G25.csv")
 itf.add_error("area", "time", "strain")

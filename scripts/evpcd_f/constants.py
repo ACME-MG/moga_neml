@@ -1,1 +1,0 @@
-PARAM_INDEX = 0
