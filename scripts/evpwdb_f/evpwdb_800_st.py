@@ -31,14 +31,8 @@ itf.add_error("end", "time")
 itf.add_error("end", "strain")
 
 itf.read_data("creep/inl_1/AirBase_800_65_G33.csv")
-itf.add_error("area", "time", "strain")
-itf.add_error("end", "time")
-itf.add_error("end", "strain")
 
 itf.read_data("creep/inl_1/AirBase_800_60_G32.csv")
-itf.add_error("area", "time", "strain")
-itf.add_error("end", "time")
-itf.add_error("end", "strain")
 
 itf.read_data("tensile/inl/AirBase_800_D7.csv")
 itf.add_error("area", "strain", "stress")
@@ -48,5 +42,5 @@ itf.reduce_errors("square_average")
 itf.reduce_objectives("square_average")
 
 itf.plot_experimental()
-itf.set_recorder(10, plot_opt=True, plot_loss=True)
-itf.optimise(10000, 100, 50, 0.8, 0.01)
+itf.set_recorder(1, plot_opt=True, plot_loss=True)
+itf.optimise(500, 100, 50, 0.8, 0.01)
