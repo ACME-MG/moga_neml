@@ -116,7 +116,6 @@ class Controller():
         Parameters:
         * `param_name`:  The name of the parameter
         * `param_value`: The value to initialise the parameter to
-        * `param_std`:   The initial standard deviation of the parameter
         """
         param_names = self.get_param_names()
         pretext = f"The '{param_name}' parameter cannot be set because"

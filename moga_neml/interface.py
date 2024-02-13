@@ -261,7 +261,6 @@ class Interface:
         Parameters:
         * `param_name`:  The name of the parameter
         * `param_value`: The value the parameter is initialised to
-        * `param_std`:   The deviation of the parameter in the initial population
         """
         self.__print__("Setting the '{}' parameter to an initial value of {:0.4}".format(param_name, float(param_value)))
         self.__check_model__()
@@ -275,7 +274,6 @@ class Interface:
 
         Parameters:
         * `param_values`: A list of parameter values to be initialised
-        * `param_stds`:   A list of deviation values
         """
         self.__print__(f"Initialising the first {len(param_values)} of the model")
         self.__check_model__()
