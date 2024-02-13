@@ -43,7 +43,6 @@ itf.add_error("end", "strain")
 
 itf.read_data("tensile/inl/AirBase_900_D10.csv")
 itf.add_error("area", "strain", "stress")
-itf.add_error("end_zero", "stress")
 itf.add_error("yield_point", yield_stress=164)
 
 itf.reduce_errors("square_average")
