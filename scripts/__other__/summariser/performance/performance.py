@@ -19,13 +19,12 @@ from moga_neml.errors.yield_point import get_yield
 
 # Varying constants
 OPTION_INDEX = int(sys.argv[1])
-MODEL_INDEX  = 0
+MODEL_INDEX  = 1
 
 # Non-changing constants
 DATA_PATH = "../../../data"
-OPTION    = ["creep_strain_area", "creep_time_tf", "creep_strain_tf", "min_dy",
-             "tensile_stress_area", "tensile_strain_tf", "tensile_yield", "tensile_uts"][OPTION_INDEX]
-UNIT      = ["mm/mm", "h", "mm/mm", "1/h", "MPa", "mm/mm", "MPa", "mm/mm"][OPTION_INDEX]
+OPTION    = ["creep_strain_area", "creep_time_tf", "creep_strain_tf", "tensile_stress_area", "tensile_yield"][OPTION_INDEX]
+UNIT      = ["mm/mm", "h", "mm/mm", "MPa", "MPa"][OPTION_INDEX]
 MODEL     = [EVPCD, EVPWD][MODEL_INDEX]
 
 # The Interpolator Class
@@ -221,9 +220,14 @@ def get_y_list(results_dict:dict, data_type:str, x_label:str, y_label:str) -> tu
 
             # Query experimental and simulated curves
             min_x_end = min(exp_x_end, max(sim_data[x_label]))
-            x_list = list(np.linspace(0, min_x_end, 5+2))[1:-1]
+            x_list = list(np.linspace(0, min_x_end, 10+2))[1:-1]
             exp_y_values = exp_interpolator.evaluate(x_list)
             sim_y_values = sim_interpolator.evaluate(x_list)
+
+            # # Normalise
+            # max_value = max(exp_y_values)
+            # exp_y_values = linearly_map(exp_y_values, 0, max_value)
+            # sim_y_values = linearly_map(sim_y_values, 0, max_value)
 
             # Add to initialised super list
             exp_y_list += exp_y_values
@@ -283,6 +287,12 @@ def get_arg_max(results_dict:dict, data_type:str, x_label:str, y_label:str) -> t
     # Return
     return exp_arg_max_list, sim_arg_max_list
 
+# Linearly maps a list of values to 0 and 1
+def linearly_map(value_list:list, min_value:float, max_value:float) -> list:
+    range_val = max_value - min_value
+    value_list = [(value - min_value) / range_val for value in value_list]
+    return value_list
+
 # Gets experimental and simulation data
 def get_data_points(info_list:list, params_str_list:list, model) -> tuple:
 
@@ -300,20 +310,16 @@ def get_data_points(info_list:list, params_str_list:list, model) -> tuple:
             sim_list = [t/3600 for t in sim_list]
         if OPTION == "creep_strain_area":
             exp_list, sim_list = get_y_list(results_dict, "creep", "time", "strain")
-        if OPTION == "min_dy":
-            exp_list, sim_list = get_min_dy_lists(results_dict, "creep", "time", "strain")
         if OPTION == "tensile_stress_area":
             exp_list, sim_list = get_y_list(results_dict, "tensile", "strain", "stress")
-        if OPTION == "tensile_strain_tf":
-            exp_list, sim_list = get_end_lists(results_dict, "tensile", "strain")
         if OPTION == "tensile_yield":
             exp_list, sim_list = get_yield_point(results_dict, "tensile")
-        if OPTION == "tensile_uts":
-            exp_list, sim_list = get_end_lists(results_dict, "tensile", "stress")
 
-        # Add to super lists and return
+        # Add to super lists
         all_exp_list += exp_list
         all_sim_list += sim_list
+
+    # Return
     return all_exp_list, all_sim_list
 
 # Calibration data
@@ -346,42 +352,80 @@ val_info_list = [[
 # Parameters
 params_str_list = [
 """
-16.994	187.83	0.26104	4.502	1784.8	3263.5	4.9231	13.172
-22.454	66.77	0.92681	4.4191	1610.1	2142	5.4844	11.449
-19.125	43.641	5.6148	4.1688	1616	1876.8	5.5594	6.8653
-31.647	120.62	0.85485	3.7266	2297.8	2165.7	5.3247	7.7724
-33.297	522.85	0.11871	3.9767	1762.4	1913.8	5.6638	11.287
-15.042	35.437	8.4	3.9586	2283.5	4184.6	4.4257	6.6603
-24.889	44.932	1.2076	4.5055	1527.9	2589.7	5.1066	8.695
-23.304	276.66	0.32123	4.2592	1767.2	2168.5	5.3181	6.7619
-30.401	34.817	4.5983	3.5323	2583	2520.9	5.1559	8.5891
-5.0569	40.476	10.017	4.1585	1730.1	1998.1	5.5564	10.337
+16.78	98.973	0.60186	4.4156	1780.3	92.942	466.64	124.21	627.18	5.7007	2.1874
+5.6925	67.1	1.8542	4.7721	1621.6	72.41	404.77	243.19	619.93	2.4798	11.411
+19.2	52.605	1.542	4.5105	1614.6	42.528	267.95	334.54	705.42	2.4141	9.9943
+31.327	105.29	0.8549	3.7256	2576.7	54.271	333.56	307.45	694.47	1.9991	6.8035
+22.154	462.34	0.17408	4.314	1828.1	40.1	260.65	408.44	853.65	1.9241	7.7562
+11.45	53.135	7.1795	3.9502	2205.4	30.864	224.62	340.9	729.26	1.3505	6.6858
+19.025	97.214	0.88069	4.5055	1667.4	50.238	313.98	237.66	764.67	2.0071	2.7731
+24	301.54	0.32008	4.2863	1836.9	23.714	176.69	323.4	686.91	1.6048	13.085
+27.852	31.391	9.837	3.6958	2458	31.947	224.92	521.29	982.66	1.5924	18.309
+29.914	48.373	2.3508	3.9615	2094.7	27.335	200.15	367.9	765.16	1.639	19.667
 """,
 """
-3.6262	13.804	6.9825	4.2416	1138.2	1986	4.4408	9.193
-11.112	18.959	5.9505	3.6368	1471.6	2064.3	4.3164	7.225
-11.394	13.887	7.532	3.5691	1581.2	1959.8	4.4121	8.5847
-5.6656	7.6357	9.1337	4.3001	1055.4	3494.5	3.9629	11.623
-8.0846	21.623	4.9985	3.8734	1330.8	2586.3	4.0925	6.8218
-8.7008	379.67	0.15739	4.2166	994.53	1533.4	4.6802	7.0461
-9.344	45.972	2.5375	3.4094	1902	2101.5	4.3022	6.1081
-16.257	181.45	0.5026	3.0154	2606.2	2445.1	4.1307	5.6964
-6.4694	149.62	0.29611	4.1942	1123.8	2045.9	4.4272	9.5323
-7.9997	25.008	2.2597	4.127	1102.2	1841.7	4.5535	10.206
+5.7151	13.737	7.017	4.2421	1138.4	70.744	372.33	129.14	800.2	1.5445	1.9831
+11.192	16.738	5.9587	3.6369	1530.1	35.196	206.85	119.96	774.72	1.5092	2.5579
+9.6829	13.118	13.621	3.5054	1604.4	19.213	129	110.83	868.84	1.0493	2.3566
+5.6656	8.2222	14.47	4.3001	1006.2	144.26	644.21	178.5	935.23	10.004	2.8495
+7.5309	23.5	5.1998	3.862	1374.9	24.858	154.83	511.79	997.24	2.0041	7.9977
+4.8239	389.25	0.18435	4.4133	941.87	44.974	248.15	621.83	913.9	2.4338	7.0609
+5.4767	43.262	6.1148	3.4084	1788.2	150.14	656.75	266.01	957.42	1.6911	1.0717
+16.262	181.79	0.52517	3.0161	2376.6	29.326	172.8	434.17	894.26	2.192	2.8518
+6.3647	183.42	0.44712	4.1839	1075.3	27.326	165.15	422.54	849.67	2.2181	10.568
+6.5395	16.732	6.8581	4.1207	1096.5	119.77	547.38	572.3	678.83	2.3506	15.844
 """,
 """
-0.0046173	6.8476	2.2387	4.8326	460.38	2357.9	3.5989	6.8922
-3.1901	126.5	0.16925	3.8924	802.2	2253.9	3.6876	11.145
-0.31556	4.9177	4.2816	4.8134	468.63	3308.8	3.3387	5.7804
-0.26189	37.662	0.20134	4.8079	478.84	2939.9	3.4262	5.9609
-1.5332	6.9652	4.9491	4.3072	551.01	1467.1	4.0639	13.561
-0.18711	42.057	1.22	3.9495	803.58	1759.6	3.8088	6.9718
-3.4416	6.259	1.314	4.0782	707.11	4504.6	3.2162	8.2904
-4.5325	14.166	2.2205	3.8813	731.02	2379.1	3.5504	6.0315
-3.3203	95.748	0.45552	4.0634	574.87	1034.8	4.2291	6.0322
-4.0855	246.68	0.084526	3.9321	776.2	2681.7	3.4426	5.5305
+0.41121	8.3185	1.5488	4.8286	468.32	91.109	420.27	145.97	814.06	1.1305	2.2793
+4.2741	163.31	0.37485	3.8721	766.51	41.394	218.54	47.517	291.43	4.5815	1.2543
+0.012678	46.239	1.2403	4.7068	484.03	70.913	331.34	176.66	409.91	1.605	3.8136
+0.036912	49.598	0.89182	4.7436	485.16	7.2738	50.913	269.77	601.74	1.564	8.739
+0.70825	8.46	5.8882	4.4476	580.37	179.7	686.62	184.92	898.32	3.9585	1.5713
+0.35996	30.971	4.9037	3.95	685.6	118.29	499.25	428.38	969.45	1.1971	13.733
+0.48125	40.947	4.9225	4.0867	658	136.71	543.66	663.82	983.11	0.8828	5.8177
+4.1412	50.155	3.0378	3.8809	705.19	178.99	671.24	181.75	794.11	7.1307	0.83784
+2.1163	47.142	2.229	4.1175	563.88	134.99	568.22	777.7	978.51	0.95908	11.606
+2.5964	240.51	0.063337	4.207	732.05	67.534	310.39	651.42	845.64	1.5385	10.23
 """
 ]
+# params_str_list = [
+# """
+# 16.994	187.83	0.26104	4.502	1784.8	3263.5	4.9231	13.172
+# 22.454	66.77	0.92681	4.4191	1610.1	2142	5.4844	11.449
+# 19.125	43.641	5.6148	4.1688	1616	1876.8	5.5594	6.8653
+# 31.647	120.62	0.85485	3.7266	2297.8	2165.7	5.3247	7.7724
+# 33.297	522.85	0.11871	3.9767	1762.4	1913.8	5.6638	11.287
+# 15.042	35.437	8.4	3.9586	2283.5	4184.6	4.4257	6.6603
+# 24.889	44.932	1.2076	4.5055	1527.9	2589.7	5.1066	8.695
+# 23.304	276.66	0.32123	4.2592	1767.2	2168.5	5.3181	6.7619
+# 30.401	34.817	4.5983	3.5323	2583	2520.9	5.1559	8.5891
+# 5.0569	40.476	10.017	4.1585	1730.1	1998.1	5.5564	10.337
+# """,
+# """
+# 3.6262	13.804	6.9825	4.2416	1138.2	1986	4.4408	9.193
+# 11.112	18.959	5.9505	3.6368	1471.6	2064.3	4.3164	7.225
+# 11.394	13.887	7.532	3.5691	1581.2	1959.8	4.4121	8.5847
+# 5.6656	7.6357	9.1337	4.3001	1055.4	3494.5	3.9629	11.623
+# 8.0846	21.623	4.9985	3.8734	1330.8	2586.3	4.0925	6.8218
+# 8.7008	379.67	0.15739	4.2166	994.53	1533.4	4.6802	7.0461
+# 9.344	45.972	2.5375	3.4094	1902	2101.5	4.3022	6.1081
+# 16.257	181.45	0.5026	3.0154	2606.2	2445.1	4.1307	5.6964
+# 6.4694	149.62	0.29611	4.1942	1123.8	2045.9	4.4272	9.5323
+# 7.9997	25.008	2.2597	4.127	1102.2	1841.7	4.5535	10.206
+# """,
+# """
+# 0.0046173	6.8476	2.2387	4.8326	460.38	2357.9	3.5989	6.8922
+# 3.1901	126.5	0.16925	3.8924	802.2	2253.9	3.6876	11.145
+# 0.31556	4.9177	4.2816	4.8134	468.63	3308.8	3.3387	5.7804
+# 0.26189	37.662	0.20134	4.8079	478.84	2939.9	3.4262	5.9609
+# 1.5332	6.9652	4.9491	4.3072	551.01	1467.1	4.0639	13.561
+# 0.18711	42.057	1.22	3.9495	803.58	1759.6	3.8088	6.9718
+# 3.4416	6.259	1.314	4.0782	707.11	4504.6	3.2162	8.2904
+# 4.5325	14.166	2.2205	3.8813	731.02	2379.1	3.5504	6.0315
+# 3.3203	95.748	0.45552	4.0634	574.87	1034.8	4.2291	6.0322
+# 4.0855	246.68	0.084526	3.9321	776.2	2681.7	3.4426	5.5305
+# """
+# ]
 
 # Get data
 model = MODEL("name")
@@ -399,20 +443,14 @@ if OPTION == "creep_time_tf":
     limits = (0, 10000)
 if OPTION == "creep_strain_area":
     limits = (0, 0.35)
-if OPTION == "min_dy":
-    limits = (0, 3e-4)
-    ax.ticklabel_format(axis="x", style="sci", scilimits=(-4,-4))
-    ax.xaxis.major.formatter._useMathText = True
-    ax.ticklabel_format(axis="y", style="sci", scilimits=(-4,-4))
-    ax.yaxis.major.formatter._useMathText = True
 if OPTION == "tensile_stress_area":
     limits = (0, 400)
-if OPTION == "tensile_strain_tf":
-    limits = (0.6, 1.1)
 if OPTION == "tensile_yield":
     limits = (50, 350)
-if OPTION == "tensile_uts":
-    limits = (0, 400)
+# ax.ticklabel_format(axis="x", style="sci", scilimits=(-4,-4))
+# ax.xaxis.major.formatter._useMathText = True
+# ax.ticklabel_format(axis="y", style="sci", scilimits=(-4,-4))
+# ax.yaxis.major.formatter._useMathText = True
 
 # Set labels
 plt.xlabel(f"Experimental ({UNIT})", fontsize=15)
@@ -432,11 +470,12 @@ plt.text(limits[1]-0.35*(limits[1]-limits[0]), limits[0]+0.05*(limits[1]-limits[
 if OPTION != "tensile_strain_tf":
     plt.plot([], [], color="black", label="1:1 Line", linestyle="--", linewidth=1.5)
     if not "tensile" in OPTION:
-        plt.scatter([], [], color="green", label="Calibration", s=6**2)
-    plt.scatter([], [], color="red", label="Validation", s=6**2)
+        plt.scatter([], [], color="red", label="Validation", s=6**2)
+    plt.scatter([], [], color="green", label="Calibration", s=6**2)
     plt.legend(framealpha=1, edgecolor="black", fancybox=True, facecolor="white", fontsize=12)
 
 # Format everything else and save
+plt.gca().set_aspect("equal", adjustable="box")
 plt.gca().set_position([0.17, 0.12, 0.75, 0.75])
 plt.gca().grid(which="major", axis="both", color="SlateGray", linewidth=1, linestyle=":")
 plt.xlim(limits)

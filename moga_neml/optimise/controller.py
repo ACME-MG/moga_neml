@@ -484,7 +484,7 @@ class Controller():
                         prd_data[y_label] = [prd_data[y_label][j] for j in range(len(prd_data[x_label]))
                                             if prd_data[x_label][j] <= max_x]
                         prd_data[x_label] = x_list
-                    colour = ALL_COLOURS[j]
+                    # colour = ALL_COLOURS[j]
                     plotter.line_plot(prd_data, colour)
 
             # Define legend information
