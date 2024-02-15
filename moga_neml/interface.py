@@ -311,7 +311,7 @@ class Interface:
             self.__check_curves__("There are no experimental curves to plot!")
             self.__controller__.plot_exp_curves(type, file_path, x_log, y_log)
 
-    def plot_simulation(self, params_list:list, clip:bool=False, limits_dict:dict=None) -> None:
+    def plot_simulation(self, params_list:list, alpha_list:list=None, clip:bool=False, limits_dict:dict=None) -> None:
         """
         Visualises the simulated curves from a set of parameters
         
@@ -319,6 +319,7 @@ class Interface:
         * `params_list`: A list of parameter sets for the model; note that defining the parameters as
                          arguments to this function is similar to fixing the parameters via `fix_params`,
                          meaning that there will be clashes if the parameter values are defined twice.
+        * `alpha_list`:  A list of alpha values for the plots
         * `clip`:        Whether to clip the predictions so they end at the same x position as the
                          experimental data
         * `limits_dict`: The lower and upper bound of the plot for the scales; dictionary of tuples of
@@ -341,6 +342,10 @@ class Interface:
                 if len(limits) != 2 or limits[0][0] > limits[0][1] or limits[1][0] > limits[1][1]:
                     raise ValueError("Could not plot because the limits are incorrectly defined!")
 
+        # Get default alpha values if not defined
+        if alpha_list == None:
+            alpha_list = [1.0] * len(params_list)
+
         # Iterate through types and plot predictions
         for i in range(len(type_list)):
             file_path = self.__get_output__(f"prds_{type_list[i]}")
@@ -348,7 +353,7 @@ class Interface:
             if limits_dict != None:
                 x_limits = limits_dict[type_list[i]][0]
                 y_limits = limits_dict[type_list[i]][1]
-            self.__controller__.plot_prd_curves(params_list, clip=clip, type=type_list[i],
+            self.__controller__.plot_prd_curves(params_list, alpha_list=alpha_list, clip=clip, type=type_list[i],
                                                 file_path=file_path, x_limits=x_limits, y_limits=y_limits)
 
     def plot_distribution(self, params_list:list, limits_dict:dict=None, log:bool=False) -> None:

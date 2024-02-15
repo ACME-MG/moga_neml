@@ -220,6 +220,7 @@ This function relies on the `read_data` function to be called first.
 
 The `plot_simulation` function creates a plot of all the experimental data that has been read by the `read_data` function as well as multiple simulated responses from multiple sets of parameters.
 * `params_list`: This argument defines a list of lists of parameter values to pass to the defined model to obtain the multiple simulated responses. The user can optionally just pass a list of parameter values if the user desires to only obtain a single simulated response.
+* `alpha_list`: This optional argument defines a list of alpha values to set the transparency of the plotted lines. The default value of this argument is a list of `1.0` values of the same length as `params_list`.
 * `clip`: This optional argument tells the function whether to clip the simulated response to the last value of the experimental data. The default value of this argument is `False`.
 * `limits_dict`: This optional argument defines the lower and upper bounds of the outputted plot. This argument should be defined as a dictionary of tuples of tuples - e.g., `e.g., {"tensile": ((0, 1), (2, 3)), "creep": ((3, 2), (0,3))}`. The default value for this argument is `None`, meaning that the limits will be determined automatically.
 

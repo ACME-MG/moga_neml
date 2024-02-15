@@ -14,7 +14,7 @@ itf.remove_damage(0.1, 0.7)
 itf.add_error("area", "time", "strain")
 
 itf.read_data("creep/inl_1/AirBase_900_28_G45.csv")
-itf.remove_damage(0.1, 0.7)
+itf.remove_damage(0.2, 0.7)
 
 itf.read_data("creep/inl_1/AirBase_900_26_G59.csv")
 itf.remove_damage(0.1, 0.7)

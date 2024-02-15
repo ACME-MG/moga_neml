@@ -429,15 +429,14 @@ class Controller():
             plotter.save_plot()
             plotter.clear()
 
-    def plot_prd_curves(self, params_list:list, clip:bool, type:str, file_path:str="", 
+    def plot_prd_curves(self, params_list:list, alpha_list:list, clip:bool, type:str, file_path:str="", 
                         x_limits:float=None, y_limits:float=None) -> None:
         """
         Visualises the predicted curves from a set of parameters
         
         Parameters:
-        * `params_list`: A list of parameter values of the model; note that defining the parameters as
-                         arguments to this function is similar to fixing the parameters via `fix_params`,
-                         meaning that there will be clashes if the parameter values are defined twice.
+        * `params_list`: A list of parameter values of the model
+        * `alpha_list`:  A list of alpha values for the plots
         * `clip`:        Whether to clip the predictions so they end at the same x position as the
         * `type:`        The type of the experimental data
         * `file_path`:   The path to plot the experimental curves without the extension
@@ -485,13 +484,13 @@ class Controller():
                                             if prd_data[x_label][j] <= max_x]
                         prd_data[x_label] = x_list
                     # colour = ALL_COLOURS[j]
-                    plotter.line_plot(prd_data, colour)
+                    plotter.line_plot(prd_data, colour, linewidth=3, alpha=alpha_list[j])
 
             # Define legend information
             has_valid   = True in [curve.is_validation() for curve in typed_curve_list]
             colour_list = [EXP_COLOUR, CAL_COLOUR, VAL_COLOUR] if has_valid else [EXP_COLOUR, CAL_COLOUR]
             label_list  = ["Experimental", "Calibration", "Validation"] if has_valid else ["Experimental", "Calibration"]
-            size_list   = [7, 1.5, 1.5] if has_valid else [7, 1.5]
+            size_list   = [7, 2.5, 2.5] if has_valid else [7, 2.5]
             type_list   = ["scatter", "line", "line"] if has_valid else ["scatter", "line"]
 
             # Format and save the plot

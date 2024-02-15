@@ -273,13 +273,13 @@ class Recorder:
         plot_dict = {}
         plot_dict["Experimental"] = {x_label: calib_dict["exp_x"] + valid_dict["exp_x"],
                                      y_label: calib_dict["exp_y"] + valid_dict["exp_y"],
-                                     "size": 5, "colour": EXP_COLOUR}
+                                     "size": 5, "colour": "gray"}
         if False in [curve.is_validation() for curve in typed_curve_list]:
             plot_dict["Calibration"] = {x_label: calib_dict["prd_x"], y_label: calib_dict["prd_y"],
-                                        "size": 2, "colour": CAL_COLOUR}
+                                        "size": 2, "colour": "green"}
         if True in [curve.is_validation() for curve in typed_curve_list]:
             plot_dict["Validation"] = {x_label: valid_dict["prd_x"], y_label: valid_dict["prd_y"],
-                                       "size": 2, "colour": VAL_COLOUR}
+                                       "size": 2, "colour": "red"}
         return plot_dict
 
     def get_plot_dict_list(self, type:str) -> list:

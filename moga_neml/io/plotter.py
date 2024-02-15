@@ -11,7 +11,7 @@ from moga_neml.helper.experiment import get_units
 
 # Constants
 DEFAULT_PATH = "./plot"
-EXP_COLOUR   = "silver"
+EXP_COLOUR   = "darkgray"
 CAL_COLOUR   = "green"
 VAL_COLOUR   = "red"
 
@@ -97,19 +97,21 @@ class Plotter:
         plt.scatter(x_list, data_dict[self.y_label], s=size**2,
                     marker="o", color=colour, linewidth=1, zorder=priority)
         
-    def line_plot(self, data_dict:dict, colour:str=VAL_COLOUR, priority:int=1) -> None:
+    def line_plot(self, data_dict:dict, colour:str=VAL_COLOUR, linewidth:float=1, priority:int=1, alpha:float=1.0) -> None:
         """
         Plots the experimental data using a line plot
 
         Parameters:
         * `data_dict`: The dictionary to store the data
         * `colour`:    The colour to plot the data
+        * `linewidth`: The width of the line
         * `priority`:  The priority of the curve
+        * `alpha`:     The degree of transparency
         """
         x_list = data_dict[self.x_label]
         if self.x_label == "time":
             x_list = [x/3600 for x in x_list]
-        plt.plot(x_list, data_dict[self.y_label], colour, zorder=priority)
+        plt.plot(x_list, data_dict[self.y_label], colour, linewidth=linewidth, zorder=priority, alpha=alpha)
 
     def define_legend(self, colour_list:list, label_list:list, size_list:list, type_list:list, font_size:int=12) -> None:
         """

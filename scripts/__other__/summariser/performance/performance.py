@@ -166,35 +166,6 @@ def get_end_lists(results_dict:dict, data_type:str, label:str) -> tuple:
             sim_end_list.append(sim_end)
     return exp_end_list, sim_end_list
 
-# Calculates the experimental and simulated minimum derivative values of the curve
-def get_min_dy_lists(results_dict:dict, data_type:str, x_label:str, y_label:str) -> tuple:
-
-    # Initialise
-    exp_min_dy_list, sim_min_dy_list = [], []
-    
-    # Iterate through experimental curves
-    for title in results_dict.keys():
-        exp_data = results_dict[title]["exp"]
-        if exp_data["type"] != data_type:
-            continue
-        exp_min_dy = exp_data["min_dy"]
-
-        # Iterate through simulations of experimental curve
-        sim_data_list = results_dict[title]["sim"]
-        for sim_data in sim_data_list:
-
-            # Get simulated minimum derivative value
-            sim_d_data = differentiate_curve(sim_data, x_label, y_label)
-            sim_min_dy = sim_d_data[y_label][len(sim_d_data[y_label])//2]
-            
-            # Add to initialised super list
-            exp_min_dy_list.append(exp_min_dy)
-            sim_min_dy_list.append(sim_min_dy * 3600)
-    
-    # Return
-    return exp_min_dy_list, sim_min_dy_list
-
-
 # Calculates the experimental and simulated vertical values of the curve
 def get_y_list(results_dict:dict, data_type:str, x_label:str, y_label:str) -> tuple:
     
@@ -223,11 +194,6 @@ def get_y_list(results_dict:dict, data_type:str, x_label:str, y_label:str) -> tu
             x_list = list(np.linspace(0, min_x_end, 10+2))[1:-1]
             exp_y_values = exp_interpolator.evaluate(x_list)
             sim_y_values = sim_interpolator.evaluate(x_list)
-
-            # # Normalise
-            # max_value = max(exp_y_values)
-            # exp_y_values = linearly_map(exp_y_values, 0, max_value)
-            # sim_y_values = linearly_map(sim_y_values, 0, max_value)
 
             # Add to initialised super list
             exp_y_list += exp_y_values
@@ -316,8 +282,8 @@ def get_data_points(info_list:list, params_str_list:list, model) -> tuple:
             exp_list, sim_list = get_yield_point(results_dict, "tensile")
 
         # Add to super lists
-        all_exp_list += exp_list
-        all_sim_list += sim_list
+        all_exp_list.append(exp_list)
+        all_sim_list.append(sim_list)
 
     # Return
     return all_exp_list, all_sim_list
@@ -458,8 +424,10 @@ plt.ylabel(f"Simulation ({UNIT})", fontsize=15)
 
 # Plot line then data
 plt.plot(limits, limits, linestyle="--", color="black")
-plt.scatter(cal_exp_list, cal_sim_list, color="green")
-plt.scatter(val_exp_list, val_sim_list, color="red")
+for i in range(len(params_str_list)):
+    plt.scatter(cal_exp_list, cal_sim_list, color="green")
+for i in range(len(val_exp_list)):
+    plt.scatter(val_exp_list, val_sim_list, color="red")
 
 # Add 'conservative' region
 triangle_vertices = np.array([[limits[0], limits[0]], [limits[1], limits[0]], [limits[1], limits[1]]])
