@@ -41,9 +41,15 @@ itf.add_error("end", "strain")
 
 itf.read_data("creep/inl_1/AirBase_1000_12_G48.csv")
 itf.remove_oxidation()
+itf.add_error("area", "time", "strain")
+itf.add_error("end", "time")
+itf.add_error("end", "strain")
 
 itf.read_data("creep/inl_1/AirBase_1000_11_G39.csv")
 itf.remove_oxidation(0.1, 0.7)
+itf.add_error("area", "time", "strain")
+itf.add_error("end", "time")
+itf.add_error("end", "strain")
 
 itf.read_data("tensile/inl/AirBase_1000_D12.csv")
 itf.add_error("area", "strain", "stress")
