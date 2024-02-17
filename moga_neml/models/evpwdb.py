@@ -38,8 +38,8 @@ class Model(__Model__):
         self.add_param("t_1", 0e0, 1.0e3)
 
         # Exponent parameters
-        self.add_param("c_n", 0.0e0, 2.0e1)
-        self.add_param("t_n", 0.0e0, 2.0e1)
+        self.add_param("c_n", 0.0e0, 1.0e2)
+        self.add_param("t_n", 0.0e0, 1.0e2)
 
     def calibrate_model(self, evp_s0:float, evp_R:float, evp_d:float, evp_n:float, evp_eta:float,
                         c_0:float, c_1:float, t_0:float, t_1:float, c_n:float, t_n:float):
