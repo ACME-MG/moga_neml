@@ -42,7 +42,7 @@ itf.reduce_objectives("square_average")
 #     red_obj_list.append(red_obj)
 # red_index = red_obj_list.index(min(red_obj_list))
 
-red_index = 2
+red_index = 3
 
 itf.plot_simulation(
     params_list = params_list,
