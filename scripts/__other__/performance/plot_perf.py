@@ -452,12 +452,12 @@ else:
 plt.gca().add_artist(legend)
 
 # Prepare legend for data temperature
-t800  = plt.scatter([], [], color="none", edgecolor="black", linewidth=LINEWIDTH,  label="800°C",  marker="^", s=MARKER_SIZE**2)
-t900  = plt.scatter([], [], color="none", edgecolor="black", linewidth=LINEWIDTH,  label="900°C",  marker="s", s=MARKER_SIZE**2)
-t1000 = plt.scatter([], [], color="none", edgecolor="black", linewidth=LINEWIDTH,  label="1000°C", marker="*", s=MARKER_SIZE**2)
-legend = plt.legend(handles=[t800, t900, t1000], framealpha=1, edgecolor="black",
-                    fancybox=True, facecolor="white", fontsize=12, bbox_transform=(0.75, 0.75))
-plt.gca().add_artist(legend)
+# t800  = plt.scatter([], [], color="none", edgecolor="black", linewidth=LINEWIDTH,  label="800°C",  marker="^", s=MARKER_SIZE**2)
+# t900  = plt.scatter([], [], color="none", edgecolor="black", linewidth=LINEWIDTH,  label="900°C",  marker="s", s=MARKER_SIZE**2)
+# t1000 = plt.scatter([], [], color="none", edgecolor="black", linewidth=LINEWIDTH,  label="1000°C", marker="*", s=MARKER_SIZE**2)
+# legend = plt.legend(handles=[t800, t900, t1000], framealpha=1, edgecolor="black",
+#                     fancybox=True, facecolor="white", fontsize=12, bbox_transform=(0.75, 0.75))
+# plt.gca().add_artist(legend)
 
 # Format everything else and save
 plt.gca().set_position([0.17, 0.12, 0.75, 0.75])
