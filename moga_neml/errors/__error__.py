@@ -152,7 +152,7 @@ class __Error__:
         raise NotImplementedError
 
 # Creates and return a error
-def create_error(error_name:str, x_label:str, y_label:str, weight:str,
+def create_error(error_name:str, x_label:str, y_label:str, weight:float,
               exp_data:dict, model:__Model__, **kwargs) -> __Error__:
     """
     Gets an error
