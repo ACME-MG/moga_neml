@@ -257,16 +257,16 @@ creep_cw_list, creep_awr_list = get_work_info_list(creep_file_list)
 creep_m, creep_b = get_lobf(creep_cw_list, creep_awr_list)
 print("creep", creep_m, creep_b)
 creep_lobf_y_list = [creep_m*x + creep_b for x in raw_lobf_x_list]
-plt.scatter(creep_awr_list, creep_cw_list, color="red", label="Creep Data")
-plt.plot(lobf_x_list, creep_lobf_y_list, color="red")
+plt.scatter(creep_awr_list, creep_cw_list, color="green", s=8**2)
+plt.plot(lobf_x_list, creep_lobf_y_list, color="green", linewidth=3, linestyle="--")
 
 # Plot data for tensile
 tensile_cw_list, tensile_awr_list = get_work_info_list(tensile_file_list)
 tensile_m, tensile_b = get_lobf(tensile_cw_list, tensile_awr_list)
 print("tensile", tensile_m, tensile_b)
 tensile_lobf_y_list = [tensile_m*x + tensile_b for x in raw_lobf_x_list]
-plt.scatter(tensile_awr_list, tensile_cw_list, color="blue", label="Tensile Data")
-plt.plot(lobf_x_list, tensile_lobf_y_list, color="blue")
+plt.scatter(tensile_awr_list, tensile_cw_list, color="red", s=8**2)
+plt.plot(lobf_x_list, tensile_lobf_y_list, color="red", linewidth=3, linestyle="--")
 
 # # Plot data for fatigue
 # fatigue_cw_list, fatigue_awr_list = get_work_info_list(fatigue_file_list)
@@ -280,13 +280,16 @@ plt.plot(lobf_x_list, tensile_lobf_y_list, color="blue")
 # plt.title("Average Work Rate vs Critical Work", fontsize=15, fontweight="bold", y=1.05)
 plt.gca().set_position([0.17, 0.12, 0.75, 0.75])
 plt.gca().grid(which="major", axis="both", color="SlateGray", linewidth=1, linestyle=":")
-plt.xlabel("Average Work Rate (MPa/s)", fontsize=15)
-plt.ylabel("Critical Work (MPa)", fontsize=15)
-plt.xticks(fontsize=11)
-plt.yticks(fontsize=11)
+plt.xticks(fontsize=12)
+plt.yticks(fontsize=12)
 plt.xscale("log")
 # plt.yscale("log")
 plt.xlim(1.0e-8, 1.0e0)
-plt.ylim(-5.0e1, 2.5e2)
-plt.legend(framealpha=1, edgecolor="black", fancybox=True, facecolor="white", fontsize=12)
+plt.ylim(-5.0e1, 3.0e2)
+
+creep = plt.scatter([], [], color="green", label="Creep Data", s=8**2)
+tensile = plt.scatter([], [], color="red", label="Tensile Data", s=8**2)
+legend = plt.legend(handles=[creep, tensile], framealpha=1, edgecolor="black", fancybox=True, facecolor="white", fontsize=12, loc="upper right")
+plt.gca().add_artist(legend)
+
 plt.savefig("exp.png")
