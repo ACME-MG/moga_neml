@@ -26,14 +26,14 @@ DATA_PATH    = "../../data"
 
 # Option
 OPTION = [
-    {"name": "cr_time_f",   "info": r"$t_f$ (h)",                   "handle": lambda x : get_max(x, "creep", "time"),               "limits": (0, 12000)},
-    {"name": "cr_strain_f", "info": r"$\epsilon_f$ (mm/mm)",        "handle": lambda x : get_max(x, "creep", "strain"),             "limits": (0, 1.0)},
-    {"name": "cr_min_rate", "info": r"$\ddot{\epsilon_min}$ (1/h)", "handle": lambda x : get_avg(x, "creep", "time", "strain"),     "limits": (0, 0.3)},
-    {"name": "cr_strain",   "info": r"$\bar{\epsilon}$ (mm/mm)",    "handle": lambda x : get_avg(x, "creep", "time", "strain"),     "limits": (0, 0.3)},
-    {"name": "ts_stress_f", "info": r"$\sigma_f$ (MPa)",            "handle": lambda x : get_end(x, "tensile", "stress"),           "limits": (0, 600)},
-    {"name": "ts_yield",    "info": r"$\bar{\sigma}$ (MPa)",        "handle": lambda x : get_avg(x, "tensile", "strain", "stress"), "limits": (0, 600)},
-    {"name": "ts_uts",      "info": r"$\sigma_y$ (MPa)",            "handle": lambda x : get_yield_point(x, "tensile"),             "limits": (0, 600)},
-    {"name": "ts_stress",   "info": r"$\sigma_{UTS}$ (MPa)",        "handle": lambda x : get_max(x, "tensile", "stress"),           "limits": (0, 600)},
+    {"name": "cr_strain",   "info": r"$\bar{\epsilon}$ (mm/mm)",     "handle": lambda x : get_avg(x, "creep", "time", "strain"),      "limits": (0, 0.35)},
+    {"name": "cr_min_rate", "info": r"$\dot{\epsilon}_{min}$ (1/h)", "handle": lambda x : get_min_rate(x, "creep", "time", "strain"), "limits": (0, 5e-4)},
+    {"name": "cr_time_f",   "info": r"$t_f$ (h)",                    "handle": lambda x : get_max(x, "creep", "time"),                "limits": (0, 12000)},
+    {"name": "cr_strain_f", "info": r"$\epsilon_f$ (mm/mm)",         "handle": lambda x : get_max(x, "creep", "strain"),              "limits": (0, 1.0)},
+    {"name": "ts_stress",   "info": r"$\sigma_{UTS}$ (MPa)",         "handle": lambda x : get_max(x, "tensile", "stress"),            "limits": (0, 600)},
+    {"name": "ts_yield",    "info": r"$\bar{\sigma}$ (MPa)",         "handle": lambda x : get_avg(x, "tensile", "strain", "stress"),  "limits": (0, 600)},
+    {"name": "ts_uts",      "info": r"$\sigma_y$ (MPa)",             "handle": lambda x : get_yield_point(x, "tensile"),              "limits": (0, 600)},
+    {"name": "ts_stress_f", "info": r"$\sigma_f$ (MPa)",             "handle": lambda x : get_end(x, "tensile", "stress"),            "limits": (0, 300)},
 ][int(sys.argv[1])]
 
 # Model
@@ -147,7 +147,8 @@ def get_sim_data(exp_info:list, params_str:str, model) -> dict:
         # Get experimental data
         exp_data = get_exp_data(exp_dict["path"])
         exp_data = remove_data(exp_data, "time", exp_dict["time_end"])
-        exp_data["yield"] = exp_dict["yield"]
+        for field in ["yield", "min_rate"]:
+            exp_data[field] = exp_dict[field]
         curve = Curve(exp_data, model)
 
         # Prepare results list
@@ -191,6 +192,24 @@ def get_end(results_dict:dict, data_type:str, label:str) -> tuple:
         for sim_data in sim_data_list:
             exp_end_list.append(exp_end)
             sim_end_list.append(sim_data[label][-1])
+    return exp_end_list, sim_end_list
+
+# Calculates the experimental and simulated minimum rate
+def get_min_rate(results_dict:dict, data_type:str, x_label:str, y_label:str) -> tuple:
+    exp_end_list, sim_end_list = [], []
+    for title in results_dict.keys():
+        exp_data = results_dict[title]["exp"]
+        if exp_data["type"] != data_type:
+            continue
+        exp_min_rate = exp_data["min_rate"]
+        sim_data_list = results_dict[title]["sim"]
+        for sim_data in sim_data_list:
+            sim_interpolator = Interpolator(sim_data[x_label], sim_data[y_label])
+            sim_interpolator.differentiate()
+            sim_rate = sim_interpolator.evaluate(sim_data[x_label])
+            sim_min_rate = sim_rate[len(sim_rate)//2]*3600
+            exp_end_list.append(exp_min_rate)
+            sim_end_list.append(sim_min_rate)
     return exp_end_list, sim_end_list
 
 # Calculates the experimental and simulated vertical values of the curve
@@ -256,48 +275,41 @@ def get_yield_point(results_dict:dict, data_type:str) -> tuple:
 def get_data_points(exp_info:list, params_str:list, model) -> tuple:
     results_dict = get_sim_data(exp_info, params_str, model)
     exp_list, sim_list = OPTION["handle"](results_dict)
-    if OPTION["name"] == "cr_time_tf":
+    if OPTION["name"] == "cr_time_f":
         exp_list = [t/3600 for t in exp_list]
         sim_list = [t/3600 for t in sim_list]
     return exp_list, sim_list
 
 # Calibration data
 cal_info_list = [[
-    {"path": f"{DATA_PATH}/creep/inl_1/AirBase_800_70_G44.csv",  "time_end": None,     "yield": None, "min_rate": None},
-    {"path": f"{DATA_PATH}/creep/inl_1/AirBase_800_80_G25.csv",  "time_end": None,     "yield": None, "min_rate": None},
-    {"path": f"{DATA_PATH}/tensile/inl/AirBase_800_D7.csv",      "time_end": None,     "yield": 291},
+    {"path": f"{DATA_PATH}/creep/inl_1/AirBase_800_70_G44.csv",  "time_end": None,     "yield": None, "min_rate": 9.0345e-5},
+    {"path": f"{DATA_PATH}/creep/inl_1/AirBase_800_80_G25.csv",  "time_end": None,     "yield": None, "min_rate": 2.3266e-4},
+    {"path": f"{DATA_PATH}/tensile/inl/AirBase_800_D7.csv",      "time_end": None,     "yield": 291,  "min_rate": None},
 ], [
-    {"path": f"{DATA_PATH}/creep/inl_1/AirBase_900_31_G50.csv",  "time_end": None,     "yield": None, "min_rate": None},
-    {"path": f"{DATA_PATH}/creep/inl_1/AirBase_900_36_G22.csv",  "time_end": None,     "yield": None, "min_rate": None},
-    {"path": f"{DATA_PATH}/tensile/inl/AirBase_900_D10.csv",     "time_end": None,     "yield": 164},
+    {"path": f"{DATA_PATH}/creep/inl_1/AirBase_900_31_G50.csv",  "time_end": None,     "yield": None, "min_rate": 5.3682e-5},
+    {"path": f"{DATA_PATH}/creep/inl_1/AirBase_900_36_G22.csv",  "time_end": None,     "yield": None, "min_rate": 1.2199e-4},
+    {"path": f"{DATA_PATH}/tensile/inl/AirBase_900_D10.csv",     "time_end": None,     "yield": 164,  "min_rate": None},
 ], [
-    {"path": f"{DATA_PATH}/creep/inl_1/AirBase_1000_13_G30.csv", "time_end": 16877844, "yield": None, "min_rate": None},
-    {"path": f"{DATA_PATH}/creep/inl_1/AirBase_1000_16_G18.csv", "time_end": 7756524,  "yield": None, "min_rate": None},
-    {"path": f"{DATA_PATH}/tensile/inl/AirBase_1000_D12.csv",    "time_end": None,     "yield": 90},
+    {"path": f"{DATA_PATH}/creep/inl_1/AirBase_1000_13_G30.csv", "time_end": 16877844, "yield": None, "min_rate": 2.6645e-5},
+    {"path": f"{DATA_PATH}/creep/inl_1/AirBase_1000_16_G18.csv", "time_end": 7756524,  "yield": None, "min_rate": 6.7604e-5},
+    {"path": f"{DATA_PATH}/tensile/inl/AirBase_1000_D12.csv",    "time_end": None,     "yield": 90,   "min_rate": None},
 ]]
 
 # Validation data
 val_info_list = [[
-    {"path": f"{DATA_PATH}/creep/inl_1/AirBase_800_60_G32.csv",  "time_end": None,     "yield": None, "min_rate": None},
-    {"path": f"{DATA_PATH}/creep/inl_1/AirBase_800_65_G33.csv",  "time_end": None,     "yield": None, "min_rate": None},
+    {"path": f"{DATA_PATH}/creep/inl_1/AirBase_800_60_G32.csv",  "time_end": None,     "yield": None, "min_rate": 2.8910e-5},
+    {"path": f"{DATA_PATH}/creep/inl_1/AirBase_800_65_G33.csv",  "time_end": None,     "yield": None, "min_rate": 5.0385e-5},
 ], [
-    {"path": f"{DATA_PATH}/creep/inl_1/AirBase_900_26_G59.csv",  "time_end": 20541924, "yield": None, "min_rate": None},
-    {"path": f"{DATA_PATH}/creep/inl_1/AirBase_900_28_G45.csv",  "time_end": None,     "yield": None, "min_rate": None},
+    {"path": f"{DATA_PATH}/creep/inl_1/AirBase_900_26_G59.csv",  "time_end": 20541924, "yield": None, "min_rate": 2.1864e-5},
+    {"path": f"{DATA_PATH}/creep/inl_1/AirBase_900_28_G45.csv",  "time_end": None,     "yield": None, "min_rate": 3.5312e-5},
 ], [
-    {"path": f"{DATA_PATH}/creep/inl_1/AirBase_1000_11_G39.csv", "time_end": 19457424, "yield": None, "min_rate": None},
-    {"path": f"{DATA_PATH}/creep/inl_1/AirBase_1000_12_G48.csv", "time_end": 18096984, "yield": None, "min_rate": None},
+    {"path": f"{DATA_PATH}/creep/inl_1/AirBase_1000_11_G39.csv", "time_end": 19457424, "yield": None, "min_rate": 1.2941e-5},
+    {"path": f"{DATA_PATH}/creep/inl_1/AirBase_1000_12_G48.csv", "time_end": 18096984, "yield": None, "min_rate": 9.8962e-6},
 ]]
 
 # Prepare model and plot
 fig, ax = plt.subplots()
 ax.set_aspect("equal", "box")
-
-# Define data specific settings
-if OPTION == "cr_time_tf":
-    ax.ticklabel_format(axis="x", style="sci", scilimits=(3,3))
-    ax.xaxis.major.formatter._useMathText = True
-    ax.ticklabel_format(axis="y", style="sci", scilimits=(3,3))
-    ax.yaxis.major.formatter._useMathText = True
 
 # Set labels and plot line
 plt.xlabel(f"Simulated {OPTION['info']}", fontsize=15)
@@ -327,13 +339,10 @@ plt.text(OPTION["limits"][1]-0.45*(OPTION["limits"][1]-OPTION["limits"][0]), OPT
 
 # Prepare legend for data type
 handle_list = []
-if "ts" in OPTION:
-    cal = plt.scatter([], [], color="green", label="Calibration", s=8**2)
-    legend = plt.legend(handles=[cal], framealpha=1, edgecolor="black", fancybox=True, facecolor="white", fontsize=12, loc="upper right")
-else:
-    cal = plt.scatter([], [], color="green", label="Calibration", s=8**2)
-    val = plt.scatter([], [], color="red", label="Validation", s=8**2)
-    legend = plt.legend(handles=[cal, val], framealpha=1, edgecolor="black", fancybox=True, facecolor="white", fontsize=12, loc="upper right")
+cal = plt.scatter([], [], color="green", label="Calibration", s=8**2)
+val = plt.scatter([], [], color="red", label="Validation", s=8**2)
+handles = [cal] if "ts" in OPTION["name"] else [cal, val]
+legend = plt.legend(handles=handles, framealpha=1, edgecolor="black", fancybox=True, facecolor="white", fontsize=12, loc="upper right")
 plt.gca().add_artist(legend)
 
 # Add legend for temperature
@@ -345,12 +354,28 @@ legend = plt.legend(handles=[t800, t900, t1000], framealpha=1, edgecolor="black"
                     loc="upper left", bbox_to_anchor=bbox_pos)
 plt.gca().add_artist(legend)
 
-# Format everything else and save
+# Format figure size
 plt.gca().set_position([0.17, 0.12, 0.75, 0.75])
 plt.gca().grid(which="major", axis="both", color="SlateGray", linewidth=1, linestyle=":")
+plt.gcf().set_size_inches(5, 5)
+
+# Format limits
 plt.xlim(OPTION["limits"])
 plt.ylim(OPTION["limits"])
+
+# Format ticks
 plt.xticks(fontsize=11)
 plt.yticks(fontsize=11)
-plt.gcf().set_size_inches(5, 5)
+if OPTION["name"] == "cr_time_f":
+    ax.ticklabel_format(axis="x", style="sci", scilimits=(3,3))
+    ax.ticklabel_format(axis="y", style="sci", scilimits=(3,3))
+    ax.xaxis.major.formatter._useMathText = True
+    ax.yaxis.major.formatter._useMathText = True
+if OPTION["name"] == "cr_min_rate":
+    ax.ticklabel_format(axis="x", style="sci", scilimits=(-4,-4))
+    ax.ticklabel_format(axis="y", style="sci", scilimits=(-4,-4))
+    ax.xaxis.major.formatter._useMathText = True
+    ax.yaxis.major.formatter._useMathText = True
+
+# Save
 plt.savefig(f"{MODEL['name']}_{OPTION['name']}.png")
