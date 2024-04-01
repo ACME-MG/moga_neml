@@ -19,7 +19,9 @@ from moga_neml.errors.yield_point import get_yield
 from params import *
 
 # Constants
-MARKER_SIZE  = 10
+LABEL_FONTSIZE = 16
+OTHER_FONTSIZE = 13
+MARKER_SIZE  = 12
 LINEWIDTH    = 1
 TRANSPARENCY = 0.2
 DATA_PATH    = "../../data"
@@ -307,13 +309,13 @@ val_info_list = [[
     {"path": f"{DATA_PATH}/creep/inl_1/AirBase_1000_12_G48.csv", "time_end": 18096984, "yield": None, "min_rate": 9.8962e-6},
 ]]
 
-# Prepare model and plot
+# Prepare plot
 fig, ax = plt.subplots()
 ax.set_aspect("equal", "box")
 
 # Set labels and plot line
-plt.xlabel(f"Simulated {OPTION['info']}", fontsize=15)
-plt.ylabel(f"Measured {OPTION['info']}", fontsize=15)
+plt.xlabel(f"Simulated {OPTION['info']}", fontsize=LABEL_FONTSIZE)
+plt.ylabel(f"Measured {OPTION['info']}", fontsize=LABEL_FONTSIZE)
 plt.plot(OPTION["limits"], OPTION["limits"], linestyle="--", color="black", zorder=1)
 
 # Iterate through parameters
@@ -335,22 +337,22 @@ for i in range(len(MODEL["opt_params"])):
 # Add 'conservative' region
 triangle_vertices = np.array([[OPTION["limits"][0], OPTION["limits"][0]], [OPTION["limits"][1], OPTION["limits"][0]], [OPTION["limits"][1], OPTION["limits"][1]]])
 ax.fill(triangle_vertices[:, 0], triangle_vertices[:, 1], color="gray", alpha=0.3)
-plt.text(OPTION["limits"][1]-0.45*(OPTION["limits"][1]-OPTION["limits"][0]), OPTION["limits"][0]+0.05*(OPTION["limits"][1]-OPTION["limits"][0]), "Non-conservative", fontsize=12, color="black")
+plt.text(OPTION["limits"][1]-0.48*(OPTION["limits"][1]-OPTION["limits"][0]), OPTION["limits"][0]+0.05*(OPTION["limits"][1]-OPTION["limits"][0]), "Non-conservative", fontsize=OTHER_FONTSIZE, color="black")
 
 # Prepare legend for data type
 handle_list = []
-cal = plt.scatter([], [], color="green", label="Calibration", s=8**2)
-val = plt.scatter([], [], color="red", label="Validation", s=8**2)
+cal = plt.scatter([], [], color="green", label="Calibration", s=10**2)
+val = plt.scatter([], [], color="red", label="Validation", s=10**2)
 handles = [cal] if "ts" in OPTION["name"] else [cal, val]
-legend = plt.legend(handles=handles, framealpha=1, edgecolor="black", fancybox=True, facecolor="white", fontsize=12, loc="upper right")
+legend = plt.legend(handles=handles, framealpha=1, edgecolor="black", fancybox=True, facecolor="white", fontsize=OTHER_FONTSIZE, loc="upper right")
 plt.gca().add_artist(legend)
 
 # Add legend for temperature
-bbox_pos = (0.632, 0.895) if "ts" in OPTION["name"] else (0.632, 0.825)
+bbox_pos = (0.6, 0.89) if "ts" in OPTION["name"] else (0.6, 0.815)
 t800  = plt.scatter([], [], color="none", edgecolor="black", linewidth=LINEWIDTH,  label="800°C",  marker="^", s=MARKER_SIZE**2)
 t900  = plt.scatter([], [], color="none", edgecolor="black", linewidth=LINEWIDTH,  label="900°C",  marker="s", s=MARKER_SIZE**2)
 t1000 = plt.scatter([], [], color="none", edgecolor="black", linewidth=LINEWIDTH,  label="1000°C", marker="*", s=MARKER_SIZE**2)
-legend = plt.legend(handles=[t800, t900, t1000], framealpha=1, edgecolor="black", fancybox=True, facecolor="white", fontsize=12,
+legend = plt.legend(handles=[t800, t900, t1000], framealpha=1, edgecolor="black", fancybox=True, facecolor="white", fontsize=OTHER_FONTSIZE,
                     loc="upper left", bbox_to_anchor=bbox_pos)
 plt.gca().add_artist(legend)
 
@@ -364,8 +366,8 @@ plt.xlim(OPTION["limits"])
 plt.ylim(OPTION["limits"])
 
 # Format ticks
-plt.xticks(fontsize=11)
-plt.yticks(fontsize=11)
+plt.xticks(fontsize=OTHER_FONTSIZE)
+plt.yticks(fontsize=OTHER_FONTSIZE)
 if OPTION["name"] == "cr_time_f":
     ax.ticklabel_format(axis="x", style="sci", scilimits=(3,3))
     ax.ticklabel_format(axis="y", style="sci", scilimits=(3,3))

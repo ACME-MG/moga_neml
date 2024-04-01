@@ -5,13 +5,6 @@ itf = Interface("evpwdb 1000 st", input_path="../data", output_path="../results"
 
 itf.define_model("evpwdb")
 
-itf.init_param("c_0", 7.2439)
-itf.init_param("c_1", 50.84)
-itf.init_param("t_0", 271.92)
-itf.init_param("t_1", 601.52)
-itf.init_param("c_n", 1.5581)
-itf.init_param("t_n", 9.5121)
-
 itf.read_data("creep/inl_1/AirBase_1000_16_G18.csv")
 itf.remove_oxidation()
 itf.add_error("area", "time", "strain")

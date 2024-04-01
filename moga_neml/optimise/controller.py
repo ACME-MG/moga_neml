@@ -476,6 +476,7 @@ class Controller():
             for j in range(len(params_list)):
                 for k in range(len(typed_curve_list)):
                     colour = VAL_COLOUR if typed_curve_list[k].is_validation() else CAL_COLOUR
+                    # colour = ALL_COLOURS[j]
                     prd_data = prd_data_list_list[j][k]
                     if clip:
                         max_x = max(typed_curve_list[k].get_exp_data()[x_label])
@@ -483,7 +484,6 @@ class Controller():
                         prd_data[y_label] = [prd_data[y_label][j] for j in range(len(prd_data[x_label]))
                                             if prd_data[x_label][j] <= max_x]
                         prd_data[x_label] = x_list
-                    # colour = ALL_COLOURS[j]
                     plotter.line_plot(prd_data, colour, linewidth=3, alpha=alpha_list[j])
 
             # Define legend information

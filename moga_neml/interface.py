@@ -603,4 +603,13 @@ class Interface:
         """
         time_str = time.strftime("%A, %D, %H:%M:%S", time.localtime())
         duration = round(time.time() - self.__start_time__)
-        self.__print__(f"\n  Finished on {time_str} in {duration}s\n", add_index=False)
+        duration_h = duration // 3600
+        duration_m = (duration - duration_h * 3600) // 60
+        duration_s = duration - duration_h * 3600 - duration_m * 60
+        duration_str_list = [
+            f"{duration_h} hours" if duration_h > 0 else "",
+            f"{duration_m} mins" if duration_m > 0 else "",
+            f"{duration_s} seconds" if duration_s > 0 else ""
+        ]
+        duration_str = ", ".join([d for d in duration_str_list if d != ""])
+        self.__print__(f"\n  Finished on {time_str} in {duration_str}\n", add_index=False)
