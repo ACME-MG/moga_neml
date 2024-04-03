@@ -21,20 +21,20 @@ from params import *
 # Constants
 LABEL_FONTSIZE = 16
 OTHER_FONTSIZE = 13
-MARKER_SIZE  = 12
-LINEWIDTH    = 1
-TRANSPARENCY = 0.2
-DATA_PATH    = "../../data"
+MARKER_SIZE    = 12
+LINEWIDTH      = 1
+TRANSPARENCY   = 0.2
+DATA_PATH      = "../../data"
 
 # Option
 OPTION = [
-    {"name": "cr_strain",   "info": r"$\bar{\epsilon}$ (mm/mm)",     "handle": lambda x : get_avg(x, "creep", "time", "strain"),      "limits": (0, 0.35)},
+    {"name": "cr_strain",   "info": r"$\epsilon_{area}$ (h)",        "handle": lambda x : get_area(x, "creep", "time", "strain"),     "limits": (0, 2000)},
     {"name": "cr_min_rate", "info": r"$\dot{\epsilon}_{min}$ (1/h)", "handle": lambda x : get_min_rate(x, "creep", "time", "strain"), "limits": (0, 5e-4)},
     {"name": "cr_time_f",   "info": r"$t_f$ (h)",                    "handle": lambda x : get_max(x, "creep", "time"),                "limits": (0, 12000)},
     {"name": "cr_strain_f", "info": r"$\epsilon_f$ (mm/mm)",         "handle": lambda x : get_max(x, "creep", "strain"),              "limits": (0, 1.0)},
-    {"name": "ts_stress",   "info": r"$\sigma_{UTS}$ (MPa)",         "handle": lambda x : get_max(x, "tensile", "stress"),            "limits": (0, 600)},
-    {"name": "ts_yield",    "info": r"$\bar{\sigma}$ (MPa)",         "handle": lambda x : get_avg(x, "tensile", "strain", "stress"),  "limits": (0, 600)},
-    {"name": "ts_uts",      "info": r"$\sigma_y$ (MPa)",             "handle": lambda x : get_yield_point(x, "tensile"),              "limits": (0, 600)},
+    {"name": "ts_stress",   "info": r"$\sigma_{area}$ (MPa)",        "handle": lambda x : get_max(x, "tensile", "stress"),            "limits": (0, 600)},
+    {"name": "ts_yield",    "info": r"$\sigma_{y}$ (MPa)",           "handle": lambda x : get_area(x, "tensile", "strain", "stress"), "limits": (0, 600)},
+    {"name": "ts_uts",      "info": r"$\sigma_{UTS}$ (MPa)",         "handle": lambda x : get_yield_point(x, "tensile"),              "limits": (0, 600)},
     {"name": "ts_stress_f", "info": r"$\sigma_f$ (MPa)",             "handle": lambda x : get_end(x, "tensile", "stress"),            "limits": (0, 300)},
 ][int(sys.argv[1])]
 
@@ -214,12 +214,13 @@ def get_min_rate(results_dict:dict, data_type:str, x_label:str, y_label:str) -> 
             sim_end_list.append(sim_min_rate)
     return exp_end_list, sim_end_list
 
-# Calculates the experimental and simulated vertical values of the curve
-def get_avg(results_dict:dict, data_type:str, x_label:str, y_label:str) -> tuple:
+# Calculates the experimental and simulated area under the curve
+def get_area(results_dict:dict, data_type:str, x_label:str, y_label:str) -> tuple:
     
     # Initialise
-    exp_y_list, sim_y_list = [], []
-    
+    exp_area_list, sim_area_list = [], []
+    resolution = 1000
+
     # Iterate through experimental curves
     for title in results_dict.keys():
         exp_data = results_dict[title]["exp"]
@@ -228,27 +229,24 @@ def get_avg(results_dict:dict, data_type:str, x_label:str, y_label:str) -> tuple
 
         # Interpolate experimental curve
         exp_interpolator = Interpolator(exp_data[x_label], exp_data[y_label])
-        exp_x_end = max(exp_data[x_label])
+        exp_x_step = max(exp_data[x_label])/resolution
+        exp_x_list = [x*exp_x_step for x in range(1,resolution+1)]
+        exp_y_list = exp_interpolator.evaluate(exp_x_list)
+        exp_area = sum([exp_x_step * exp_y for exp_y in exp_y_list])
 
         # Iterate through simulations of experimental curve
         sim_data_list = results_dict[title]["sim"]
         for sim_data in sim_data_list:
-
-            # Interpolate simulated curve
             sim_interpolator = Interpolator(sim_data[x_label], sim_data[y_label])
+            sim_x_step = max(sim_data[x_label])/resolution
+            sim_x_list = [x*sim_x_step for x in range(1,resolution+1)]
+            sim_y_list = sim_interpolator.evaluate(sim_x_list)
+            sim_area = sum([sim_x_step * sim_y for sim_y in sim_y_list])
+            exp_area_list.append(exp_area)
+            sim_area_list.append(sim_area)
 
-            # Query experimental and simulated curves
-            min_x_end = min(exp_x_end, max(sim_data[x_label]))
-            x_list = list(np.linspace(0, min_x_end, 50+2))[1:-1]
-            exp_y_values = exp_interpolator.evaluate(x_list)
-            sim_y_values = sim_interpolator.evaluate(x_list)
-
-            # Add to initialised super list
-            exp_y_list.append(np.average(exp_y_values))
-            sim_y_list.append(np.average(sim_y_values))
-    
-    # Return
-    return exp_y_list, sim_y_list
+    # Return list of areas
+    return exp_area_list, sim_area_list
 
 # Calculates the experimental and simulated yield points
 def get_yield_point(results_dict:dict, data_type:str) -> tuple:
@@ -277,7 +275,7 @@ def get_yield_point(results_dict:dict, data_type:str) -> tuple:
 def get_data_points(exp_info:list, params_str:list, model) -> tuple:
     results_dict = get_sim_data(exp_info, params_str, model)
     exp_list, sim_list = OPTION["handle"](results_dict)
-    if OPTION["name"] == "cr_time_f":
+    if OPTION["name"] in ["cr_time_f", "cr_strain"]:
         exp_list = [t/3600 for t in exp_list]
         sim_list = [t/3600 for t in sim_list]
     return exp_list, sim_list
@@ -368,12 +366,19 @@ plt.ylim(OPTION["limits"])
 # Format ticks
 plt.xticks(fontsize=OTHER_FONTSIZE)
 plt.yticks(fontsize=OTHER_FONTSIZE)
-if OPTION["name"] == "cr_time_f":
+if OPTION["name"] in ["cr_strain"]:
+    plt.gca().set_xticks([0, 400, 800, 1200, 1600, 2000])
+    plt.gca().set_yticks([0, 400, 800, 1200, 1600, 2000])
+    ax.ticklabel_format(axis="x", style="sci", scilimits=(2,2))
+    ax.ticklabel_format(axis="y", style="sci", scilimits=(2,2))
+    ax.xaxis.major.formatter._useMathText = True
+    ax.yaxis.major.formatter._useMathText = True
+if OPTION["name"] in ["cr_time_f"]:
     ax.ticklabel_format(axis="x", style="sci", scilimits=(3,3))
     ax.ticklabel_format(axis="y", style="sci", scilimits=(3,3))
     ax.xaxis.major.formatter._useMathText = True
     ax.yaxis.major.formatter._useMathText = True
-if OPTION["name"] == "cr_min_rate":
+if OPTION["name"] in ["cr_min_rate"]:
     ax.ticklabel_format(axis="x", style="sci", scilimits=(-4,-4))
     ax.ticklabel_format(axis="y", style="sci", scilimits=(-4,-4))
     ax.xaxis.major.formatter._useMathText = True

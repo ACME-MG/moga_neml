@@ -1,6 +1,6 @@
 #!/bin/bash
 
-model_index=1
+model_index=0
 nohup python3 plot_perf.py 0 $model_index &
 nohup python3 plot_perf.py 1 $model_index &
 nohup python3 plot_perf.py 2 $model_index &
