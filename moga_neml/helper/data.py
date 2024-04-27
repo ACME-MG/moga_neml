@@ -63,6 +63,22 @@ def get_custom_thin_indexes(src_data_size:int, dst_data_size:int, distribution) 
     thin_indexes = [0] + thin_indexes + [src_data_size-1]
     return thin_indexes
 
+def find_tensile_strain_to_failure(stress_list:list) -> int:
+    """
+    Finds the tensile strain to failure based on the first stress value
+    at 80% of the tensile curve's UTS
+
+    * `data_list`: The list of stress values
+
+    Returns the closest index if found; otherwise, return None
+    """
+    stress_to_failure = max(stress_list) * 0.80
+    max_index = stress_list.index(max(stress_list))
+    for i in range(max_index, len(stress_list)):
+        if stress_list[i] < stress_to_failure:
+            return i
+    return None
+
 def remove_data_after(exp_data:dict, x_value:float, x_label:str) -> dict:
     """
     Removes data after a specific value of a curve

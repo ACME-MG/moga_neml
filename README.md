@@ -19,7 +19,7 @@ Once done, move into the NEML directory.
 ```
 cd neml
 ```
-Then compile NEML using the following configurations. You can run `cmake` with `-D USE_OPENMP=ON` to enable  multithreading for certain models (e.g., Taylor Models).
+Then compile NEML using the following configurations. You can run `cmake` with `-D USE_OPENMP=ON` to enable multithreading for certain models (e.g., Taylor Models).
 ```
 cmake -D WRAP_PYTHON=ON -D CMAKE_BUILD_TYPE=Release .
 make -j 2

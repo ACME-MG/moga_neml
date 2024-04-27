@@ -16,14 +16,13 @@ from moga_neml.optimise.curve import Curve
 from moga_neml.models.evpcd import Model as EVPCD
 from moga_neml.models.evpwdb import Model as EVPWD
 from moga_neml.errors.yield_point import get_yield
-from params import *
+from params import EVPCD_OPT_PARAMS, EVPWD_OPT_PARAMS
 
 # Constants
 LABEL_FONTSIZE = 16
 OTHER_FONTSIZE = 13
 MARKER_SIZE    = 12
 LINEWIDTH      = 1
-TRANSPARENCY   = 0.2
 DATA_PATH      = "../../data"
 
 # Option
@@ -32,17 +31,17 @@ OPTION = [
     {"name": "cr_min_rate", "info": r"$\dot{\epsilon}_{min}$ (1/h)", "handle": lambda x : get_min_rate(x, "creep", "time", "strain"), "limits": (0, 5e-4)},
     {"name": "cr_time_f",   "info": r"$t_f$ (h)",                    "handle": lambda x : get_max(x, "creep", "time"),                "limits": (0, 12000)},
     {"name": "cr_strain_f", "info": r"$\epsilon_f$ (mm/mm)",         "handle": lambda x : get_max(x, "creep", "strain"),              "limits": (0, 1.0)},
-    {"name": "ts_stress",   "info": r"$\sigma_{area}$ (MPa)",        "handle": lambda x : get_max(x, "tensile", "stress"),            "limits": (0, 600)},
-    {"name": "ts_yield",    "info": r"$\sigma_{y}$ (MPa)",           "handle": lambda x : get_area(x, "tensile", "strain", "stress"), "limits": (0, 600)},
-    {"name": "ts_uts",      "info": r"$\sigma_{UTS}$ (MPa)",         "handle": lambda x : get_yield_point(x, "tensile"),              "limits": (0, 600)},
-    {"name": "ts_stress_f", "info": r"$\sigma_f$ (MPa)",             "handle": lambda x : get_end(x, "tensile", "stress"),            "limits": (0, 300)},
+    {"name": "ts_stress",   "info": r"$\sigma_{area}$ (MPa)",        "handle": lambda x : get_area(x, "tensile", "strain", "stress"), "limits": (0, 600)},
+    {"name": "ts_yield",    "info": r"$\sigma_{y}$ (MPa)",           "handle": lambda x : get_yield_point(x, "tensile"),              "limits": (0, 600)},
+    {"name": "ts_uts",      "info": r"$\sigma_{UTS}$ (MPa)",         "handle": lambda x : get_max(x, "tensile", "stress"),            "limits": (0, 600)},
+    {"name": "ts_strain_d", "info": r"$\epsilon_d$ (mm/mm)",         "handle": lambda x : get_end(x, "tensile", "strain"),            "limits": (0, 1.4)},
 ][int(sys.argv[1])]
 
 # Model
-MODEL = [
-    {"name": "evpcd", "object": EVPCD(""), "opt_params": EVPCD_OPT_PARAMS, "oth_params": EVPCD_OTH_PARAMS},
-    {"name": "evpwd", "object": EVPWD(""), "opt_params": EVPWD_OPT_PARAMS, "oth_params": EVPWD_OTH_PARAMS},
-][int(sys.argv[2])]
+MODELS = [
+    {"name": "EVP-CD", "object": EVPCD(""), "opt_params": EVPCD_OPT_PARAMS, "colour": "tab:orange"},
+    {"name": "EVP-WD", "object": EVPWD(""), "opt_params": EVPWD_OPT_PARAMS, "colour": "tab:blue"},
+]
 
 # The Interpolator Class
 class Interpolator:
@@ -85,6 +84,35 @@ def try_float_cast(value:str) -> float:
     except:
         return value
 
+# Finds the tensile strain to failure based on the first stress value at 80% of the tensile curve's UTS
+def find_tensile_strain_to_failure(stress_list:list) -> int:
+    stress_to_failure = max(stress_list) * 0.80
+    max_index = stress_list.index(max(stress_list))
+    for i in range(max_index, len(stress_list)):
+        if stress_list[i] < stress_to_failure:
+            return i
+    return None
+
+# Removes data after a specific value of a curve
+def remove_data_after(exp_data:dict, x_value:float, x_label:str) -> dict:
+
+    # Initialise new curve
+    new_exp_data = deepcopy(exp_data)
+    for header in new_exp_data.keys():
+        if isinstance(new_exp_data[header], list) and len(exp_data[header]) == len(exp_data[x_label]):
+            new_exp_data[header] = []
+            
+    # Remove data after specific value
+    for i in range(len(exp_data[x_label])):
+        if exp_data[x_label][i] > x_value:
+            break
+        for header in new_exp_data.keys():
+            if isinstance(new_exp_data[header], list) and len(exp_data[header]) == len(exp_data[x_label]):
+                new_exp_data[header].append(exp_data[header][i])
+    
+    # Return new data
+    return new_exp_data
+
 # Converts CSV data into a curve dict
 def get_exp_data_dict(headers:list, data:list) -> dict:
     
@@ -100,6 +128,12 @@ def get_exp_data_dict(headers:list, data:list) -> dict:
         curve[headers[index]] = value_list
     for index in info_indexes:
         curve[headers[index]] = try_float_cast(data[0][index])
+
+    # Remove data of tensile curves after 80% of the UTS
+    if curve["type"] == "tensile":
+        end_index = find_tensile_strain_to_failure(curve["stress"])
+        end_strain = curve["strain"][end_index]
+        curve = remove_data_after(curve, end_strain, "strain")
 
     # Return curve
     return curve
@@ -280,31 +314,31 @@ def get_data_points(exp_info:list, params_str:list, model) -> tuple:
         sim_list = [t/3600 for t in sim_list]
     return exp_list, sim_list
 
-# Calibration data
-cal_info_list = [[
+# Rounds a float to a number of significant figures
+def round_sf(value:float, sf:int) -> float:
+    format_str = "{:." + str(sf) + "g}"
+    rounded_value = float(format_str.format(value))
+    return rounded_value
+
+# Experimental data
+exp_info_list = [[
     {"path": f"{DATA_PATH}/creep/inl_1/AirBase_800_70_G44.csv",  "time_end": None,     "yield": None, "min_rate": 9.0345e-5},
     {"path": f"{DATA_PATH}/creep/inl_1/AirBase_800_80_G25.csv",  "time_end": None,     "yield": None, "min_rate": 2.3266e-4},
+    {"path": f"{DATA_PATH}/creep/inl_1/AirBase_800_60_G32.csv",  "time_end": None,     "yield": None, "min_rate": 2.8910e-5},
+    {"path": f"{DATA_PATH}/creep/inl_1/AirBase_800_65_G33.csv",  "time_end": None,     "yield": None, "min_rate": 5.0385e-5},
     {"path": f"{DATA_PATH}/tensile/inl/AirBase_800_D7.csv",      "time_end": None,     "yield": 291,  "min_rate": None},
 ], [
     {"path": f"{DATA_PATH}/creep/inl_1/AirBase_900_31_G50.csv",  "time_end": None,     "yield": None, "min_rate": 5.3682e-5},
     {"path": f"{DATA_PATH}/creep/inl_1/AirBase_900_36_G22.csv",  "time_end": None,     "yield": None, "min_rate": 1.2199e-4},
+    {"path": f"{DATA_PATH}/creep/inl_1/AirBase_900_26_G59.csv",  "time_end": 20541924, "yield": None, "min_rate": 2.1864e-5},
+    {"path": f"{DATA_PATH}/creep/inl_1/AirBase_900_28_G45.csv",  "time_end": None,     "yield": None, "min_rate": 3.5312e-5},
     {"path": f"{DATA_PATH}/tensile/inl/AirBase_900_D10.csv",     "time_end": None,     "yield": 164,  "min_rate": None},
 ], [
     {"path": f"{DATA_PATH}/creep/inl_1/AirBase_1000_13_G30.csv", "time_end": 16877844, "yield": None, "min_rate": 2.6645e-5},
     {"path": f"{DATA_PATH}/creep/inl_1/AirBase_1000_16_G18.csv", "time_end": 7756524,  "yield": None, "min_rate": 6.7604e-5},
-    {"path": f"{DATA_PATH}/tensile/inl/AirBase_1000_D12.csv",    "time_end": None,     "yield": 90,   "min_rate": None},
-]]
-
-# Validation data
-val_info_list = [[
-    {"path": f"{DATA_PATH}/creep/inl_1/AirBase_800_60_G32.csv",  "time_end": None,     "yield": None, "min_rate": 2.8910e-5},
-    {"path": f"{DATA_PATH}/creep/inl_1/AirBase_800_65_G33.csv",  "time_end": None,     "yield": None, "min_rate": 5.0385e-5},
-], [
-    {"path": f"{DATA_PATH}/creep/inl_1/AirBase_900_26_G59.csv",  "time_end": 20541924, "yield": None, "min_rate": 2.1864e-5},
-    {"path": f"{DATA_PATH}/creep/inl_1/AirBase_900_28_G45.csv",  "time_end": None,     "yield": None, "min_rate": 3.5312e-5},
-], [
     {"path": f"{DATA_PATH}/creep/inl_1/AirBase_1000_11_G39.csv", "time_end": 19457424, "yield": None, "min_rate": 1.2941e-5},
     {"path": f"{DATA_PATH}/creep/inl_1/AirBase_1000_12_G48.csv", "time_end": 18096984, "yield": None, "min_rate": 9.8962e-6},
+    {"path": f"{DATA_PATH}/tensile/inl/AirBase_1000_D12.csv",    "time_end": None,     "yield": 90,   "min_rate": None},
 ]]
 
 # Prepare plot
@@ -314,23 +348,26 @@ ax.set_aspect("equal", "box")
 # Set labels and plot line
 plt.xlabel(f"Simulated {OPTION['info']}", fontsize=LABEL_FONTSIZE)
 plt.ylabel(f"Measured {OPTION['info']}", fontsize=LABEL_FONTSIZE)
-plt.plot(OPTION["limits"], OPTION["limits"], linestyle="--", color="black", zorder=1)
+plt.plot(OPTION["limits"], OPTION["limits"], linestyle="--", color="black", zorder=1, linewidth=LINEWIDTH*2)
 
 # Iterate through parameters
-marker_list = ["^", "s", "*"]
-for i in range(len(MODEL["opt_params"])):
+for model in MODELS:
 
-    # Get data
-    oth_cal_exp_list, oth_cal_sim_list = get_data_points(cal_info_list[i], MODEL["oth_params"][i], MODEL["object"])
-    oth_val_exp_list, oth_val_sim_list = get_data_points(val_info_list[i], MODEL["oth_params"][i], MODEL["object"])
-    opt_cal_exp_list, opt_cal_sim_list = get_data_points(cal_info_list[i], MODEL["opt_params"][i], MODEL["object"])
-    opt_val_exp_list, opt_val_sim_list = get_data_points(val_info_list[i], MODEL["opt_params"][i], MODEL["object"])
+    # Iterate through parameters
+    marker_list = ["^", "s", "*"]
+    all_exp_list, all_sim_list = [], []
+    for i in range(len(model["opt_params"])):
+        exp_list, sim_list = get_data_points(exp_info_list[i], model["opt_params"][i], model["object"])
+        plt.scatter(sim_list, exp_list, zorder=3, edgecolor="black", color=model["colour"], linewidth=LINEWIDTH, s=MARKER_SIZE**2, marker=marker_list[i])
+        all_exp_list += exp_list
+        all_sim_list += sim_list
 
-    # Plot data
-    plt.scatter(oth_cal_sim_list, oth_cal_exp_list, zorder=2, edgecolor="none",  color="green", linewidth=LINEWIDTH, s=MARKER_SIZE**2, marker=marker_list[i], alpha=TRANSPARENCY)
-    plt.scatter(oth_val_sim_list, oth_val_exp_list, zorder=2, edgecolor="none",  color="red",   linewidth=LINEWIDTH, s=MARKER_SIZE**2, marker=marker_list[i], alpha=TRANSPARENCY)
-    plt.scatter(opt_cal_sim_list, opt_cal_exp_list, zorder=2, edgecolor="black", color="green", linewidth=LINEWIDTH, s=MARKER_SIZE**2, marker=marker_list[i])
-    plt.scatter(opt_val_sim_list, opt_val_exp_list, zorder=2, edgecolor="black", color="red",   linewidth=LINEWIDTH, s=MARKER_SIZE**2, marker=marker_list[i])
+    # Plot LOBF
+    lobf_m, lobf_b = np.polyfit(all_sim_list, all_exp_list, 1)
+    lobf_x_list = [OPTION["limits"][0], OPTION["limits"][1]]
+    lobf_y_list = [lobf_m*x + lobf_b for x in lobf_x_list]
+    print(OPTION["name"], model["name"], lobf_m, lobf_b)
+    plt.plot(lobf_x_list, lobf_y_list, color=model["colour"], linewidth=LINEWIDTH*2, linestyle="--", zorder=2)
 
 # Add 'conservative' region
 triangle_vertices = np.array([[OPTION["limits"][0], OPTION["limits"][0]], [OPTION["limits"][1], OPTION["limits"][0]], [OPTION["limits"][1], OPTION["limits"][1]]])
@@ -338,15 +375,12 @@ ax.fill(triangle_vertices[:, 0], triangle_vertices[:, 1], color="gray", alpha=0.
 plt.text(OPTION["limits"][1]-0.48*(OPTION["limits"][1]-OPTION["limits"][0]), OPTION["limits"][0]+0.05*(OPTION["limits"][1]-OPTION["limits"][0]), "Non-conservative", fontsize=OTHER_FONTSIZE, color="black")
 
 # Prepare legend for data type
-handle_list = []
-cal = plt.scatter([], [], color="green", label="Calibration", s=10**2)
-val = plt.scatter([], [], color="red", label="Validation", s=10**2)
-handles = [cal] if "ts" in OPTION["name"] else [cal, val]
+handles = [plt.scatter([], [], color=model["colour"], label=model["name"], s=10**2) for model in MODELS]
 legend = plt.legend(handles=handles, framealpha=1, edgecolor="black", fancybox=True, facecolor="white", fontsize=OTHER_FONTSIZE, loc="upper right")
 plt.gca().add_artist(legend)
 
 # Add legend for temperature
-bbox_pos = (0.6, 0.89) if "ts" in OPTION["name"] else (0.6, 0.815)
+bbox_pos = (0.6, 0.815)
 t800  = plt.scatter([], [], color="none", edgecolor="black", linewidth=LINEWIDTH,  label="800°C",  marker="^", s=MARKER_SIZE**2)
 t900  = plt.scatter([], [], color="none", edgecolor="black", linewidth=LINEWIDTH,  label="900°C",  marker="s", s=MARKER_SIZE**2)
 t1000 = plt.scatter([], [], color="none", edgecolor="black", linewidth=LINEWIDTH,  label="1000°C", marker="*", s=MARKER_SIZE**2)
@@ -385,4 +419,4 @@ if OPTION["name"] in ["cr_min_rate"]:
     ax.yaxis.major.formatter._useMathText = True
 
 # Save
-plt.savefig(f"{MODEL['name']}_{OPTION['name']}.png")
+plt.savefig(f"{OPTION['name']}.png")

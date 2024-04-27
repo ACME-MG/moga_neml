@@ -7,7 +7,7 @@
 
 # Libraries
 from numbers import Number
-from moga_neml.helper.data import get_thinned_list
+from moga_neml.helper.data import get_thinned_list, find_tensile_strain_to_failure, remove_data_after
 from moga_neml.helper.experiment import DATA_FIELD_DICT, get_min_max_stress
 
 def try_float_cast(value:str) -> float:
@@ -74,7 +74,13 @@ def read_exp_data(file_dir:str, file_name:str, thin_data:bool, num_points:int) -
     # Add additional fields
     if exp_data["type"] == "cyclic":
         exp_data = add_cyclic_fields(exp_data)
-    
+
+    # Remove data of tensile curves after 80% of the UTS
+    if exp_data["type"] == "tensile":
+        end_index = find_tensile_strain_to_failure(exp_data["stress"])
+        end_strain = exp_data["strain"][end_index]
+        exp_data = remove_data_after(exp_data, end_strain, "strain")
+
     # Return curves
     return exp_data
 

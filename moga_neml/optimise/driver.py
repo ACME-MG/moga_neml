@@ -9,6 +9,7 @@
 from neml import drivers
 from moga_neml.helper.experiment import NEML_FIELD_CONVERSION
 from moga_neml.helper.general import BlockPrint
+from moga_neml.helper.data import find_tensile_strain_to_failure, remove_data_after
 from moga_neml.optimise.curve import Curve
 
 # General Driver Constants
@@ -57,7 +58,12 @@ class Driver:
         converted_results = {}
         for field in list(self.conv_dict.keys()):
             if field in results.keys():
-                converted_results[self.conv_dict[field]] = results[field]
+                converted_results[self.conv_dict[field]] = list(results[field])
+        if self.type == "tensile":
+            end_index = find_tensile_strain_to_failure(converted_results["stress"])
+            if end_index != None:
+                end_strain = converted_results["strain"][end_index]
+                converted_results = remove_data_after(converted_results, end_strain, "strain")
         return converted_results
     
     def run_selected(self) -> dict:

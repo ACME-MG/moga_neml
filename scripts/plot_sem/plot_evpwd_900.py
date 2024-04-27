@@ -2,16 +2,16 @@ import sys; sys.path += ["../.."]
 from moga_neml.interface import Interface
 
 params_str = """
-1.2518	9.8124	49.627	4.9187	624.33	43.763	254.46	574.01	736.95	2.0636	49.521
-0.20234	6.1326	0.0083622	5.2211	694.11	183.37	814.61	628.33	975.6	47.34	33.166
-0.37696	9.067	0.050897	5.0266	777.46	89.539	468.99	588.44	811.98	86.48	18.617
-8.5344	99.539	1.0497	3.5986	1869.5	279.46	973.95	556.53	981.98	2.1539	66.008
-0.1847	0.00078914	62.764	4.9218	839.41	128.22	621.02	685.59	729.81	89.516	0.25781
-1.2379	0.1221	41.206	5.8822	450.74	25.989	159.57	488.28	785.3	29.609	98.739
-0.066496	730.95	0.00082174	5.029	783.48	2.5062	23.734	301.84	869.76	27.671	75.01
-5.67E-06	0.000343	0.0085455	9.5827	145.71	6.4182	53.594	547.92	501.65	98.415	66.256
-3.5302	123.6	0.0010834	4.6406	912.66	189.85	27.191	532.92	789.28	94.469	0.036985
-6.7341	348.92	0.1137	3.6098	2088.4	176.56	35.189	618.72	938.12	84.855	70.677
+5.82	16.046	8.3648	4.1595	1064.7	38.773	222.24	393.28	859.75	2.3825	4.5047
+11.616	16.725	6.3631	3.6491	1303.7	40.805	222.15	829.14	644.22	3.2018	1.2554
+9.8394	12.026	14.017	3.7429	1275	36.916	211.85	498.46	952.62	2.4338	11.505
+5.7368	8.3864	16.064	4.3916	855.39	33.396	191.41	420.91	779.17	3.6322	8.1479
+7.5309	23.5	5.1998	3.862	1374.9	24.858	154.83	511.79	997.24	2.0041	7.9977
+4.8239	389.25	0.18435	4.4133	941.87	44.974	248.15	621.83	913.9	2.4338	7.0609
+6.6289	48.408	4.0515	3.7586	1383.6	45.15	253.49	553.63	866.98	1.6648	8.7312
+16.262	181.79	0.52517	3.0161	2376.6	29.326	172.8	434.17	894.26	2.192	2.8518
+6.3647	183.42	0.44712	4.1839	1075.3	27.326	165.15	422.54	849.67	2.2181	10.568
+7.9872	16.104	7.2157	4.2939	892.7	13.577	93.551	360.21	764.12	1.9879	15.103
 
 """
 params_list = [list(map(float, line.split())) for line in params_str.strip().split("\n")]
@@ -19,27 +19,27 @@ params_list = [list(map(float, line.split())) for line in params_str.strip().spl
 itf = Interface("plot", output_here=True, input_path="../data", output_path="../results")
 itf.define_model("evpwdb")
 
-itf.read_data("creep/inl_1/AirBase_900_36_G22.csv")
-itf.add_error("area", "time", "strain")
-itf.add_error("end", "time")
-itf.add_error("end", "strain")
-itf.add_constraint("inc_end", "strain")
-itf.add_constraint("dec_end", "time")
-itf.read_data("creep/inl_1/AirBase_900_31_G50.csv")
-itf.add_error("area", "time", "strain")
-itf.add_error("end", "time")
-itf.add_error("end", "strain")
-itf.add_constraint("inc_end", "strain")
-itf.add_constraint("dec_end", "time")
-itf.read_data("creep/inl_1/AirBase_900_28_G45.csv")
+# itf.read_data("creep/inl_1/AirBase_900_36_G22.csv")
+# itf.add_error("area", "time", "strain")
+# itf.add_error("end", "time")
+# itf.add_error("end", "strain")
+# itf.add_constraint("inc_end", "strain")
+# itf.add_constraint("dec_end", "time")
+# itf.read_data("creep/inl_1/AirBase_900_31_G50.csv")
+# itf.add_error("area", "time", "strain")
+# itf.add_error("end", "time")
+# itf.add_error("end", "strain")
+# itf.add_constraint("inc_end", "strain")
+# itf.add_constraint("dec_end", "time")
+# itf.read_data("creep/inl_1/AirBase_900_28_G45.csv")
 itf.read_data("creep/inl_1/AirBase_900_26_G59.csv")
-itf.remove_oxidation()
+# itf.remove_oxidation()
 itf.read_data("tensile/inl/AirBase_900_D10.csv")
 itf.add_error("area", "strain", "stress")
-itf.add_error("yield_point", yield_stress=164)
-itf.add_error("max", "stress")
-itf.reduce_errors("square_average")
-itf.reduce_objectives("square_average")
+# itf.add_error("yield_point", yield_stress=164)
+# itf.add_error("max", "stress")
+# itf.reduce_errors("square_average")
+# itf.reduce_objectives("square_average")
 
 # red_obj_list = []
 # for params in params_list:

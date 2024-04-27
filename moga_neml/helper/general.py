@@ -9,7 +9,7 @@
 import csv, os, subprocess, sys
 import math, numpy as np
 
-def get_file_path_writable(file_path:str, extension:str):
+def get_file_path_writable(file_path:str, extension:str) -> None:
     """
     Appends a number after a path if it exists
 
@@ -29,7 +29,7 @@ def get_file_path_writable(file_path:str, extension:str):
             new_file_path = f"{file_path} ({index}).{extension}"
             index += 1
 
-def get_file_path_exists(file_path:str, extension:str=""):
+def get_file_path_exists(file_path:str, extension:str="") -> None:
     """
     Appends a number after a path if it exists
 
