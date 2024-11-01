@@ -56,9 +56,9 @@ class Error(__Error__):
             prd_yield = get_yield(prd_data["strain"], prd_data["stress"], self.offset)
         except ValueError:
             return BIG_VALUE
-        # distance = math.sqrt(math.pow(self.exp_yield[0] - prd_yield[0], 2) + math.pow(self.exp_yield[1] - prd_yield[1], 2))
-        # return distance / self.mag_yield
-        return abs((prd_yield[1] - self.exp_yield[1]) / self.exp_yield[1])
+        distance = math.sqrt(math.pow(self.exp_yield[0] - prd_yield[0], 2) + math.pow(self.exp_yield[1] - prd_yield[1], 2))
+        return distance / self.mag_yield
+        # return abs((prd_yield[1] - self.exp_yield[1]) / self.exp_yield[1])
 
 def get_yield(strain_list:list, stress_list:list, offset:float=0.002) -> tuple:
     """

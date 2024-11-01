@@ -356,7 +356,7 @@ class Interface:
             self.__controller__.plot_prd_curves(params_list, alpha_list=alpha_list, clip=clip, type=type_list[i],
                                                 file_path=file_path, x_limits=x_limits, y_limits=y_limits)
 
-    def plot_distribution(self, params_list:list, limits_dict:dict=None, log:bool=False) -> None:
+    def plot_distribution(self, params_list:list, limits_dict:dict=None, log:bool=False, horizontal:bool=True) -> None:
         """
         Visualises the distribution of parameters
         
@@ -366,6 +366,7 @@ class Interface:
                            meaning that there will be clashes if the parameter values are defined twice.
         * `limits_dict`:   A dictionary of tuples (i.e., (lower, upper)) defining the scale for each parameter
         * `log`:           Whether to apply log scale or not
+        * `horizontal`:    Whether to plot the boxplots horizontally (or vertically)
         """
 
         # Print out message and check
@@ -386,7 +387,7 @@ class Interface:
         
         # Plot the boxplots
         file_path = self.__get_output__(f"box_plot.png")
-        self.__controller__.plot_distribution(params_list, file_path, limits_dict, log)
+        self.__controller__.plot_distribution(params_list, file_path, limits_dict, log, horizontal)
 
     def get_results(self, params_list:list) -> None:
         """

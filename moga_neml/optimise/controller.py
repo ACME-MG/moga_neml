@@ -498,7 +498,8 @@ class Controller():
             plotter.save_plot()
             plotter.clear()
 
-    def plot_distribution(self, params_list:list, file_path:str, limits_dict:dict=None, log:bool=False) -> None:
+    def plot_distribution(self, params_list:list, file_path:str, limits_dict:dict=None, log:bool=False,
+                          horizontal:bool=True) -> None:
         """
         Visualises the distribution of parameters
         
@@ -509,6 +510,7 @@ class Controller():
         * `file_path`:     The path to save the boxplots
         * `limits_dict`:   A dictionary of tuples (i.e., (lower, upper)) defining the scale for each parameter
         * `log`:           Whether to apply log scale or not
+        * `horizontal`:    Whether to plot the boxplots horizontally (or vertically)
         """
         params_list = transpose(params_list)
-        plot_boxplots(params_list, file_path, "Distribution of parameters", ALL_COLOURS, limits_dict, log)
+        plot_boxplots(params_list, file_path, "Distribution of parameters", ALL_COLOURS, limits_dict, log, horizontal)
