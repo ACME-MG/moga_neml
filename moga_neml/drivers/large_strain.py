@@ -9,19 +9,23 @@
 import numpy as np
 from neml.nlsolvers import newton
 
-# Custom Driver Constants
+# Driver Constants
 NUM_STEPS    = 500
 NUM_STEPS_UP = 200
-REL_TOL      = 1e-6
-ABS_TOL      = 1e-10
 MAX_STRAIN   = 1.0
-VERBOSE      = False
 CHECK_DAMAGE = True
 # TIME_HOLD    = 15000.0 * 3600
 # NUM_STEPS_UP = 50
 DAMAGE_TOL   = 0.95
 # STRESS_RATE  = 0.0001
-MAX_ITER     = 8
+
+# Solver constants
+REL_TOL  = 1e-6
+ABS_TOL  = 1e-10
+MAX_ITER = 8
+VERBOSE  = False
+BT_TAU   = 0.5 # reduction factor
+BT_C     = 1.0e-4 # criterion strictness
 
 def ls_creep_driver(model, strain_rate:float, temperature:float, max_stress:float) -> dict:
     """
@@ -104,7 +108,8 @@ def ls_tensile_driver(model, strain_rate:float, temperature:float, max_strain:fl
         
         # Apply large deformation
         try:
-            x = newton(get_rj, x_guess, verbose=VERBOSE, rtol=REL_TOL, atol=ABS_TOL, miter=MAX_ITER)
+            x = newton(get_rj, x_guess, linesearch="backtracking", verbose=VERBOSE, rtol=REL_TOL, atol=ABS_TOL, miter=MAX_ITER, bt_tau=BT_TAU, bt_c=BT_C)
+            # x = newton(get_rj, x_guess, verbose=VERBOSE, rtol=REL_TOL, atol=ABS_TOL, miter=MAX_ITER)
             stress, history, _, _, energy, dissipation, de = advance(x)
         except:
             break

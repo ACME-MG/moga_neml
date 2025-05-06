@@ -16,8 +16,8 @@ def main():
     Main function
     """
     # Define the interface and model
-    itf = Interface("test", input_path="data", output_here=True, verbose=False)
-    itf.define_model("evpwdl")
+    itf = Interface("evp", input_path="data", output_here=True, verbose=False)
+    itf.define_model("evp")
 
     # Add short-term creep data
     # itf.read_data("creep/inl_1/AirBase_800_80_G25.csv")
@@ -51,8 +51,8 @@ def main():
     )
 
     # Plot simulations
-    params_list = [5, 1, 6, 5, 1100, 50, 230, 500]
-    itf.plot_simulation(params_list, limits_dict={"tensile": ((0,1), (0,500))})
+    params_list = [17.217, 179.74, 0.61754, 4.4166, 1783.5]
+    itf.plot_simulation(params_list)
 
 # Calls the main function
 if __name__ == "__main__":
