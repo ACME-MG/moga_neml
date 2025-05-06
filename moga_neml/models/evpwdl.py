@@ -26,8 +26,8 @@ class Model(__Model__):
         self.add_param("evp_eta", 0.0e0, 1.0e4) # 5
         
         # Creep damage parameters
-        self.add_param("wd_n", 1.0e0, 2.0e1)
-        self.add_param("wd_0", 0.0e0, 1.0e2)
+        self.add_param("wd_n", 0.0e0, 1.0e2)
+        self.add_param("wd_0", 0.0e0, 1.0e3)
         self.add_param("wd_1", 0.0e0, 1.0e3)
 
     def calibrate_model(self, evp_s0, evp_R, evp_d, evp_n, evp_eta, wd_n, wd_0, wd_1):

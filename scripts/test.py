@@ -6,6 +6,7 @@
 """
 
 # Libraries
+import numpy as np
 import sys; sys.path += [".."]
 from moga_neml.interface import Interface
 from moga_neml.drivers.large_strain import ls_tensile_driver
@@ -15,8 +16,8 @@ def main():
     Main function
     """
     # Define the interface and model
-    itf = Interface("evpwdb 800C", input_path="data", output_path="results")
-    itf.define_model("evpwdb")
+    itf = Interface("test", input_path="data", output_here=True, verbose=False)
+    itf.define_model("evpwdl")
 
     # Add short-term creep data
     # itf.read_data("creep/inl_1/AirBase_800_80_G25.csv")
@@ -35,30 +36,23 @@ def main():
 
     # Add tensile data
     itf.read_data("tensile/inl/AirBase_800_D7.csv")
-    itf.get_data("strain_rate")
-    itf.add_error("area", "strain", "stress")
-    # itf.add_error("yield_point", yield_stress=189) # 189MPa @ 800C, 163MPa @ 900C, 90MPa @ 1000C
-    itf.add_error("end", "strain")
-    itf.add_error("end", "stress")
     # itf.remove_manual("strain", 0.3)
-    # itf.add_error("end_more", "strain")
-
+    # itf.add_error("area", "strain", "stress")
+    # itf.add_error("end", "strain")
+    # itf.add_error("end", "stress")
+    # itf.add_error("yield_point", yield_stress=291)
+    
     # Apply driver
     itf.set_custom_driver(
         driver_type = ls_tensile_driver,
         strain_rate = itf.get_data("strain_rate"),
         temperature = itf.get_data("temperature"),
-        max_strain  = 0.5
+        max_strain  = 1.0
     )
 
-    # Define error reduction methods
-    itf.reduce_errors("square_average")
-    itf.reduce_objectives("square_average")
-
-    # Conduct optimisation
-    itf.plot_experimental()
-    itf.set_recorder(10, plot_opt=True, plot_loss=True)
-    itf.optimise(10000, 100, 50, 0.8, 0.01)
+    # Plot simulations
+    params_list = [5, 1, 6, 5, 1100, 50, 230, 500]
+    itf.plot_simulation(params_list, limits_dict={"tensile": ((0,1), (0,500))})
 
 # Calls the main function
 if __name__ == "__main__":

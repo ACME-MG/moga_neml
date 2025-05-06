@@ -77,7 +77,7 @@ def find_tensile_strain_to_failure(stress_list:list) -> int:
     for i in range(max_index, len(stress_list)):
         if stress_list[i] < stress_to_failure:
             return i
-    return None
+    return -1
 
 def remove_data_after(exp_data:dict, x_value:float, x_label:str) -> dict:
     """

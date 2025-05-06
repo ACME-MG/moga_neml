@@ -11,7 +11,7 @@ from moga_neml.models.__model__ import __Model__, create_model
 from moga_neml.errors.__error__ import __Error__
 from moga_neml.io.plotter import Plotter, EXP_COLOUR, CAL_COLOUR, VAL_COLOUR
 from moga_neml.io.boxplotter import plot_boxplots
-from moga_neml.optimise.driver import Driver
+from moga_neml.drivers.driver import Driver
 from moga_neml.optimise.curve import Curve
 from moga_neml.helper.experiment import get_labels_list
 from moga_neml.helper.general import reduce_list, transpose

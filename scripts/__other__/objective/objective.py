@@ -13,7 +13,7 @@ from scipy.interpolate import splev, splrep, splder
 import sys; sys.path += ["../../../"]
 from moga_neml.models.evpcd import Model as EVPCD
 from moga_neml.models.evpwdb import Model as EVPWD
-from moga_neml.optimise.driver import Driver
+from moga_neml.drivers.driver import Driver
 from moga_neml.optimise.curve import Curve
 from moga_neml.errors.yield_point import get_yield
 from params import *

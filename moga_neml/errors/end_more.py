@@ -1,6 +1,6 @@
 """
- Title:         The end objective function
- Description:   The objective function for minimising the discrepancies between the x end points
+ Title:         The end_more objective function
+ Description:   The objective function for making sure that the simulated end value is more than the experimental end value
  Author:        Janzen Choi
 
 """
@@ -8,7 +8,7 @@
 # Libraries
 from moga_neml.errors.__error__ import __Error__
 
-# The End class
+# The End More class
 class Error(__Error__):
     
     def initialise(self):
@@ -29,4 +29,4 @@ class Error(__Error__):
         """
         x_label = self.get_x_label()
         prd_end_value = prd_data[x_label][-1]
-        return abs((prd_end_value - self.exp_x_end) / self.exp_x_end)
+        return max((self.exp_x_end - prd_end_value) / self.exp_x_end, 0)

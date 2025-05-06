@@ -75,7 +75,8 @@ class Driver:
         # Runs custom driver if it is defined
         custom_driver, custom_driver_kwargs = self.curve.get_custom_driver()
         if custom_driver != None:
-            custom_driver = getattr(drivers, custom_driver)
+            if isinstance(custom_driver, str):
+                custom_driver = getattr(drivers, custom_driver)
             results = custom_driver(self.calibrated_model, **custom_driver_kwargs)
             return results
 

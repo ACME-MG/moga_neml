@@ -86,6 +86,20 @@ class Interface:
         exp_data = read_exp_data(self.__input_path__, file_path, thin_data, num_points)
         self.__controller__.add_curve(exp_data)
 
+    def get_data(self, field:str) -> str:
+        """
+        Gets the value of a field from the most recently added experimental data
+
+        Parameters:
+        * `field`: The field to be accessed
+
+        Returns the value
+        """
+        self.__print__(f"Accessing the `{field}` field", sub_index=True)
+        curve = self.__controller__.get_last_curve()
+        exp_data = curve.get_exp_data()
+        return exp_data[field]
+
     def change_data(self, field:str, value) -> None:
         """
         Changes a field in the most recently added experimental data
@@ -288,7 +302,7 @@ class Interface:
         Parameters:
         * `driver_type`: The driver type
         """
-        self.__print__(f"Setting a custom '{driver_type}' driver")
+        self.__print__(f"Setting a custom '{driver_type}' driver", sub_index=True)
         curve = self.__controller__.get_last_curve()
         curve.set_custom_driver(driver_type, kwargs)
 

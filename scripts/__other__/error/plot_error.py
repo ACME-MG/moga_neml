@@ -10,7 +10,7 @@ import math, numpy as np
 import matplotlib.pyplot as plt
 from copy import deepcopy
 import sys; sys.path += ["../../../"]
-from moga_neml.optimise.driver import Driver
+from moga_neml.drivers.driver import Driver
 from moga_neml.optimise.curve import Curve
 from moga_neml.models.evpcd import Model as EVPCD
 from moga_neml.models.evpwdb import Model as EVPWD

@@ -7,7 +7,7 @@
 
 # Libraries
 import sys; sys.path += ["../../../"]
-from moga_neml.optimise.driver import Driver
+from moga_neml.drivers.driver import Driver
 from moga_neml.optimise.curve import Curve
 from moga_neml.models.evp import Model as EVP
 from moga_neml.models.evpcd import Model as EVPCD
