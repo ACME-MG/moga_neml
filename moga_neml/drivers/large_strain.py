@@ -13,10 +13,10 @@ from neml.nlsolvers import newton
 NUM_STEPS    = 500
 NUM_STEPS_UP = 200
 MAX_STRAIN   = 1.0
-CHECK_DAMAGE = True
+CHECK_DAMAGE = False
 # TIME_HOLD    = 15000.0 * 3600
 # NUM_STEPS_UP = 50
-DAMAGE_TOL   = 0.95
+DAMAGE_TOL   = 0.90 # 0.95
 # STRESS_RATE  = 0.0001
 
 # Solver constants

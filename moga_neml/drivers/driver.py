@@ -48,11 +48,12 @@ class Driver:
         """
 
         # Get the results
-        try:
-            with BlockPrint():
-                results = self.run_selected()
-        except:
-            return
+        results = self.run_selected()
+        # try:
+        #     with BlockPrint():
+        #         results = self.run_selected()
+        # except:
+        #     return
         
         # Convert results and return
         converted_results = {}

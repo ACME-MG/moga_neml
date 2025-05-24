@@ -15,7 +15,7 @@ def main():
     Main function
     """
     # Define the interface and model
-    itf = Interface("evpwdb 800C", input_path="data", output_path="results")
+    itf = Interface("evpwdb 800C bt area10", input_path="data", output_path="results")
     itf.define_model("evpwdb")
 
     # Add short-term creep data
@@ -36,7 +36,7 @@ def main():
     # Add tensile data
     itf.read_data("tensile/inl/AirBase_800_D7.csv")
     itf.get_data("strain_rate")
-    itf.add_error("area", "strain", "stress")
+    itf.add_error("area", "strain", "stress", weight=10)
     # itf.add_error("yield_point", yield_stress=189) # 189MPa @ 800C, 163MPa @ 900C, 90MPa @ 1000C
     itf.add_error("end", "strain")
     itf.add_error("end", "stress")
